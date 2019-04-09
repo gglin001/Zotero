@@ -1,0 +1,627 @@
+Information Sciences 456 (2018) 145–158
+Contents lists available at ScienceDirect
+Information Sciences
+journal homepage: www.elsevier.com/locate/ins
+
+Automated artifact elimination of physiological signals using a deep belief network: An application for continuously measured arterial blood pressure waveforms
+Yunsik Son a,b,1, Seung-Bo Lee a,1, Hakseung Kim a, Eun-Suk Song a, Hyub Huh c, Marek Czosnyka d,e, Dong-Joo Kim a,∗
+a Department of Brain and Cognitive Engineering, Korea University, Seoul, South Korea b Department of Computer Engineering, Dongguk University, Seoul, South Korea c Department of Anesthesiology and Pain Medicine, Korea University Medical Center, Seoul, South Korea d Division of Neurosurgery, Addenbrooke’s Hospital, University of Cambridge, Cambridge, United Kingdom Institute of Electronic Systems, Warsaw University of Technology, Warsaw, Poland e Institute of Electronic Systems, Warsaw University of Technology, Warsaw, Poland
+
+article info
+Article history: Received 28 April 2017 Revised 3 May 2018 Accepted 5 May 2018 Available online 7 May 2018
+Keywords: Signal processing Computer-assisted Artifacts Monitoring Physiologic Neural networks (computer) Arterial pressure
+
+abstract
+Artifacts in physiological signals acquired during intensive care have the potential to be recognized as critical pathological events and lead to misdiagnosis or mismanagement. Manual artifact removal necessitates signiﬁcant labor-time intensity and is subject to interand intra-observer variability. Various methods have been proposed to automate the task; however, the methods are yet to be validated, possibly due to the diversity of artifact types. Deep belief networks (DBNs) have been shown to be capable of learning generative and discriminative feature extraction models, hence suitable for classifying signals with multiple features. This study proposed a DBN-based model for artifact elimination in pulse waveform signals, which incorporates pulse segmentation, pressure normalization and decision models using DBN, and applied the model to artifact removal in monitoring arterial blood pressure (ABP). When compared with a widely used ABP artifact removal algorithm (signal abnormality index; SAI), the DBN model exhibited signiﬁcantly higher classiﬁcation performance (net prediction of optimal DBN = 95.9%, SAI = 84.7%). In particular, DBN exhibited greater sensitivity than SAI for identifying various types of artifacts (motion = 93.6%, biological = 95.4%, cuff inﬂation = 89.1%, transducer ﬂushing = 97%). The proposed model could signiﬁcantly enhance the quality of signal analysis, hence may be beneﬁcial for use in continuous patient monitoring in clinical practice.
+© 2018 Published by Elsevier Inc.
+
+1. Introduction
+The measurement of physiological signals is crucial for assessing the condition of patients in clinical environments [41]. While the raw values of measured physiological signals can be useful on their own, these signals often carry hidden information that is not readily perceivable without further analysis [38]. However, the physiological signals often contain
+∗ Corresponding author at: Department of Brain and Cognitive Engineering, Korea University, Anam-dong, Seongbuk-gu, Seoul 02841, South Korea. E-mail address: dongjookim@korea.ac.kr (D.-J. Kim).
+1 These authors contributed equally to this study.
+https://doi.org/10.1016/j.ins.2018.05.018 0020-0255/© 2018 Published by Elsevier Inc.
+
+146
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+various types of artifacts that can contaminate the information, complicating further analysis [6,22,42]. The detrimental effects from signal artifacts could be particularly problematic during intensive care, where the rapid and accurate diagnosis signiﬁcantly affects a patient’s prognosis.
+Arterial blood pressure (ABP) is one of the most important physiological signals acquired during intensive care [7,44], and artifacts could jeopardize the reliability of parameters derived from the monitoring and subsequently lead to unfavorable outcomes [16]. However, previously proposed methods for ABP artifact elimination rely heavily on external physiological signals (i.e., electrocardiogram; ECG) or a predetermined ‘morphologic norm’ of ABP pulse waveforms (e.g., systolic pressure, diastolic pressure, etc.) [24,37,48] to distinguish the artifact from ABP. The obvious limitation of the former approaches is their dependence on additional physiological signals. The latter approaches also share an important inherent limitation; ABP waveforms can be easily deformed by various artifacts, and it is often diﬃcult to determine whether the deformation is environmental or physiological [25]. Thus, employing predetermined morphological normality to classify artifacts may not necessarily guarantee satisfactory accuracy. Machine learning techniques have recently been highlighted in the ﬁeld of signal processing due to their success in addressing classic problems of artiﬁcial neural network models, such as computational complexity [47]. Nonetheless, the techniques have not been widely applied for the elimination of ABP artifacts.
+One technique that exhibits particular strength for processing a vast amount of data with relatively low computational complexity is the deep belief network (DBN), a subtype of the deep learning algorithm. The DBN is a probabilistic, generative learning algorithm that enables the analysis and classiﬁcation of the distribution of input data using stochastic, hidden layers [49]. By incorporating several simple-structured restricted Boltzmann machines (RBMs), DBN has reduced computational complexity relative to other deep neural networks with complex structures [31]. Although typical shallow models, such as a decision tree or the support vector machine (SVM), may have shorter training times, the DBN is nonetheless advantageous in signal classiﬁcation because it can describe enormous variations (e.g., increases and decreases in the raw signal), detect regularity from multiple features, and process a substantial amount of signal pulse data with relative ease and because it possesses a strong generalization ability [4,18]. These characteristics of DBN could be suitable for situations in which a high processing speed is required, such as artifact elimination in continuously measured ABP.
+This study aimed to introduce a novel method for classifying and automatically eliminating various signal artifacts from continuously acquired ABP pulse waveform signals using the DBN, using only the ABP signals. The proposed method was implemented for the ABP signal. The artifacts in ABP signals can also be generated by both environmental and physiological factors, and the most common types of ABP artifacts are generated by patient movements, cuff inﬂation, or transducer ﬂushing and biological causes such as blood clots or thrombosis of the arterial line [25,39]. The performance of the DBN for the detection of those common types of artifacts was evaluated.
+
+2. Material and methods
+
+An algorithm using the DBN was constructed to automatically remove artifactual pulses from continuously measured ABP signals. The ABP signal was converted into pulse-wise probabilistic input data for the visible layer of the DBN according to the following sequences: (1) pulse segmentation, (2) labeling procedure, (3) pulse interpolation and (4) normalization. The DBN analyzed the input features and classiﬁed the ABP pulses as normal or artifactual. The overview of the process is illustrated in Fig. 1. Initially, the system receives raw signals as continuous time series. Then, the system conducts segmentation of pulse waveforms, labeling, interpolation and normalization to convert the raw data into inputs for DBN. The inputs were then classiﬁed as artifactual or normal by the DBN model. Finally, the pulse waveforms regarded as artifacts are eliminated from the raw signal.
+
+2.1. Data acquisition
+
+The ABP signals were acquired from 30 randomly selected patients with traumatic brain injury (TBI) who were admitted to the Neurocritical Care Unit in Addenbrooke’s Hospital between 2008 and 2010. The ABP was directly measured through the radial artery (System 8000, S&W Vickers Ltd., Sidcup, UK; and Solar 6000 System, Marquette, USA). Data were sampled over 100 Hz with data acquisition software (ICM+, Cambridge Enterprise, Cambridge, UK, http://www.neurosurg.cam.ac.uk/icmplus). The inclusion criterion was the presence of ABP recordings continuously monitored for a prolonged period from the ﬁrst day of admission (> 20 h) that contained both normal and artifact signals. Informed consent for the retrospective use of collected data for research purposes was obtained from all patients or their relatives, and the relevant research ethics committee approved the study (29 REC 97/291). According to the institutional CPP-/ICP-management protocols for TBI patients [34], all subjects underwent intensive management to avoid systemic hypotension by vasoactive drugs and ﬂuid loading such as norepinephrine (0.5 μg/kg min) and/or dopamine (2–15 μg/kg min).
+
+2.2. Morphological feature extraction from continuous signals
+
+The continuous ABP signals were segmented into pulses, which are the signals from one onset to a consequent onset; the pulse onsets were identiﬁed by an automated pulse onset detection algorithm. The initial task for pulse segmentation was to delineate the systolic peaks from the ABP signal. The onset of each pulse was then allocated as troughs that appeared before the systolic peaks. The algorithm for detecting systolic peaks and pulse onsets was developed on the basis of a
+
+Raw Signal ABP [mmHg]
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+147
+
+250
+
+100 -50
+Pulse segmentation
+
+Pulse labeling
+
+Interpolation
+
+Normalization
+
+Normal
+
+Artifact
+
+Artifact
+
+Normal
+
+Artifact
+
+Artifact
+
+Normal
+
+Pre-processing
+
+u1
+
+v
+
+u1024
+
+Artifact Classification using DBN Unsupervised learning
+
+Supervised Learning
+
+u1
+
+h1
+
+u128
+
+. . .
+
+u1
+
+h5
+
+u2
+
+Output ABP [mmHg]
+
+140
+
+Artifact Removed
+
+80
+
+Section
+
+20
+Fig. 1. Overview of the proposed algorithm for detecting artifacts from arterial blood pressure (ABP) signals. The continuously measured ABP signals were segmented in a pulse-wise manner and served as the input for the deep belief network (DBN). The initial number of units in visible layers (v) was set as 1,024, which is the number of data points in an ABP pulse. The number of units in each layer gradually declines, leaving only two units in the ﬁnal hidden layer (h5), which represent either a normal or an artifact signal. During unsupervised learning (downward proceeding) and supervised learning (upward proceeding), the propagation and back-propagation weight between one layer and the next are calculated. Eventually, the pulses classiﬁed as artifacts are removed from the original signals. v = visible layer (input layer), h = hidden layer, ui = ith unit.
+
+proven ABP peak detection method [23] (Fig. 2). Both systolic peak and pulse onset were derived from the points where the absolute gradient was close to zero. The upper convex point having the local maximal pressure value was designated the systolic peak; the pulse onset was indicated by the downward convex point with the local minimal pressure value.
+For the segmented pulses, two experts with hands-on clinical experience who were not involved in this study labeled the pulses as normal or artifactual. Each expert labeled the entire pulses and veriﬁed the results of each other’s labeling. The labeled artifact pulses were further classiﬁed according to the following causes of occurrence: motion, biological factors including blood clots or thrombosis of the arterial line, blood pressure (BP) cuff inﬂation, and transducer ﬂushing.
+The number of data points in a segmented pulse varies according to the pulse length and sampling frequencies. To serve as an input for the DBN, all pulse signals should be interpolated to have data points with the same number of units in a visual layer, Accordingly, the number of samples in a pulse was up-scaled to 1,024 by the cubic spline interpolation method [30]. The segmented pulse with constant data points was normalized into the range of [0, 1] in dimension for a probabilistic representation (0 and 1 were the maximum and minimum values in a pulse, respectively).
+2.3. Deep belief network construction
+The DBN was originally devised to address the slow learning speed and overﬁtting problems of DNN; the RBM, a basic substructure constitutes DBN, handles input and output via the simplex connection, without interactions between neurons within the same layer [18,21]. This distinction between input and output layers allows rapid learning of the networks. Furthermore, the outputs from an RBM could be used as an input for other RBMs; the DBN is simply a network consisting of interacting RBMs. The RBM, which is the building block of the DBN, comprised a visible layer with observable data variables and a hidden layer with latent variables. The weights of the RBM, which were the symmetric and undirected connections
+
+148
+A
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+B
+Start
+
+Start
+
+Continuous ABP data
+
+Continuous ABP data Systolic peak list
+
+Get gradient of each point Set, i = 0
+
+i=i+1
+
+Find absolute value of minimum gradient and maximum pressure point
+from current point (i) to 1 sec later
+
+Get gradient of each point Set, i = 0
+
+i=i+1
+
+Find minimum pressure and absolute value of minimum gradient
+in systolic peak i to i + 1
+
+If i = index of last data
+
+If i = index of last data
+
+Duplication removal
+
+End
+
+End
+
+Fig. 2. Flowchart of the systolic peak and pulse onset detection algorithm.
+
+between the visible and hidden layers, were optimized during the learning process. The probability of a visible-hidden layer pair was assigned according to the following equation:
+
+P(v) =
+
+e−E(v, h) h e−E(v, h)
+
+(1)
+
+where v and h are vectors representing the visible and hidden layers. E is an energy function of a joint conﬁguration of v and h, which is determined as follows:
+
+VH
+
+V
+
+H
+
+E(v, h ; θ ) = −
+
+wi jvih j − bivi − a jh j
+
+(2)
+
+i=1 j=1
+
+i =1
+
+j=1
+
+The model parameters θ = {w, b, a} consist of the interactive weights between the ith visible unit and the jth hidden
+unit wij, and their biases bi and aj. V and H represent the dimensions of visible and hidden vectors. The model parameter
+θ deﬁnes a prior distribution over hidden vectors P(h|θ ) and therefore marginalizes the probability of generating a visible
+vector as follows:
+
+P(v) = P(h|θ )P(v|h, θ )
+
+(3)
+
+h
+
+The proposed model utilized a hybrid training that concurrently employed unsupervised and supervised learning schemes. During the unsupervised propagation through each layer, the probability of each unit in the hidden layers, which was calculated based on the visible layer and the consequential weight between layers, was obtained. The gradient of the joint likelihood function of labels and data determined the change in weight, which is given as follows:
+
+wi j = < vih j>data− < vih j>model
+
+(4)
+
+The joint likelihood function of the visible and hidden layers of the model, < vihj > model, was approximated using contrastive divergence to reduce computational complexity [29]. After propagation, the probability, bias, and weights were re-estimated by back-propagation from the last hidden layer using the labeled data. The difference between the propagation weight and the back-propagation weight was iteratively reﬂected to the weight to reduce training error, and the difference between the actual label and an estimated value was calculated using the Kullback–Leibler Divergence [39].
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+149
+
+Table 1 Parameters for constructing and training the DBN.
+Parameters
+Number of hidden layers (depth) Number of hidden units in different layers Learning rate Momentum Weight decay
+
+Settings
+5 [128, 50,10, 10, 2] 0.1 0.9 0.001
+
+Net prediction [%]
+
+96
+
+95
+
+94
+
+93
+
+92
+
+91
+
+1%
+
+10%
+
+90
+
+20%
+
+89 0 100 200 300 400 500 600 700 800 900 1000
+Number of training iteration
+
+Fig. 3. The performance of artifact detection according the number of training iterations and the dataset with different proportions of extracting pulse samples. The net prediction generally increased by changing the extracting proportion from 1% (light gray) to 10% (gray) and 20% (black). Although the values ﬂuctuated slightly, both performance indices generally showed an increased value with the increase in number of training iterations.
+
+The parameters regulating the speed and degree of learning include the learning rate, momentum, and weight decay.
+The learning rate, λ, which has a value between 0 and 1, affects the weight with respect to the following equation:
+
+w
+
+=
+
+λ
+
+∂ P(v) ∂w
+
+(5)
+
+The weight-decay also modiﬁes the weight by being added to the normal gradient
+
+∂ P(v) ∂w
+
+as an extra-term. In addition,
+
+the momentum α affects the bias.
+
+The DBN parameters regulating the speed and degree of learning include the learning rate, momentum, and weight
+
+decay (Eq. (5)). Since the visible layer of the DBN consists of 1,024 units, the depth of the network and the number of
+
+units in each hidden layer were determined to be adequate. The corresponding learning rate, momentum, and weight-decay
+
+were determined as in Table 1. Among the entire recordings, ABP signals from six randomly chosen subjects were used as
+
+training data, and the remaining signals (from 24 subjects) were used as test data. The network was trained in a hybrid
+
+fashion, which applies unsupervised and supervised learning sequentially.
+
+2.4. Optimization of the DBN
+
+The learning progress of the DBN according to the size of the training dataset (equivalent to 465,635 pulses data instance) and the number of training iterations was evaluated using the test dataset (equivalent to 2,317,153 pulses data instance). The net prediction, which is less likely to be affected by the data imbalance (i.e., different proportions of normal and artifact signals), was utilized for selecting the optimal network construction.
+The net prediction exhibited logarithmic growth by increasing the number of training iterations (Fig. 3). The net prediction of the 20% dataset with a varying number of training iterations was consistently higher than 95%. Finding the ideal amount of input data requires excessive computational (and temporal) complexity for exploring all combinations of values via a random or grid search. These results suggest that the degree of performance improvement converges at a certain level as the number of training iterations increases. Here, the convergence point was approximated when the number of training iterations was 1,000; the net prediction increased to 94.97%, 95.41%, and 95.88% for the 1%, 10%, and 20% datasets, respectively (hereafter denoted DBN1, DBN10, and DBN20, respectively).
+
+2.5. Related works: comparison of the performance of DBN to conventional methods
+
+The conventional approach for ABP artifact elimination involves the utilization of physiological signals other than ABP [24,40,50]. While practical, an obvious limitation of these methods is their dependence on ECG; if only ABP is recorded for patients, the method cannot be applied. This study aimed to eliminate ABP artifacts using only the ABP signals, and hence methods utilizing signals other than ABP were not deemed feasible.
+Another approach for eliminating ABP artifacts involves delineation of the waveform morphology. A method consisting of signal abnormality index to classify the artifact from ABP was proposed by Sun et al [40]. The method divides the continuous ABP signal into pulses and extracts certain features from each pulse (i.e., pulse pressure, systolic and diastolic pressure,
+
+150
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+Table 2 Basic statistics of the selected patient data.
+Characteristic
+Size of samples for continuous ABP recording Mean 95% CI Size of samples for normal ABP recording Mean 95% CI Size of samples for artifactual ABP recording Mean 95% CI
+CI = conﬁdence interval.
+
+Readings (N = 30)
+23 h 41 min ± 3 h 06 min
+22 h 08 min ±3 h 03 min
+1 h 33 min ±0 h 33 min
+
+mean arterial pressure, etc.). A pulse is classiﬁed as an artifact (abnormal signal) if its features do not meet the predeﬁned criteria (e.g., systolic pressure > 300 mmHg, diastolic pressure < 20 mmHg, mean atrial pressure < 30 or > 200 mmHg, etc.) [40]. Zhang et al. [48] further revised the method to address an important limitation of SAI (low accuracy for identifying square wave artifacts) by incorporating the slow ejection slope sum (SESS) and end-diastole slope sum (EDSS). The revised SAI exhibits increased performance and allows analyses of the complex, peculiar features of ABP with low computational complexity. Although the method requires further improvement and validation, it does offer artifact elimination without the use of additional physiological signals. Hence, it is deemed to be feasible as a conventional method that can be compared with the DBN model.
+2.6. Statistical analysis
+The performances of classifying normal and artifact signals were assessed using sensitivity, speciﬁcity, positive and negative likelihood ratios (LR+, LR-), accuracy, and net prediction. The proportion of artifact signals that were correctly classiﬁed by the model was considered to indicate true positives, and the proportion of normal signals that were correctly classiﬁed was considered to indicate true negatives. Possible bias of the data distribution was suspected, and hence the net prediction rate was considered more suitable than mere accuracy for evaluating the performance of the models. A summary receiver operating characteristic (SROC) curve was used to evaluate the overall classiﬁcation performance in individual
+subjects. For smoothed ﬁtting of the SROC curve, the regression parameters were set as a = ln(Odds ratio) and b = 0 [45].
+Boxplot statistics of the clinical incidences (i.e., hypotension, hypertension, bradycardia, and tachycardia) before and after artifact elimination were analyzed by the Mann-Whitney U test.
+3. Results
+Basic statistics of the selected patient data are summarized in Table 2. The training data set consisted of 37.5 h of recording (equivalent to 465,635 pulse data instances), and the test data set consisted of 585.2 h of recording (equivalent to 2,317,153 pulse data instances).
+3.1. Artifact detection performance
+To study the performance of the network according to the training data size, 1%, 10%, and 20% of the data in the entire training data set were randomly selected and used for learning. The artifact detection performance of each learning network is presented in Table 3 with SAI, SAI+EDSS, and SAI+SESS. The net prediction of the optimal DBN classiﬁer was higher than those of the pulse feature methods. Speciﬁcity and LR+ were highest for DBN1, but comprehensive score, net prediction, and sensitivity were best for DBN20. SAI+SESS and SAI+EDSS classiﬁers have higher speciﬁcity than the SAI classiﬁer, but lower sensitivity. The net prediction of SAI was highest among the pulse feature methods. Therefore, additional comparisons of SAI and DBN20 classiﬁers were performed.
+The classiﬁcation performance of the DBN20 subjected to recordings of each patient is depicted as SROC curves (Fig. 4). The AUC of the DBN20 and SAI were 0.969 and 0.918, respectively. SAI exhibited high variability in performance for each subject. By contrast, DBN20 exhibited an equally balanced high sensitivity and speciﬁcity among all subjects.
+3.2. Performance for detecting various types of ABP artifacts
+The performance of the developed classiﬁers for detecting four types of artifacts (i.e., motion, biological artifacts with reduced amplitude, proximal BP cuff inﬂation, and transducer ﬂushing; Fig. 5) were further assessed. The proportions of motion, biological, cuff inﬂation, and transducer-ﬂushing artifacts among all artifact signals were 10.87%, 13.49%, 1.15%, and 74.49%, respectively (Table 4). Artifacts caused by motion and transducer ﬂushing were observed in all subjects, while biological and proximal BP cuff inﬂation artifacts occurred in 23 and 13 subjects, respectively.
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+151
+
+Table 3 Classiﬁcation performance of DBN, SAI, SAI+SESS, and SAI+EDSS according to the dataset and training iterations.
+
+A 1
+
+B 1
+
+0.8
+
+0.8
+
+Sensitivity Sensitivity
+
+0.6
+
+0.6
+
+0.4
+
+0.4
+
+0.2
+
+0.2
+
+0 0 0.2 0.4 0.6 0.8 1 1 - specificity
+
+0 0 0.2 0.4 0.6 0.8 1 1 - specificity
+
+Fig. 4. The summary receiver operating characteristic (SROC) curve for the artifact classiﬁcation performance in different subjects using the DBN (A) and SAI (B) classiﬁers. White circles indicate the points of sensitivity and (1-speciﬁcity) calculated from each subject.
+
+Table 4 Proportion of each type of artifact and detection performance of DBN and SAI.
+
+Artifact type
+
+Occurrence proportion (%)
+
+Motion Biological Cuff inﬂation Transducer ﬂushing
+
+10.87 13.49 1.15 74.49
+
+DBN = deep belief network, SAI = signal abnormality index.
+
+Detection rate (%)
+DBN
+93.56 95.39 89.12 97.03
+
+SAI
+92.40 78.04 74.39 99.63
+
+152
+
+A
+
+140
+
+α
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+β
+
+γ
+
+α
+
+β
+
+γ
+
+ABP [mmHg] ABP [mmHg] ABP [mmHg] ABP [mmHg] ABP [mmHg]
+
+95
+
+50
+B
+200
+
+100
+
+0
+
+C
+
+150
+
+2 sec
+
+α
+
+β
+
+γ
+
+2 sec
+
+α
+
+β
+
+γ
+
+100
+
+50
+
+D
+
+200
+
+2 sec
+
+α
+
+β
+
+γ
+
+100
+
+0
+
+E
+
+250
+
+2 sec
+
+α
+
+β
+
+γ
+
+150
+
+10 sec 50
+Time
+
+Fig. 5. Illustration of ABP recordings of normal signals (a) and various types of artifact signals caused by motion (b), biological factors (c), proximal BP cuff
+inﬂation (d), and transducer ﬂushing (e). α, β, and γ show typical examples of segmented pulses of each corresponding signal.
+
+Table 5 Average CPU time of the pulse feature method and DBN according to the dataset.
+
+Method
+
+Pulse feature method
+
+DBN
+
+SAI
+
+SAI + EDSS
+
+SAI + SESS
+
+1%
+
+10%
+
+20%
+
+Training time (sec) Test time (sec) Real time test ratio
+
+0.0 4964.5 0.0582
+
+0.0 5010.3 0.0588
+
+0.0 5129.4 0.0602
+
+10,666.2 10,188.7 0.1195
+
+117,402.6 10,407.8 0.1221
+
+239,082.0 10,683.4 0.1253
+
+The term “real time test ratio” implies a ratio of the time of the ABP recordings to the CPU time of the model test. The closer these values are to 0, the faster is the processing speed compared with the recording length, and 1 indicates the maximum time that can theoretically be processed in real time. DBN = deep belief network, SAI = signal abnormality index, EDSS = end-diastole slope sum, SESS = slow ejection slope sum.
+
+For all types of artifacts, DBN20 generally exhibited higher sensitivity than SAI, with the exception of transducer ﬂushing artifacts (Table 4). DBN20 exhibited a sensitivity of 95.4% for detecting biological artifacts, which was 17.3% higher than SAI. However, for transducer-ﬂushing artifacts, DBN20 exhibited a sensitivity of 97.03%, which was 2.6% lower than SAI. Relatively low sensitivities of DBN20 were observed for detecting motion artifacts (93.6%) and cuff inﬂation (89.1%), which occurred less often. Nevertheless, the detection rate of motion artifacts and cuff inﬂation were 1.2% and 14.7% higher using the DBN-based classiﬁer than with SAI, respectively.
+3.3. Comparison of eﬃciency
+The CPU time was calculated for each implemented method to evaluate the speed of the models (Table 5). Training time increased linearly with the training data size. Test time was similar for SAI, SAI+EDSS, and SAI+SESS. The test time for the DBN networks was approximately twice as long as for SAI. However, all the models showed a real time test ratio < 0.2, indicating no signiﬁcant effect of real-time processing.
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+153
+
+4. Discussion
+
+Artifacts in physiological signals obscure the embedded clinical information from measured signals, thereby affecting diagnosis, management, and prognosis [29,39]. In this sense, the detection and elimination of signal artifacts is not a small concern. This study assessed the accuracy of the DBN in artifact detection and subsequent elimination from ABP signals. The results indicate that DBN excels at detecting biological and external artifacts of ABP. Approximately 10% of the waveforms in our dataset had been corrupted by various artifacts, and a prior study on the continuous monitoring of ABP reported a similar portion of artifacts in its dataset [28]. Therefore, it would be safe to assume that the proposed method and the derived results would retain a certain level of generality in its artifact-detecting capability for ABP signals.
+
+4.1. Practical signiﬁcance
+
+Hemodynamic instability and cardiovascular events are common incidents during intensive care [7,44]. Identifying such events is crucial for better prognosis of the patients, which involves continuous monitoring of ECG and ABP. Attempts have been made for automated elimination of artifacts in these signals, and the focus has mainly been regarding the ECG, i.e., correctly identifying cardiovascular events via eliminating artifacts in ECG. The methods devised for this endeavor include, but are not limited to, signal quality index approaches [1,3], machine learning techniques such as support vector machines [10,26], and, more recently, deep learning models [13,43].
+Of particular interest, machine learning techniques excel for the detection of anomalies and hence are speculated to be effective for artifact identiﬁcation and subsequent elimination. Nonetheless, the application of machine learning techniques for ABP is signiﬁcantly limited. Considering that monitoring of ABP is needed for accurate identiﬁcation of several major clinical events, such as hypertension [33], hypotension [35] and other pathological changes [29,36], the need for applying recent advancements in artifact elimination techniques to ABP is ever-present. As previously mentioned, the conventional methods designed to eliminate artifacts from continuously measured ABP signals rely on external signals, or a predetermined morphological norm [24,37,40,48,50], and thus may not perform well when waveform deformations are subtle.
+Despite their inherent limitations, the existing simple, model-based approaches do provide an advantage over more complex, machine learning approaches, which is the signiﬁcantly low computational complexity and, hence, high speed. Indeed, it is possible that the lack of attempts to apply recent advancements in machine learning techniques for eliminating artifacts in ABP could be due to the high computational complexity of such techniques, hindering the practicality of the techniques. The DBN, while retaining the common advantages of deep learning algorithms, has a relatively simple learning structure and excels at feature extraction and classiﬁcation. The DBN is similar to the multi-layer feed forward neural network, but it differs in how the network is trained [11]; DBN simultaneously executes propagation and backpropagation (unsupervised learning and supervised learning, effectively) and, hence, can self-select relevant features while not suffering from a long convergence time of networks that apply only backpropagation to adjust weights between their layers. These characteristics of DBN make it ideal for processing continuously measured physiological signals, and as a result, it has been applied for ECG [13,43], electroencephalogram [32], photoplethysmogram (PPG) [15], and microelectrode recording signals [12]. Intrigued by recent studies employing DBN for physiological signal analyses, this study attempted to apply DBN for elimination of ABP artifacts; as expected, the model exhibited acceptable speed with higher performance than the compared conventional methods (Table 3).
+
+4.2. Technical implications
+
+Many studies have focused on developing methods for automated artifact elimination from physiological signals [6,8,19,25,46]. The algorithms for detecting artifacts have been developed using three approaches: a simple logic-based approach using signal features [25,40,46]; a statistical approach, such as time-series analysis or spectral analysis [8,14]; and a machine-learning based approach [6,19]. However, most of the prior studies share a signiﬁcant limitation: although various types of artifacts can contaminate the signal, previous studies have primarily focused on detecting environmental artifacts (e.g., artifacts due to patient movements or the adjustment of equipment). Nonetheless, any type of signal artifact can contaminate the results of signal analyses [6]. For the automated artifact elimination technique to be more effective for clinical practicality, various types of artifacts, including environmental and physiological ones [25,39], should be considered.
+The extensive variety in patterns of artifacts is one of the major obstacles in automated elimination of physiological signals [42]. Patient movement, coughing, or external effects (such as the adjustment of equipment) can be sources of artifacts. In this regard, accurately classifying varying degree of artifact types could be a challenge for approaches that rely on predetermined morphological normality of the signals. Indeed, DBN showed a higher overall accuracy for detecting artifacts than SAI (Table 3) and exhibited stable performance over varying types of artifacts, which was not possible for SAI (Table 4). Although SAI was slightly better at detecting artifacts generated by transducer ﬂushing, this type of artifact can be easily detected without the use of complex signal processing. SAI also exhibited a high overall detection capacity for motion artifacts. However, SAI was only moderately effective for detecting biological artifacts. Considering the relatively high incidence of biological artifacts (Table 4), the lower accuracy of the SAI should be considered problematic. Indeed, differing detection capacities due to the artifact types is not limited to SAI, and many conventional artifact detection methods may suffer from the same problem.
+
+154
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+The variety of artifact types not only affects the amplitude (i.e., raw pressure values), but also the patterns of the waveform. The artifacts in ABP signals caused by various external and biological factors exhibit different waveform patterns (Fig. 5); artifacts caused by proximal BP cuff inﬂation and transducer-ﬂushing accompanied nonlinear distortion of the ABP pulse waveform, which are generated by undesired signal energy at different frequencies from the original signal (Fig. 5D and E). By contrast, motion artifacts and biological artifacts with reduced amplitude are affected by linear, distortion-free frequency modulation (Fig. 5B and C) with only altered signal amplitudes [25]. This linearity in waveform distortion affects the performance of artifact elimination methods.
+Regarding nonlinearly distorted artifactual waveforms, the signal frequency became signiﬁcantly different from that of normal signals because the pressure values themselves remained unchanged during that time window. These artifacts can be detected by conducting a spectral analysis within a speciﬁc time window in the frequency domain (e.g., 300 s) [8,27]. However, the spectral analysis exhibits a weakness in detecting linearly distorted artifacts (i.e., biological and motion artifacts) because their frequencies do not signiﬁcantly differ from those of normal signals. A previous study has suggested a method for detecting linearly distorted signals (i.e., motion artifacts) from ABP signals using a spectral analysis [8]; however, the artifacts tested in this study were artiﬁcially created by a rotating cylinder, which could be insuﬃcient to cover the numerous conﬁgurations of motion and other types of artifacts acquired in clinical practice. The literature regarding the detection of other linearly distorted waveforms, i.e., the biological artifacts, is scarce; nonetheless, as previously mentioned, the distortion in waveforms due to biological artifacts is primarily reﬂected as a change in amplitude rather than a change in frequency. Thus, the conventional model-based detection method would be less likely to be effective for detecting this type of artifacts. In this context, the stable performance of the DBN over the varying types of artifacts should be acknowledged. This advantage of the DBN resulted in an excellent classiﬁcation capacity for signal artifacts in each subject (Fig. 4), indicating very low inter-subject variation in classiﬁcation performances.
+For precise and deliberate rejection of signal artifacts, especially for continuously measured, pulsatile physiological signals, the waveforms of the signals should be micro-analyzed in a beat-to-beat fashion. Such a small-scale analysis involves the delineation of waveforms with high data dimensionality, which is more suited for the DBN. The DBN has been shown to be an adequate generative and discriminative model for high-dimensional data [4,9]. Training the DBN may require computational complexity, but testing with the DBN is extremely rapid [5]. With its fast response to input data, DBN can detect various types of artifacts in ABP signals in both off-line testing and in the online environment. In this study, the ABP artifact elimination method based on DBN, a deep learning technology that is often used for various signal processing, was proposed. The model provides satisfactory performance in identifying and eliminating artifacts in ABP, with acceptable speed. The proposed method could improve the reliability of the physiological signal and hence of the derived parameters.
+
+4.3. Limitations and suggestions
+
+In general, anomaly detection methods share two signiﬁcant limitations: high false positive rates are common, and classiﬁcation performance can be low if the proportion of target data (in this case, the artifact signals) in the input data is limited [20]. The proposed method extracted 1,024 features from each pulse waveform (0.8 s in length), thereby allowing more sophisticated training and evaluation. In this manner, the method was able to show a false positive rate less than 5% when an optimal network was established. However, ﬂuctuation of the classiﬁcation performance due to insuﬃcient target data was unavoidable. The proportion of artifacts due to patient movement in our training dataset was insuﬃcient to reﬂect its heterogeneity in patterns, which led to a decrease in the performance of classiﬁers, as indicated in Table 3. Nonetheless, this limitation may be overcome with a suﬃcient amount of data.
+The proposed method receives pulse signal data as an input and classiﬁes it as normal or artifactual. A beat component is common in physiological signals, including pulmonary arterial pressure, central venous pressure, ECG signals, or oxygen saturation levels [2]. Therefore, this method is easily applicable to these physiological signals, provided the signal can be segmented into pulses. With suﬃcient data, the DBN classiﬁer can be developed into an automated elimination method for ICU-generated physiological signals and can be implemented into electronic patient data-management systems, which store all monitored values without the distinction of true values and artifacts [17] to reduce the necessity for manual correction or annotation of false high or low monitored values. Finally, the sensitivity and speciﬁcity of the proposed model could be adjusted for future applications (e.g., retrospective analysis or prospective, real-time analysis, etc.); the model could beneﬁt from a better investigation regarding the error cost of misclassiﬁcation according to the purpose of the application.
+
+5. Conclusions
+
+An automated artifact detection method based on the DBN was proposed and applied to continuously measured ABP signals. The method divided ABP signals into pulse waveform segments and classiﬁed each pulse as either an artifact or a normal waveform. By comparing the classiﬁcation performance according to the different sizes of the training dataset and the numbers of training iterations, the optimal network for detecting signal artifacts was determined to be a network that repeated the training 1,000 times using a dataset containing 20% of the pulses from the training data. The DBN-based model exhibited higher sensitivity for various types of artifacts compared with SAI. The proposed method has potential for use in clinical environments where pressure-related physiological signals are routinely monitored, in which hemodynamic instability should be expected. Future studies should attempt to apply the model to other pressure-related physiological signals
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+155
+
+(e.g., central venous pressure, pulmonary blood pressure, intra-abdominal pressure, etc.), and, further, attempt to revise the model to be generally applicable to other physiological signals, not necessarily in the intensive care environment. Therefore, the proposed method has potential for use in clinical environments where pulsatile signals, including ABP, are monitored. The proposed model can enhance the quality of signal analysis by detecting and eliminating artifacts in physiological signals.
+
+Declaration of interest
+ICM+, a signal processing software used in this study, is licensed through Cambridge Enterprise Ltd, Cambridge, UK, Marek Czosnyka has a ﬁnancial interest in 10% of the licensing fee.
+
+Acknowledgment
+We are sincerely grateful for all staff at the Neurocritical Care Unit in Addenbrookes Hospital, Cambridge, UK, for their support for the recordings of physiological signal in the patients with TBI.
+
+Contribution
+YS designed, drafted and revised the manuscript. SBL developed the algorithm for data analysis and revised the manuscript. HSK performed the statistical analyses and derivation of the main results of the study. HSK, ESS, HH, and MC reviewed and revised the manuscript. DJK designed the study and oversaw the creation of the ﬁnal manuscript. All authors read and approved the ﬁnal manuscript.
+
+Funding
+This research was supported by a grant from the Korea Health Technology R&D Project through the Korea Health Industry Development Institute (KHIDI), funded by the Ministry of Health & Welfare, Republic of Korea (grant number: HI17C1790); the MSIT (Ministry of Science and ICT), Korea, under the ITRC (Information Technology Research Center) support program (IITP-2018-2016-0-00464) supervised by the IITP Institute for Information & communications Technology Promotion (grant number: 2017-0-00432); Institute for Information & communications Technology Promotion (IITP) grant funded by the Korea government (MSIT) (No. 2017-0-00432, Development of non-invasive integrated BCI SW platform to control home appliances and external devices by user’s thought via AR/VR interface); a Korea University Grant.
+References
+[1] M. Abdelazez, P.X. Quesnel, A.D. Chan, H. Yang, Signal quality analysis of ambulatory electrocardiograms to gate false myocardial ischemia alarms, IEEE Trans. Biomed. Eng. 64 (2017) 1318–1325, doi:10.1109/TBME.2016.2602283.
+[2] M. Aboy, J. McNames, T. Thong, D. Tsunami, M.S. Ellenby, B. Goldstein, An automatic beat detection algorithm for pressure signals, IEEE Trans. Biomed. Eng. 52 (2005) 1662–1670, doi:10.1109/TBME.2005.855725.
+[3] J. Behar, J. Oster, Q. Li, G.D. Clifford, ECG signal quality during arrhythmia and its application to false alarm reduction, IEEE Trans. Biomed. Eng. 60 (2013) 1660–1666, doi:10.1109/TBME.2013.2240452.
+[4] Y. Bengio, Learning deep architectures for AI, Found. Trends Mach. Learn. 2 (2009) 1–127, doi:10.1561/2200000006. [5] K. Bernard, Y. Tarabalka, J. Angulo, J. Chanussot, J.A. Benediktsson, Spectral–spatial classiﬁcation of hyperspectral data based on a stochastic minimum
+spanning forest approach, IEEE Trans. Image Process. 21 (2012) 2008–2021, doi:10.1109/TIP.2011.2175741. [6] A. Caicedo, S. Van Huffel, Weighted LS-SVM for function estimation applied to artifact removal in bio-signal processing, in: Annual International
+Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), IEEE, 2010, pp. 988–991, doi:10.1109/IEMBS.2010.5627628. [7] M. Chisolm-Straker, D. Cherkas, Altered and unstable: wet beriberi, a clinical review, J. Emerg. Med. 45 (2013) 341–344, doi:10.1016/j.jemermed.2013.
+04.022. [8] H.S. Choi, H.D. Park, K.J. Lee, Motion artifact reduction in blood pressure signals using adaptive digital ﬁlter with a capacitive sensor, in: 29th Annual
+International Conference of the IEEE Engineering in Medicine and Biology Society, IEEE, 2007, pp. 3285–3287, doi:10.1109/IEMBS.2007.4353031. [9] G.E. Dahl, D. Yu, L. Deng, A. Acero, Context-dependent pre-trained deep neural networks for large-vocabulary speech recognition, IEEE Trans. Audio
+Speech Lang. Process. 20 (2012) 30–42, doi:10.1109/TASL.2011.2134090. [10] G.D. Fraser, A.D. Chan, J.R. Green, D.T. MacIsaac, Automated biosignal quality analysis for electromyography using a one-class support vector machine,
+IEEE Trans. Instrum. Meas. 63 (2014) 2919–2930, doi:10.1109/TIM.2014.2317296. [11] X. Glorot, Y. Bengio, Understanding the diﬃculty of training deep feedforward neural networks, in: Proceedings of the Thirteenth International Con-
+ference on Artiﬁcial Intelligence and Statistics, 2010, pp. 249–256. [12] P. Guillén-Rondon, M.D. Robinson, Deep brain stimulation signal classiﬁcation using deep belief networks, in: 2016 International Conference on Com-
+putational Science and Computational Intelligence (CSCI), IEEE, 2016, pp. 155–158, doi:10.1109/CSCI.2016.0036. [13] M. Huanhuan, Z. Yue, Classiﬁcation of electrocardiogram signals with deep belief networks, in: 2014 IEEE 17th International Conference on Computa-
+tional Science and Engineering (CSE), IEEE, 2014, pp. 7–12, doi:10.1109/CSE.2014.36. [14] M. Imhoff, M. Bauer, U. Gather, D. Löhlein, Statistical pattern detection in univariate time series of intensive care on-line monitoring data, Intens. Care
+Med. 24 (1998) 1305–1314, doi:10.1007/s001340050767. [15] V. Jindal, Integrating mobile and cloud for PPG signal selection to monitor heart rate during intensive physical exercise, in: Proceedings of the Inter-
+national Conference on Mobile Software Engineering and Systems, ACM, 2016, pp. 36–37, doi:10.1109/MobileSoft.2016.027. [16] H. Kim, S.B. Lee, Y. Son, M. Czosnyka, D.J. Kim, Hemodynamic instability and cardiovascular events after traumatic brain injury predict outcome after
+artifact removal with deep belief network analysis, J. Neurosurg. Anesthesiol. (2017) [Epub ahead of print], doi:10.1097/ana.0000000000000462. [17] N.P. Kool, J.A.R. van Waes, J.B. Bijker, L.M. Peelen, L. van Wolfswinkel, J.C. de Graaff, W.A. van Klei, Artifacts in research data obtained from an anesthesia
+information and management system, Can. J. Anesth. 59 (2012) 833–841, doi:10.1007/s12630-012-9754-0. [18] H. Larochelle, Y. Bengio, Classiﬁcation using discriminative restricted Boltzmann machines, in: Proceedings of the 25th International Conference on
+Machine Learning, ACM, 2008, pp. 536–543, doi:10.1145/1390156.1390224.
+
+156
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+[19] V. Lawhern, W.D. Hairston, K. McDowell, M. Westerﬁeld, K. Robbins, Detection and classiﬁcation of subject-generated artifacts in EEG signals using autoregressive models, J. Neurosci. Methods 208 (2012) 181–189, doi:10.1016/j.jneumeth.2012.05.017.
+[20] A. Lazarevic, L. Ertöz, V. Kumar, A. Ozgur, J. Srivastava, A comparative study of anomaly detection schemes in network intrusion detection, In:, in: Society for Industrial and Applied Mathematics International Conference on Data Mining, SIAM, 2003, pp. 25–36, doi:10.1137/1.9781611972733.3.
+[21] N. Le Roux, Y. Bengio, Representational power of restricted Boltzmann machines and deep belief networks, Neural Comput 20 (2008) 1631–1649, doi:10.1162/neco.2008.04- 07- 510.
+[22] H.-J. Lee, E.-J. Jeong, H. Kim, M. Czosnyka, D.-J. Kim, Morphological feature extraction from a continuous intracranial pressure pulse via a peak clustering algorithm, IEEE Trans. Biomed. Eng. 63 (2016) 2169–2176, doi:10.1109/TBME.2015.2512278.
+[23] B.N. Li, M.C. Dong, M.I. Vai, On an automatic delineator for arterial blood pressure waveforms, Biomed. Signal Process. Control 5 (2010) 76–81, doi:10. 1016/j.bspc.2009.06.002.
+[24] Q. Li, G.D. Clifford, Suppress false Arrhythmia alarms of ICU monitors using heart rate estimation based on combined arterial blood pressure and ECG analysis„ in: The 2nd International Conference on Bioinformatics and Biomedical Engineering, IEEE, 2008, pp. 2185–2187, doi:10.1109/ICBBE.2008.876.
+[25] Q. Li, R.G. Mark, G.D. Clifford, Artiﬁcial arterial blood pressure artifact models and an evaluation of a robust blood pressure and heart rate estimator, Biomed. Eng. Online 8 (2009) 13, doi:10.1186/1475-925X-8-13.
+[26] Q. Li, C. Rajagopalan, G.D. Clifford, A machine learning approach to multi-level ECG signal quality classiﬁcation, Comput. Methods Programs Biomed. 117 (2014) 435–447, doi:10.1016/j.cmpb.2014.09.002.
+[27] P.K. Lim, S.-C. Ng, W.A. Jassim, S.J. Redmond, M. Zilany, A. Avolio, E. Lim, M.P. Tan, N.H. Lovell, Improved measurement of blood pressure by extraction of characteristic features from the cuff oscillometric waveform, Sensors 15 (2015) 14142–14161, doi:10.3390/s150614142.
+[28] Z. Lu, R. Mukkamala, Continuous cardiac output monitoring in humans by invasive and noninvasive peripheral blood pressure waveform analysis, J. Appl. Physiol. 101 (2006) 598–608, doi:10.1152/japplphysiol.01488.2005.
+[29] B.H. McGhee, E.J. Bridges, Monitoring arterial blood pressure: what you may not know, Crit. Care Nurse 22 (2002) 60–79. [30] S. McKinley, M. Levine, Cubic spline interpolation, College Redwoods 45 (1998) 1049–1060. [31] A.-R. Mohamed, G. Dahl, G. Hinton, Deep belief networks for phone recognition, in: Neural Information Processing Systems Workshop on Deep Learn-
+ing for Speech Recognition and Related Applications, NIPS, 2009, p. 39. [32] F. Movahedi, J.L. Coyle, E. Sejdic´ , Deep belief networks for electroencephalography: a review of recent contributions and future outlooks, IEEE J. Biomed.
+Health Inform. (2017) [Epub ahead of print], doi:10.1109/JBHI.2017.2727218. [33] W.W. Nichols, S.J. Denardo, I.B. Wilkinson, C.M. McEniery, J. Cockcroft, M.F. O’Rourke, Effects of arterial stiffness, pulse wave velocity, and wave reﬂec-
+tions on the central aortic pressure waveform, J. Clin. Hypertens. (Greenwich) 10 (2008) 295–303, doi:10.1111/j.1751-7176.2008.04746.x. [34] H.C. Patel, D.K. Menon, S. Tebbs, R. Hawker, P.J. Hutchinson, P.J. Kirkpatrick, Specialist neurocritical care and outcome from head injury, Intens. Care
+Med. 28 (2002) 547–553, doi:10.1007/s00134-002-1235-4. [35] R. Pizov, A. Eden, D. Bystritski, E. Kalina, A. Tamir, S. Gelman, Hypotension during gradual blood loss: waveform variables response and absence of
+tachycardia, Br. J. Anaesth. 109 (2012) 911–918, doi:10.1093/bja/aes300. [36] S. Romagnoli, Z. Ricci, D. Quattrone, L. Tofani, O. Tujjar, G. Villa, S.M. Romano, A.R. De Gaudio, Accuracy of invasive arterial pressure monitoring in
+cardiovascular patients: an observational study, Crit. Care 18 (2014) 644, doi:10.1186/s13054-014-0644-4. [37] N. Sadr, J. Huvanandana, D.T. Nguyen, C. Kalra, A. McEwan, P. de Chazal, Reducing false arrhythmia alarms in the ICU using multimodal signals and
+robust QRS detection, Physiol. Meas. 37 (2016) 1340, doi:10.1088/0967-3334/37/8/1340. [38] L. Sörnmo, P. Laguna, Bioelectrical Signal Processing in Cardiac and Neurological Applications, Academic Press, Burlington, MA, 2005, doi:10.1016/
+B978- 0- 12- 437552- 9.X5000- 4. [39] W. Srikureja, D. Darbar, G.S. Reeder, Tremor-induced ECG artifact mimicking ventricular tachycardia, Circulation 102 (2000) 1337–1338, doi:10.1161/01.
+CIR.102.11.1337 . [40] J. Sun, A. Reisner, R. Mark, A signal abnormality index for arterial blood pressure waveforms, Computers Cardiology (2006) 13–16. [41] K.T. Sweeney, S.F. McLoone, T.E. Ward, The use of ensemble empirical mode decomposition with canonical correlation analysis as a novel artifact
+removal technique, IEEE Trans. Biomed. Eng. 60 (2013) 97–105, doi:10.1109/TBME.2012.2225427. [42] K.T. Sweeney, T.E. Ward, S.F. McLoone, Artifact removal in physiological signals—practices and possibilities, IEEE Trans. Inf. Technol. Biomed. 16 (2012)
+488–500, doi:10.1109/TITB.2012.2188536. [43] B. Taji, A.D. Chan, S. Shirmohammadi, False alarm reduction in atrial ﬁbrillation detection using deep belief networks, IEEE T. Instrum. Meas. (2017)
+1–8, doi:10.1109/TIM.2017.2769198. [44] M. Volpe, et al., Cardiovascular prevention in subjects with impaired fasting glucose or impaired glucose tolerance, High Blood Press. Cardiovasc. Prev.
+17 (2010) 73–102, doi:10.2165/11311830-000000000-00000. [45] S.D. Walter, Properties of the summary receiver operating characteristic (SROC) curve for diagnostic test data, Stat. Med. 21 (2002) 1237–1256, doi:10.
+1002/sim.1099. [46] X. Xu, S. Schuckers, CHIME Study Group, Automatic detection of artifacts in heart period data, J. Electrocardiol. 34 (2001) 205–210, doi:10.1054/jelc.
+2001.28876. [47] D. Yu, L. Deng, Deep learning and its applications to signal and information processing [exploratory DSP], IEEE Signal Process. Mag. 28 (2011) 145–154,
+doi: 10.1109/MSP.2010.939038 . [48] P. Zhang, J. Liu, X. Wu, X. Liu, Q. Gao, A novel feature extraction method for signal quality assessment of arterial blood pressure for monitoring cerebral
+autoregulation, in: 2010 4th International Conference on Bioinformatics and Biomedical Engineering (iCBBE), IEEE, 2010, pp. 1–4, doi:10.1109/ICBBE. 2010.5515739 . [49] X.-L. Zhang, J. Wu, Deep belief networks based voice activity detection, IEEE Trans. Audio Speech Lang. Process 21 (2013) 697–710, doi:10.1109/TASL. 2012.2229986. [50] W. Zong, G. Moody, R. Mark, Reduction of false arterial blood pressure alarms using signal quality assessement and relationships between the electrocardiogram and arterial blood pressure, Med. Biol. Eng. Comput. 42 (2004) 698–706, doi:10.1007/BF02347553.
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+157
+
+Yunsik Son received his BS (2004), MS (2006), and PhD (2009) in Computer Science & Engineering (Dongguk University, South Korea). His career started as a lecturer and technical researcher; as of 2017, he is now a professor at Dongguk University. His lecture subjects include formal language, compiler construction, advanced programming language theory, virtual machine design, and mobile computing. He has been a senior research associate in the Clinical Neuromodeling Laboratory, Korea University, and remains a major co-operative researcher with the laboratory.
+
+Seung-Bo Lee received his BE in Computer and Communications Engineering (College of Information and Communication) from Korea University, South Korea (2015). He is pursuing his Master’s and PhD in brain and cognitive engineering in the Department of Brain and Cognitive Engineering at Korea University. His research interests include bio-signal processing and machine learning, especially artiﬁcial neural networks.
+
+Hakseung Kim received his BS in brain and cognitive sciences (2013), BA in Korean language and literature (2013) and PhD in brain and cognitive engineering from Korea University, South Korea (2018). His speciﬁc areas of research include quantitative medical image analysis, patient monitoring in the critical care environment, cerebrospinal ﬂuid dynamics, and patient-speciﬁc ﬁnite element modeling of neurological disorders associated with space-occupying lesions.
+
+Eun-Suk Song received his BA in Psychology (College of Liberal Arts) and BS in brain and cognitive sciences (College of Information and Communication) from Korea University, South Korea (2017). He is pursuing his Master’s and PhD in brain and cognitive engineering in the Department of Brain and Cognitive Engineering at Korea University. His research interests include quantitative analysis of medical images obtained by various imaging modalities and bio-signal processing.
+
+Hyub Huh received his MD from the School of Medicine in Kyung Hee University and PhD from the School of Medicine in Korea University, South Korea. He has been a clinical assistant professor in the Department of Anesthesiology and Pain Medicine, Korea University Medical Center since 2014. His speciﬁc areas of research include neuromuscular relaxation and detection of the depth of anesthesia.
+
+158
+
+Y. Son et al. / Information Sciences 456 (2018) 145–158
+
+Marek Czosnyka is a Belvedere Professor of Technical Sciences, has a PhD (Warsaw) and DSc (Warsaw) in Biomedical Engineering, and is a Professor of Brain Physics and Director of Neurosurgical Physics in the Neurosurgical Unit, University of Cambridge, UK. His speciﬁc areas of research include patterns of cerebrospinal ﬂuid dynamics in hydrocephalus and the pathophysiology of cerebrovascular dynamics in severe head trauma. His wide expertise and long list of publications in key neurosurgical journals have earned him great respect from neurosurgeons and physicists working in this ﬁeld of research worldwide.
+
+Dong-Joo Kim is an Associate Professor in the Dept. of Brain and Cognitive Engineering at Korea University, South Korea. He received his PhD in Engineering from the University of Cambridge, UK, where his time was split between clinical research (in the Neurosurgery unit at Addenbrooke’s Hospital) and brain modeling (in the Engineering Department). Afterwards, he spent two years as a research fellow in the Neuroscience Mental Health Program of the Department of Critical Care Medicine at the Hospital for Sick Children (University of Toronto), Canada. Since 2012, he has been a faculty member at the Dept. of Brain and Cognitive Engineering at Korea University, South Korea. His research activity has been in brain mechanics, neuro-monitoring, and numerical neuro-modeling.
+

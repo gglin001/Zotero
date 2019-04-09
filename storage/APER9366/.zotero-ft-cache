@@ -1,0 +1,271 @@
+InstaBP: Cuff-less Blood Pressure Monitoring on Smartphone using Single PPG Sensor
+Jishnu Dey, Aman Gaurav, Vijay N. Tiwari
+
+Abstract—Cuff-less Blood Pressure (BP) monitoring has gained interest of the research community in recent years, due to its importance in continuous and non-invasive monitoring of BP for early detection of hypertension, thereby reducing mortality. Several approaches that involve photoplethysmography (PPG) and Pulse Transit Time (PTT) have been explored with promising results; however the requirement of two sensors makes them obtrusive for continuous use. Single PPG sensor approaches using machine learning have also been attempted, but there are certain deﬁciencies in these methods as they go for a onesize-ﬁts-all approach. In this work, we develop an ensemble of BP prediction models based on demographic and physiological partitioning. Also, we incorporate a set of unique PPG features into our models, which results in test accuracies of 5 mmHg Mean Absolute Error (MAE) for Diastolic BP, and 6.9 mmHg MAE for Systolic BP. Given our marked improvement over ubiquitous models (18% for Diastolic BP and 11.5% for Systolic BP), this approach opens up avenues where single PPG sensor based methods can predict BP with a high degree of accuracy. This is a big step towards developing continuous BP monitoring systems, and can help in better management of cardiac health.
+I. INTRODUCTION
+The rapid advances in the ﬁeld of health informatics have led to an increase in the popularity of ﬁtness tracking using smartphones and wearables. While smartphone based motion sensors are used to monitor steps and physical activities, PPG sensors have been conﬁned to measurement of HR, SpO2 and stress levels. There have been attempts to address more challenging problems in non-invasive monitoring such as blood pressure. The ‘gold standard’ of blood pressure measurement, the mercury based sphygmomanometer, is not easily portable and usually requires clinical intervention for accurate readings [1]. This has led to the growing demand for alternative solutions which can allow continuous and unobtrusive monitoring of BP. Since smartphones have penetrated a wide population, it is an ideal choice for the target device.
+There have been multiple attempts to develop cuff-less blood pressure measurement solutions. Most of these incorporate the use of pulse transit time (PTT), which has a high correlation with systolic and diastolic blood pressure (SBP & DBP) [2][3]. However, the measurement of pulse transit time requires the simultaneous measurement at two locations of the body, which is not convenient and not suitable for the existing design of wearables and smartphones. There have been recent advances towards measurement of blood pressure from a single PPG sensor. Most of these approaches rely on extraction of
+
+features that are correlated with blood pressure, and use a regression or machine learning algorithm to determine blood pressure as a function of these features [4][5].
+A major assumption in many of these approaches is that the parameters that are being estimated by the machine learning algorithm hold true for the entire population, basically incorporating a one-size-ﬁts-all approach. However, as shown in [6], this is not true. Demographics and physiology play a major role in shaping the PPG waveform both on its rising edge and the falling edge. Machine learning models need to take into account the demography of the person while attempting to predict blood pressure. Through our experiments, we show that partitioning the dataset based on demography and physiology and designing separate machine learning models corresponding to each partition improves the prediction accuracy of both SBP & DBP, and thus, plays a big step towards the development of cuff-less blood pressure monitoring algorithms that involve only a single PPG sensor.
+The organization of the paper is as follows: Section II describes the methodology involved in the algorithm design. Section III describes the results obtained and veriﬁes our claim that demographically and physiologically partitioned models perform better than ubiquitous models. Section IV provides concluding remarks on the work.
+II. METHODOLOGY
+The BP measurement process involves acquiring sensor data, validating the correctness of the data, extracting features, multiple BP predictions using a machine learning approach followed by a robust outlier elimination method. The entire methodology is depicted in Fig. 1.
+
+All the Authors are with the Samsung R & D Institute, Bangalore, KA 560037 India (corresponding author: Jishnu Dey; phone: +91-9844495510; email: jishnu.d@samsung.com ; other emails (in order): aman.gaurav@ samsung.com, vn.tiwari@samsung.com.
+
+Fig. 1. Blood Pressure Estimation System
+
+978-1-5386-3646-6/18/$31.00 ©2018 IEEE
+
+5002
+
+A. Data Acquisition
+PPG signals were acquired using the Heart Rate sensor of Samsung Galaxy S6 smartphone. The sampling frequency was set at 125 Hz, and IR component of the sensor was used. The data was collected from 205 volunteers of diverse physiological and demographic proﬁle, of which 160 were used for training and 45 for testing. The testing was done on a mutually exclusive set of people to enhance model reliability. For all experiments, prior consent was taken from subjects, the data was kept anonymized and was used only for the intended research purpose. Additionally, principles outlined in the Helsinki Declaration were adhered to. Table I summarizes the distribution of the data.
+
+Parameter Age (years) BMI (kg/m2) SBP (mmHg) DBP (mmHg) Parameter
+Gender
+
+TABLE I DATA DISTRIBUTION
+
+Min.
+
+Max.
+
+17
+
+81
+
+15.1
+
+36.5
+
+79
+
+220
+
+46
+
+118
+
+Females
+
+56 %
+
+Mean
+
+Std. Dev.
+
+39.8
+
+14.8
+
+24.6
+
+4.4
+
+121.9
+
+24.1
+
+76.0
+
+14.8
+
+Males
+
+44 %
+
+The data was collected for 15 minutes from each subject. Along with the PPG signals, the demographic and physiological information (age, height, weight, gender) of the subjects was also collected. The PPG signals were converted into 15 second epochs through a sliding window mechanism. A 15 second window ensures data sufﬁciency along with user compliance during live deployment. A structured dataset where each sample had a PPG window of 1875 points and a proﬁle window of 4 features was formed. Systolic and Diastolic BP was measured twice using a mercury based cuff device, once before the PPG data collection, and once after it. If both the measurements were within a range of 10 mmHg, the ground truth was obtained by averaging the measurements. If not, the entire signal was discarded.
+B. Preprocessing and Pulse Extraction
+Each sample contained the signal window of 15 seconds. In every window, the peaks were detected using the approach mentioned in [7] involving wavelet smoothing followed by trend removal and dynamic peak search on the original signal as well as the inverted signal to obtain minima and maxima of the PPG signal.
+From the signal window, pulses were chosen as the signal between two successive minima containing a single maximum. If this condition was violated, the pulse was discarded. Further, a template matching was performed on each of the pulses over a range of PPG templates. These templates were chosen from those pulses which had no noise interference, across subjects with diverse physiological and demographic proﬁles. Since the length and magnitudes of the templates and test pulse could vary, the signals were interpolated to a ﬁxed length
+
+using cubic spline interpolation and normalized using min-max normalization before determining the correlation coefﬁcient. Two criteria were used to determine the validity of a PPG signal window:
+i) Pulses that had Pearson correlation coefﬁcient less than 0.8 with all the templates were rejected.
+ii) After this preprocessing, the window was retained if the number of pulses n extracted from a window of N seconds satisﬁed n >= N/2. This ensured that the window had signiﬁcant PPG information.
+C. Feature Extraction
+From a single PPG pulse, a total of 233 features were extracted in time and frequency domain. As shown in [8], the derivatives of the PPG pulse carry valuable information related to the cardiac cycle, which is closely related to blood pressure. Thus, the ﬁrst 4 derivatives (VPG - velocity plethysmogram, APG - acceleration plethysmogram, PPG3 - third derivative & PPG4 - fourth derivative) of the PPG pulse were also considered for extraction of relevant features in time and frequency domain, as shown in Fig. 2. To mitigate issues related to varying pulse lengths, interpolated and normalized pulses were used along with the pulse length as a feature. The features from individual pulses were averaged over the window to increase robustness. Apart from the PPG features, the demographic and physiological proﬁle values were also used as independent features. A comprehensive list of features is listed in Table II.
+
+Fig. 2. PPG Waveform and its derivatives
+
+A salient feature of our work was the extraction of Deviation Curve based features. The Upslope and Downslope deviation curves (USDC & DSDC) are deﬁned as the deviation of each point from the mean upslope and downslope on the rising and falling edge respectively and depict the relative speed of systolic and diastolic cardiac activities [9]. They were calculated from equations 1 & 2, where u is the USDC, d is the DSDC, p is the PPG signal, m is the location of the systolic peak, and l is the length of the PPG signal.
+
+[p(m) − p(0)] x − p(x)m + p(0)m
+
+u(x) =
+
+(1)
+
+[p(m) − p(0)]2 + m2
+
+[p(l) − p(m)] x − [l − m]p(x) + p(m)l − p(l)m d(x) =
+[p(l) − p(m)]2 + [l − m]2
+(2)
+
+5003
+
+TABLE II LIST OF PPG FEATURES
+
+Sl. No. 1
+2-36 37-76 77-91
+92-95 96-98 99-103
+104-158
+159-213 214-223 224-233
+
+Feature
+PPG pulse length
+Frequency Domain Features
+Sig[1 : 7], Sig = 256 point FFT of PPG, VPG, APG, PPG3, PPG4
+Mean of Sig[i : i + 2] for i = 8 : 3 : 31, Sig = 256 point FFT of PPG, VPG, APG, PPG3, PPG4
+Mean of Sig[2i : 2i + 1] for i = 5 : 7, Sig = 256 point FFT of PPG, VPG, APG, PPG3, PPG4
+Time Domain Features
+Maxima locations of PPG, VPG, APG & PPG4
+Minima locations of APG, PPG3 & PPG4
+Mean of Sig[m − 10 : m + 10] where Sig = PPG, VPG, APG, PPG3 & PPG4, and m = maxima location
+Relative frequencies in Magnitude histogram with 11 equal bins of Sig[1 : m], Sig = PPG, VPG, APG, PPG3 & PPG4, and m = maxima location
+Relative frequencies in Magnitude histogram with 11 equal bins of Sig[m : l] , Sig = PPG, VPG, APG, PPG3 & PPG4, m = maxima location, l = PPG length
+Mean of Sig[i : i + 2]∀i = 1 : 3 : 31, Sig = USDC
+Mean of Sig[i : i + 5]∀i = 1 : 5 : 51, Sig = DSDC
+
+demographic features, further attempts were made to enhance the impact of the demographic and physiological data. The entire dataset was partitioned independently on the basis of age, gender and BMI. The median values of these three parameters where chosen as thresholds and the following partitions were made:
+• Young [Age < 40 years] and Old [Age >= 40 years] • Male and Female • Underweight [BMI < 24 kg/m2] and Overweight [BMI
+>= 24 kg/m2]
+On each of these partitions, separate Lasso models were trained over the previously deﬁned range of regularization parameters and the best performing models were retained. Also, the average feature importance over the entire range of models is shown in Fig. 3.
+
+D. Blood Pressure Estimation
+Approximately 20% of the pulses were removed during the preprocessing step due to violation of the criteria in II-B. After this, a total of 53000 samples were available for training the BP estimation model, while the testing data comprised of 9000 samples.
+Various machine learning algorithms were attempted to obtain the best model for BP estimation. Our observation was that given the size of the training data, and the number of relevant features, Lasso Regression provided the best testing accuracy, which is in accordance with a guideline mentioned in [10]. A Lasso Regression model was applied for Diastolic BP estimation, and since it is known that there is a signiﬁcant correlation between SBP and DBP [11], this output was used as a feedback for input along with the features to the Systolic BP model. The model was developed using the scikit-learn library in Python [12].
+The Lasso Regression objective is deﬁned by (3) [13] where E is the loss function, N is the number of samples, tn corresponds to the target values, w is the weight vector, φ is the basis function in input space of xn, M is the number of features, and λ is the regularization parameter. λ plays an important role in model optimization, and was carefully considered in our approach. The regularization parameter was ranged from 0.001 to 100 in 300 logarithmic steps, and the best performing models were retained.
+
+1 E(w) =
+2
+
+N
+
+{tn
+
+− wT φ(xn)}2
+
++
+
+λ 2
+
+M
+
+|wj |
+
+(3)
+
+n=1
+
+j=1
+
+Having trained a ubiquitous model using the PPG and
+
+Fig. 3. (a) Diastolic Feature Importance (b) Systolic Feature Importance
+
+E. Post Processing and Robust Modelling
+After BP prediction from the multiple models from all the partitions, the SBP and DBP outputs from all the models were scattered in a 2D plane, and the Mahalanobis distance of each point was calculated, with the assumption of a Normal distribution, given by (4) [14], were DM (x) represents the Mahalanobis distance of input x, µ is the mean vector and S is the covariance matrix.
+
+DM (x) = (x − µ)T S−1(x − µ)
+
+(4)
+
+All points within Mahalanobis distances of 2 standard deviations (corresponding to a 95% conﬁdence interval) were retained while others were rejected as outliers. The mean of this reduced set of 2D outputs was predicted as the ﬁnal SBP and DBP values.
+
+F. Smartphone Deployment
+The solution was deployed on the Android Platform in the form of an application named InstaBP. The application is compatible with Samsung smartphones that have a dedicated PPG sensor. InstaBP works by collecting the PPG data of the user and calculates the 95% conﬁdence interval of the user’s blood pressure. The screenshots are shown in Fig. 4.
+
+5004
+
+Fig. 4. InstaBP Screenshots
+
+III. RESULTS
+After going through steps II-B - II-E, the ﬁnal SBP & DBP values were obtained. The overall training and testing accuracies for various model types are shown in Table III.
+
+Model Type
+Non-Demographic Age based
+Gender based BMI based
+Combined Model
+
+TABLE III MODEL ACCURACIES
+
+Testing MAE (mmHg)
+
+Diastolic Systolic
+
+6.1
+
+7.8
+
+5.1
+
+7.5
+
+6.2
+
+7.9
+
+5.4
+
+7.1
+
+5.0
+
+6.9
+
+Testing Error Std. Dev. (mmHg)
+
+Diastolic Systolic
+
+7.1
+
+10.4
+
+5.8
+
+9.7
+
+7.3
+
+9.9
+
+6.6
+
+8.9
+
+6.1
+
+9.0
+
+From the table, it is evident that demographic and physiological partitioning indeed improves BP prediction. The inclusion of multiple independent demographic and physiological partitioning results in 18.0% & 11.5% improvements in accuracies for DBP & SBP respectively compared to the case where no such partitioning is done. The error histograms for the diastolic and systolic models for the combined model are shown in Fig. 5.
+
+(a)
+
+(b)
+
+Fig. 5. (a) Diastolic MAE (mmHg) histogram (b) Systolic MAE (mmHg) histogram
+
+IV. CONCLUSION
+Through this work we have successfully demonstrated that Blood Pressure measurement using a single PPG sensor can be improved through the use of demographic and physiological partitioning. Through a marked increase in the accuracies in estimation of SBP & DBP using demographic and physiological partitioning, it is evident that a one-size-ﬁts-all approach is not suitable for the single PPG sensor based methods. Also, our application InstaBP is an example of how these methods can easily be deployed as smartphone or wearable applications. Since PPG sensors are embedded in smartphones and wearables these days, such solutions will facilitate continuous and non-invasive blood pressure monitoring and improve the management of cardiac health among users.
+ACKNOWLEDGEMENT
+We would like to thank Thiyagarajan S, Poonam Thapar and Harshit Agrawal of Samsung R&D Institute Bangalore for their signiﬁcant contributions to the development of InstaBP.
+REFERENCES
+[1] G. I. Varughese and G. Y. Lip, “Goodbye mercury? blood pressure measurement and its future,” 2005.
+[2] Y. S. Yan and Y. T. Zhang, “A model-based calibration method for noninvasive and cufﬂess measurement of arterial blood pressure,” in 2006 IEEE Biomedical Circuits and Systems Conference, Nov 2006, pp. 234–236.
+[3] C. C. Y. Poon, Y. T. Zhang, G. Wong, and W. S. Poon, “The beat-to-beat relationship between pulse transit time and systolic blood pressure,” in 2008 International Conference on Information Technology and Applications in Biomedicine, May 2008, pp. 342–343.
+[4] A. GAURAV, M. MAHEEDHAR, V. TIWARI, and R. NARAYANAN, “Method and electronic device for cuff-less blood pressure (bp) measurement,” Aug. 24 2017, uS Patent App. 15/432,415. [Online]. Available: https://www.google.com/patents/US20170238818
+[5] S. Datta, A. D. Choudhury et al., “Novel statistical post processing to improve blood pressure estimation from smartphone photoplethysmogram,” in Proceedings of the First International Workshop on Humancentered Sensing, Networking, and Systems, ser. HumanSys’17. ACM, 2017, pp. 31–36.
+[6] J. Allen and A. Murray, “Age-related changes in the characteristics of the photoplethysmographic pulse shape at various body sites,” Physiological Measurement, vol. 24, no. 2, p. 297, 2003. [Online]. Available: http://stacks.iop.org/0967-3334/24/i=2/a=306
+[7] T. Bhowmik, J. Dey, and V. N. Tiwari, “A novel method for accurate estimation of hrv from smartwatch ppg signals,” in 2017 39th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), July 2017, pp. 109–112.
+[8] M. Elgendi, “On the analysis of ﬁngertip photoplethysmogram signals,” Current Cardiology Reviews, pp. 14–25, Aug 2012.
+[9] E. Zahedi, K. Chellappan, M. A. M. Ali, and H. Singh, “Analysis of the effect of ageing on rising edge characteristics of the photoplethysmogram using a modiﬁed windkessel model,” Cardiovascular Engineering, vol. 7, no. 4, pp. 172–181, Dec 2007.
+[10] “Choosing the right estimator.” [Online]. Available: http://scikit-learn. org/stable/tutorial/machine learning map/index.html
+[11] B. Gavish, I. Z. Ben-Dov, and M. Bursztyn, “Linear relationship between systolic and diastolic blood pressure monitored over 24 h: assessment and correlates,” Journal of hypertension, vol. 26, no. 2, pp. 199–209, 2008.
+[12] F. Pedregosa, G. Varoquaux, A. Gramfort et al., “Scikit-learn: Machine learning in Python,” Journal of Machine Learning Research, vol. 12, pp. 2825–2830, 2011.
+[13] M. B. Christopher, PATTERN RECOGNITION AND MACHINE LEARNING. Springer-Verlag New York, 2016.
+[14] P. C. Mahalanobis, “On the generalized distance in statistics,” Proceedings of the National Institute of Sciences (Calcutta), vol. 2, pp. 49–55, 1936.
+
+5005
+

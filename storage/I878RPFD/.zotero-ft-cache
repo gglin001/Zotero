@@ -1,0 +1,931 @@
+Hindawi Journal of Healthcare Engineering Volume 2018, Article ID 7804243, 9 pages https://doi.org/10.1155/2018/7804243
+
+Research Article A Novel Neural Network Model for Blood Pressure Estimation Using Photoplethesmography without Electrocardiogram
+Ludi Wang ,1 Wei Zhou,2 Ying Xing ,1 and Xiaoguang Zhou 1
+1Automation School, Beijing University of Posts and Telecommunications, Beijing 100876, China 2Functional Pharmacology, Department of Neuroscience, Uppsala University, Uppsala, Sweden
+Correspondence should be addressed to Xiaoguang Zhou; zxg_bupt@126.com
+Received 10 August 2017; Revised 7 November 2017; Accepted 28 November 2017; Published 7 March 2018
+Academic Editor: Chengyu Liu
+Copyright © 2018 Ludi Wang et al. This is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.
+The prevention, evaluation, and treatment of hypertension have attracted increasing attention in recent years. As photoplethysmography (PPG) technology has been widely applied to wearable sensors, the noninvasive estimation of blood pressure (BP) using the PPG method has received considerable interest. In this paper, a method for estimating systolic and diastolic BP based only on a PPG signal is developed. The multitaper method (MTM) is used for feature extraction, and an artiﬁcial neural network (ANN) is used for estimation. Compared with previous approaches, the proposed method obtains better accuracy; the mean absolute error is 4.02 ± 2.79 mmHg for systolic BP and 2.27 ± 1.82 mmHg for diastolic BP.
+
+1. Introduction
+Blood pressure (BP) is the driving force for the ﬂow of blood through the blood vessels and reﬂects the cardiovascular health of the human body. At present, hypertension is the most signiﬁcant risk factor for cardiovascular and cerebrovascular diseases, identiﬁed by the World Health Organization [1] as the main cause of death and disability among the elderly. Poorly controlled hypertension increases the risk of heart attacks, strokes, kidney failure, and heart failure.
+Table 1 lists the classiﬁcation criteria for hypertension in adults (age > 18 years). A normal BP for an adult human is 120/80 mmHg. A systolic blood pressure (SBP) of between 140 and 159 mmHg or diastolic blood pressure (DBP) of between 90 and 99 mmHg is deﬁned as the ﬁrst stage of hypertension, while the second stage is when SBP is higher than 159 mmHg, or DBP is higher than 99 mmHg [2].
+Invasive BP measurement has the highest accuracy of several methods available for measuring BP, but it is not widely applied because of its diﬃculty and high risk. Using Korotkoﬀ sounds to estimate SBP and DBP is another auscultatory measurement, and this has been widely accepted as the gold standard [3, 4]. Despite its high degree of accuracy and reliability, the auscultatory method does not apply to
+
+home blood pressure measurement (HBPM) [5], as it requires a treained professional [6]. Furthermore, the mercury sphygmomanometer is gradually being removed from clinical use [6]. Oscillometric blood pressure measurement has become increasingly popular in automated blood pressure measurement devices [7]. This method uses an electronic pressure sensor to observe the pressure oscillation in the cuﬀ, during its gradual deﬂation from above SBP to below DBP. The oscillation amplitude increases to its maximum value when the cuﬀ pressure reaches the mean arterial pressure and then gradually decreases with subsequent deﬂation of the cuﬀ pressure [8]. However, it cannot provide continuous beat-to-beat BP measurement with its periodic features, and it is not appropriate for home healthcare or easing the workload of clinicians at hospitals.
+For cuﬄess BP measurement, the pulse transit time (PTT) method and photoplethysmography (PPG) are widely used techniques [9]. PTT is deﬁned as the time taken for the arterial pulse pressure wave to travel from the aortic valve to the periphery [10], and some researchers have used it to estimate BP indirectly [11]. However, there are two parameters required to calculate PTT, electrocardiogram (ECG), and PPG. As a result, calculation of PPT commonly requires two devices to obtain these two parameters—the ECG is
+
+2
+
+Journal of Healthcare Engineering
+
+measured at the wrist or chest, and the PPG is measured from the index ﬁnger [12].
+Wearable pulse rate sensors based on PPG have become increasingly popular, with more than ten companies producing these sensors commercially [13]. To take advantage of this technology, some researchers have experimented with using only a single PPG waveform for estimating BP. A continuous PPG waveform and one single PPG waveform extracted from it are shown in Figure 1. Shin et al. [14] presented a pressure index (PI) extracted from a single PPG signal to estimate BP. Teng et al. [15] extracted four features of PPG signals to ﬁnd an optimal feature for BP estimation: width of 2/3 pulse amplitude, width of 1/2 pulse amplitude, systolic upstroke time, and diastolic time. This method established a linear regression model and found that systolic upstroke time and diastolic upstroke time from the PPG wave have higher correlations with BP. However, tests show that such a correlation is not always linear. Gao et al. [16] developed a method for BP estimation using the regression support vector machine (RSVM) method, with RBF kernel and discrete wavelet transform, and obtained better performance.
+In this paper, a new approach for beat-to-beat BP estimation based on artiﬁcial neural networks (ANNs) is presented. Yi et al. [17] have proved that for BP estimation, ANNs have better performance compared to regression analysis using PTT. The presented method uses a multitaper method (MTM) [18] to obtain the spectral components and combines them with two morphological features of a PPG signal, to constitute the input parameters. For wide representation of possible PPG signal and correspondent beat-to-beat BP, we extract the signal from the Multiparameter Intelligent Monitoring in Intensive Care (MIMIC) database [19, 20] for network training and testing. The results show that the presented method achieves better performance using only the PPG signal. Figure 2 shows the schematic illustration of presented BP estimation frameworks.
+The paper is organized as follows: Section 2 describes the overview of the MIMIC database, Section 3 explains the features extracted from a PPG signal and the presentation of the architecture of the ANN, and Section 4 shows the results using diﬀerent methods. Finally, the conclusion summarizes the paper proposal and brieﬂy anticipates future work.
+2. Data Description
+The MIMIC database is a collection of multiparameter recordings from over 90 ICU patients. The data in each case includes signals and periodic measurements obtained from a bedside monitor, as well as clinical data obtained from the patient’s medical record. The recordings vary in length; almost all of them are at least 20 hours, and many are 40 hours or more. In total, the database contains nearly 200 patient-days of real-time signals and accompanying data [21].
+The database contains data of ECG (leads I, III, and V), ABP, PAP, PPG, and respiratory signals recorded simultaneously with a 125 Hz sampling rate. In this paper, only the
+
+Table 1: Classiﬁcation of hypertension in adults (age > 18 years).
+
+Blood pressure classiﬁcation
+Normal Prehypertension Stage 1 hypertension Stage 2 hypertension
+
+BP (mmHg)
+
+Systolic
+
+Diastolic
+
+<120
+
+And <80
+
+120–139
+
+Or 80–89
+
+140–159
+
+Or 90–99
+
+≥160
+
+Or ≥100
+
+records with both ABP and PPG were extracted. Figure 3 shows an example record.
+In total, there are 58,795 valid intervals of PPG signal (subject number is 72) and corresponding BP values for different people and diﬀerent time instances. In order to avoid overﬁtting, we use 70% of them for network training, 15% of them for validation, and 15% of them for testing. The training dataset is presented to the network during training, and the network is adjusted according to its error. The validation dataset is used to measure network generalization and to halt training when generalization stops improving. The test dataset has no eﬀect on training and so provides an independent measure of network performance during and after training. The Levenberg-Marquardt algorithm was chosen for training the ANN. In this algorithm, training automatically stops when generalization stops improving, as indicated by an increase in the mean square error of the validation samples.
+
+3. ANN-Based BP Estimation
+
+3.1. Multitaper Method. The multitaper method (MTM) [22] takes advantage of an extended version of the spectral representation as follows:
+
+1/2
+
+xt =
+
+e−iωtdz t
+
+1
+
+−1/2
+
+In this case, the xt may contain a number of periodic components in addition to the underlying stationary process
+as follows:
+
+xt = 〠Cjcos ωjt + ϕj
+
++
+
+ξt
+
+=
+
+〠
+
+μ
+
+j
+
+eiωj
+
+t
+
++μ
+
+∗ j
+
+e−iωj t +ξt ,
+
+2
+
+j
+
+j
+
+where ξt is a zero-mean stationary process with S f not necessarily constant [18]. The above types of processes, called central stationary or conditional stationary processes, are often referred to as having mixed spectra [23]. For these processes, the expected value of the discrete orthogonal increment process dZ f is no longer zero and can be calculated as follows:
+
+E dZ f = 〠μjδ f − f j df ,
+
+3
+
+j
+
+where δ is the Dirac delta function. The second central moment of dZ f can be obtained as follows:
+
+E dZ f − E dZ f 2 = S f df
+
+4
+
+Journal of Healthcare Engineering
+
+3
+
+Single PPG signal
+
+Raw PPG signal Figure 1: The continuous PPG waveform and one single PPG waveform extracted from it.
+
+Raw signal
+
+Segment
+Single PPG signal
+
+Feature extraction
+Spectral feature extraction Two morphological features'
+extraction
+
+BP estimation
+
+j
+
+Wij
+
+i Wki
+
+X1
+
+k SBP
+
+X2
+
+DBP
+
+Xm
+
+M
+
+N
+
+L
+
+Input layer Hidden layer Output layer
+
+Figure 2: Schematic illustration of presented BP estimation frameworks. ABP (mmHg)
+
+PPG (a.u.)
+
+Figure 3: An example record.
+
+For processes with mixed spectra, the ﬁrst moment of dZ f gives the deterministic component, while the second central moment of dZ f gives the continuous nondeterministic component. The classical method has been centered on the estimation of the second moment of dZ f , which gives the continuous component of the spectrum. However, the estimation of the ﬁrst moment of dZ f was initially also required. Major opposition to the classical method is
+
+predicated on the fact that there is no separation between
+the deterministic component and nondeterministic component; spurious peaks in the spectrum can be identiﬁed as
+the deterministic component without an objective criterion for diﬀerentiating between real and spurious lines [24].
+In the MTM spectral estimation, a useful, yet simple, likelihood ratio test for the signiﬁcance of periodic components is oﬀered by the multiwindow method. This method
+
+4
+
+Journal of Healthcare Engineering
+
+PSD (W/Hz)
+
+0.025
+
+0.02
+
+0.015
+
+0.01
+
+0.005
+
+0
+
+0
+
+10 20 30 40 50 60 70
+
+(Hz)
+
+PSD estimation
+
+Figure 4: Frequency of single PPG signal.
+
+Table 2: Performance results of diﬀerent number of the input parameters.
+
+Number of the input parameters
+3 parameters (10 Hz interval) 4 parameters (5 Hz interval) 7 parameters (2 Hz interval) 12 parameters (1 Hz interval) 22 parameters (0.5 Hz interval)
+
+SBP e (mmHg)
+
+er (%)
+
+8.29 ± 6.60
+
+6.00 ± 5.28
+
+7.62 ± 6.08
+
+5.49 ± 4.77
+
+6.59 ± 5.25
+
+4.72 ± 4.02
+
+4.64 ± 3.63
+
+3.42 ± 2.61
+
+4.02 ± 2.79
+
+2.84 ± 2.00
+
+DBP e (mmHg)
+
+er (%)
+
+6.19 ± 6.63
+
+9.14 ± 7.45
+
+4.31 ± 3.83
+
+3.84 ± 3.39
+
+4.34 ± 5.23
+
+4.72 ± 3.91
+
+3.69 ± 2.74
+
+3.12 ± 4.11
+
+2.27 ± 1.82
+
+4.39 ± 3.60
+
+makes use of multiple data windows, referred to as “Slepian sequences” and “discrete prolate spheroidal sequences.” They are deﬁned as follows:
+
+λkνnk
+
+N, W
+
+=
+
+N −1
+〠
+
+sin
+
+m=0
+
+2πW n − m π n−m
+
+νmk N, W ,
+
+5
+
+where N is the number of sampling points of a single PPG wave (the sampling rate is 125 Hz), W is the spectral bandwidth, and λk are the eigenvalues associated with the Slepian sequences νnk N, W , which can be calculated numerically [25]. After Fourier transformation, the Slepian functions can be calculated as follows:
+
+N −1
+
+vk f = 〠 vnk N, W e−i2πf n
+
+6
+
+n=0
+
+In the interval f − W, f + W , the energy concentration of the above Slepian functions is maximum. Furthermore, the bias from all frequencies is remote from the frequency of the window width times the number of observations, and thus the use of these sequences is very eﬀective in eliminating window leakage [26].
+The MTM calculates the expansion or eigen coeﬃcients of input Xt as a ﬁrst step as follows:
+
+N −1
+
+yk f = 〠 xtνik N, W e−i2πf t
+
+7
+
+t=0
+
+Combining the above equations, the expected value of yk f can be obtained as follows:
+
+E yk f = μVk f − f0 + μ∗Vk f + f0
+
+8
+
+At f = f0,
+
+E yk f0 = μVk 0 + μ∗Vk 2f0 ≈ μVk 0 ,
+
+9
+
+assuming 2f0 > W and thus neglecting the second term in (9), since Vk is highly concentrated in the interval f − W, f +W .
+By minimizing the residual local squared error, that is,
+when f = f0, the μ can be estimated. The squared error can be described as follows:
+
+N−1
+
+e2 μ, f = 〠 yk f − μ f Vk 0 2
+
+10
+
+k=0
+
+The result is given as follows:
+
+μ̂ f
+
+=
+
+〠K−1
+k=0
+
+V
+
+∗ k
+
+0
+
+〠K−1
+k=0
+
+Vk
+
+yk 0
+
+f
+2
+
+11
+
+An F test can be used to test for the signiﬁcance of a line component at f , and the location of its maximum value provides an estimation of the line frequency.
+In this paper, the periods of interest are nearly as long as the data. Thus, a line component at zero frequency is included and the estimation of μ 0 from (11) is used as an alternative estimation of the mean, which will result in the
+
+Journal of Healthcare Engineering
+
+5
+
+0.025 0.02
+
+PSD estimation
+
+0.015
+
+0.01 S1 S2 S3 S4 S5 S6 S7 S8 S9 S10 S11
+
+0.005 0
+
+S12
+
+S13 S14
+
+S20
+
+S15
+
+S19
+
+S16 S17 S18
+
+0 0.5 1 1.5 2 2.5 3 3.5 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 9.5 10
+
+Figure 5: Spectral features extracted from single PPG signal.
+
+X1 SBP
+X2 DBP
+X22
+
+M Input layer
+
+N
+
+L
+
+Hidden layer Output layer
+
+Figure 6: The architecture of ANN.
+
+2500
+
+3000
+
+Number of samples Number of samples
+
+2000
+
+2500
+
+2000 1500
+1500
+1000 1000
+
+500
+
+500
+
+0 −40 −30 −20 −10 0
+
+10 20 30 40
+
+SBP estimation error (mmHg)
+
+(a)
+
+0 −40 −30 −20 −10 0
+
+10 20 30 40
+
+DBP estimation error (mmHg)
+
+(b)
+
+Figure 7: Histograms of error: (a) SBP estimation error and (b) DBP estimation error.
+
+preservation of the continuous part of the spectrum at zero frequency [23]. The continuous part of the spectrum can be calculated as follows:
+
+̂S f
+
+=
+
+1
+
+K −1
+〠
+
+K k=0
+
+yk
+
+f
+
+2
+
+12
+
+Table 3: Number of subjects in diﬀerent methods.
+
+Method Linear regression [15] RSVM based [16] Proposed method
+
+Number of subjects 15 65 72
+
+6
+
+Journal of Healthcare Engineering
+
+Table 4: Performance results of the linear regression, SVRM-based method, and ANN-based method with diﬀerent feature extraction technique on the test database.
+
+Method Linear regression [15] RSVM based [16] ANN based (this method)
+
+Number of input parameters
+2 13 for SBP 22 for DBP
+22
+
+SBP
+
+e (mmHg)
+
+er (%)
+
+9.80 ± 8.09
+
+8.94 ± 7.57
+
+5.07 ± 4.84
+
+4.32 ± 3.59
+
+4.02 ± 2.79
+
+2.84 ± 2.00
+
+DBP
+
+e (mmHg)
+
+er (%)
+
+5.88 ± 5.11
+
+10.26 ± 8.83
+
+4.31 ± 3.83
+
+3.84 ± 3.39
+
+2.27 ± 1.82
+
+4.39 ± 3.60
+
+However, according to (4), the spectrum near a signiﬁcant line component with frequency f0 must be reconstructed, by subtracting the contribution of the line component as
+follows [27]:
+
+̂Sr f
+
+=
+
+1
+
+K −1
+〠
+
+K k=0
+
+yk
+
+f
+
+− μ̂ f0 Vk f − f0
+
+2
+
+13
+
+3.2. Feature Extraction. Several spectral and morphological features are used to characterize the single PPG signal. The systolic upstroke time (ST) and diastolic time (DT) presented in [15] are used as the two morphological features. Then the MTM is used to extract the spectral features.
+As shown in Figure 4, the dominant frequency of single PPG waveform is mostly focused in the interval of low frequency (0.1~10 Hz).
+As a result, this method tries to extract the spectral character in the interval of low frequency (0.1~10 Hz). We calculate the power of every 0.5, 1, 2, 5, and 10 Hz interval. Then, we use them as input separately to determine the optimal number of input parameters, and the results are as listed in Table 2 of Section 4. The best results are obtained when the interval is 0.5 Hz, as presented in Figure 5.
+In total, the 22 parameters, including the times of systolic and diastolic parts and spectral features, are used to train the ANN.
+3.3. Artiﬁcial Neural Network Architecture. There are various ANN architectures for ﬁtting the input data to target, such as counter propagation, learning vector quantization, and radial basis function. Despite good performance, these architectures require large numbers of neurons and cannot be applied in the case of a big training set, due to their substantial memory requirements.
+In this paper, PPG features are fed to a multilayer perceptron architecture, which has 22 input neurons (the number of input parameters, as mentioned above) and 2 output neurons, to simultaneously estimate SBP and DBP. This architecture is shown in Figure 6.
+
+4. Experimental Results and Discussion
+Figure 7 shows the histograms of the errors, calculated as the diﬀerence between real SBP/DBP and the output of the ANN, for the proposed method. The mean diﬀerence and standard deviation between the estimated BP and measured BP are −0.0217 ± 4.8950 mmHg for SBP and 0.0975 ± 2.9160 mmHg for DBP.
+
+To further evaluate the performance of the presented method, other two BP [15, 16] estimation methods are chosen for comparison in this paper. Table 3 lists the number of subjects in the above studies.
+As indicated earlier, performance is assessed on eﬀective records from the MIMIC database and is processed in a MATLAB (MathWorks, Natick, MA, USA) environment. Absolute error e and relative error er are used to evaluate the performance, which are, respectively, deﬁned as
+
+e = BPestimated − BP,
+
+er
+
+=
+
+BPestimated BP
+
+− BP
+
+14
+
+Table 2 lists the performance results of diﬀerent numbers of input parameters, and Table 4 lists the results of performance on the test database for the linear regression, RSVM-based method, and ANN-based method with diﬀerent feature extraction techniques. The results are presented as mean and standard deviation of absolute error e and relative error er, among reference SBP/DBP and estimated values. For evaluation of the performance of this model in a single individual, test data is divided into individual subsets by index provided by PhysioNet [21] and is used to test performance on each subset, respectively. The estimated performance of the method applied to single individuals is listed in Table 5.
+Compared with the other methods, our method has better performance and can be conﬁdently said to provide an eﬀective detection technique for wearable devices and mobile software in the ﬁeld of hypertension.
+
+5. Conclusion and Future Work
+
+In this study, we propose a noninvasive and beat-to-beat method of BP estimation determined only from PPG signal. The MTM is used to extract representative features to improve precision and velocity. This is achieved using a typical-structure feed forward ANN. With the wearable PPG sensor becoming an increasingly popular technology, this method has practical signiﬁcance as part of a big data solution.
+According to the Association for the Advancement of Medical Instrumentation (AAMI), the mean and deviation absolute error between the device and the mercury standard sphygmomanometer can be larger than 5 ± 8 mmHg as well as the number of simultaneous readings agrees within 10 mmHg for 95% or more of the recordings and within
+
+Journal of Healthcare Engineering
+
+7
+
+Table 5: The performance results based on individual measurements.
+
+Record
+Subject number 211 (F, 67) Subject number 212 (M, 84) Subject number 213 (F, 82) Subject number 214 (F, 72) Subject number 216 (M, 67) Subject number 224 (M, 21) Subject number 225 (M, 73) Subject number 226 (M, 68) Subject number 230 (F, 75) Subject number 235 (F, 67) Subject number 237 (F, 63) Subject number 240 (M, 68) Subject number 241 (F, 76) Subject number 243 (M, 90) Subject number 245 (F, 63) Subject number 252 (M, 52) Subject number 259 (F, 76) Subject number 262 (F, 65) Subject number 264 (M, 65) Subject number 267 (M, 67) Subject number 269 (F, 82) Subject number 276 (F, 66) Subject number 277 (F, 71) Subject number 279 (F, 85) Subject number 280 (M, 60) Subject number 281 (M, 61) Subject number 284 (F, 59) Subject number 285 (M, 55) Subject number 286 (F, 34) Subject number 288 (F, 59) Subject number 289 (F, 61) Subject number 293 (F, 71) Subject number 401 (F, 64) Subject number 404 (F, 87) Subject number 408 (M, 45) Subject number 410 (M, 57) Subject number 411 (F, 82) Subject number 415 (F, 54) Subject number 417 (M, 86) Subject number 418 (M, 52) Subject number 422 (F, 84) Subject number 430 (M, 91) Subject number 434 (F, 52) Subject number 436 (F, 87) Subject number 437 (M, 75) Subject number 438 (M, 78) Subject number 439 (F, 75) Subject number 443 (M, 75)
+
+e (mmHg) 4.68 ± 4.05 5.10 ± 4.32 3.03 ± 2.71 4.10 ± 2.72 3.35 ± 2.32 2.89 ± 2.15 4.51 ± 2.79 4.44 ± 2.81 5.18 ± 3.63 3.55 ± 2.59 6.14 ± 4.29 4.55 ± 3.26 3.95 ± 2.59 5.21 ± 3.28 4.03 ± 2.84 6.08 ± 2.96 4.57 ± 3.07 5.15 ± 3.60 4.11 ± 2.66 3.72 ± 2.56 4.34 ± 2.95 3.76 ± 2.53 4.33 ± 2.85 4.15 ± 2.65 4.50±2.84 5.02±3.58 4.73 ± 3.19 5.70 ± 4.73 4.30 ± 3.01 4.84 ± 3.00 5.10 ± 3.77 4.44 ± 3.82 7.11 ± 5.64 4.01±3.78 4.10 ± 2.70 3.53 ± 3.48 3.40 ± 3.33 3.06 ± 2.03 3.13 ± 2.14 3.59±3.41 3.97 ± 3.29 2.68 ± 2.06 6.54 ± 6.35 7.59 ± 6.80 8.36 ± 7.79 3.73 ± 2.67 4.44 ± 3.87 4.52 ± 3.75
+
+SBP er (%)
+4.64 ± 4.62 3.65 ± 3.25 3.00 ± 2.56 2.91 ± 1.92 3.28 ± 2.29 2.37 ± 1.82 3.79 ± 2.39 3.49 ± 2.20 3.24 ± 2.28 2.47 ± 1.80 4.10 ± 2.68 3.65 ± 2.56 3.23 ± 2.20 4.41 ± 2.78 3.01 ± 2.12 5.30 ± 2.68 3.45 ± 2.33 4.36 ± 3.15 3.14 ± 2.04 2.84 ± 1.94 3.26 ± 2.22 3.11 ± 2.13 3.51 ± 2.31 3.40 ± 2.21 3.93 ± 2.54 4.35 ± 3.19 3.37 ± 2.37 4.11 ± 4.04 3.59 ± 2.52 3.70 ± 2.33 4.67 ± 3.49 3.86 ± 2.51 5.54 ± 4.58 2.73 ± 1.91 2.88 ± 1.89 3.10 ± 3.15 3.42 ± 2.38 2.99 ± 2.00 2.95 ± 2.03 3.54 ± 2.39 4.03 ± 4.40 2.61 ± 2.00 4.30 ± 4.38 4.92 ± 4.61 5.57 ± 5.37 3.48 ± 2.50 3.60 ± 2.30 3.82 ± 3.36
+
+DBP
+
+e (mmHg)
+
+er (%)
+
+2.60 ± 1.59
+
+4.49 ± 2.70
+
+2.95 ± 1.98
+
+5.44 ± 3.88
+
+3.12 ± 1.98
+
+5.50 ± 3.43
+
+2.50 ± 1.64
+
+5.48 ± 3.65
+
+1.91 ± 1.58
+
+4.52 ± 3.33
+
+2.16 ± 1.59
+
+4.12 ± 3.04
+
+2.08 ± 1.52
+
+4.92 ± 3.64
+
+2.32 ± 1.70
+
+4.18 ± 3.50
+
+1.82 ± 1.42
+
+4.66 ± 3.51
+
+2.09 ± 1.39
+
+3.81 ± 2.98
+
+2.92 ± 2.06
+
+4.14 ± 2.69
+
+1.84 ± 1.76
+
+3.87 ± 3.09
+
+3.45 ± 2.19
+
+5.71 ± 3.97
+
+2.92 ± 1.88
+
+4.99 ± 3.15
+
+3.40 ± 2.12
+
+5.77 ± 3.65
+
+2.70 ± 2.07
+
+5.58 ± 3.42
+
+3.26 ± 2.10
+
+4.51 ± 3.34
+
+2.77 ± 1.93
+
+5.36 ± 3.43
+
+2.79 ± 1.91
+
+4.64 ± 3.21
+
+2.56 ± 1.82
+
+4.66 ± 3.06
+
+3.39 ± 2.20
+
+4.28 ± 2.91
+
+2.78 ± 1.95
+
+4.01 ± 3.07
+
+2.85 ± 2.00
+
+3.94 ± 2.74
+
+3.03 ± 2.06
+
+4.13 ± 2.90
+
+3.57 ± 2.52
+
+4.06 ± 2.78
+
+2.70 ± 1.83
+
+5.16 ± 3.53
+
+3.15 ± 2.16
+
+4.96 ± 3.45
+
+2.66 ± 1.97
+
+5.12 ± 3.42
+
+2.86 ± 1.82
+
+4.40 ± 2.77
+
+3.27 ± 2.01
+
+5.40 ± 4.28
+
+2.85 ± 1.83
+
+6.12 ± 4.38
+
+2.92 ± 2.12
+
+4.20 ± 2.98
+
+3.97 ± 2.91
+
+4.32 ± 3.27
+
+2.07 ± 2.73
+
+5.03 ± 3.38
+
+3.01 ± 2.01
+
+6.08 ± 4.20
+
+3.18 ± 2.13
+
+5.69 ± 3.56
+
+3.45 ± 2.36
+
+5.07 ± 3.41
+
+2.66 ± 1.97
+
+4.71 ± 3.39
+
+3.74 ± 2.08
+
+7.10 ± 3.97
+
+2.65 ± 1.86
+
+5.74 ± 3.77
+
+3.18 ± 2.13
+
+4.30 ± 3.09
+
+3.62 ± 2.35
+
+5.52 ± 4.04
+
+3.29 ± 2.00
+
+4.32 ± 4.11
+
+2.97 ± 1.91
+
+5.19 ± 4.75
+
+2.89 ± 2.04
+
+4.41 ± 3.18
+
+2.31 ± 1.64
+
+3.89 ± 2.86
+
+2.14 ± 1.51
+
+5.85 ± 3.58
+
+2.34 ± 1.66
+
+4.82 ± 3.48
+
+8
+Record
+Subject number 446 (M, 73) Subject number 447 (M, 50) Subject number 449 (M, 75) Subject number 450 (F, 76) Subject number 452 (M, 73) Subject number 455 (M, 49) Subject number 456 (M, 84) Subject number 457 (F, 80) Subject number 458 (F, 73) Subject number 464 (F, 49) Subject number 466 (M, 70) Subject number 468 (F, 76) Subject number 471 (F, 78) Subject number 472 (M, 79) Subject number 474 (M, 75) Subject number 476 (F, 72) Subject number 477 (M, 67) Subject number 478 (M, age not recorded) Subject number 479 (F, 77) Subject number 480 (M, 52) Subject number 481 (F, 73) Subject number 482 (F, 92) Subject number 484 (M, 60) Subject number 485 (M, 69) Subject number 488 (age and gender not recorded)
+
+Table 5: Continued.
+
+e (mmHg) 4.97 ± 4.90 4.01 ± 3.65 3.93 ± 3.74 4.73 ± 3.69 4.34 ± 3.73 4.19 ± 3.69 3.69 ± 3.52 4.28 ± 3.91 3.87 ± 2.85 4.05 ± 2.86 4.42 ± 3.55 3.49 ± 2.32 3.72 ± 2.57 3.29 ± 2.21 5.04 ± 3.62 4.20 ± 3.72 4.07 ± 3.68
+
+SBP er (%)
+3.91 ± 2.31 3.32 ± 2.21 2.91 ± 2.01 3.21 ± 2.39 3.61 ± 3.28 3.48 ± ± 2.18 2.77 ± 1.89 3.36 ± 2.39 3.32 ± 2.48 3.43 ± 2.51 3.69 ± 2.18 2.95 ± 1.98 3.16 ± 2.21 2.66 ± 2.84 4.20 ± 4.06 3.48 ± 4.18 3.17 ± 2.80
+
+4.44 ± 2.79
+
+3.82 ± 2.37
+
+4.78 ± 4.04 5.20 ± 4.81 2.91 ± 3.76 3.88 ± 2.67 4.52 ± 2.74 4.73 ± 3.89
+
+3.43 ± 3.91 4.25 ± 3.99 3.55 ± 4.01 3.34 ± 2.44 3.81 ± 4.74 3.54 ± 2.50
+
+4.04 ± 2.75
+
+3.24 ± 2.24
+
+Journal of Healthcare Engineering
+
+DBP e (mmHg)
+
+er (%)
+
+2.09 ± 1.51
+
+5.82 ± 3.67
+
+3.76 ± 2.35
+
+4.13 ± 2.92
+
+3.45 ± 2.23
+
+5.69 ± 3.70
+
+3.53 ± 2.27
+
+4.66 ± 3.22
+
+2.90 ± 2.13
+
+6.73 ± 3.95
+
+2.16 ± 2.96
+
+5.47 ± 3.41
+
+3.67±2.13
+
+5.38 ± 3.89
+
+2.52 ± 1.81
+
+4.47 ± 3.41
+
+2.40 ± 1.72
+
+5.83 ± 3.96
+
+2.58 ± 1.79
+
+5.32 ± 3.63
+
+2.10 ± 1.92
+
+6.73 ± 3.95
+
+2.63 ± 1.89
+
+5.47 ± 3.41
+
+3.99 ± 2.25
+
+5.83 ± 3.39
+
+3.30 ± 2.06
+
+4.78 ± 3.60
+
+3.64 ± 2.49
+
+5.12 ± 3.67
+
+3.24 ± 2.34
+
+4.47 ± 3.45
+
+3.17 ± 2.08
+
+4.12 ± 3.67
+
+2.95 ± 1.99
+
+5.93 ± 4.12
+
+3.23 ± 2.08 3.17 ± 2.08 2.76 ± 1.94 2.51 ± 1.83 2.82 ± 2.00 2.34 ± 1.74
+
+4.96 ± 4.71 5.18 ± 3.78 5.44 ± 3.81 4.47 ± 3.45 4.94 ± 4.12 4.18 ± 3.68
+
+3.12 ± 2.16
+
+4.92 ± 3.24
+
+5 mmHg for 85% or more of simultaneous observations [13, 28]. Our future research will investigate how to improve the eﬃciency of the estimation algorithm, especially in a single individual. We will combine the method with data such as patient age, sex, and previous medical disorders. Hybrid and adaptable methods will also be considered.
+Conflicts of Interest
+The authors declare that there are no competing interests regarding the publication of this paper.
+Acknowledgments
+This work is supported by 2015 China Special Fund for Grain-Scientiﬁc Research in Public Interest (201513002).
+References
+[1] World Heart Federation, “Hypertension,” August 2017, http:// www.world-heart-federation.org/cardiovascular-health/cardio vascular-disease-risk-factors/hypertension/?sid=ISI:WoS.
+
+[2] BC Guidelines & Protocols Advisory Committee, Hypertension – Diagnosis and Management, BC Ministry of Health, 2016.
+[3] J. R. Higgins and S. M. De, “Blood-pressure measurement and classiﬁcation in pregnancy,” The Lancet, vol. 357, no. 9250, pp. 131–135, 2001.
+[4] J. Landgraf, S. H. Wishner, and R. A. Kloner, “Comparison of automated oscillometric versus auscultatory blood pressure measurement,” The American Journal of Cardiology, vol. 106, no. 3, pp. 386–388, 2010.
+[5] T. Ohkubo, Y. Imai, I. Tsuji et al., “Home blood pressure measurement has a stronger predictive power for mortality than does screening blood pressure measurement: a populationbased observation in Ohasama, Japan,” Journal of Hypertension, vol. 16, no. 7, pp. 971–975, 1998.
+[6] P. K. Lim, S. C. Ng, W. A. Jassim et al., “Improved measurement of blood pressure by extraction of characteristic features from the cuﬀ oscillometric waveform,” Sensors, vol. 15, no. 6, pp. 14142–14161, 2015.
+[7] T. G. Pickering, J. E. Hall, L. J. Appel et al., “Recommendations for blood pressure measurement in humans and experimental animals. Part 1: blood pressure measurement in humans: a statement for professionals from the Subcommittee of Professional and Public Education of the American Heart
+
+Journal of Healthcare Engineering
+
+9
+
+Association Council on High Blood Pressure Research,” Hypertension, vol. 45, no. 1, pp. 142–161, 2005.
+[8] S. Lee, G. Jeon, and G. Lee, “On using maximum a posteriori probability based on a Bayesian model for oscillometric blood pressure estimation,” Sensors, vol. 13, no. 10, pp. 13609–13623, 2013.
+[9] Z. Taha, L. Shirley, and M. A. M. Razman, “A review on noninvasive hypertension monitoring system by using photoplethysmography method,” Movement, Health & Exercise, vol. 6, no. 1, pp. 47–57, 2017.
+[10] R. P. Smith, J. Argod, J. L. Pepin, and P. A. Levy, “Pulse transit time: an appraisal of potential clinical applications,” Thorax, vol. 54, no. 5, pp. 452–457, 1999.
+[11] C. Ahlstrom, A. Johansson, F. Uhlin, T. Länne, and P. Ask, “Noninvasive investigation of blood pressure changes using the pulse wave transit time: a novel approach in the monitoring of hemodialysis patients,” Journal of Artiﬁcial Organs, vol. 8, no. 3, pp. 192–197, 2005.
+[12] H. Gesche, D. Grosskurth, G. Küchler, and A. Patzak, “Continuous blood pressure measurement by using the pulse transit time: comparison to a cuﬀ-based method,” European Journal of Applied Physiology, vol. 112, no. 1, pp. 309–315, 2012.
+[13] W. B. White, A. S. Berson, C. Robbins et al., “National standard for measurement of resting and ambulatory blood pressures with automated sphygmomanometers,” Hypertension, vol. 21, no. 4, pp. 504–509, 1993.
+[14] H. Shin and S. D. Min, “Feasibility study for the non-invasive blood pressure estimation based on ppg morphology: normotensive subject study,” Biomedical Engineering Online, vol. 16, no. 1, p. 10, 2017.
+[15] X. F. Teng and Y. T. Zhang, “Continuous and noninvasive estimation of arterial blood pressure using a photoplethysmographic approach,” in Proceedings of the 25th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (IEEE Cat. No.03CH37439), vol. 4, pp. 3153– 3156, Cancun, Mexico, 2003.
+[16] S. C. Gao, P. Wittek, L. Zhao, and W. J. Jiang, “Data-driven estimation of blood pressure using photoplethysmographic signals,” in 2016 38th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), pp. 766–769, Orlando, FL, USA, 2016.
+[17] K. J. Yi, B. Hwan Cho, S. Mi Im, M. Ju Jeon, I. Young Kim, and S. Kim, “Comparative study on artiﬁcial neural network with multiple regressions for continuous estimation of blood pressure,” in 2005 IEEE Engineering in Medicine and Biology 27th Annual Conference, pp. 6942–6945, Shanghai, China, 2005.
+[18] P. Donaldb and A. Walden, Spectral Analysis for Physical Applications, Cambridge University Press, 1998.
+[19] G. B. Moody and R. G. Mark, “A database to support development and evaluation of intelligent intensive care monitoring,” in Computers in Cardiology, 1996, pp. 657–660, Indianapolis, IN, USA, 1996.
+[20] A. L. Goldberger, L. A. Amaral, L. Glass et al., “PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals,” Circulation, vol. 101, no. 23, pp. e215–e220, 2000.
+[21] “MIMIC Database,” August 2017, https://physionet.org/ physiobank/database/mimicdb/.
+[22] D. J. Thomson, “Spectrum estimation and harmonic analysis,” Proceedings of the IEEE, vol. 70, no. 9, pp. 1055–1096, 1982.
+
+[23] D. J. Thomson, “Time series analysis of Holocene climate data,” Philosophical Transactions of the Royal Society A: Mathematical Physical and Engineering Sciences, vol. 330, no. 1615, pp. 601–616, 1990.
+[24] D. J. Thomson, “Quadratic-inverse spectrum estimates: applications to paleoclimatology,” Philosophical Transactions of the Royal Society A: Mathematical Physical and Engineering Sciences, vol. 332, no. 1627, pp. 539–597, 1990.
+[25] D. Slepian, “Prolate spheroidal wave functions, fourier analysis, and uncertainty — V: the discrete case,” Bell System Technical Journal, vol. 57, no. 5, pp. 1371–1430, 1978.
+[26] A. R. Rao and K. Hamed, “Multi-taper method of analysis of periodicities in hydrologic data,” Journal of Hydrology, vol. 279, no. 1-4, pp. 125–143, 2003.
+[27] Association for the Advancement of Medical Instrumentation, “American national standard for electronic or automated sphygmomanometers,” in ANSI/AAMI SP10-1992/A1, Arlington, VA, USA, 1996.
+[28] T. Tamura, Y. Maeda, M. Sekine, and M. Yoshida, “Wearable photoplethysmographic sensors—past and present,” Electronics, vol. 3, no. 2, pp. 282–302, 2014.
+

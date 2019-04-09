@@ -1,0 +1,270 @@
+USING ACCELEROMETRIC AND GYROSCOPIC DATA TO IMPROVE BLOOD PRESSURE PREDICTION FROM PULSE TRANSIT TIME USING RECURRENT NEURAL NETWORK
+Shrimanti Ghosh1, Ankur Banerjee2, Nilanjan Ray1, Peter W Wood2, Pierre Boulanger1, Raj Padwal2
+1Department of Computing Science, University of Alberta, Edmonton, Alberta, Canada 2Department of Medicine, University of Alberta, Edmonton, Alberta, Canada
+
+ABSTRACT
+
+We propose a method for estimating blood pressure (BP) non-invasively from electrocardiogram (ECG) and photoplethysmogram (PPG) signals. This method has potential to be used as a continuous form of BP estimation. Along with these signals, to our knowledge, for the first time in the BP measurement studies, we included accelerometric and gyroscopic signals from a wearable device to compensate for motion during continuous BP prediction. Our prediction model is a long-short-term-memory (LSTM) architecture of a recurrent neural network (RNN), which accommodates the multiscale temporal dependency between the sequential raw signal values and the corresponding systolic and diastolic BP values. We performed a study with 50 healthy volunteers. The mean difference ¬± standard deviation (SD) of the RNNbased approach were 0.02¬±4.8 for SBP and 1.5¬±3.7 for DBP in seated position & 2.6¬±6.0 for SBP and 2.7¬±4.5 for DBP while walking. These values meet current validation standard requirements for measurement accuracy. Our experiments also demonstrate that the proposed RNN-based approach outperformed the classical linear regression model for BP prediction.
+
+Index
+
+Terms‚Äî
+
+Blood
+
+pressure(BP),
+
+electrocardiogram(ECG), photoplethysmogram(PPG), Pulse
+
+transit time(PTT), accelerometer, gyroscope, cross-
+
+correlation, recurrent neural network(RNN), long-short-term
+
+memory(LSTM).
+
+1. INTRODUCTION
+
+High blood pressure is the leading cause of death and disability in the world, affecting nearly 1.5 billion adults [1, 2]. High blood pressure leads to many complications, including stroke, heart failure, kidney disease and coronary disease [3, 4]. Development of an accurate, continuous, and non-invasive BP measurement method is necessary for hypertension diagnosis and management [5].
+
+Recently, various machine learning algorithms have been employed to improve medical diagnosis, including predicting the risk of stroke and coronary heart diseases [6, 7].
+
+Prediction models based on pulse transit time (PTT) are have been used for continuous and non-invasive BP estimation. PTT is the time the pulse pressure waveform takes to propagate through the length of the arterial tree [8]. PTT can also be defined as the time lag between the R-peak of the ECG signal and the peak of the PPG signal, when measured within the same cardiac cycle [9].
+The classical PTT method is comparatively simple, but it fails to maintain the prediction accuracy over a long period of time and during motion [11, 15]. Thus, to improve on the classical PTT-based prediction, along with the ECG and the PPG signals, for the first time to our knowledge, we use signals from accelerometers and gyroscopes to predict BP. Accelerometers and gyroscopes have been widely accepted as useful and practical sensors for wearable devices to measure and assess physical activity [10]. In this study, accelerometric and gyroscopic values along with ECG and PPG values are collected from a wearable device called BioRadio (Great Lakes Neurotechnologies, Valley View, OH).
+To make a prediction model, we used recurrent neural networks (RNNs), which can effectively learn the multitimescale dependencies from a sequential time series of BP values. For this study, deep many-to-one and many-to-many long short-term memory network (LSTM) were used. These networks do not require any pre-processing of the input sequences. Thus, raw signals outputted from the BioRadio device were used as inputs to LSTM. The neural network is able to discover the latent correlation between different time series and learn from the dependency and predict the target values. This problem can be framed as a multivariate temporal sequence prediction problem and an appropriate application of biomedical signal processing. We used sequence-to-sequence learning framework to solve this problem [12].
+2. BP FROM PTT-BASED LINEAR REGRESSION MODEL
+The PTT-based model was first derived by Weltman et.al. in 1964 [13]. In the present study, synchronized ECG and PPG
+
+978-1-5386-4658-8/18/$31.00 ¬©2018 IEEE
+
+935
+
+ICASSP 2018
+
+signals were acquired from the BioRadio device and then a customized algorithm was designed to compute PTT automatically [15]. Cross-correlation between the adjacent peak points of ECG and PPG signals in the same cardiac cycle was used to compute PTT [14]. The PPG signal was smoother than the ECG signal (i.e. the number of outliers was less than that of the ECG signal). For this reason, sparsification of the PPG signal was performed by computing a moving window maximum on the PPG signal [15]. After detecting the maxima, only these maximum values of the PPG signal were used for further processing. This process converts the PPG signal into a very sparse signal that ultimately increased the accuracy and the efficiency (computational time) of the proposed algorithm [15].
+
+In healthy subjects, the PTT value is typically between 70 to 200 ms [16]. Therefore, from the automated PTT calculation, detection of abnormal cases is also possible. To check the accuracy of our proposed method, PTT values were compared to the reference standard, which was defined as manual PTT calculation (i.e. calculating the peak to peak distance of the ECG and PPG signals manually). The automated and manual PTT values were compared to measure the accuracy of this method. The observed errors of PTT measurement were within 1% of the manual measurement.
+
+The mathematical relationship between PTT and BP has previously been studied using physical models and empirical regression models which are based on the Moens‚ÄìKortweg and Bramwell‚ÄìHill equations, using a function to relate the elastic modulus to BP [17].
+
+Ì†µÌ∞µÌ†µÌ±É = Ì†µÌ±é + Ì†µÌ±è
+
+(1)
+
+Ì†µÌ±ÉÌ†µÌ±áÌ†µÌ±á
+
+BP values were calculated in five different positions (recumbent, seated, standing, walking, cycling) and the accelerometric and gyroscopic values were incorporated along with PTT data (to remove motion artifacts in case of walking and cycling) into the linear model in eq. (1) where the unknown constants Ì†µÌ±é and Ì†µÌ±è are subject dependent.
+
+prediction. We present our deep LSTM network shown in Fig. 1 for BP prediction from multiple temporal sequences. These types of data are used as the input to the hidden layer in the recurrent structure. In this way, the dependency among the BP measurements will be embedded into the network structure and the RNNs can use their memory information to process sequences of inputs. RNN and its variants like LSTM are powerful dynamic systems for modelling sequential data [21]. Unlike traditional RNN, LSTM replaces the activation function of the neurons to a unit with an ingenious inner structure called LSTM [20]. LSTM doesn't have the vanishing gradient problem and can store the memory of thousands of past discrete time steps. The following equations represent the process to perform parameter updates [18].
+
+Ì†µÌ±ì(Ì†µÌ±°) = Ì†µÌºé( Ì†µÌ±äÌ†µÌ±•Ì†µÌ±ìÌ†µÌ±•(Ì†µÌ±°) + Ì†µÌ±ä‚ÑéÌ†µÌ±ì‚Ñé1(Ì†µÌ±° ‚àí 1) + Ì†µÌ±èÌ†µÌ±ì ) (2)
+
+Ì†µÌ±ñ(Ì†µÌ±°) = Ì†µÌºé( Ì†µÌ±äÌ†µÌ±•Ì†µÌ±ñÌ†µÌ±•(Ì†µÌ±°) + Ì†µÌ±ä‚ÑéÌ†µÌ±ñ‚Ñé1(Ì†µÌ±° ‚àí 1) + Ì†µÌ±èÌ†µÌ±ñ )
+
+(3)
+
+Ì†µÌ±ú(Ì†µÌ±°) = Ì†µÌºé(Ì†µÌ±äÌ†µÌ±•Ì†µÌ±úÌ†µÌ±•(Ì†µÌ±°) + Ì†µÌ±ä‚ÑéÌ†µÌ±ú‚Ñé1(Ì†µÌ±° ‚àí 1) + Ì†µÌ±èÌ†µÌ±ú ) (4)
+
+Ì†µÌ±êÌ†µÌ±ñÌ†µÌ±õ(Ì†µÌ±°) = tanh(Ì†µÌ±äÌ†µÌ±•Ì†µÌ±êÌ†µÌ±•(Ì†µÌ±°) + Ì†µÌ±ä‚ÑéÌ†µÌ±ê‚Ñé1(Ì†µÌ±° ‚àí 1) + Ì†µÌ±èÌ†µÌ±êÌ†µÌ±ñÌ†µÌ±õ) (5)
+
+Ì†µÌ±ê(Ì†µÌ±°) = Ì†µÌ±ì(Ì†µÌ±°) ‚àó Ì†µÌ±ê(Ì†µÌ±° ‚àí 1) + Ì†µÌ±ñ(Ì†µÌ±°) ‚àó Ì†µÌ±êÌ†µÌ±ñÌ†µÌ±õ(Ì†µÌ±°)
+
+(6)
+
+‚Ñé1(Ì†µÌ±°) = Ì†µÌ±ú(Ì†µÌ±°) ‚àó tanh(Ì†µÌ±ê(Ì†µÌ±°))
+
+(7)
+
+In these equations, Ì†µÌºé represents the sigmoid function. The
+input, forget and output gates are denoted by Ì†µÌ±ñ, Ì†µÌ±ì Ì†µÌ±éÌ†µÌ±õÌ†µÌ±ë Ì†µÌ±î
+respectively and Ì†µÌ±êÌ†µÌ±ñÌ†µÌ±õ is the input of the LSTM cell. Ì†µÌ±°Ì†µÌ±éÌ†µÌ±õ‚Ñé is the activation function of the input Ì†µÌ±êÌ†µÌ±ñÌ†µÌ±õ. Here ‚àó is the Hadamard (element-wise) product. ‚Ñé1(Ì†µÌ±° ‚àí 1) represents the previous output of the LSTM unit. In eqn. (6) the current state Ì†µÌ±ê(Ì†µÌ±°) is
+calculated from the previous state Ì†µÌ±ê(Ì†µÌ±° ‚àí 1) and the gates in
+the LSTM unit. The formula in eqn. (7), ‚Ñé1(Ì†µÌ±°) is the output of unit at the current time point Ì†µÌ±°.
+
+3. BP FROM RECURRENT NEURAL NETWORK
+
+3.1. RNN model
+
+RNNs are the family of neural networks useful for processing temporal sequential data and have been successfully used in various sequence learning tasks to model long-term dependencies [18, 19]. In particular, the RNNs based on LSTMs can capture long range dependencies and nonlinear dynamics. LSTMs were originally introduced in [20] and subsequently, trained successfully to perform supervised machine learning tasks with sequential input and output. Neural networks have been applied to medical problems and here LSTMs are applied to multivariate clinical time series
+
+Figure 1: LSTM many-to-one architecture
+A deeper RNN architecture has stronger learning capability; thus, with limited training data, it is difficult to train such a network without overfitting. We applied dropout to mitigate
+
+936
+
+the overfitting issue. The RNN model summary, the layer types and the number of parameters used in each layer are described in Fig 2.
+
+4. THE PROTOCOL OF DATA COLLECTION 4.1. Calibration
+
+During the calibration process, each subject was attached to three ECG electrodes and a pulse oximeter in the seated position. Here calibration means entering the BP value that corresponds to a known input = (ECG, PPG, PTT, Accelerometric, Gyroscopic values) that enables the derivation of a subsequent BP when a future input data points are measured. Data recording and streaming from the BioRadio were initiated. Four cuffed BP measurements were taken after the data extraction and used for calibration.
+
+Figure 2: RNN model summary and the parameters
+3.2. Training details of the LSTM network
+We created our LSTM layer with different numbers of neurons (32, 64, 128) and it performed comparatively well with 32 neurons in the first hidden layer and 1 neuron in the output layer to predict BP values. The last layer is a dense layer and we used mean squared error (MSE) loss function and Adam version of the stochastic gradient descent [22]. The model was trained with 50 epochs and a batch size of 64 examples with learning rate of 0.001. All the LSTMparameters were initialized with the uniform distribution between -0.1 and 0.1. A dropout of 0.30 was applied to prevent overfitting. The MSE loss curves (training and validation curves) with different epochs are shown in Fig 3. All the experiments with the neural network were implemented using Keras API [24] with TensorFlow and on a double NVIDIA GeForce GTX 1080.
+
+After calibration, input signals were captured over 20 heartbeats; this included 10 beats taken immediately prior to initiating the cuffed measurement and 10 beats taken immediately after the cuffed measurement had ceased. Measurements were performed in 5 different scenarios (recumbent, seated, standing, walking at a regular pace and cycling at a comfortable pace). The proposed algorithms were used to predict BP and were compared to the actual oscillometric BP measurement.
+5. THE DATASET
+In our study, the data from 50 healthy subjects (24 men and 26 women) with no prior history of hypertension were recorded. Separate datasets for training and testing were used. The training dataset was collected with the subjects in a seated position and the test dataset with the subjects seated, lying down, standing, walking and cycling. We analyzed the five different positions separately. The number of data points or time steps collected during training was around 60000 and the number of features was 9 (i.e. ECG, PPG, PTT, 3 Accelerometric and 3 Gyroscopic values for three axes, respectively). The LSTM was trained with different batch sizes: 64, 128, 256, 512. The baseline characteristics of the participants were as follows: mean age 30.2 ¬± 11.9 years (range 18-62), weight 67.6 ¬± 12.5 kg, height 169.4 ¬± 8.7 cm, body mass index 23.5 ¬± 4.1 kg m-2, and mid-arm circumference 29.0 ¬± 4.0 cm. The reference standard BP was measured using a validated oscillometric device (A&D Medical UA-651BLE) [23].
+
+6. EXPERIMENTAL RESULTS AND DISCUSSION
+
+Figure 3: Loss- MSE vs Epoch curve for training and validation for the LSTM
+
+The results are compared for both linear model and RNN with and without accelerometric and gyroscopic values to show the impact of incorporating these motion detectors for BP prediction. Root-mean-squared-error (RMSE) values and the mean & standard deviation (SD) of error values were calculated between the reference standard and estimated systolic and diastolic BP values (SBP and DBP respectively) from both the linear and non-linear models.
+
+937
+
+6.1. Results from Linear Model
+
+Table 1. Comparison of RMSE values between the reference standard and
+estimated BP and Mean ¬± SD of the error using Linear Regression with and without accelerometric & gyroscopic data
+
+Without accl & gyro (SBP & DBP)
+With accl & gyro (SBP & DBP)
+Without accl & gyro (SBP & DBP)
+With accl & gyro (SBP & DBP)
+
+Recumbent
+5.74
+5.22
+7.19
+6.08
+-0.9 ¬± 5.7
+-3.6 ¬± 3.8 -0.8 ¬± 7.2 -3.7 ¬± 4.8
+
+Seated
+5.70
+4.38
+8.04
+5.62
+-0.2 ¬± 5.8 1.5 ¬± 4.2 -1.1 ¬± 8.0 2.5 ¬± 5.0
+
+Standing
+5.14
+6.12
+6.16
+5.90
+-0.3 ¬± 5.2 3.8 ¬± 4.8 -0.4 ¬± 6.2 3.3 ¬± 4.9
+
+Walking
+10.42
+8.39
+7.47
+7.01
+2.0 ¬± 10.3
+2.0 ¬± 8.2 -2.6 ¬± 7.5 1.6 ¬± 6.8
+
+Cycling
+11.01
+7.84
+8.15
+5.38
+3.3 ¬± 10.7
+1.8 ¬± 7.8 3.3 ¬± 7.5 3.8 ¬± 5.1
+
+6.2. Results from RNN-LSTM
+
+Table 2. Comparison of RMSE values between the reference standard and estimated BP and Mean ¬± SD of the error using RNN with and
+without accelerometric & gyroscopic data
+
+Without accl & gyro (SBP & DBP)
+With accl & gyro (SBP & DBP)
+Without accl & gyro (SBP & DBP)
+With accl & gyro (SBP & DBP)
+
+Recumbent
+4.40
+4.75
+4.40
+4.57
+-0.4 ¬± 4.4 -3.4 ¬± 3.4 -0.2 ¬± 4.2 -3.2 ¬± 3.3
+
+Seated
+4.92
+4.18
+4.83
+3.95
+-0.5 ¬± 4.6 1.6 ¬± 4.0 0.02 ¬± 4.8 1.5 ¬± 3.7
+
+Standing
+4.01
+5.37
+3.88
+4.90
+-0.3 ¬± 4.1 3.5 ¬± 4.1 -0.2 ¬± 3.9 2.5 ¬± 4.2
+
+Walking
+8.05
+5.35
+6.54
+5.22
+2.6 ¬± 7.8 2.9 ¬± 5.3 2.6 ¬± 6.0 2.7 ¬± 4.5
+
+Cycling
+7.93
+5.60
+7.54
+4.81
+3.0 ¬± 7.8
+1.8 ¬± 5.8 2.9 ¬± 6.4 2.0 ¬± 4.4
+
+From the above results it is clear that the RMSE values for the linear model reported in Table 1 are far less accurate than the RMSE for the neural network in Table 2. The same is true for the mean and the standard deviations (in mmHg) in Tables 1 & 2 for the neural network. But the performance of the proposed algorithm improved substantially when the accelerometric and gyroscopic values were incorporated into the models. For the continuous BP prediction problem, linear regression model works but not as well as RNN with the LSTM architecture. So far, our proposed LSTM model achieved a reasonable accuracy in case of posture and activity using the data captured from the motion sensors.
+7. CONCLUSION AND FUTURE WORK
+In this paper, we propose that the RNN models can predict continuous BP sequences from physiological signals like ECG, PPG and other parameters like PTT in posture and activity. We performed a study involving 50 healthy volunteers. The captured signals in the seated or standing positions are relatively comparable to oscillometric BP; however, walking and cycling introduce baseline noise into both the ECG & PPG signals and have varying physiological states from resting, making it more difficult to accurately estimate the corresponding BP values. To predict BP more accurately during activity, here we incorporated the accelerometric and gyroscopic values. The BioRadio‚Äôs accelerometer measures gravitational force (also known as gforce) and the gyroscope measures angular velocity. Both of these sensors take measurements in three planes - x, y and z. The motion artifacts that affect the ECG & PPG signals are a known, yet unavoidable issue caused by activity. After including accelerometer and gyroscope data, we achieve significant boost in the accuracy for all positions. According to the accepted threshold for accuracy in the field of blood pressure measurement in [25], for mean of 2.6 mmHg, the maximum permissible SD is 6.43 mmHg, which is 6.0 while walking and for mean of 2.9 mmHg, the permissible SD is 6.3 mmHg, which is 6.4 while cycling in our study. It can be stated that the difference between the estimated BP from RNN and the reference standard was less than the accepted threshold in all five scenarios. The deep learning based method appears sufficiently accurate not only in motionless conditions (recumbent, seated, standing) but also for walking and cycling, where motion artifacts are present. Also, the training set contains data collected in motionless condition while, in the test set we have data in presence of motion as well. RNN also predicted the new data quite well. In the future, the current model should be further developed such that it learns the multi-scale dependency more accurately and performs multi-tasking by predicting SBP, DBP and mean blood pressure (MBP) in parallel. Such auxiliary training could be applied during training phase and could improve the overall performance and accuracy.
+
+938
+
+8. REFERENCES
+[1] Mills KT, Bundy JD, Kelly TN, et al. Global Disparities of Hypertension Prevalence and Control: A Systematic Analysis of Population-Based Studies From 90 Countries. Circulation 2016; 134:441-450.
+[2] Lim SS, Vos T, Flaxman AD, et al. A comparative risk assessment of burden of disease and injury attributable to 67 risk factors and risk factor clusters in 21 regions, 1990-2010: a systematic analysis for the global burden of disease study 2010. Lancet 2012; 380:2224-2260.
+[3] A. V. Chobanian, G. L. Bakris, H. R. Black, W. C. Cushman, L. A. Green, J. L. Izzo Jr, D. W. Jones, B. J. Materson, S. Oparil, J. T. Wright Jr, et al. ‚ÄúThe seventh report of the joint national committee on prevention, detection, evaluation, and treatment of high blood pressure‚Äù: the jnc 7 report. Jama, 289(19):2560{2571, 2003.
+[4] G. B. Ehret, K. M. Rice, M. Bochud, A. D. Johnson, D. I. Chasman, A. V. Smith, M. D. Tobin, G. C. Verwoert, S. J. Hwang, and V. Pihur. ‚ÄúGenetic variants in novel pathways inuence blood pressure and cardiovascular disease risk‚Äù. Nature, 478(7367):103109,2011.
+[5] H. Gesche et al., ‚ÄúContinuous blood pressure measurement by using the pulse transit time: comparison to a cuff-based method‚Äù, Article accepted in Springer-Verlag 2011.
+[6] X. H. Fang, W. T. Longstreth Jr, S. C. Li, R. A. Kronmal, X. M. Cheng, W. Z. Wang, S. Wu, X. L. Du, and X. Y. Dai. ‚ÄúLongitudinal study of blood pressure and stroke in over 37,000 people in china‚Äù. Cerebrovascular Diseases, 11(3):225-9, 2001.
+[7] P. W. Wilson, R. B. D'Agostino, D. Levy, A. M. Belanger, H. Silbershatz, and W. B. Kannel. ‚ÄúPrediction of coronary heart disease using risk factor categories‚Äù. Circulation, 97(18):1837-1847, 1998.
+[8] Thomas Wibmer et al., ‚ÄúBlood pressure monitoring during exercise: Comparison of pulse transit time and volume clamp methods‚Äù, ISSN: 0803-7051 (Print) 1651 -1999 (Online), 2015.
+[9] Heather Ting Ma, ‚ÄúA Blood Pressure Monitoring Method for Stroke Management‚Äù, Research Article, BioMed Research International, Volume 2014, Article ID 571623, Published on 17 August 2014.
+[10] Che-Chang Yang and Yeh-Liang Hsu, ‚ÄúA Review of Accelerometry-Based Wearable Motion Detectors for Physical Activity Monitoring‚Äù, Sensors 2010, 7772-7778, ISSN 1424-8220.
+[11] BM McCarthy, CJ Vaughan, B O'flynn, A Mathewson, and C.O. Mathuna. ‚ÄúAn examination of calibration intervals required for accurately tracking blood pressure using pulse transit time algorithms‚Äù. Journal of human hypertension, 27(12):744-750, 2013.
+[12] Peng Su, et.al. ‚ÄúLearning to Predict Blood Pressure with Deep Bidirectional LSTM Network‚Äù, CoRR 2017, arXiv:1705.04524.
+[13] Gershon Weltman, George Sullivan, and Dale Bredon. The continuous measurement of arterial pulse wave velocity. Medical electronics and biological engineering, 2(2):145-154, 1964.
+
+[14] S. M. Boker, M. Xu, J. L. Rotondo, K. King, ‚ÄúWindowed Cross‚ÄìCorrelation and Peak Picking for the Analysis of Variability in the Association Between Behavioral Time Series‚Äù, Psychological Methods, vol.7(3), pp. 338-355, Sep. 2002.
+
+[15] S. Ghosh, et.al. ‚ÄúContinuous Blood Pressure Prediction from Pulse Transit Time Using ECG and PPG Signals‚Äù, IEEE, Healthcare Innovation Point-Of-Care Technologies Conference (HI-POCT), Nov. 2016.
+
+[16] Surendhra Goli, Jayanthi T, ‚ÄúCuff less Continuous NonInvasive Blood Pressure Measurement Using Pulse Transit Time Measurement‚Äù, International Journal of Recent Development in Engineering and Technology, ISSN 2347 - 6435 (Online) vol. 2, Issue 1, January 2014.
+
+[17] Ramakrishna Mukkamala et al. (member IEEE) ‚ÄúToward Ubiquitous Blood Pressure Monitoring via Pulse Transit Time: Theory and Practice‚Äù, IEEE Transactions on Biomedical Engineering, vol. 62, No. 8, August 2015.
+
+[18] David E Rumelhart, Geoffrey E Hinton, and Ronald J Williams. ‚ÄúLearning internal representations by error propagation‚Äù. Technical report, DTIC Document, 1985.
+
+[19] Karpathy, Andrej and Fei-Fei, Li. ‚ÄúDeep visual-semantic alignments for generating image descriptions‚Äù. In IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pp. 3128‚Äì 3137, June 2015.
+
+[20] Hochreiter, Sepp and Schmidhuber, J¬®urgen. ‚ÄúLong short-term memory‚Äù. Neural Computation, 9(8): 1735‚Äì1780, 1997.
+
+[21] Yann LeCun, Yoshua Bengio, and Geoffrey Hinton. ‚ÄúDeep learning‚Äù. Nature, 521(7553): 436-444, 2015.
+
+[22] Diederik Kingma, Jimmy Ba, ‚ÄúAdam: A method for Stochastic Optimization‚Äù, 3rd International Conference for Learning Representations, San Diego, 2015.
+
+[23] Elisabetta Benetti, Claudio Fania and Paolo Palatini, ‚ÄúValidation of the A&D BP UA-651 device for home blood pressure measurement according to the European Society of Hypertension International Protocol revision 2010‚Äù.
+
+[24] Chollet, Francois et.al. ‚ÄúKeras‚Äù, published by GitHub, 2015.
+
+[25] Association for the Advancement of Medical Instrumentation.
+
+ANSI/AAMI/ISO
+
+81060-2:2013
+
+Non-invasive
+
+sphygmomanometers - Part 2: Clinical investigation of automated
+
+measurement type. 2013. Association for the Advancement of
+
+Medical Instrumentation. Arlington, VA. 2013. Available at
+
+www.aami.org.
+
+939
+

@@ -1,0 +1,303 @@
+
+智能汽车创新峰会
+您正在使用IE低版浏览器，为了您的雷锋网账号安全和更好的产品体验，强烈建议使用更快更安全的浏览器
+雷锋网
+
+    AI研习社
+    AI投研邦
+    活动
+    专题
+    爱搞机
+
+    业界
+    人工智能
+    学术 开发者
+    智能驾驶
+    新智驾TV
+    AI+
+    金融科技
+    未来医疗
+    网络安全
+    智慧城市
+    智慧安防 智慧教育 智慧交通 智慧社区 智慧零售 智慧政务
+    机器人
+    行业云
+    智能硬件
+    物联网
+    GAIR
+
+人工智能 正文
+发私信给 AI研习社
+发送
+
+0
+深度学习调参有哪些技巧？| 干货
+本文作者： AI研习社 	2017-03-24 16:49
+导语：雷锋网按：作者杨军，从事大规模机器学习系统研发及应用相关工作。本文整理自知乎，已获作者授权。本文将分享一些自己关于深度学习模型调试技巧的总结思考（以CNN为主）
+
+雷锋网 (公众号：雷锋网) 按：作者杨军，从事大规模机器学习系统研发及应用相关工作。本文整理自知乎，已获作者授权。
+
+本文将分享一些自己关于深度学习模型调试技巧的总结思考（以CNN为主）。
+
+最 近因为一些需要，参与了一些CNN建模调参的工作，出于个人习性，我并不习惯于通过单纯的trial-and-error的方式来调试经常给人 以”black-box”印象的Deep Learning模型。所以在工作推进过程中，花了一些时间去关注了深度学习模型调试以及可视化的资料（可视化与模型调试存在着极强的联系，所以在后面我 并没有对这两者加以区分），这篇文章也算是这些工作的一个阶段性总结。
+
+这里总结的内容，对于模型高手来说，应该说都是基本的know-how了。
+
+我 本人是计算机体系结构专业出身，中途转行做算法策略，所以实际上我倒是在大规模机器学习系统的开发建设以及训练加速方面有更大的兴趣和关注。不过机器学习 系统这个领域跟常规系统基础设施（比如Redis/LevelDB以及一些分布式计算的基础设施等）还有所区别，虽然也可以说是一种基础设施，但是它跟跑 在这个基础设施上的业务问题有着更强且直接的联系，所以我也会花费一定的精力来关注数据、业务建模的技术进展和实际问题场景。
+
+说得通俗一些，对自己服务的业务理解得更清晰，才可能设计开发出更好的算法基础设施。
+
+另外在进入文章主体之前想声明的是，这篇文章对于Deep Learning的入门者参考价值会更高，对于Deep Learning老手，只期望能聊作帮助大家技术总结的一个余闲读物而已。
+
+文 章的主要内容源于Stanford CS231n Convolutional Neural Networks for Visual Recognition课程[1]里介绍的一些通过可视化手段，调试理解CNN网络的技巧，在[1]的基础上我作了一些沿展阅读，算是把[1]的内容进一 步丰富系统化了一下。限于时间精力，我也没有能够把里面提到的所有调试技巧全部进行尝试，不过在整理这篇文章的时候，我还是参考了不止一处文献，也结合之 前以及最近跟一些朋友的技术交流沟通，对这些方法的有效性我还是有着很强的confidence。
+
+1、Visualize Layer Activations
+
+通过将神经网络隐藏层的激活神经元以矩阵的形式可视化出来，能够让我们看到一些有趣的insights。
+在[8]的头部，嵌入了一个web-based的CNN网络的demo，可以看到每个layer activation的可视化效果。
+
+深度学习调参有哪些技巧？| 干货
+
+在[14]里为几种不同的数据集提供了CNN各个layer activation的可视化效果示例，在里头能够看到CNN模型在Mnist/CIFAR-10这几组数据集上，不同layer activation的图形化效果。
+
+原则上来说，比较理想的layer activation应该具备sparse和localized的特点。
+
+如果训练出的模型，用于预测某张图片时，发现在卷积层里的某个feature map的activation matrix可视化以后，基本跟原始输入长得一样，基本就表明出现了一些问题，因为这意味着这个feature map没有学到多少有用的东西。
+
+2、Visualize Layer Weights
+
+除了可视化隐藏层的activation以外，可视化隐藏层的模型weight矩阵也能帮助我们获得一些insights。
+这里是AlexNet的第一个卷积层的weight可视化的示例：
+
+深度学习调参有哪些技巧？| 干货
+
+通 常，我们期望的良好的卷积层的weight可视化出来会具备smooth的特性（在上图也能够明显看到smooth的特点），参见下图（源于[13]）：
+
+深度学习调参有哪些技巧？| 干货
+
+这两张图都是将一个神经网络的第一个卷积层的filter weight可视化出来的效果图， 左图存在很多的噪点，右图则比较平滑。出现左图这个情形，往往意味着我们的模型训练过程出现了问题。
+
+3、Retrieving Images That Maximally Activate a Neuron
+为了理解3提到的方法，需要先理解CNN里Receptive Field的概念，在[5][6]里关于Receptive Field给出了直观的介绍：
+
+深度学习调参有哪些技巧？| 干货
+
+如 果用文字来描述的话，就是对应于卷积核所生成的Feature Map里的一个neuron，在计算这个neuron的标量数值时，是使用卷积核在输入层的图片上进行卷积计算得来的，对于Feature Map的某个特定neuron，用于计算该neuron的输入层数据的local patch就是这个neuron的receptive field。
+
+而 对于一个特定的卷积层的Feature Map里的某个神经元，我们可以找到使得这个神经元的activation最大的那些图片，然后再从这个Feature Map neuron还原到原始图片上的receptive field，即可以看到是哪张图片的哪些region maximize了这个neuron的activation。在[7]里使用这个技巧，对于某个pooling层的输出进行了activation maximization可视化的工作：
+
+深度学习调参有哪些技巧？| 干货
+
+不 过，在[9]里，关于3提到的方法进行了更为细致的研究，在[9]里，发现，通过寻找maximizing activation某个特定neuron的方法也许并没有真正找到本质的信息。因为即便是对于某一个hidden layer的neurons进行线性加权，也同样会对一组图片表现出相近的semantic亲和性，并且，这个发现在不同的数据集上得到了验证。
+
+如下面在MNIST和ImageNet数据集上的观察：
+
+深度学习调参有哪些技巧？| 干货
+
+深度学习调参有哪些技巧？| 干货
+
+深度学习调参有哪些技巧？| 干货
+
+深度学习调参有哪些技巧？| 干货
+
+4.Embedding the Hidden Layer Neurons with  t-SNE
+
+这 个方法描述起来比较直观，就是通过t-SNE[10]对隐藏层进行降维，然后以降维之后的两维数据分别作为x、y坐标（也可以使用t-SNE将数据降维到 三维，将这三维用作x、y、z坐标，进行3d clustering），对数据进行clustering，人工review同一类图片在降维之后的低维空间里是否处于相邻的区域。t-SNE降维以后的 clustering图往往需要在较高分辨率下才能比较清楚地看到效果，这里我没有给出引用图，大家可以自行前往这里[15]里看到相关的demo图。
+
+使用这个方法，可以让我们站在一个整体视角观察模型在数据集上的表现。
+
+5.Occluding Parts of the Image
+
+这个方法在[11]里被提出。我个人非常喜欢这篇文章，因为这篇文章写得非常清晰，并且给出的示例也非常直观生动，是那种非常适合推广到工业界实际应用场景的论文，能够获得ECCV 2014 best paper倒也算在意料之中。
+
+在 [11]里，使用了[12]里提出的Deconvolutional Network，对卷积层形成的feature map进行reconstruction，将feature map的activation投影到输入图片所在的像素空间，从而提供了更直观的视角来观察每个卷积层学习到了什么东西，一来可以帮助理解模型；二来可以 指导模型的调优设计。
+
+[11]的工作主要是在AlexNet这个模型上做的，将Deconvolutional Network引入到AlexNet模型以后的大致topology如下：
+
+深度学习调参有哪些技巧？| 干货
+
+上 图里，右边是正常的卷积神经网络，左边是Deconv Net，Deconv Net的输入是卷积神经网络的某个卷积层/pooling层的输出，另外，在Deconv Net与右边的卷积神经网络之间存在一个Switches连接通道，用于执行Deconv net里的Unpooling操作。注意上图的一个细节，Deconv Net的Unpooling操作，实际上是pooling操作的一个近似逆函数，而非精确逆函数。
+
+在AlexNet模型上使用Deconv Net对feature map进行input image space投影的效果示例如下：
+
+深度学习调参有哪些技巧？| 干货
+
+从 上面这个示例图里能够看得出来，不同的feature map，使用Deconv Net进行reconstruction，会投影出不同描述粒度的图片，比如低层的layer reconstruction出来的会是边缘性质的图像，而高层的layer reconstruction出来的则可能会是狗的脸部，计算器的轮廓等更general性质的图像。
+
+另外，通过Deconv Net还可以观察训练过程中，feature map的演化情况，基本的作法就是将每个卷积层里，activation最大的feature map使用Deconv Net进行reconstruction，以epoch为时间粒度，观察这些feature map reconstructed image的变化趋势，比如下图：
+
+深度学习调参有哪些技巧？| 干货
+
+能够看到，低层的feature map比较快就会收敛，而高层的feature map则需要较长epoch的训练时长才会收敛。
+
+接 下来回到[11]里提出的"Occluding Parts of the Image”的方法，这个方法描述起来并不复杂：对于一张输入图片，使用一个小尺寸的灰度方块图作为掩模，对该原始图片进行遍历掩模，每作一次掩模，计算 一下CNN模型对这张掩模后图片的分类预测输出，同时，找到一个在训练集上activation最大的feature map，每作一次掩模，记录下来以掩模图片作为输入数据之后的feature map矩阵，将所有掩模所产生的这些feature map矩阵进行elementwise相加，就可以观察到掩模图片的不同区域对分类预测结果以及feature map的activation value的影响。示例图如下：
+
+深度学习调参有哪些技巧？| 干货
+
+上图的第一列是原始图片。
+
+第 二列是在训练集上选出了layer 5上的activation行为最显著的一个feature map之后，对第一列的原始图片使用一个灰度小色块进行occluding之后，所生成的该feature map的activation value进行sum up之后的可视图。
+
+第三列是这个feature map（这个是在没有occluding的image上应用CNN模型生成的feature map）使用Deconv Net投影到input image space上的图像。能够看得出来，第三列所reconstruct出的image与第二列中受occluding操作影响较大的区域明显是相重合的。
+
+最 后说一下我的感受，卷积神经网络自从2012年以AlexNet模型的形态在ImageNet大赛里大放异彩之后，就成为了图像识别领域的标配，甚至现在 文本和语音领域也开始在使用卷积神经网络进行建模了。不过以卷积神经网络为代表的深层神经网络一直被诟病“black-box”，这对于DL模型在工业界 的应用推广还是带来了一定的阻碍。
+
+对于”black-box”这个说法， 一方面，我觉得确实得承认DL这种model跟LR、GBDT这些shallow model相比，理解、调试的复杂性高了不少。 想 像一下，理解一个LR或是GBDT模型的工作机理，一个没有受到过系统机器学习训练的工程师，只要对LR或GBDT的基本概念有一定认识，也大致可以通过 ad-hoc的方法来进行good case/bad case的分析了。而CNN这样的模型，理解和调试其的技巧，则往往需要资深的专业背景人士来提出，并且这些技巧也都还存在一定的局限性。
+
+对 于LR模型来说，我们可以清晰地描述一维特征跟目标label的关系（即便存在特征共线性或是交叉特征，也不难理解LR模型的行为表现），而DL模型，即 便这几年在模型的可解释性、调试技巧方面有不少研究人员带来了新的进展，在我来看也还是停留在一个相对”rough”的控制粒度，对技巧的应用也还是存在 一定的门槛。
+
+另一方面，我们应该也对学术界、工业界在DL模型调试方面的进展保持一定的关注。我自己的体会，DL模型与shallow model的应用曲线相比，目前还是存在一定的差异的。 从 网上拉下来一个pre-trained好的模型，应用在一个跟pre-trained模型相同的应用场景，能够快速地拿到7，80分的收益，但是，如果应 用场景存在差异，或者对模型质量要求更高，后续的模型优化往往会存在较高的门槛（这也是模型调试、可视化技巧发挥用武之地的地方），而模型离线tune好 以后，布署到线上系统的overhead也往往更高一些，不论是在线serving的latency要求（这也催生了一些新的商业机会，比如 Nervana和寒武纪这样的基于软硬件协同设计技术的神经网络计算加速公司），还是对memory consumption的需求。
+
+以前有人说过一句话“现在是个人就会在自己的简历上写自己懂Deep Learning，但其实只有1%的人知道怎样真正design一个DL model，剩下的只是找来一个现成的DL model跑一跑了事”。这话听来刺耳，但其实有几分道理。
+
+回到我想表达的观点，一方面我们能够看到DL model应用的门槛相较于shallow  model要高，另一方面能够看到这个领域的快速进展。所以对这个领域的技术进展保持及时的跟进，对于模型的设计调优以及在业务中的真正应用会有着重要的帮助。
+
+像 LR、GBDT这种经典的shallow model那样，搞明白基本建模原理就可以捋起袖子在业务中开搞，不需要再分配太多精力关注模型技术的进展的工作方式，在当下的DL建模场景，我个人认为 这种技术工作的模式并不适合。也许未来随着技术、工具平台的进步，可以把DL也做得更为易用，到那时，使用DL建模的人也能跟现在使用shallow model一样，可以从模型技术方面解放出更多精力，用于业务问题本身了。
+
+References:
+[1]. Visualizing what ConvNets Learn. CS231n Convolutional Neural Networks for Visual Recognition
+CS231n Convolutional Neural Networks for Visual Recognition
+[2]. Matthew Zeiler. Visualizing and Understanding Convolutional Networks. Visualizing and Understanding Convolutional Networks.
+[3]. Daniel Bruckner. deepViz: Visualizing Convolutional Neural Networks for Image Classification.
+[4]. ConvNetJS MNIST Demo. ConvNetJS MNIST demo
+[5]. Receptive Field. CS231n Convolutional Neural Networks for Visual Recognition
+[6]. Receptive Field of Neurons in LeNet. deep learning
+[7]. Ross Girshick. Rich feature hierarchies for accurate object detection and semantic segmentation
+Tech report. Arxiv, 2011.
+[8]. CS231n: Convolutional Neural Networks for Visual Recognition. Stanford University CS231n: Convolutional Neural Networks for Visual Recognition
+[9]. Christian Szegedy. Intriguing properties of neural networks. Arxiv, 2013.
+[10]. t-SNE. t-SNE – Laurens van der Maaten
+[11]. Matthew D.Zeiler. Visualizing and Understanding Convolutional Networks. Arxiv, 2011.
+[12]. Matthew D.Zeiler. Adaptive Deconvolutional Networks for Mid and High Level Feature Learning, ICCV 2011.
+[13]. Neural Networks Part 3: Learning and Evaluation. CS231n Convolutional Neural Networks for Visual Recognition
+[14]. ConvNetJS---Deep Learning in Your Browser. ConvNetJS: Deep Learning in your browser
+[15]. Colah. Visualizing MNIST: An Exploration of Dimensionality Reduction. 
+
+雷锋网版权文章，未经授权禁止转载。详情见 转载须知 。
+19 人收藏
+分享：
+相关文章
+深度学习 神经网络 模型调试
+
+    杂谈 | 那些酷炫的深度学习网络图怎么画出来的？
+    深度学习的图像修复
+    当物理遇上深度学习——谷歌 AI 推出投掷机器人 Tos ...
+    从Boston Dynamics到Jibo，机器人公司想生存为何那么 ...
+
+文章点评：
+表情 同步到新浪微博
+提交
+AI研习社
+
+编辑
+聚焦数据科学，连接AI开发者。
+发私信
+当月热门文章
+
+    杉数科技陈尧宇：深度融合中的物流界与运筹优化算法 | AI研习社第126期大讲堂总结
+
+最新文章
+
+    Keras 作者：Kaggle 冠军队伍最爱用我们的产品
+    史上最全 OpenCV 活体检测教程！
+    我在谷歌大脑工作的 18 个月中，是怎样研究强化学习的？
+    零基础学计算机图形学太难？或许你缺的只是一本好书
+    蓄谋已久？「GANs 之父」 Ian Goodfellow 跳槽苹果
+    IJCAI 2019 新增特邀讲者：索尼计算机科学实验室主席兼 CEO 北野宏明博士
+
+热门搜索
+收购 App Store Elon Musk 电池 扎克伯格 移动游戏 ImageNet Moto Path 戴尔 健康
+国行版华为P10售价3788元起，顶配版P10 Plus售价超5000元
+本文作者： 周翔 	2017-03-24 16:38
+导语：虽然华为P10各方面的配置都有了不同程度的提升，但是起售价也大幅增长。
+
+国行版华为P10售价3788元起，顶配版P10 Plus售价超5000元
+
+雷锋网 (公众号：雷锋网) 消息：在今年2月份的MWC上，华为发布了P10和P10 Plus两款手机。今日（3月24日）下午，华为在上海召开发布会，正式公布P10/P10 Plus的国行板价格。
+
+华为P10 4GB+64GB版售价为3788元，4GB+128GB版4288元；华为P10 Plus 6GB+64GB版的售价为4388元，6GB+128GB版4888元，6GB+256GB版5588元。
+
+配置方面，华为P10采用麒麟960处理器，第二代徕卡双摄，屏幕尺寸为5.1英寸，分辨率为1080p，P10 Plus则采用了5.5英寸2K屏。
+
+华为P10和P10 Plus都采用1200W像素彩色+2000W像素黑白双镜头，支持2倍无损双摄变焦。不过区别在于华为P10主镜头光圈为F2.2，P10 Plus主镜头光圈为F1.8。值得一提的是，P10/P10 Plus在前置也采用了徕卡镜头。
+
+去 年，华P9 3GB+32GB运营商定制版的售价为2988元，全网通3GB+32GB版3188元，全网通4GB+64GB版3688元。虽然与P9相比，华为 P10各方面的配置都有了不同程度的提升，但是其起售价也大幅增长。此前雷锋网曾报道，华为将加注高端市场，提高利润率率，P10起售价的提高，预示着未 来Mate 10也会如此吗？
+
+除了P10/P10 Plus，华为还发布了Nova青春版，该款手机采用麒麟658处理器，4GB运存，64GB内存，售价为1999元。三款手机将于3月24日18:08正式开启预约。
+
+此外，华为还公布了HUAWEI WATCH 2的售价，其中蓝牙版为1688元，4G版为1988元。
+
+*图片来自网络
+
+【招聘】雷锋网坚持在人工智能、无人驾驶、VR/AR、Fintech、未来医疗等领域第一时间提供海外科技动态与资讯。我们需要若干关注国际新闻、具有一定的科技新闻选题能力，翻译及写作能力优良的外翻编辑加入。 
+
+简历投递至 wudexin@leiphone.com，工作地 北京。
+
+雷锋网版权文章，未经授权禁止转载。详情见 转载须知 。
+0 人收藏
+分享：
+相关文章
+华为 p10 p10 plus
+
+    深圳消委回应华为P10闪存门：出厂后随机发货，没有区 ...
+    余承东回应华为P10“缩水门”事件，称“友商炒作丑化 ...
+    店大欺客？ 华为P10 “闪存门” 背后有哪些问题？| ...
+    华为P10闪存缩水？回应：手机体验不由单一部件性能决 ...
+
+    好未来创始人张邦鑫：AI能够实现“千班千面”，近几年科技研发投入超10亿
+    好未来创始人张邦鑫：AI能够实现“千班千面”，近几年科技研发投入超10亿
+    进入 kaggle 竞赛前 2% 的秘诀
+    进入 kaggle 竞赛前 2% 的秘诀
+    这 25 个开源机器学习项目，一般人我不告诉 Ta
+    这 25 个开源机器学习项目，一般人我不告诉 Ta
+    智能汽车路线现纷争，博弈正进行，AliOS不惧打硬仗
+    智能汽车路线现纷争，博弈正进行，AliOS不惧打硬仗
+
+文章点评：
+表情 同步到新浪微博
+提交
+周翔
+
+编辑
+	
+发私信
+当月热门文章
+
+最新文章
+
+    被锤子耽误的钱晨，去百度搞智能音箱了
+    纠结了五年，华为要动智能电视了？
+    联发科技智能家居事业群接管电视业务，下半年发8K电视芯片
+    ​科沃斯转向机器视觉
+    搜狗发布智能录音笔C1，声纹识别讲话人，实时转文字
+    AWE 2019，什么是趋势，什么是概念？
+
+热门搜索
+三星 阿里巴巴 索尼 移动应用 可穿戴 Oculus Rift 宅客 GPU Path 诺亦腾 健康
+热门关键字
+
+    热门标签 人工智能 机器人 机器学习 深度学习 金融科技 未来医疗 智能驾驶 自动驾驶 计算机视觉 激光雷达 图像识别 智能音箱 区块链 智能投顾 医学影像 物联网 IoT CV 微信小程序平台 微信小程序在哪 CES 2017 CES 2016年最值得购买的智能硬件 2016 互联网 小程序 微信朋友圈 抢票软件 智能手机 智能家居 智能手环 智能机器人 智能电视 360智能硬件 智能摄像机 智能硬件产品 智能硬件发展 智能硬件创业 黑客 白帽子 大数据 云计算 新能源汽车 无人驾驶 无人机 大疆 小米无人机 特斯拉 VR游戏 VR电影 VR视频 VR眼镜 VR购物 AR 直播 扫地机器人 医疗机器人 工业机器人 类人机器人 聊天机器人 微信机器人 微信小程序 移动支付 支付宝 P2P 区块链 比特币 风控 高盛 人脸识别 指纹识别 黑科技 谷歌地图 谷歌 IBM 微软 乐视 百度 三星s8 腾讯 三星Note8 小米MIX 小米Note 华为 小米 阿里巴巴 苹果 MacBook Pro iPhone Facebook GAIR IROS 双创周 云栖大会 先打 智能硬件公司 智能硬件 QQ红包 支付宝红包 敬业福 智能手机 ios 10 越狱 facebook messenger 歼星舰 川普获胜 曼塔s6 dji mavic pro oxygenos psvr连接电脑 apm 飞控 阿里研究院 杨卿 何凯明博士 kindle管理软件 尼康keymission 360 更多
+
+联系我们 关于我们 加入我们 意见反馈 投稿
+申请专栏作者
+
+下载雷锋网客户端
+iPhone Android
+
+Copyright © 2011-2019 www.leiphone.com 雷锋网-读懂智能&未来 All Rights Reserved 粤ICP备11095991号-1    ICP证粤B2-20150332
+请填写申请人资料
+姓名
+电话
+邮箱
+微信号
+作品链接
+个人简介
+为了您的账户安全，请 验证邮箱
+您的邮箱还未验证,完成可获20积分哟！
+
+重发邮箱 修改邮箱
+请验证您的邮箱
+立即验证
+完善账号信息
+您的账号已经绑定，现在您可以 设置密码 以方便用邮箱登录
+立即设置 以后再说

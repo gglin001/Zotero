@@ -1,0 +1,406 @@
+2018 IEEE International Conference on Systems, Man, and Cybernetics
+
+A Feature Selection Method for Vision-based
+Blood Pressure Measurement
+Yu-Fan Fang, Po-Wei Huang, Meng-Liang Chung, Bing-Fei Wu. IEEE Fellow
+
+Abstract 炼 In this paper we investigate the latest vision-based method for systolic blood pressure (SBP) and diastolic blood pressure (DBP) measurement. However, constantly blood pressure supervision needs sufficient medical equipment and may require the potential patients to tie a cuff, which is extremely inconvenient for them. What’s more, continuously blood pressure measuring requires the patients to stay in the hospital and professional personnel to stand by. From the research before, we have learned that photoplethysmography (PPG) can be used to measure the blood pressure, which is known as cuffless blood pressure measurement. However, for the neonate and patients with empyrosis, photoplethysmography measuring device is still less practical and restricted in use due to the necessary contact for it to measure the systolic and diastolic blood pressure. Certain level of discomfort is still unavoidable with the use of PPG. We thus focus on remote PPG (rPPG); with green red difference (GRD) and Euler video magnification (EVM) and finite impulse response (FIR) bandpass filters, we are able to recover PPG signals from remote photoplethysmography. We propose a feature extraction measuring methods which yields a root mean square error for SBP as 11.22 mmHg and 7.83 mmHg for pulse pressure (PP) combined with the ANN model. For comparison, we’ve also used K nearest neighbor (KNN) and deep belief network-deep neural network (DBN-DNN).
+Index Terms—Systolic blood pressure (SBP), pulse pressure (PP), feature extraction, artificial neural network (ANN), deep belief network-deep neural network (DBN-DNN)
+I. INTRODUCTION
+In terms of hypertension, there are currently about 1.39 billion [1] people suffer from it with different level of severity. However, only among 28.4% of the people with prehypertension and hypertension are able to keep their blood pressure and correlated disease under control. Therefore, still around 300 million people are under great risk of sudden heart disease and strokes without being properly monitored, controlled and taken care of.
+Higher blood pressure leads to [2] Coronary artery, heart failures, transient ischemic attack, stroke, kidney failure mild cognitive impairment and plenty of related diseases and complications. It harms the suffers’ brains and other organs secretly and non-recoverably. Hence, it is known as a notorious silent killer, and is the ninth most popular disease that takes away people’s life. There are almost 7 million patients who suffer from hypertension alone in Taiwan according to Taiwan Hypertension Society (TWS) [3], few of them are committed to weekly blood pressure measurement.
+Studies have shown that domestic blood pressure measurement greatly reduces the possibility of life taking
+Yu-Fan Fang and Po-Wei Huang are with Institute of Electrical and Control Engineering, National Chiao Tung University (NCTU), Hsinchu, 300 Taiwan (phone: +886-3-5712121#54428; e-mail: abc1199281@cssp.cn.nctu.edu.tw, ernie3659656@ cssp.cn.nctu.edu.tw).
+Bing-Fei Wu and Meng-Liang Chung are with the Department of Electrical and Computer Engineering, NCTU (e-mail: {bwu, mlchung} at cssp.cn.nctu.edu.tw).
+
+hypertension related disease [4]. In this case, much attention is brought to the field of continuous blood pressure measurement device and signal processing algorithm. Hence, to control the condition persistently, continuous blood pressure measurement is necessary. The blood pressure measurement done with the traditional method such as oscillometric blood pressure measurement device is sort of inconvenient. It requires a cuff tied on the arms of the users and pressurize the users during the course of measurement. Thus, the measurement causes discomfort and also makes it not as suitable for long-term blood pressure measurement. The device itself is also bulky and uncomfortable to use. What’s more, a huge portion of continuous blood pressure measuring devices are still invasive. Even though the devices use arterial line and measures blood pressure precisely, they still require plenty of specific equipment. The measurement also causes certain level of pain during the course, which is unacceptable for a majority of the hypertension patients. Noninvasive methods for blood pressure measuring are mostly discrete, which only yields result after a certain period of measuring. With oscillometric devices or inflatable cuff, one can avoid to deal with the pain from the invasive method. Nonetheless, the cuff still introduces a certain level of discomfort when measuring.
+The method of PPG [5] was introduced in 2001 and became a cuffless method for blood pressure measurement, which makes huge progress in terms of continuous blood pressure measurement. It is integrated with the methods of pulse transit time (PTT) and some signal processing methods [6] such as dynamic thresholds and feature extraction methods. Pulse transit time is of high negative correlation with blood pressure and can therefore be used for the blood pressure prediction. In order to calculate PTT, signals collected from 2 different locations of the body are needed. So it is often combined with electrocardiography (ECG) signals, which makes the method not so convenient. Estimating the blood pressure with PTT is the method with physical meaning and also theoretically applicable.
+This paper attempts to deal with the problems stated above such as invasive, contact-required, discrete, etc. We focus on developing a remote, continuous, unobtrusive and cuffless blood pressure monitoring method which integrates both PTT and newly invented remote photoplethysmography (rPPG) signals. Different rPPG signal processing methods such as green red difference (GRD) [7], plane orthogonal to surfaces (POS) [8], chrominance trace (Chrotrace) [9] and Euler video magnification [10] are used as the signal for feature extraction. With a proper filtering technique such as finite impulse response (FIR), we are able to get good enough and relatively much robust signals for blood pressure measuring.
+With the remote photopletyhsmography signals gained, we are then able to retrieve features used for the prediction models. We incorporate the features correlated to PTT with signal stabilization technique including baseline drifting removing and dynamic thresholds. We are able to get the features we need
+
+2577-1655/18/$31.00 ©2018 IEEE DOI 10.1109/SMC.2018.00371
+
+2158
+
+for the prediction model such as K nearest neighbor (KNN), artificial neural network (ANN), and deep belief network-deep neural network (DBN-DNN). The model we proposed is a general model instead of subject-specific models.
+II. BACKGROUND AND SIGNAL PROCESSING
+During each pulse cycle, the operation of vascular system is started with a main pulse exerted by heart, followed with depolarization of Myocardium. The process leads to change for the pulse signal. With proper signal amplification, we can work with the signals for SBP and DBP prediction; with the cascaded FIR filter, the noise can be greatly reduced.
+A. Vascular model
+A cycle of heart beats consists of two systoles and two diastoles of Atrium and Ventricles respectively, and it often takes around 0.8~1.1 second. The heart rate can be well detected with the aid of stethoscope. Our blood pressure is highly negatively correlated to the elasticity modulus of our blood vessels. Moreover, the coefficient of it is often determined by the compliance [11].
+The elasticity modulus mentioned above has an exponential correlation with the pressure exerted. PTT is positively proportional to the density of the blood pressure and the distance between the two locations of the body being measured. However, PTT is inverse proportional to the changing rate of the radius of the blood vessels. Therefore, with the abovementioned property, the systolic and diastolic blood pressures can be obtained with the relationship stated in [12].
+The vascular model can provide enough theory background for using PTT to estimate the blood pressure. Early studies also showed that PTT is of high negative correlation [13] with blood pressure.
+B. ROI selection
+The selection of the region of interests (ROI) can greatly affect the performance for the blood pressure prediction. We have tried different body locations such as “face cheek and neck”; “face cheek and back hand”; “face cheek and radial artery (near the palm)”. With the inspection of the signals, we can figure out that the face cheek and radial artery (near the palm) gives out the best results for blood pressure prediction (Figure 1). The signal quality is great and suitable for calculating PTT. It is because that the face cheek has a certain amount of distance toward the radial artery, and this makes the PTT be able to be derived much more conveniently and more clearly. Those locations too close together may lead to certain level of error prediction.
+With the region of interests properly selected, we are able to obtain the features with some signal processing techniques that we are going to discuss in the following sections
+C. Methods for signal processing
+The image recorded with the camera consists of red, green and blue channels. For our first attempt in previous study, we have utilized the green channel for signal processing (GTrace) [14]. This yields the result with some artifacts of the noise. The camera should be focused on the skin because only a small
+
+Figure 1. The region of interest is selected at the cheek and the radial artery(at the palm), which yields the best signals.
+fraction of the incident light will be absorbed by the blood circulation network, and the light will be varied with the blood volume pulse.
+We utilize the concepts from Wang et al in the end. The method of plane orthogonal to surface (POS) [8] consists of the technique of optical flow and a certain combination of coefficients and the color channels. These enable us to deal with the minor movements artifacts from the users. We’ve also tried chrominance trace (Chrotrace), which is very similar to POS. Chrominance trace is also a combination of signals from different channels. Motion resistant photoplethysmography (MrPPG) [15] was also tried. In the end, we found that plane orthogonal to surface yields the best signal noise ratio and quality.
+With the image frames retrieved at the two above-mentioned region of interests, we average the strength at R, G, and B channels respectively and get a normalized signal strength. We then calculate the difference between current frames and previous frames in order to get the optical flow, which can be subsequently used for combining the temporally normalized RGB channels and to make the projection onto the planes corresponding to the pulse signals.
+During the final fine tuning process for the signals, we calculate the standard deviation of the signals. What’s more, we use the coefficients introduced in the POS method to combine the red, green and blue channels for signal composition. We use the ratio of the standard deviations as the coefficients for the fine tune process. The method is known as alpha-tuning and is mentioned in [7].
+III. FEATURES SELECTION
+A. Signal preprocessing
+Followed from the signal retrieving process, we then perform a FIR bandpass filters with the passband being 0.5Hz to 3.5Hz (because the rate of heart beat is often between 30bpm to 210bpm). With the cascading of the filter, we are able to get rid of the high frequency noise.
+A window function (Hamming window) is utilized to smooth the signals combined with the filter and deal with the problem of super-discontinuity (also known as Gibbs phenomenon).
+For the part of signal retrieving, we take the difference of the signals for calculation, and we combine it with the method of dynamic threshold (Figure 2) [18]. In this case, we are able to get the upper threshold and lower threshold for the peak and bottom detection. Due to the muscular motion of the tester and
+
+2159
+
+Figure 2. Use the difference of the signals combined with the dynamic threshold to get the boundary of each threshold, the upper line is the top threshold and the lower line is the bottom threshold, while the middle one is the mean value of the signals.
+
+the device noise, the signals will not always have the same mean
+
+value, so the dynamic threshold method must be used here
+
+Top threshold: ȫ + 0.25 ∗ ( − ȫ)
+
+(1)
+
+Bottom threshold: ȫ − 0.25 ∗ (ȫ − ), where M is the maximum, m is the minima and μ is the
+
+average in the moving window. With the dynamic threshold, we
+
+are able to retrieve most of the local maxima and minima points
+
+from the pulse signals. When these points are obtained, we can
+
+get the time index and the strength of the features from the
+
+retrieved signals.
+
+B. Feature extraction
+
+To avoid the obtained features being affected with excessive
+
+noise or artifact, we utilize a method as feature group [14]. With
+
+the rPPG signals collected from 2 different positions (cheek and
+
+radial artery), we are able to calculate the PTT and the
+
+correlated features.
+
+However, there are usually plenty of noise and artifacts that
+
+corrupt the rPPG signals. So we first check that if in any cycle,
+
+there are 5 apparent points. That is to say, “the microvascular
+
+(palm) top from the previous cycle”, “the artery (face) bottom
+
+of the current cycle”, “the artery top of the current cycle”, “the
+
+microvascular bottom of the current cycle”, and “the
+
+microvascular max slope of the current cycle”.
+
+If all of above are found in a certain cycle, then the cycle will
+
+be classified as a valid cycle. The information of the cycle will
+
+be taken into consideration for final prediction. With this step
+
+taken, the features we get are going to be of better quality and
+
+has less to do with noise and artifact. The features we obtain
+
+with the feature group have a physical meaning as the time
+
+difference between the 2 locations (the PTT). The heart rate
+
+(beat per minute, bpm), the inter-beat interval (IBI), and the
+
+frame rate (frames per second, fps) should follow the formula
+
+[14]
+
+HR(bpm)
+
+60u fps IBI .
+
+(2)
+
+Figure 3. The flow chart for the overall signal retrieval, preprocessing, proper filtering, feature extraction and model prediction.
+The definition of PTT is traditionally the R-peak of ECG signal to the PPG bottom or max slope point. Nevertheless, to use the rPPG, we substitute the original definitions with rPPG signals from 2 different locations. The features we use are increased to retrieve as much information from the signal as possible for the future model prediction.
+During the course of pre-processing, we normalized the signal data with z-score normalization (minus the mean and divided by the standard deviation). Taking this step, the scale difference between different signals are going to be mostly eliminated.
+The overall process of the flow chart of the systolic and diastolic blood pressure prediction is shown in Figure 3. The models for of KNN, DBN-DNN, and ANN are used. Within our methods, a total of 24 features are selected for model training. All the features we select are listed in Figure 5.
+It includes the features of previous top of the microvascular signals to “the bottom of the artery signals (P0~P1)”, “the bottom of the artery signal to the top of the it (P2)”, “the bottom of the microvascular signal to the max slope of it (P3)”, “the max slope of the microvascular signal to the top of it (P4)”, and “the inter-beat interval (IBI)” [14]. Aside from the abovementioned features, some features are collected using a moving window, we slide the window through the artery and microvascular signals and extract the maxima value in each window. The 25% points of the peak magnitude and the 75% points of the peak magnitude are gathered (Figure 4). The points are then made use of as the features combined with PTT. The amplitude of the artery and microvascular signals [16] are also taken into consider during the process of making predictions about the systolic and diastolic blood pressure.
+
+2160
+
+Figure 4. The signals with features as the 25% of the maximum peak and 75% of the maximum peak in the corresponding moving windows(of size 90) of the signals. The above signals collected at the left cheek and the radial artery at the right palms yield the highest signal to noise ratio.
+IV. PREDICTION MODELS
+The signals are collected from Logitech Brio 90fps. Following models prediction results are compared with the ground truth measured by with the ground truth measured by Omron blood pressure monitor. The database we used are collected from a total of 15 students in NCTU, each with 10 times of 45 second camera recording with their consent of participation. A total of 24 features are recorded in each data point. 12 male and 3 female testers are involved with the age ranging between 20~33. Different from some paper using subject-dependent models, we train the network with a general model (a model with data collected from all the testers). Since we want to make the blood pressure measurement much more convenient. It is much suitable for potential hypertension patients who want to monitor their blood pressure continuously.
+A. K nearest neighbor (KNN) [14]
+For the performance analysis, we implemented the KNN prediction method on the datasets we collect. It is a relatively traditional algorithm used for supervised learning. In this algorithm, we calculate the distance between the data and all the other ones and find the 10 data features they are closest to the test case. We then average the target results corresponding to the 10 data features to get the final prediction.
+However, with KNN, we cannot get weights and biases like the neural network model. The result of it is simply determined by how the value of K is selected and the distance/similarity function. The performance is depended on how good the relationship is between the first K results and the target to predict.
+B. Deep belief network-deep neural network (DBN-DNN)
+For the starting state of training, we used an unsupervised learning method known as restricted Boltzmann machine,
+
+Features Description
+
+p0~p1
+
+the bottom of the artery signals
+
+p2
+
+the bottom of the artery signal to the top of it
+
+p3
+
+the bottom of the microvascular signal to the
+
+max slope of it
+
+p4
+
+the max slope of the microvascular signal to the
+
+top of it
+
+p5
+
+the inter-beat interval
+
+p6
+
+top of previous microvascular signal to the 75%
+
+peak with negative slope of the microvascular
+
+signal
+
+p7
+
+top of previous microvascular signal to the 25%
+
+peak with negative slope of the microvascular
+
+signal
+
+p8
+
+the 75% peak with negative slope of the
+
+microvascular signal to the 75% peak with
+
+positive slope of the artery signal
+
+p9
+
+the 75% peak with negative slope of the
+
+microvascular signal to the 75% peak with
+
+negative slope of the artery signal
+
+p10
+
+the 25% peak with negative slope of the
+
+microvascular signal to the 75% peak with
+
+positive slope of the artery signal
+
+p11
+
+the 25% peak with negative slope of the
+
+microvascular signal to the 75% peak with
+
+negative slope of the artery signal
+
+p12
+
+Artery bottom to the 25% peak with positive
+
+slope
+
+p13
+
+Artery bottom to the 75% peak with positive
+
+slope
+
+p14
+
+Artery bottom to the 75% peak with negative
+
+slope
+
+p15
+
+Artery bottom to the 25% peak with negative
+
+slope
+
+p16
+
+the 25% peak with negative slope of the
+
+microvascular signal to the 25% peak with
+
+negative slope of the artery signal
+
+p17
+
+the 75% peak with positive slope of the
+
+microvascular signal to the 75% peak with
+
+positive slope of the artery signal
+
+p18
+
+the 25% peak with positive slope of the
+
+microvascular signal to the 25% peak with
+
+positive slope of the artery signal
+
+p19
+
+the 75% peak with positive slope of the artery
+
+signal to the 75% peak with negative slope of
+
+the artery signal
+
+p20
+
+the 25% peak with positive slope of the artery
+
+signal to the 25% peak with negative slope of
+
+the artery signal
+
+v1
+
+the amplitude of the 75% peak with positive
+
+slope of the artery signal
+
+v2
+
+the amplitude of the 75% peak with negative
+
+slope of the artery signal
+
+v3
+
+the amplitude of the 25% peak with positive
+
+slope of the artery signal
+
+v4
+
+the amplitude of the 25% peak with negative
+
+slope of the artery signal
+
+Figure 5. The features selected in the 2 positions of the rPPG signals to
+
+be used for training. These are retrieved from both artery and
+
+microvascular locations.
+
+implementing the functions similar to auto encoder. The restricted Boltzmann machine enables us to extract out the features. The energy calculated from restricted Boltzmann machine can be retrieved from equation (3).
+
+2161
+
+E(PTT, H)ľĮ∑
+
+−∑
+
+−∑ ∑
+
+, ġĭġġġĩĴĪ
+
+Figure 6. (a) The one in figure (a) is the root mean square error of SBP with KNN prediction results plotted against the number of K(1~10) (b)The one in figure (b) is the root mean square error of PP with KNN prediction results plotted against the number of K (1~10).
+where and are the biases correlated to the
+corresponding PTT features and the hidden layer extracted features. , is the weight for combining different layers and
+is that for the hidden layers. All of the parameters above are
+initialized with random normal distribution, and updated with back propagation. While the type of connection is fully connection between the visible layer and the hidden layer.
+
+P(PTT)= ∑ ( , )
+
+ĩĵĪ.
+
+ġ The result for energy is then normalized and expressed in the form of probability with the function listed in (4), where z is the normalization constant obtained by ∑ , ( , ) . In this case, we utilize the energy based model to help construct the probability distribution. After the probability is retrieved, we can then start the gradient descents and keep updating the weights and biases.
+Hence, a supervised deep-belief-network model is concatenated with the activation function chosen as hypertangent and the learning rate being 0.005.
+C. Artificial neural network
+ANN model is a feed forward neural network (FFNN), and we utilize the back propagation method in the implementation. Because it is a rather traditional neural network, we cannot make the neural network too deep in case of the overfitting
+
+Figure 7. (a)The one in the figure (a) is the error of systolic blood pressure with ANN prediction results plotted against the number of epochs (b)The one in figure (b) is the error of pulse pressure with ANN prediction results plotted against the number of epochs.
+problem. Overfitting cannot be easily dealt with. Therefore, in the proposed model, the number of hidden layers are not supposed to be more than 3. Otherwise, the overfitting for training data can happen, and lead to poor test data results. We construct a neural network with 3 layers. The number of neurons in the hidden layer is found to be 10, 10, and 5, which leads to a better prediction result in the case.
+V. EXPERIMENTAL RESULTS
+In this section, we make comparison about our model performance for KNN [14], DBN-DNN, and ANN.
+A. Performance for KNN
+The methods of KNN utilize the K nearest features and average them to yield the final predictions. The result is listed in Figure 6. We have performed the predictions for our datasets with KNN for value of K from 1 to 10. Looping through all the data points and summing the distance of each feature to the test case for each data point in the training set and compare the results, we can make a prediction. For K=10, we average the 10 ground truth of which the data point has the closest distance to it. The root mean square error (RMSE) for the KNN models for SBP is 13.53 mmHg, which is the best result for prediction using KNN in SBP. The one for PP is 9.93 mmHg (we can get the diastolic blood pressure with SBP minus PP).
+
+2162
+
+B. Performance for deep belief network-deep neural network
+The root mean square error for SBP using DBN-DNN is 11.83mmHg for the test set. As for the PP, DBN-DNN has a root mean square error of 8.87 mmHg for the test set. The result is not as good as ANN.
+A possible reason for this is that the size of the dataset is not big enough for DBN-DNN, and consequently the overfitting problems can occur during the course of training. However, the performance for DBN-DNN and ANN are still close.
+C. Performance for artificial neural network
+With the ANN model, we had an error of 11.22 mmHg for SBP and an error or 7.83 mmHg for the PP model (Figure 7). ANN model has the best performance among the 3 methods proposed. Because the ANN model is built with 3-layer network and is not deep relatively, the overfitting problem can be mitigated. With the depth of the models controlled, the training set and test set performance can be made closer.
+D. Conclusion
+The performance of KNN is set up for comparison with [14]. KNN is a traditional prediction method. However, DBN-DNN and ANN introduce the concept of neurons. Weights and biases are used for the final prediction, which brings in the benefits of human brain operation.
+What’s more, in terms of feature selection, the result for KNN is still better than the one in [14]. The reason for the improvement is that we combine the features that include time indexes and values of 25% magnitude and 75% magnitude. The paper for comparison [14] uses simply the traditional PTT and IBI features, which does not contain as much information.
+The overall performance is shown in Table 1.
+
+KNN [14]
+
+DBN-DNN
+
+ANN
+
+SBP(mmHg) 13.54
+
+11.83
+
+11.22
+
+PP(mmHg)
+
+9.93
+
+8.87
+
+7.83
+
+Table 1. The root mean square error for systolic and pulse pressure for KNN, DBN-DNN, and ANN
+
+VI. DISCUSSION AND CONCLUSION
+In the paper, we propose a method for feature extraction. A total of 24 features are collected from the signals after performing plane orthogonal to surface (POS) to the region of interest signal. Finite impulse response band pass filter is cascaded to make the rPPG signals more smooth and less noise.
+We have used KNN, DBN-DNN, and ANN to test the performance for systolic and diastolic blood pressure prediction. We found out that ANN gives out the best result and the lowest root mean square error compared with other models.
+We compared KNN result from k=1~10 and tuned the parameter for ANN model and make the RMSE of the final predictions lower than our [14] previous research. With the result obtained, we are able to create an online version of blood pressure measurement program for systolic and diastolic blood pressure measuring.
+
+VII. ACKNOWLEDGMENTS
+This work was supported by the Ministry of Science and Technology, ROC, Taiwan under Grant no: MOST 1062622-E-009-009 -CC2.
+REFERENCES
+[1] Katherine T. Mills, Joshua D. Bundy, Tanika N. Kelly, Jennifer E. Reed, Patricia M. Kearney, Kristi Reynolds, Jing Chen, Jiang He, “Global Disparties of Hypertensioin Prevalence and Control”, Circulation, 134 , pp. 441-450, Aug. 2016
+[2] McInnes GT, “Hypertension and coronary artery disease: cause and effect.”, J Hypertens Suppl.;13(2):S49-56. Aug. 1995
+[3] E. Dolan, A. Stanton, L. Thijs, K. Hinedi, N. Atkins, S. McClory, et al., "Superiority of ambulatory over clinic blood pressure measurement in predicting mortality," Hypertension, vol. 46, pp. 156-161, 2005.
+[4] Chern-En Chiang, Tzung-Dau Wang, Yi-Heng Li, Tsung-Hsien Lin, Kuo-Liong Chien, Hung-I Yeh, Kou-Gi Shyu, Wei-Chuen Tsai, TingHsing Chao, Juey-Jen Hwang, Fu-Tien Chiang, Jyh-Hong Chen, “2010 Guidelines of the Taiwan Society of Cardiology for the Management of Hypertension”, Journal of the Formosan Medical Association, vol 109, Issue 10 , pp. 740-773, Oct. 2010
+[5] Monika Jain, Niranjan Kumar, Sujay Deb, “An affordable cuff-less blood pressure estimation solution”, IEEE Engineering in Medicine and Biology Society, Aug. 2016
+[6] Ruiping Wang,1 Wenyan Jia, Zhi-Hong Mao, Robert J. Sclabassi, Mingui Sun, “Cuff-Free Blood Pressure Estimation Using Pulse Transit Time and Heart Rate”, ICSP signal processing, Oct. 2014
+[7] Anton M. Unakafov, “Pulse rate estimation using imaging photoplethysmography: generic framework and comparison of methods on a publicly available dataset”, Biomed. Phys. Eng. Express 2018;4:045001, October. 2017
+[8] Wenjin Wang, Bert den Brinker, Sander Stuijk, and Gerard de Haan, “Algorithmic Principles of Remote-PPG”, IEEE Transactions on Biomedical Engineering, vol. 64, Issue 7, Jul. 2017
+[9] De Haan G, Jeanne V, “Robust pulse rate from chrominance –based rPPG”, IEEE Transactions on Biomedical Engineering, vol. 60, Issue 10, Oct. 2013
+[10] Hao-Yu Wu, Michael Rubinstein, Eugene Shih, John Guttag, Fredo Durand, William Freeman, “Eulerian Video Magnification for Revealing Subtle Changes in the World”, ACM Transactions on Graphics, Jul. 2012
+[11] D. Zheng, J. Allen, A. Murray, “Effect of external cuff pressure on arterial compliance”, IEEE Computers in Cardiology, Lyon, France, Sept. 2005
+[12] Sujay Deb ; Chinmayee Nanda ; D. Goswami ; J. Mukhopadhyay ; S. Chakrabarti, “Cuff less Continuous Non-Invasive Blood Pressure Measurement Using Pulse Transit Time Measurement”, International Conference on Convergence Information Technology, Nov. 2007
+[13] Paul A. ObristKathleen C. LightJames A. McCubbinJ. Stanford HutchesonJ. Lee Hoffer, “Pulse transit time: Relationship to blood pressure”, Behavior Research Methods & Instrumentation , vol. 10, Issue 5, pp. 623–626, Sep. 1978
+[14] Po-Wei Huang, Chun-Hao Lin, Meng-Liang Chung, Tzu-Min Lin, BingFei Wu, “Image Based Contactless Blood Pressure Assessment using Pulse Transit Time”, International Automatic Control Conference (CACS), Nov. 2017
+[15] Litong Feng, Lai-Man Po, Xuyuan Xu, Yuming Li, and Ruiyi Ma, “Motion-Resistant Remote Imaging Photoplethysmography Based on the Optical Properties of Skin”, IEEE Transactions on Circuits and Systems for Video Technology, vol. 25, no. 5, May. 2015
+[16] Yasser Khder, Laure Bray-Desboscs, Etienne Aliot, Faiez Zannad, “Effects of Blood Pressure Control on Radial Artery Diameter and Compliance in Hypertensive Patients”, American Journal of Hypertension, vol. 10, Mar. 1997
+[17] Soojeong Lee, Joon-Hyuk Chang, “Deep Belief Networks Ensemble for Blood Pressure Estimation”, IEEE Access, vol. 5, May. 2017
+[18] Pei-Chann Changa, Warren Liao, Jyun,Jie Lina Chin, Yuan Fan, “A dynamic threshold decision system for stock trading signal detection”, Applied Soft Computing,vol. 11, July. 2011, Pages 3998-4010
+
+2163
+

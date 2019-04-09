@@ -1,0 +1,270 @@
+Building Continuous Arterial Blood Pressure Prediction Models Using Recurrent Networks
+
+Costas Sideris School of Computer Science University of California, Los Angeles Los Angeles, California 90095 Email: costas@cs.ucla.edu
+
+Haik Kalantarian School of Computer Science University of California, Los Angeles Los Angeles, California 90095
+
+Ebrahim Nemati School of Computer Science University of California, Los Angeles Los Angeles, California 90095
+
+Majid Sarrafzadeh School of Computer Science University of California, Los Angeles Los Angeles, California 90095
+
+Abstract—This paper presents a methodology for developing highly-accurate, continuous Arterial Blood Pressure (ABP) models using only Photoplethysmography (PPG). In contrast to prior approaches, we develop a system that exhibits dynamic temporal behavior which leads to increased accuracy in modeling ABP. We validate our approach using data from patients in the intensive care unit (ICU). We show that it is possible to build highly accurate, continuous blood pressure models using only ﬁnger pulse oximeters. Our methodology achieves accurate systolic blood pressure estimation with a root mean square error 2.58 ± 1.23 across the patient sample used. Furthermore, the continuous ABP signal is estimated with a root mean square error of 6.042 ± 3.26 and correlation coefﬁcient of 0.95 ± 0.045. Our method enables designing robust Remote Health Monitoring Systems (RMS) for Heart Failure patients without requiring traditional blood pressure monitors.
+
+I. INTRODUCTION
+
+Cardiovascular Disease (CVD) has been the leading cause of death in the United States over the last few decades. Statistics from the American Heart Association demonstrate that over 2,150 Americans die each day due to CVD [1]. In fact, in 2009 CVD was responsible for 31.3% of the total deaths in the U.S. CVD is also prevalent in Europe, and statistics in the European Heart Journal [2] report almost 4.1 million deaths per year due to CVD. Among all types of heart failure, blood pressure and heart rate changes are among the most signiﬁcant non-invasive indicators of a change in a patient’s condition [3].
+Remote Health Monitoring Systems (RMS) have shown great promise in managing and preventing CVD. RMS are clinical informational systems designed to monitor individuals outside of traditional healthcare environments. Data from sensors are collected (usually by the patient himself) and transmitted wirelessly to a remote server for analysis. Clinicians and automated algorithms process the data to identify abnormal patterns. A schematic of such a system can be seen in Figure 1. RMS systems, however, rely on robust collection of heart rate and blood pressure signals to produce high quality risk predictions. In recent years, continuous heart rate monitoring has been made signiﬁcantly easier with wireless
+
+Fig. 1. Standard architecture of an RMS. Data collected from the patient is transmitted to a cloud server. The server analyzes and presents the data to clinicians and provides feedback to patients.
+pulse oximeters where the subject only has to wear a small device on his/her ﬁngertip. Blood pressure monitoring is less convenient due to the complexity of cuff-based monitoring devices. For RMS scenarios, collecting reliable blood pressure measurements is associated with several major challenges:
+• Patient Condition: Older patients, or those with severe disabilities may have difﬁculty properly collecting blood pressure data. They often forget or are too weak to capture the data themselves.
+• Patient Compliance: Continuous blood pressure moni-
+
+978-1-5090-0898-8/16/$31.00 ©2016 IEEE
+
+toring is challenging outside of a patient’s domicile as blood pressure devices are large and visible. Patients often are not motivated or even embarrassed to comply with RMS data collection protocols. • Lack of training: Finally, even when such data is captured, poor cuff placement and other measuring errors can lead to noisy data. This is a less of an issue with pulse oximeters as they are easier to place and wear.
+In this paper, we focus our efforts on developing a methodology that will beneﬁt patients in RMS by facilitating blood pressure collection. To achieve this, we propose a novel methodology to train accurate, continuous models for measuring blood pressure continuously through pulse oximeters using deep recurrent neural networks. Our work relies on the dynamic temporal behavior of the recurrent networks to learn long and short term characteristics of patient’s Photoplethysmography (PPG) data. As a result our system is able to produce high quality approximations of arterial blood pressure signals using input from a ﬁnger pulse oximeter.
+This paper is organized as follows. Section 2 discusses background and related works. Section 3 describes our methodology. Section 4 provides the results and limitations. Finally, we provide concluding remarks in Section 5.
+II. BACKGROUND & RELATED WORKS
+A. Cufﬂess Blood Pressure monitoring
+Cufﬂess blood pressure monitoring has received a lot of attention in the last decade due to its potential to facilitate blood pressure data collection. This is rendered possible by the fact that blood pressure is highly related with pulse transit time, i.e. the time it takes the heart beat pulse to propagate from the heart to the peripheral arteries [4]. Most such methods rely on electrocardiograph (ECG) and PPG data to capture the pulse transit time. Such methods include those of Kachuee et al. [5] and Wang et al. [6]. Their results are promising, but ECG data collection is not without challenges as electrodes have to be attached to several parts of the patient’s body. Other researchers attempted to model systolic and diastolic blood pressure using only PPG data. Ruiz-Rodriguez et al. [7] used deep networks without temporal behavior and reported promising but highly variable quality predictions. Samria et al. [8] do not report actual prediction error but rather correlation with measurements. Our proposed system explicitly models the time dependency in the PPG signal which leads to increased accuracy in modeling arterial blood pressure. Furthermore, previous methodologies are limited to predicting only speciﬁc metrics of the blood pressure waveform (systolic, diastolic) while our proposed system can reliably output a continuous ABP signal.
+B. Remote Health Monitoring Systems
+In the last decade, early successes coupled with advances in sensors have evolved Heart Failure RMS systems from very basic forms (phone interaction, written reports) to advanced end-to-end systems. Among successful applications of RMS, the system designed by Antonicelli et al. [10] both reduced
+
+Fig. 2. A depiction of the training and test sets used
+mortality as well as readmission rates for congestive heart failure patients in RMS. Another RMS study carried out by Morguet et al.[11] concluded that a 50% reduction in hospital admissions (38 versus 77/100 patient years, P = 0.034) and a 54% reduction in hospital length of stay is achievable for congestive heart failure patients with RMS.
+Regardless of the analysis algorithms used in a RMS, accuracy is limited by the data quality. Achieving high quality blood pressure measurements will enable more reliable monitoring of CVD patients outside of the hospital.
+III. METHODOLOGY
+A. Data
+To validate our approach, we used data from the MIMIC database [17]. The database was collected from patients in the intensive care unit (ICU). As a result the dataset contains highly varied blood pressure measurements as the patients are undergoing treatment and receiving drugs. As such, it is a good benchmark for our algorithm’s accuracy. We examined signals from 200 patients in the dataset. After excluding short signals and signals with unacceptable blood pressure values (due to being collected in the ICU), we trained and validated regression models for 42 patients. The extracted data contain two signals per patient. The PPG from the ﬁngertip and invasive arterial blood pressure (mmHg). Both signals were recorded at 125 Hz frequency.
+B. Long-Short Term Memory Neural Networks
+Our work relates closely to a variation of deep neural networks, called recurrent neural networks. In this class of artiﬁcial neural networks, the connections between the “neurons” form a directed cycle. This enables them to learn patterns in time dependent sequences. In fact, they have been applied successfully in handwriting [18] and speech recognition [19] among others. The variation of recurrent networks we utilized are the Long Short-Term Memory (LSTM) models [20]. These models have the ability to learn long term dependencies without the issues that affect traditional recurrent networks.
+
+The complete network we used consists of an input layer with window size number of nodes, an LSTM and a fully connected output layer with one output node.
+For each patient, we trained a single recurrent neural network. Performing per patient training allows achieving high quality results, as the blood pressure signal depends on the speciﬁc properties of the peripheral system of each patient. In an RMS, calibration does not pose an issue as it can be done when the patient enrolls in the RMS (usually done at the hospital). Alternatively, non-invasive continuous blood pressure signal can be used as it has been shown to correlate well [21] with invasive arterial blood pressure measurements.
+The slow drift component in each signal (PPG and ABP) was removed by subtracting the result of a linear least-squares ﬁt from the data. Subsequently, each patient record was split into training, validation and test parts using a 80% - 10% 10% non-overlapping split across time (Figure 2). From each of these sets, we extracted overlapping windows from the PPG signal. As output, we used the value of the ABP signal that corresponds to the last datapoint in each window.
+IV. RESULTS
+A. Arterial Blood Pressure Estimation
+The network was optimized using the RMSprop algorithm [22] and mean square error as its objective. To prevent overﬁtting, Dropout [23] was used during training. With this technique, network nodes and their connections are randomly dropped to minimize learned feature dependencies (coadaptation). From the estimated arterial blood pressure signal, we compute the systolic and diastolic blood pressure values as the local maxima and minima respectively. Over successive epochs, we update the best model if the current systolic blood pressure validation error is less than the current best (Algorithm 1).
+while maxepochs > current epoch do network optimization over the MSE of the ABP compute validation MSE of SBP if MSE of SBP < current best then update model else continue end
+end Algorithm 1: Training algorithm
+The full signal MSE or the diastolic blood pressure MSE can also be used as targets depending on the application. Training is stopped after a predetermined number of epochs. Figures 3 and 4 demonstrate the evolution of the validation and test mean square error during the training of the network. The validation error decreases epoch after epoch up to a certain limit and ﬂuctuates thereafter.
+Detailed regression results for each of the examined patients are presented in Table I. The results presented are for the continuous arterial blood pressure signal. Overall, we were
+
+S.B.P.
+
+D.B.P.
+
+200
+
+150
+
+100
+
+50
+
+0 1 3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35 37 39 41 43 45 47 49 51
+Fig. 3. Systolic and diastolic blood pressure validation mean square error over training epochs (single patient)
+
+S.B.P.
+
+D.B.P.
+
+A.B.P.
+
+200
+
+150
+
+100
+
+50
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+Fig. 4. Systolic, diastolic and arterial blood pressure test mean square error over successive model updates (single patient)
+
+able to achieve high quality reconstructions of blood pressure signals with an RMSE of 6.042 ± 3.26. The largest reconstruction errors are observed in the big slope regions of the blood pressure signal (Figure 8). These regions are usually less important than local maxima and minima, which correspond to the systolic and diastolic blood pressure.
+Finally, Figures 7 and 8 show the output of the network on the test dataset in the beginning and the end of training respectively. It can be seen that the predicted signal closely follows the actual arterial blood pressure signal.
+B. Comparison with Linear Regression
+To evaluate the learning ability of our deep learning network, we compared it against linear regression. As shown in Figures 5 and 6, both systolic and diastolic root mean square error is signiﬁcantly larger in linear regression than our proposed methodology. Some extreme values for the error of linear regression are omitted from the graphs for readability.
+
+TABLE I
+RESULTS
+
+patient
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42
+
+root mean square error
+
+SBP 1.753 3.945 2.607 1.324 2.242 2.584 2.022 4.071 3.392 1.989 3.493 2.736 3.009 6.187 3.151 1.250 1.041 1.554 0.892 1.095 2.453 3.097 4.394 1.859 1.752 1.857 5.835 2.113 4.640 1.344 2.150 2.409 3.914 2.317 2.710 2.930 1.076 0.784 1.396 2.300 4.120 2.376
+
+DBP 2.806 1.865 2.218 1.605 2.908 1.465 0.988 1.891 1.629 1.360 1.528 5.986 3.251 2.422 1.773 1.663 0.925 3.214 0.990 1.792 0.655 2.177 3.340 1.087 1.107 1.740 0.960 0.489 2.164 1.798 3.828 3.666 1.775 2.714 3.284 2.065 1.441 0.658 1.578 1.027 1.740 1.458
+
+ABP 7.140 6.671 5.217 3.708 5.089 4.294 3.665 3.429 3.521 5.432 4.216 5.856 7.174 7.847 22.850 5.903 3.491 9.435 9.536 9.236 3.735 5.380 5.134 4.175 5.100 4.185 6.476 7.170 7.793 6.374 6.854 5.455 4.430 9.070 6.192 9.105 4.187 3.764 4.748 2.993 2.448 5.268
+
+correlation
+0.951 0.953 0.964 0.985 0.969 0.971 0.979 0.984 0.984 0.970 0.985 0.909 0.944 0.930 0.791 0.973 0.991 0.926 0.849 0.816 0.964 0.961 0.958 0.976 0.947 0.904 0.951 0.930 0.927 0.978 0.975 0.985 0.984 0.917 0.958 0.900 0.977 0.984 0.977 0.965 0.977 0.982
+
+error σ
+ABP 6.980 6.668 5.216 3.518 5.065 4.284 3.660 3.429 3.521 5.349 4.183 5.780 7.172 7.846 22.843 5.784 3.424 9.427 9.536 9.217 3.508 5.069 5.054 4.142 4.867 4.145 6.463 7.170 7.753 6.235 6.800 5.210 4.425 8.870 6.181 9.102 4.179 3.760 4.648 2.991 2.448 5.240
+
+avg. error
+1.504 -0.194 0.064 1.173 -0.496 -0.303 0.206 0.030 0.006 0.943 0.525 0.939 -0.183 0.099 0.541 -1.181 -0.682 0.388 -0.124 0.586 -1.282 -1.804 -0.901 -0.523 1.524 -0.580 -0.405 0.091 -0.791 -1.324 -0.858 -1.619 0.204 -1.896 -0.366 -0.235 -0.262 -0.158 -0.968 -0.118 -0.026 -0.542
+
+20
+
+20
+
+RMSE Proposed Method (mmHg)
+
+15
+
+10
+
+5
+
+0
+
+0
+
+5
+
+10
+
+15
+
+20
+
+RMSE Linear Regression (mmHg)
+
+Fig. 6. Diastolic Blood Pressure RMSE in linear regression vs our proposed methodology
+
+50
+
+actual
+
+40
+
+predicted
+
+30
+
+20
+
+10
+
+0
+
+10
+
+200
+
+200 400 600 800 1000
+
+Fig. 7. Arterial blood pressure signal prediction (mean subtracted) at the
+
+15
+
+beginning of the training (subject 7)
+
+RMSE Proposed Method (mmHg)
+
+10
+
+C. Limitations
+
+5
+
+0
+
+0
+
+5
+
+10
+
+15
+
+20
+
+RMSE Linear Regression (mmHg)
+
+Fig. 5. Systolic Blood Pressure RMSE in linear regression vs our proposed methodology
+
+The methodology and results we presented correspond to data collected from ICU patients. Tuning the network and the learning parameters may be necessary to generalize to patients outside the ICU. In addition, the dataset used did not contain age or other contextual information that could improve output accuracy. Finally, optimizing the window size, the number of hidden nodes and the network architecture was beyond the scope of this work. Our experiments indicate that further gains can be made by exploring those parameters as well.
+
+50
+
+actual
+
+40
+
+predicted
+
+30
+
+20
+
+10
+
+0
+
+10
+
+200
+
+200 400 600 800 1000
+
+Fig. 8. Arterial blood pressure signal prediction (mean subtracted) at the end of the training (subject 7)
+
+V. CONCLUSIONS
+We have presented a methodology for developing highlyaccurate continuous models for inferring arterial blood pressure from ﬁnger photoplethysmography. The presented methodology enables continuous blood pressure monitoring for patients in RMS without the inconvenience of a blood pressure cuff or the ECG sensor. Such a system has the potential to increase patient compliance and provide more accurate risk classiﬁcation and prediction. In turn, this can lead to better management of heart failure.
+REFERENCES
+[1] D. Mozaffarian, E. J. Benjamin, A. S. Go, D. K. Arnett, M. J. Blaha, M. Cushman, S. de Ferranti, J.-P. Despre´s, H. J. Fullerton, V. J. Howard et al., “Heart disease and stroke statistics2015 update a report from the american heart association,” Circulation, vol. 131, no. 4, pp. e29–e322, 2015.
+[2] M. Nichols, N. Townsend, P. Scarborough, and M. Rayner, “Cardiovascular disease in europe: epidemiological update,” European heart journal, vol. 34, no. 39, pp. 3028–3034, 2013.
+[3] A. AbuDagga, H. E. Resnick, and M. Alwan, “Impact of blood pressure telemonitoring on hypertension outcomes: a literature review,” Telemedicine and e-Health, vol. 16, no. 7, pp. 830–838, 2010.
+[4] L. Peter, N. Noury, and M. Cerny, “A review of methods for non-invasive and continuous blood pressure monitoring: Pulse transit time method is promising?” IRBM, vol. 35, no. 5, pp. 271–282, 2014.
+[5] M. Kachuee, M. M. Kiani, H. Mohammadzade, and M. Shabany, “Cuffless high-accuracy calibration-free blood pressure estimation using pulse transit time,” in Circuits and Systems (ISCAS), 2015 IEEE International Symposium on. IEEE, 2015, pp. 1006–1009.
+[6] R. Wang, W. Jia, Z.-H. Mao, R. J. Sclabassi, and M. Sun, “Cufffree blood pressure estimation using pulse transit time and heart rate,” in Signal Processing (ICSP), 2014 12th International Conference on. IEEE, 2014, pp. 115–118.
+
+[7] J. C. Ruiz-Rodr´ıguez, A. Ruiz-Sanmart´ın, V. Ribas, J. Caballero, A. Garc´ıa-Roche, J. Riera, X. Nuvials, M. de Nadal, O. de SolaMorales, J. Serra et al., “Innovative continuous non-invasive cufﬂess blood pressure monitoring based on photoplethysmography technology,” Intensive care medicine, vol. 39, no. 9, pp. 1618–1625, 2013.
+[8] R. Samria, R. Jain, A. Jha, S. Saini, and S. R. Chowdhury, “Noninvasive cuff’less estimation of blood pressure using photoplethysmography without electrocardiograph measurement,” in Region 10 Symposium, 2014 IEEE. IEEE, 2014, pp. 254–257.
+[9] M. Lan, L. Samy, N. Alshurafa, M.-K. Suh, H. Ghasemzadeh, A. Macabasco-O’Connell, and M. Sarrafzadeh, “Wanda: An end-to-end remote health monitoring and analytics system for heart failure patients,” in Proceedings of the conference on Wireless Health. ACM, 2012, p. 9.
+[10] R. Antonicelli, P. Testarmata, L. Spazzafumo, C. Gagliardi, G. Bilo, M. Valentini, F. Olivieri, and G. Parati, “Impact of telemonitoring at home on the management of elderly patients with congestive heart failure,” Journal of Telemedicine and Telecare, vol. 14, no. 6, pp. 300– 305, 2008.
+[11] A. J. Morguet, P. Ku¨hnelt, A. Kallel, M. Jaster, and H.-P. Schultheiss, “Impact of telemedical care and monitoring on morbidity in mild to moderate chronic heart failure.” Cardiology, vol. 111, no. 2, pp. 134– 139, 2007.
+[12] S. I. Chaudhry, B. Barton, J. Mattera, J. Spertus, and H. M. Krumholz, “Randomized trial of telemonitoring to improve heart failure outcomes (tele-hf): study design,” Journal of cardiac failure, vol. 13, no. 9, pp. 709–714, 2007.
+[13] O. Z. Soran, A. M. Feldman, I. L. Pin˜a, G. A. Lamas, S. F. Kelsey, F. Selzer, J. Pilotte, and J. R. Lave, “Cost of medical services in older patients with heart failure: those receiving enhanced monitoring using a computer-based telephonic monitoring system compared with those in usual care: the heart failure home care trial,” Journal of cardiac failure, vol. 16, no. 11, pp. 859–866, 2010.
+[14] O. Z. Soran, I. L. Pin˜a, G. A. Lamas, S. F. Kelsey, F. Selzer, J. Pilotte, J. R. Lave, and A. M. Feldman, “A randomized clinical trial of the clinical effects of enhanced heart failure monitoring using a computerbased telephonic monitoring system in older minorities and women,” Journal of cardiac failure, vol. 14, no. 9, pp. 711–717, 2008.
+[15] “A remote monitoring and telephone nurse coaching intervention to reduce readmissions among patients with heart failure: study protocol for the Better Effectiveness After Transition - Heart Failure (BEAT-HF) randomized controlled trial.”
+[16] S. I. Lee, H. Ghasemzadeh, B. Mortazavi, M. Lan, N. Alshurafa, M. Ong, and M. Sarrafzadeh, “Remote patient monitoring: What impact can data analytics have on cost?” 2013.
+[17] G. B. Moody and R. G. Mark, “A database to support development and evaluation of intelligent intensive care monitoring,” in Computers in Cardiology, 1996. IEEE, 1996, pp. 657–660.
+[18] A. Graves, M. Liwicki, S. Ferna´ndez, R. Bertolami, H. Bunke, and J. Schmidhuber, “A novel connectionist system for unconstrained handwriting recognition,” Pattern Analysis and Machine Intelligence, IEEE Transactions on, vol. 31, no. 5, pp. 855–868, 2009.
+[19] H. Sak, A. Senior, and F. Beaufays, “Long short-term memory recurrent neural network architectures for large scale acoustic modeling,” in Proceedings of the Annual Conference of International Speech Communication Association (INTERSPEECH), 2014.
+[20] S. Hochreiter and J. Schmidhuber, “Long short-term memory,” Neural computation, vol. 9, no. 8, pp. 1735–1780, 1997.
+[21] S. Sethi et al., “Correlation of invasive and non-invasive blood pressure: A must for management,” Indian journal of anaesthesia, vol. 54, no. 6, p. 581, 2010.
+[22] T. Tieleman and G. Hinton, “Lecture 6.5-rmsprop: Divide the gradient by a running average of its recent magnitude,” COURSERA: Neural Networks for Machine Learning, vol. 4, 2012.
+[23] N. Srivastava, G. Hinton, A. Krizhevsky, I. Sutskever, and R. Salakhutdinov, “Dropout: A simple way to prevent neural networks from overﬁtting,” The Journal of Machine Learning Research, vol. 15, no. 1, pp. 1929–1958, 2014.
+

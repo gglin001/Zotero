@@ -1,0 +1,3 @@
+handleProfileCookies(function() {
+Profile.displayLoginBar();
+})

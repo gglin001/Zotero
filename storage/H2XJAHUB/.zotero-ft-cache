@@ -1,0 +1,356 @@
+Features Extraction for Cuffless Blood Pressure Estimation by Autoencoder from Photoplethysmography
+Shota Shimazaki1, Student Member, IEEE, Md. Shoaib Bhuiyan2, Member, IEEE, Haruki Kawanaka1, Member, IEEE, and Koji Oguri1, Member, IEEE
+
+
+Abstract— Several studies have been proposed to estimate blood pressure (BP) with cuffless devices using only a Photoplethysmograph (PPG) sensor on the basis of the physiological knowledge that the PPG changes depend on the state of the cardiovascular system. In these studies, machine learning algorithms were used to extract various features from the wave height and the elapsed time from the rising point of the pulse wave to feature points have been used to estimate the BP. However, the accuracy is still not adequate to be used as medical equipment because their features cannot express fully information of the pulse waveform which changes according to the BP. And, no other effective knowledge about the pulse waveform for estimating BP has been found yet. Therefore, in this study, we focus on the autoencoder which can extract complex features and can add new features of the pulse waveform for estimating the BP. By using autoencoder, we extracted 100 features from the coupling signal of the pulse wave and from its first-order differentiation and second-order differentiation. The result of examination with 1363 test subjects show that the correlation coefficients and the standard deviation of the difference between the measured BP and the estimated BP got improved from R = 0.67, SD = 13.97 without autoencoder to R = 0.78, SD = 11.86 with autoencoder.
+I. INTRODUCTION
+The monitoring of blood pressure (BP) that reflects arteriosclerosis, stress and so on is very effective for health management. It is necessary to track the BP variation all day long because BP changes according to the state whether one is active or in rest and also with the external environment. A traditional BP measurement must fasten a cuff to a person's upper arm. Thus the person is applied a burden by fastening a cuff and cannot continuously measure BP. A low burden BP measurement method is required for daylong monitoring of the BP.
+A pulse wave signal which has a strong correlation with cardiovascular events [1] has been used to the cuffless BP estimation. The pulse wave signal can be measured easily and noninvasively by a Photoplethysmography (PPG) sensor. For example, Lin et al. have proposed a BP estimation method based on pulse transit time (PTT) which is a time difference between electrocardiogram (ECG) and PPG [2]. Similarly, Miao et al. have estimated continuous BP from PTT and PPG
+*This work was supported by The NAGAI Foundation for Science and Technology 1Shota Shimazaki, Haruki Kawanaka, and Koji Oguri are with Graduate School of Information Science and Technology, Aichi Prefectural University, Aichi, Japan (e-mail:s.shimazaki@bme.ist.aichi-pu.ac.jp, kawanaka@ist.aichi-pu.ac.jp, oguri@ist.sichi-pu.ac.jp ) 2Md. Shoaib Bhuiyan is with the Faculty of Medical Engineering, Suzuka University of Medical Science, Mie, Japan (e-mail:bhuiyan@suzuka-u.ac.jp)
+
+based on the deep learning [3]. However, these methods are not practical because of using multiple sensors such as ECG and PPG.
+As a more wearable and practical method of BP estimation, a few methods using only PPG sensor have been proposed. For example, Shukla et al. propose to estimate BP from PPG using the multi task Gaussian processes [4]. Nishio et al. and Atomi et al. have estimated BP by extracting the wave height and the elapsed time from the rising point of the pulse wave to feature points in the PPG and the accelerated plethysmogram (APG) and used them as features of a machine learning method [5][6]. Furthermore, Kishimoto et al. have used a nonlinear regression method to estimate the BP [7]. However, the BP cannot be estimated precisely and be put to practical use those features in any case.
+Therefore, in this study, we focused on the autoencoder which can extract complex features. In addition, nonlinear regression methods are attracted to use a neural network and these methods have estimated the BP with high accuracy in recent years [8][9]. The nonlinear regression method works on the BP estimation effectively because there is a nonlinear relationship between BP and PPG. For these reasons, we propose a BP estimation method using an autoencoder and a neural network. Also, we validate performance of our proposed method by conducting an experiment where the dataset has BPs and pulse wave signals of 1,363 test subjects.
+II. FEATURES EXTRACTION FOR BP ESTIMATION
+A. Relation between PPG and circulatory dynamics
+A Photoplethysmography (PPG) signal has two main peaks which are percussion wave (PW) that is occurred by heart beating and tidal wave (TW) that is occurred by the pulse reflecting at the other vessel. It includes waves caused by the closing of the heart valves such as a dicrotic notch (DN) and a dicrotic wave (DW). In many cases, the state of the arterial system influences the wave height or the time interval of each component.
+An accelerated plethysmogram (APG) is obtained by performing secondary differential of the PPG signal and is an important indicator of the presence of arteriosclerosis. Parameters extracted from PPG and APG are shown in Fig.1. Five features of the APG are inflection points of the PPG. The features “a” and “b” indicate the amplitude of ejection waves. A reflected wave that occur due to the reflection of the ejection wave from periphery correspond to the features “c” and “d”. The feature “e” corresponds to the dicrotic notch.
+Takazawa et al. showed that the fractions of the each feature against “a” (“b/a”, “c/a”, “d/a”, “e/a”) are rather related to the arteriosclerosis process [10]. Each wave height ratio has a
+
+978-1-5386-3646-6/18/$31.00 ©2018 IEEE
+
+2857
+
+different meaning, in particular, “b/a” is hardening of arterial wall and “d/a” is a parameter representing arteriosclerosis accompanying rise in intravascular pressure. So, APG analysis is considered to be an effective means to estimate the tendency of blood pressure (BP) elevation accompanying arteriosclerosis.
+Therefore, PPG and APG are biological indicators representing changes in the circulatory dynamics. BP is also expressed cardiac output and peripheral vascular resistance [11]. So BP is closely related to circulatory dynamics. Therefore, it is considered that the features on the circulation dynamics from PPG are effective for the BP estimation.
+
+In the learning of the autoencoder, the stochastic gradient descent method is the way to update w so that the error function E as equation (3) is smaller for the input pulse wave xu.
+
+N
+E ( w)  u1 xu  h( xu : w)
+
+(3)
+
+We use a coupling signal of PPG, a velocity plethysmogram (VPG, the first-order differentiation of PPG) and APG as input signals. We examined the optimal solution by changing the number of neurons in the hidden layer from 5 to 250. Then, values of 100 neurons in the hidden layer as shown in Fig. 2 were used to estimate BP as features from the autoencoder.
+
+PPG
+
+PW
+TW
+DN DW
+
+Rising point Time a
+
+c
+
+e
+
+d
+
+b Time
+Figure 1. Extracted features from PPG and APG
+
+PPG
+
+VPG
+
+APG
+
+xu
+
+Input
+
+xN x1
+
+.
+
+1
+
+Input layer
+
+x1 x2 x3
+
+.
+
+.
+
+.
+
+.
+u
+xu
+
+.
+
+Weight
+
+W
+
+.
+
+.
+
+.
+N
+xN x
+Bias +b
+
+Hidden layer
+
+12
+
+.
+
+.
+
+.
+
+3
+
+.
+
+.
+
+.
+
+100
+
+Bias
+
+Weight
+
+V
+
++μ
+
+Output layer
+
+h1 h2 h3
+
+.
+
+.
+
+.
+
+hu
+
+.
+
+.
+
+.
+
+hN h(x: w)
+
+Figure 2. The architecture of autoencoder for feature extraction
+
+APG
+
+B. Features extraction using autoencoder
+It was difficult to realize sufficient regression with the conventional features [5][6]. One of the reasons is the fact that these features were not able to sufficiently express the characteristics of the PPG shape that occurred according to BP variation. And there is no knowledge about other useful features yet. Therefore, in this study, we focused on the autoencoder, which can extract complex features of the PPG waveform, and added them as new clues to estimate BP.
+
+An autoencoder is an artificial neural network used for unsupervised learning using training data. It defines a coding method that will reproduce the original input as faithfully as possible when the input is coded and subsequently decoded. Output of the autoencoder is calculated by equation (1) using the pulse wave x={x1, x2, ..., xN} as input.
+
+h( xu : w)  f ( g (Vx u   )W  b)
+
+(1)
+
+where, let u be data index (u=1, 2, …, N), V and W be weights, b and μ be bias terms, and w={W, V, b, μ} be a variable set that summarizes weights and bias terms. The function f and g are arbitrary nonlinear functions called activation functions. Our method used the sigmoid function of equation (2).
+
+III. PROPOSED METHOD FOR ESTIMATING BP
+Generally, biological signal processing often deals with nonlinear problems. It should be considered that there is a nonlinear relation between BP and PPG as well as the nonlinearity in the material properties of the vessel wall [12]. Therefore, in this study, we used a multi-layered neural network which is a nonlinear regression method for the BP estimation. We make the connection weights update by using the backpropagation algorithm and Levenberg-Marquardt method was used for learning of neuron weights.
+We examined the optimal solution by changing the number of hidden layers from 1 to 5 and the number of each neurons from 5 to 250. The four-layered neural network which consists of one input layer, two hidden layers and one output layer was used in the experiment and is shown in Fig. 3. The 1st hidden layer has 50 neurons and the 2nd hidden layer has 25 neurons. The output function of the hidden layer and the output layer neuron is the sigmoid function shown in equation (3). All features which are derived by both conventional analysis of a waveform and autoencoder are used as the input data.
+
+1 f (u)  g (u) 
+
+(2)
+
+1  eu
+
+2858
+
+IV. EXPERIMENT AND RESULT
+We conducted an experiment comparing our proposed method with the previous BP estimation method [5][6] in order to confirm PPG features extracted by the autoencoder are effective or not for the BP estimation.
+
+Input layer
+
+Autoencoder
+
+features
+
+.
+
+.
+
+.
+
+Conventional
+
+features
+
+. .
+
+.
+
+Hidden
+
+layer1(50)
+
+Hidden
+
+layer2(25) Output
+
+layer
+
+.
+
+.
+
+.
+
+Estimated
+
+.
+
+.
+
+.
+
+SBP
+
+Figure 5 (a) - (c) shows the input pulse wave and the output wave of the autoencoder. The input and the output are almost the same. Fig.5 (d) shows an example of the compressed pulse wave, that is, the extracted features to estimate BP. The average of the mean square error between the input and the output was 0.0012, and it was found that the autoencoder is performing compression that can sufficiently express the shape of the pulse.
+We checked the correlation coefficients between the conventional features (Fig.1) and compressed PPG signal by autoencoder, and then confirmed that the new features were different from the conventional features. Figure 6 shows an example of the correlation coefficients. The correlation coefficient is about 0.3 at the highest, it means nonexisting features were extracted.
+
+Personal
+
+.
+
+.
+information .
+
+Figure 3. Multi-layered neural network for estimating Systolic BP
+
+We estimated the systolic blood pressure (SBP) from the measured Photoplethysmography (PPG). SBP was measured by a sphygmomanometer with a cuff (CARDIO VISION MS-2000, made by OSACHI Corp.) on the brachial artery of the right upper arm every minute. PPG was measured by a reflection type PPG sensor (made by DENSO Corp.) on the left index finger continuously. Every test subject kept a seating posture such as Fig.4 for 5 minutes while SBP and PPG were measured. In addition, personal information including age, height, weight and sex was acquired by filling questionnaire.
+Test subjects consisted of 687 healthy males and 676 healthy females. Their age breakdown and systolic BP detail is shown in TABLE I. 70% of all data were used for training of the neural network, 15% were used for parameter adjustment, and the remainder were used for evaluation.
+
+(a) PPG
+
+(b) VPG
+
+(c) APG
+
+(d) Compressed waveform
+
+Figure 5. Waveforms of autoencoder and compressed wave. (a) PPG, (b) VPG, (c) APG, (d) compressed wave.
+
+Sphygmomanometer
+
+PPG Sensor
+Figure 4. Experiment environment
+
+TABLE I.
+
+DETAILED COLLECTED DATA
+
+sex
+male female
+
+number of subjects
+687 676
+
+age (mean±std) 56.5±18.5 59.9±16.0
+
+SBP (mean±std) 128±18.1 126±20.5
+
+Correlation Coefficient
+
+0.5 Height features Elapsed time features
+0.4
+0.3
+0.2
+0.1
+0 PW TW DN DW a b c d e
+Figure 6. Correlation coefficient between extracted features and conventional features.
+An estimation result by our proposed method is shown in Fig.7 which is a scatter diagram of the estimated SBP and the measured SBP. In TABLE II, the accuracy of the estimated SBPs by a multiple regression analysis (MRA) and a neural
+2859
+
+network (NN) is shown by the correlation coefficient (R) and standard deviation (SD) of difference between the estimated SBP and the measured SBP.
+
+by using nonlinear regression method as compared to the multiple regression analysis.
+Future works are needed to establish the way of tuning suitable hyperparameters of artificial neural networks and improvement of estimation accuracy.
+
+0.5 Conventional features Autoencoder features 0.4
+
+Correlation Coefficient
+
+0.3
+
+0.2
+
+0.1
+
+Figure 7. Scatter diagram of estimated SBP and measured SBP
+
+TABLE II.
+
+ACCURACY COMPARISON OF ESTIMATED SYSTOLIC BP
+
+Features
+
+Method
+
+R SD (mmHg)
+
+Conventional [5][6]
+
+MRA 0.67
+
+13.97
+
+Autoencoder
+
+NN
+
+0.72
+
+13.07
+
+Conventional + Autoencoder
+
+MRA 0.75
+
+12.48
+
+Conventional + Autoencoder
+
+NN
+
+0.78
+
+11.86
+
+R and SD between measured SBP and estimated SBP were improved from R=0.67, SD=13.97 by the previous method to R=0.78, SD=11.86 by our proposed method which consists of the autoencoder and the neural network. As shown in TABLE II, it was confirmed that the estimation accuracy improves by adding features derived from the hidden layer of the autoencoder regardless of the estimation method.
+Figure 8 shows the correlation coefficients between the each used feature and the Systolic BP. It was confirmed that some features extracted by autoencoder have higher correlation coefficients than the conventional features. The features extracted by the autoencoder are different from the conventional features and it is suggested that these features are effective for the BP estimation. Moreover, the nonlinear regression method was more effective in the BP estimation.
+
+V. CONCLUSIONS AND FUTURE WORKS
+In this paper, we proposed a new method of feature extraction for estimating blood pressure (BP) using a cuffless device. An autoencoder was used to extract the features from the Photoplethysmography (PPG) waveform. An artificial neural network that uses a regression method corresponding to parameter nonlinearity was used in considering a nonlinear relationship between BP and PPG. As of experimental result, R and SD between the measured systolic blood pressure (SBP) and the estimated SBP improved than the previous method using conventional features. Accordingly, it was suggested that the use of the autoencoder was effective for the BP estimation. In addition, the estimation accuracy improved
+
+0 Features
+Figure 8. Correlation coefficient between each feature and SBP
+REFERENCES
+[1] J. Blacher, R. Asmar, S. Djane, G. M. London and M. E. Safar, “Aortic pulse wave velocity as a marker of cardiovascular risk in hypertensive patients”, Hypertension, Vol.33, No.5, pp.1111-1117, 1999.
+[2] W. H. Lin, H. Wang, O. W. Samuel and G. Li, “Using a new PPG indicator to increase the accuracy of PTT-based continuous cuffless blood pressure estimation”, Int’l Conf. IEEE Eng. Med. & Bio. (EMBC), pp.738-741, 2017.
+[3] F. Miao, X. Liu and Y. Li, “A Novel Deep Learning Based Approach for Continuous Blood Pressure Estimation”, Int’l Conf. IEEE Eng. Med. & Bio. (EMBC), pp.1851-1854, 2017.
+[4] SN. Shukla, “Estimation of Blood Pressure from Non-invasive Data”, Int’l Conf. IEEE Eng. Med. & Bio. (EMBC), pp.1772-1775, July 2017.
+[5] H. Nishio, Md. S. Bhuiyan, H. Kawanaka and K. Oguri, “Estimating Cuffless Blood Pressure using Standardized Features by Pulse Wave Interval under Various Measuring Positions”, Int’l Conf. IEEE Universal Village (UV), 2016.
+[6] K. Atomi, H. Kawanaka, Md. S. Bhuiyan, and K. Oguri, “Cuffless Blood Pressure Estimation Based on Data-Oriented Continuous Health Monitoring System”, Comput. Math. Methods in Medicine (CMMM), 2017.
+[7] Y. Kishimoto, H. Kawanaka and K. Oguri, “Cuffless Blood Pressure Estimation by Non-Linear Regression Analysis with Correction Learning”, Int’l Conf. Ubiquitous Healthcare (u-healthcare), pp.63-66, 2015.
+[8] J. Xu, J. Jiang, H. Zhou and Z. Yan, “A novel Blood Pressure estimation method combing Pulse Wave Transit Time model and neural network model”, Int’l Conf. IEEE Eng. Med. & Bio. (EMBC), pp.2130-2133, 2017.
+[9] J. Y. Kim, B. H. Cho, S. M. Im, M. J. Jeon, I. Y. Kim and S. I. Kim, “Comparative study on artificial neural network with multiple regressions for continuous estimation of blood pressure”, Int’l Conf. IEEE Eng. Med. & Bio. (EMBC), pp.6942-6945, 2005.
+[10] K. Takazawa and M. Fujita, “Clinical usefulness of the second derivative of a plethysmogram (acceleration plethysmogram)”, Journal of Cardiol, Vol.23 (Suppl XXXVII), pp.207-217, 1993.
+[11] A. D. Choudhury, R. Banerjee, S. Kundu, “Estimating blood pressure using Windkessel model on Photoplethysmogram.”, Int’l Conf. IEEE Eng. Med. & Bio. (EMBC), pp.4567-4570, 2014.
+[12] A. Sakanashi, M. Hasegawa and Y. Ushiyama, “Pressure pulse wave for blood flow in the aorta from the viewpoint of the nonlinear Toda lattice”, Physics Letters A, Vol.221, pp.395-399, 1996.
+
+2860
+

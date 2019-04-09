@@ -1,0 +1,437 @@
+A Neural Network-based Method for Continuous Blood Pressure Estimation from a PPG Signal
+Yuriy Kurylyak, Student Member IEEE, Francesco Lamonaca, Member IEEE, Domenico Grimaldi, Senior Member IEEE
+Department of Computer Science, Modeling, Electronics and System Science University of Calabria, Rende (CS), Italy
+{kurylyak, flamonaca, grimaldi}@deis.unical.it
+
+Abstract – There is a relation, not always linear, between the blood pressure and the pulse duration, obtained from photoplethysmography (PPG) signal. In order to estimate the blood pressure from the PPG signal, in this paper the Artificial Neural Networks (ANNs) are used. Training data were extracted from the Multiparameter Intelligent Monitoring in Intensive Care waveform database for better representation of possible pulse and pressure variation. In total there were analyzed more than 15000 heartbeats and 21 parameters were extracted from each of them that define the input vector for the ANN. The comparison between estimated and reference values shows better accuracy than the linear regression method and satisfy the American National Standards of the Association for the Advancement of Medical Instrumentation.
+Keywords - blood pressure; neural networks; photoplethysmography; hypertension.
+I. INTRODUCTION
+The Blood Pressure (BP) must be monitored regularly to prevent hypertension cases and, as a result, strokes, myocardial infarction or heart failure. Measuring the BP means obtaining the highest (or systolic BP - SBP) and the lowest (or diastolic BP DBP) pressures during a cardiac cycle.
+Normally, Ambulatory Blood Pressure (ABP) monitoring devices are used for non-invasive examination of the blood pressure. They provide continuous 24 hour measurements at regular time intervals. Having been developed mostly to identify patients with white coat hypertension, they become very useful for the determination of hypertensive end-organ damage risk [1]. However, the ABP devices are expensive and do not allow the continuous beat-to-beat measurements because of the cuff usage. Moreover, the use of the cuff often causes underestimation of systolic BP, false readings caused by improper cuff size, and patient discomfort [2]. In addition, there are different techniques and algorithms to compute the BP by such ABP that causes criticism [3] and low accuracy.
+Previous study has reported that the pulse transit time (PTT) [4]-[7], pulse arrival time (PAT) [8] and pulse wave velocity (PWV) [9] can be used for continuous, noninvasive, and cuff-less BP estimation. It is based on the assumption that the pressure waves propagate through the arteries at a certain speed and there is a linear correlation between this speed and the BP [8]. The BP is
+
+obtained by measuring the time between the peak in Electrocardiogram (ECG) and a particular point in the Photoplethysmogram (PPG) signal (for PTT, PAT), or between such points in two PPG signals, acquired simultaneously from two sensors fixed on a known distance (PWV). However, besides the usage of two devices, these methods require a calibration stage. Moreover, another problem is that the pressure wave speed in arteries is individual for every person.
+The idea to use a single PPG signal for BP estimation was investigated in [10]-[12]. In particular, authors also reported a linear correlation between the BP and heart beat duration, calculated from the PPG signal. As example, the systolic upstroke time, diastolic time as well as width of 2/3 and 1/2 pulse amplitude were considered as the possible parameters and the diastolic time was stated as the more correlated to the BP.
+Tests show that the higher BP the shorter is the duration of every heartbeat. However, more tests with different signals show that such correlation is not always linear. For example, the diastolic time doesn’t definitely represent the blood pressure and different people with the same diastolic time may have different BP. Moreover, most of the authors [2], [4]-[12] provide their own, always different, coefficients that allow estimating the BP with high probability for a specific test set only, normally obtained from healthy people. For another input data such coefficients mush be adjusted.
+In order to overcome the above mentioned drawbacks, in this paper we present a new approach to non-invasive continuous blood pressure estimation based on Artificial Neural Networks (ANN). In [7] was already reported the better performance of ANNs with respect to the regression analysis for blood pressure estimation using the PTT. In this work, additional input parameters are taken into consideration respect to [7] in order to achieve better performance using only the PPG signal. To get a wide representation of possible PPG signals and correspondent BP, the signal from Multiparameter Intelligent Monitoring in Intensive Care (MIMIC) database [13] were extracted for ANN training.
+The paper is organized as follows: Section II explains the parameters extracted from the PPG signal, in Section III the architecture of the ANN is presented and discussed, Section IV gives the general overview of the MIMIC database, while Section IV shows the experimental results and Section V concludes.
+
+II. PULSE PARAMETERS EXTRACTION FROM PPG The PPG signal is characterized by the amplitude of the signal and duration of specific components of the cardiac cycle. Due to the moving artifacts during a PPG signal acquisition, the pulse height may vary significantly and, therefore, cannot be used as a parameter for BP estimation. On the other hand, the acquisition frequency of oximeters or other devices that provide the PPG signal [14], [15] varies as well as varies the duration of individual heartbeat. That means that every single heartbeat is represented with a different number of sampled values, that can’t be the ANN input because the number of input neurons is fixed during the use of the ANN architecture and can’t be changed. Therefore, another solution must be found. Several parameters could be used in order to characterize the PPG pulsatile component. Besides the Systolic upstroke Time (ST), Diastolic Time (DT), width of 2/3 and 1/2 pulse amplitude, mentioned in [10], the pulse height, cardiac period and peak width at 10% of the pulse height are used in [16]. In order to extract as much information as possible and then to investigate the best combination of the parameters, we considered additional data. In particular, we proposed to calculate the width also at 25%, 33% and 75% of the pulse height and extract separate value for the systolic part (i.e. in the interval from minimal to the maximal point) and for diastolic part (from the maximal to the next minimal point). The following 21 parameters, including the times of systolic, diastolic parts and ratio between them, were extracted according to Fig. 1 and used to train the ANN:
+• CP, SUT, DT; • At 10%: DW10, SW10+DW10, DW10/SW10; • At 25%: DW25, SW25+DW25, DW25/SW25; • At 33%: DW33, SW33+DW33, DW33/SW33; • At 50%: DW50, SW50+DW50, DW50/SW50; • At 66%: DW66, SW66+DW66, DW66/SW66; • At 75%: DW75, SW75+DW75, DW75/SW75.
+Figure 1. Parameters of the PPG pulsatile component for ANN training and BP estimation.
+
+Figure 2. Artificial neural network architecture for SBP and DBP estimation.
+The reference SBP and DBP was calculated as the highest and lowest values, respectively, in the BP waveform within the current cardiac pulse.
+Such set of parameters provides a good representation of the cardiac pulsation, suitable for the ANN. The combination of parameters to be passed to the ANN input is discussed in Section V.
+III. ARTIFICIAL NEURAL NETWORK ARCHITECTURE
+There are different ANN architectures such as radial basis function, counter propagation, or learning vector quantization that can be used for fitting the input data to the output. They are good from performance point of view, but require large number of neurons and, therefore, can’t be applied in the case of big training set because of memory lack.
+Therefore, it was considered a multilayer feed-forward back propagation ANN with N input neurons (N is the number of used parameters) and two output neurons to simultaneously estimate SBP and DBP (Fig. 2).
+The number of hidden layers and hidden neurons is varying in order to obtain best performance. The selection of the optimal number of such neurons is discussed in Section V.
+IV. DATA SOURCE
+To have a wide representation of PPG signals and correspondent beat-to-beat BP values the distributed freely MIMIC database was used. It includes multiple recordings of physiologic signals and vital signs captured from monitors for tens of thousands of intensive care unit patients. Most of them include ECG, BP, PPG, respiratory signals which were recorded simultaneously with a sampling rate of 125Hz.
+From this database only the signals with both ABP and PPG were extracted. An example of such signals is shown in Fig. 3.
+In total, there were identified more than 15000 separate PPG heartbeats with corresponding BP values for different persons and different time instances. The 70% of them were used for training the ANN, 15% for validation step and 15% for testing.
+V. EXPERIMENTAL RESULTS AND DISCUSSION
+To validate the proposed method, first we investigated how are correlated the data between each other. Fig. 4 shows the relation between extracted DT and SBP as well as possible linear regression
+
+4
+
+Amplitude [V]
+
+3
+
+2
+
+1
+
+0
+
+0
+
+2
+
+4
+
+6
+
+8 10 12 14 16 18 20
+
+Time [s]
+
+BP [mmHg]
+
+a)
+
+160
+
+140
+
+120
+
+100
+
+80
+
+60
+
+40
+
+0
+
+2
+
+4
+
+6
+
+8 10 12 14 16 18 20
+
+Time [s]
+
+b)
+Figure 3. Extracted PPG (a) and the corresponding BP (b) waveforms from MIMIC Database.
+
+line. In Fig. 5 is depicted the DT vs. measured DBP and the linear regression model.
+Both figures confirm a very low correlation between the DT and BP. The reason is that besides healthy people, the MIMIC database contains also signals, obtained from elder people, people with hypertension and other diseases. As the result,
+
+160
+
+150
+
+y = -29.99 * x + 129.3
+
+140
+
+Systolic blood pressure [mmHg]
+
+130
+
+120
+
+110
+
+100
+
+90
+
+80
+
+70
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+Diastolic time [s]
+
+Figure 4. Diastolic time vs. systolic blood pressure and a possible linear regression line.
+
+100
+y = -29.71 * x + 75.65 90
+
+Diastolic blood pressure [mmHg]
+
+80
+
+70
+
+60
+
+50
+
+40
+
+30
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+Diastolic time [s]
+
+Figure 5. Diastolic time vs. diastolic blood pressure and a possible linear regression line.
+
+Mean squared error [mmHg2]
+
+25
+
+20
+
+15
+
+10
+
+5
+
+0
+
+{60}
+
+{45}
+
+{30} {50,30} {35,20} {20,15} {15,5}
+
+Number of hidden neurons
+
+Figure 6. Performance of the ANN vs. number of hidden layers and neurons.
+
+estimation of the BP using a simple regression method is not possible as the error is too high. Thus, application of the proposed approach based on ANNs is reasonable.
+Several ANNs were trained to determine how many neurons of the hidden layer are enough. Fig.6 shows the performance of such ANNs, calculated as the mean squared error. The optimal architecture is {35, 20} with 2 hidden layers – 35 neurons on the first hidden layer and 20 on the second one. Even if the performance of the ANN with {50, 30} of hidden neurons is little bit better, the number of calculations in the production phase becomes very high.
+Finally, the tests to determine the optimal number of the input parameters showed that the best results are obtained when all data are used. In particular, Fig.7 shows the histograms of the errors, calculated as the difference between reference SBP/DBP and the estimated values, for linear regression method, ANN with 4 inputs as discussed in [10] and ANN with 21 input parameters, defined in the previous paragraph.
+
+Blood Pressure
+
+Blood Pressure
+
+1000
+
+1000
+
+800
+
+800
+
+Blood Pressure
+
+600
+
+600
+
+400
+
+400
+
+200
+
+200
+
+0
+
+-40
+
+-20
+
+0
+
+20
+
+40
+
+SBP estimation error [mmHg]
+
+a)
+
+1000
+
+0
+
+-40
+
+-20
+
+0
+
+20
+
+40
+
+DBP estimation error [mmHg]
+
+b)
+
+1000
+
+800
+
+800
+
+Blood Pressure
+
+600
+
+600
+
+400
+
+400
+
+200
+
+200
+
+0
+
+-40
+
+-20
+
+0
+
+20
+
+40
+
+SBP estimation error [mmHg]
+
+c)
+
+1000
+
+0
+
+-40
+
+-20
+
+0
+
+20
+
+40
+
+DBP estimation error [mmHg]
+
+d)
+
+1000
+
+800
+
+800
+
+Blood Pressure
+
+600
+
+600
+
+400
+
+400
+
+200
+
+200
+
+0
+
+-40
+
+-20
+
+0
+
+20
+
+40
+
+SBP estimation error [mmHg]
+
+e)
+
+0
+
+-40
+
+-20
+
+0
+
+20
+
+40
+
+DBP estimation error [mmHg]
+
+f)
+
+Figure 7. Histograms of absolute errors to estimate: a) SBP using linear regression, b) DBP using linear regression,
+c) SBP using 4-input ANN, d) DBP using 4-input ANN, e) SBP using 21-input ANN and f) DBP using 21-input ANN.
+
+Blood Pressure
+
+The absolute error e and relative error er are calculated for every heartbeat as
+
+e = BPest − BP ,
+
+(1)
+
+er
+
+=
+
+e BP
+
+,
+
+(2)
+
+where BPest is the estimated SBP or DBP using linear regression or ANN, and BP is the obtained from MIMIC Database reference value.
+Table 1 shows the performance results of the above experiments on the test database, presented as mean and standard deviation of absolute error e and relative error er among reference SBP/DBP and estimated values.
+
+TABLE I.
+
+PERFORMANCE RESULTS OF DIFFERENT METHODS,
+
+AVERAGED OVER ALL RECORDS (MEAN VALUE±STANDARD DEVIATION)
+
+SBP
+
+DBP
+
+e, mmHg
+
+er, %
+
+e, mmHg
+
+er, %
+
+Linear Regression 9.80±8.09 8.94±7.57 5.88±5.11 10.26±8.83
+
+Neural Network (4 input neurons)
+Neural Network (21 input neurons)
+
+5.19±5.01 4.73±4.59 2.91±2.92 5.02±4.80 3.80±3.46 3.48±3.19 2.21±2.09 3.90±3.51
+
+The experimental results confirm the correctness of the proposed method. According to the American National Standards of the Association for the Advancement of Medical Instrumentation [17], the mean absolute difference between the device and the mercury standard sphygmomanometer must be less than 5 mmHg, and the standard deviation must be less than 8 mmHg. In our tests, the mean error is 3.80±3.46 mmHg for systolic and 2.21±2.09 mmHg for diastolic pressure that fulfils the standard requirement. The relative error is less than 4±3.5%.
+VI. CONCLUSIONS AND FUTURE WORKS
+In this paper is proposed a new method to continuous and noninvasive blood pressure estimation from the PPG signal. It is done using a feed forward ANN with two hidden layers, with 35 neurons on the first layer and 20 neurons on the second one. Such configuration shows better results on performance in comparison with other architectures.
+The MIMIC database was used for training the ANN, and a total of more than 15000 pulsations were analyzed and 21 parameters were extracted from each of them. The obtained results 3.80±3.46 mmHg for systolic and 2.21±2.09 mmHg for diastolic pressure fulfills with the American National Standards of the Association for the Advancement of Medical Instrumentation, where the maximal accepted errors is 5±8 mmHg.
+
+The ongoing research is focused on the optimization of the proposed method in order to implement it on a smartphone allowing fast and easy BP estimation anywhere and anytime.
+REFERENCES
+[1] M. E. Ernst, G. R. Bergus, “Ambulatory blood pressure monitoring,” Southern Medical Journal, vol. 96(6), pp. 563–568, June 2003.
+[2] Y.S. Yan, Y.T. Zhang, “Noninvasive estimation of blood pressure using photoplethysmographic signals in the period domain,” Proc. of 27th Annual International Conference of the Engineering in Medicine and Biology Society (IEEE-EMBS 2005), 2005, pp.3583-3584.
+[3] K. Barbé, W. Van Moer, D. Schoors, “Analyzing the windkessel model as a potential candidate for correcting oscillometric blood-pressure measurements,” IEEE Trans. on Instrum. and Measur., vol.61, no.2, pp.411-418, Feb. 2012.
+[4] W. B. Gu, C. C. Y. Poon, Y. T. Zhang, “A novel parameter from PPG dicrotic notch for estimation of systolic blood pressure using pulse transit time,” Medical Devices and Biosensors (ISSS-MDBS 2008), 2008, pp.86-88.
+[5] K. Meigas, R. Kattai, J. Lass, “Continuous blood pressure monitoring using pulse wave delay,” Proc. of 23rd Annu. Int. Conf. of the IEEE Eng. in Medicine and Biology Society, vol.4, 2001, pp.3171- 3174.
+[6] M.K. Ali Hassan, M.Y. Mashor, N.F. Mohd Nasir, S. Mohamed, “Measuring blood pressure using a photoplethysmography approach,” Proc. of 4th Kuala Lumpur Int. Conf. on Biom. Eng., Vol. 21, 2008, pp. 591-594.
+[7] J. Yi Kim, B. Hwan Cho, S. Mi Im, M. Ju Jeon, I. Young Kim, S. I Kim, “Comparative study on artificial neural network with multiple regressions for continuous estimation of blood pressure,” Proc. of 27th Annual Intern. Conf. of the Engin. in Medicine and Biology Soc., 2005, pp. 6942-6945.
+[8] F.S. Cattivelli, H. Garudadri, “Noninvasive cuffless estimation of blood pressure from pulse arrival time and heart rate with adaptive calibration,” Proc. of Sixth International Workshop on Wearable and Implantable Body Sensor Networks (BSN 2009), 2009, pp. 114-119.
+[9] D.B. McCombie, A.T. Reisner, H. Harry Asada, “Adaptive blood pressure estimation from wearable PPG sensors using peripheral artery pulse wave velocity measurements and multi-channel blind identification of local arterial dynamics,” Proc. of 28th Annual International Conference of the IEEE Eng. in Medicine and Biology Society (EMBS '06), 2006, pp. 3521-3524.
+[10] X. F. Teng and Y. T. Zhang, “Continuous and noninvasive estimation of arterial blood pressure using a photoplethysmographic approach,” Proc. of 25th Annual Inter. Conf. of the IEEE Engineering in Medicine and Biology Society, Cancun, Mexico, 2003, pp. 3153–3156.
+[11] Y. Yoon, G. Yoon, “Nonconstrained blood pressure measurement by photoplethysmography,” Journal of the Optical Society of Korea, vol.10, no.2, pp. 91-95, June 2006.
+[12] G. Fortino, V. Giampà, “PPG-based methods for non invasive and continuous BP measurement: an overview and development issues in body sensor networks,” Proc. of IEEE Int. Workshop on Medical Measur. and Applications (MeMeA’2010), Ottawa, ON, 2010, pp.10-13.
+[13] A. L. Goldberger, L. A. N. Amaral, L. Glass, J. M. Hausdorff, P. Ch. Ivanov, R. G. Mark, J. E. Mietus, G. B. Moody, C. K. Peng, H. E. Stanley, “PhysioBank, PhysioToolkit, and PhysioNet: Components of a New Research Resource for Complex Physiologic Signals,” Circulation 101(23), pp. e215-e220, 2000.
+[14] Yu.. Kurylyak, F. Lamonaca, D. Grimaldi, “Smartphone-Based Photoplethysmogram Measurement,” in Digital Image, Signal and Data Processing, R.J. Duro and F. López-Peña Ed. Aalborg, Denmark: River Publishers, 2012, pp. 135-164.
+[15] F. Lamonaca, Y. Kurylyak, D. Grimaldi, V. Spagnuolo, “Reliable pulse rate evaluation by smartphone,” Proc. of IEEE Int. Symp. Medical Measurements and Applications (MeMeA 2012), Budapest, Hungary, 2012, pp. 234-237.
+[16] S. Linder, S. Wendelken, E. Wei, and S. McGrath, “Using the morphology of photoplethysmogram peaks to detect changes in posture,” Journal of Clinical Monitoring and Computing, vol.20(3), pp.151–158, June 2006.
+[17] American National Standard for Electronic or Automated sphygmomanometers: ANSI/AAMI SP10, Arlington, VA: Association for the Advancement of Medical Instrumentation, 1992.
+

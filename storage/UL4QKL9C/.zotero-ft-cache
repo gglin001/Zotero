@@ -1,0 +1,288 @@
+Repetitive neural network (RNN) based blood pressure estimation using PPG and ECG signals
+
+Ümit Şentürk
+Computer Engineering Duzce University Duzce, Turkey
+usenturk98@gmail.com
+
+İbrahim Yücedağ
+Computer Engineering Duzce University Duzce, Turkey
+yucedagi@gmail.com
+
+Kemal Polat
+Electrical and Electronic Engineering Abant Izzet Baysal University Bolu, Turkey kpolat@ibu.edu.tr
+
+Abstract— In this study, a new hybrid prediction model was proposed by combining ECG (Electrocardiography) and PPG (Photoplethysmographic) signals with a repetitive neural network (RNN) structure to estimate blood pressure continuously. The proposed method consists of two steps. In the first step, a total of 22 time-domain attributes were obtained from PPG and ECG signals to estimate systolic blood pressure (SBP) and diastolic blood pressure (DBP) values. In the second phase, these time-domain attributes are set as input to the RNN model and then the blood pressure is estimated. Within the RNN structure, there are two-way long short-term memory BLSTM (Bidirectational Long-Short Term Memory), LSTM and ReLU (Rectified-Linear unit) layers. The bidirectional LSTM layer has been used to remove the negative affects the blood pressure value of past and future effects of nonlinear physiological changes. The LSTM layers has ensured that learning is deep and that mistakes made are reduced. The ReLU layer has been allowed the neural network to quickly reach its conclusion. The same ECG and PPG signals obtained from the database have been cleared from noise and artifacts. And then ECG and PPG signals have been segmented according to peak values of these signals. The results have shown that RMSE (Root Mean Square Error) between the estimated SBP and the measured SBP with RNN model was 3.63 and the RMSE between the estimated DBP and the measured DBP values was 1.48 with RNN model. It has been seen that the used model has a more learning ability. Thanks to the proposed method, a calibration free blood pressure measurement system using PPG and ECG signals, was developed.
+Keywords—Blood pressure estimation, LSTM, RNN, Deep Neural Networks
+I. INTRODUCTION
+Cardiovascular diseases are rapidly becoming widespread nowadays. Globally, deaths due to cardiovascular diseases reach 17.65 million people per year and also 10.46 million people die from high blood pressure per year [1]. High blood pressure affects blood vessels and the heart. The blood pressure of the people with high blood pressure should be monitored continuously. According to the World Health Organization (WHO), the high blood pressure disease is called the silent and the unseen lethal disease [2]. The pressure in the artery is constantly moving between low and high points. While the highest point of the artery pressure is called systolic blood pressure (SBP), the lowest point of the artery pressure is called diastolic blood pressure (DBP).
+
+TABLE I.
+
+AMERICAN HEART ASSOCIATION BLOOD PRESSURE CATEGORIES [3]
+
+Blood pressure category
+Normal
+High
+
+Systolic mmHg High value
+Less than 120
+129-120
+
+and/or and and
+
+Diastolic mmHg Low value Less than 80
+Less than 80
+
+Hypertension Phase 1
+Hypertension Phase 2
+Hypertensive crisis (emergency physician consultation)
+
+139-130
+
+or
+
+140 and or over
+180 and and/or over
+
+89-80
+90 or over
+Higher than 120
+
+By looking at the categories in Table 1, it can be understood which blood pressure value is entered into which category. Of course, in the diagnosis of blood pressure need to decide by specialist medical personnel. Blood pressure can be changed from some environmental factors. Eating, stress, emotional state, working tempo, blood pressure medications, age, weight, white gown effect, [4] and similar situations cause changes in blood pressure. Measurements must be made under standard conditions and within sufficient time. Taking into account these factors that influence blood pressure measurement will help doctors make a diagnosis and ensure that the correct drug dose is given for the right type of blood pressure disorder.
+Blood pressure measurement uses direct methods and indirect methods. In the direct measurement method (gold standard) [5], the measurement of blood pressure is made by placing a catheter into the artery. The indirect method is the measurement made by binding sphygmomanometer to the arm.
+Due to limitations of indirect methods and comfort problems, cuffless blood pressure measurement methods have been of interest in past and present studies. The most widely used methods are the Pulse Wave Velocity (PWV) propagation [6] and Moens-Korteweg equation [7]. Also, Pulse Transit Time (PTT), a widely used one, is one of the attributes of processed blood pressure estimates. In blood pressure measurements, environmental and emotional states such as mental status, stress, activity, age lead to errors in
+
+978-1-5386-4184-2/18/$31.00 ©2018 IEEE
+
+measurements. The system must be calibrated to remove these faults. Since there is no calibration standard in the field of health services, it is not enough importance to the cuffless blood pressure devices. Due to the vanishing gradient problem that is happened at recurrent neural network model [8], the RNN type LSTM structure had been used. In this proposed study, a total of 22 time zone attributes, 11 from the ECG wave and 11 from the PPG wave, were created and the RNN model and blood pressure values were estimated.
+II. MATERIALS AND METHOD
+A. Data collection PPG and ECG signals which were used in this study were
+obtained from Physionet's MIMIC II (Multiparameter Intelligent Monitoring in Intensive Care) database [9]. This database includes ECG (electrocardiogram), PPG (photoplethysmography) and ABP (arterial blood pressure). Figure 1 shows the waves in the MIMIC II database. The ABP signal will be used as a target data in the calculation of systolic and diastolic blood pressure values. The samples were taken from the signals in the database and tested on the system. Large sample set of the error rate is tried to be reduced while maintaining the system.
+B. Method In this study, ECG, PPG and ABP signals were taken
+from the database and subjected to pre-processing. The noise and artifact-free EEG signal were normalized and were segmented by R-R intervals of the ECG signal. Attributes have been extracted from the split signals. By marking the SP and DP points in the ABP signal the values of the SP and DP were obtained. The designed RNN performed blood pressure estimation using features as input and also SP and DP as targets.
+C. Segmentation The R peak, which is the defining attribute of the ECG
+signal, needs to be determined. Using Pan-Tompkins [10] and DWT [11] found R-peaks of ECG signals. Figure 2 indicates the signals which the peak points were determined.
+
+dimensional matrix on one line. PPG and ABP signals are also converted into a 2D matrix, starting from the position of the R-peaks, like ECG signals. Twenty-two time-domain feature were extracted from the ECG and PPG signals for each R-R heart beat from the signals separated by segments. Feature extracted from ECG and PPG signals are shown in Table 2.
+
+TABLE 2. ANSI (AMERICAN HEART ASSOCIATION) BLOOD PRESSURE CATEGORIES [12]
+
+Features obtained from the PPG and ECG signal
+
+ECG
+
+Explanation
+
+PPG
+
+Explanation
+
+Features
+
+Features
+
+1
+
+Peak value
+
+2
+
+Peak value
+
+3
+
+Peak to Peak
+
+4
+
+Peak to Peak
+
+5
+
+Average value
+
+6
+
+Average value
+
+7
+
+Standard deviation
+
+8
+
+Standard
+
+deviation
+
+9
+
+Root Mean Square 10
+
+Root Mean
+
+( RMS)
+
+Square ( RMS)
+
+11
+
+Skew
+
+12
+
+Skew
+
+13
+
+Stickiness
+
+14
+
+Stickiness
+
+15
+
+Peak factor
+
+16
+
+Peak factor
+
+17
+
+Opening factor
+
+18
+
+Opening factor
+
+19
+
+Impulse factor
+
+20
+
+Impulse factor
+
+21
+
+Shape factor
+
+22
+
+Shape factor
+
+D. RNN Model Many attributes need to be eliminated in order to remove the physiological effects from the blood pressure presumption. 22 features extract (Xt = [x1, x2, ..., xt]) have been entered into the input layer of the RNN model, which have denoted as ECG and PPG. The diastolic blood pressure (DBP)and the systolic blood pressure (SBP) extracted from the measured ABP values had been shown as the output layer of the RNN model.
+
+Fig. 2. RNN block diagram
+
+Fig. 1. ABP signal with peaked ECG and PPG signals, diastolic and systolic blood pressure values determined
+After the R-peaks in the ECG signal were detected, a segmentation of each beat from the ECG signal of 10 minutes was performed. In the ECG signal, every heartbeat is cut through the R-R peak and converted into a two-
+
+ht = f wights(ht-1,Xt)
+
+(1)
+
+where ht, ht-1, and Xt are the secret state, the previous secret, and state entries, respectively. The RNN model proposed is seen in Figure 3. . In the model, the input layer is a two-way long short-term memory (BLSTM) [13], shown by red blocks. In its continuation, two LSTM layers were used, showing blue blocks for deepening the learning.
+
+In the last layer using ReLU [14] shown in green the model was created.
+
+A. BI-directional long-short-term memory (BLST)
+
+In the RNN structure we created, BLSTM has been used as input hidden layer. The BLSTM structure removes the problem of sloping slope, which occurs by scanning the input variable backwards and forwards. The hidden state (ht) is created by LSTM in this layer.
+
+it = σ(WxiXt + Whiht−1 + Wcict−1 + bi)
+
+(2)
+
+ft = σ(WxfXt + Whfht−1 + Wcf ct−1 + bf ) (3)
+
+ct = ftct−1 + it tanh(WxcXt + Whcht−1 + bc) (4)
+
+ot = σ(WxoXt + Whoht−1 + Wcoct + bo)
+
+(5)
+
+ht = ot*tanh(ct)
+
+(6)
+
+where i, f, and o are input, output gate, and forgetting gate, respectively. Representative weights are denoted by W, and
+b is the bias.
+
+ht→ = H(Wxh→ xt + Wh→h→ h→t+1 + bh→ )
+
+(7)
+
+ht← = H(Wx h← xt + Wh←h← h←t+1 + bh← ) (8)
+
+yt = Wh→y ht→ + W h←y ht ← + by
+
+(9)
+
+In the BLSTM structure, ht→ is forward hidden sequence, ht ← is backward hidden sequence, and yt is output sequence. BLSTM looks for contextual features both forward and backward. Again, it is not known whether the feature we want to forget in the same structure is forward or backward, so it is appropriate to use BLSTM hidden layer. Therefore, BLSTM is used at the input layer of the RNN model we have created. Fig. 3 indicates the internal structure of the LSTM block diagram.
+
+Fig. 4. ReLU activation function
+III. EXPERIMENTAL RESULTS AND DISCUSSION
+In this study, we applied the RNN deep learning model which we created by extracting the features from ECG and PPG signals. Systolic and diastolic blood pressures in ABP signals were estimated from RNN model. According to the ANSI (American National Standards Institute) for the “Development of Medical Instrumentation” [15], there should be an average difference of 5mmHg and standard deviation of 8mmHg between the standard standard sphygmomanometer and the device. This study compared blood pressure values predicted by diastolic blood pressure (DBP) systolic blood pressure (SBP) and models found in ABP signals obtained from direct data base in comparison with using MIMIC II database (MIMIC II arterial blood pressure measurement). The square root of the performance error the estimated SBP and the actual SBP values is the square root of the error probability (RMSE) 3.63, and the error performance estimated DBP and the actual DBP values has been RMSE 1.48. Figures 5 and 6 show the number of repeats and RMSE graphs of the RNN model.
+
+Fig. 5. SBP estimation of RNN model
+
+Fig. 3. LSTM block
+B. Rectified Linear Units (ReLU) Layer
+The ReLU layer was selected as the last hidden layer. The mathematical formula is given in Equation 10. Fig. 4 indicates a graph of ReLU activation function. The effect of this layer on the RNN model we created is to reset the negative values in the ReLU layer entry. This allows the network to get rid of the negative values on the network and make the network learn faster.
+
+Fig. 6. DBP estimation of RNN model TABLE 3. SBP AND DBP FORECAST VALUES COMPARISON CHART
+
+Model
+PTT (Pulse Trasit Time) [12 ] SVR (Support Vector Regressio)[ 12] DT (Decision Tree)[12] MLP (Multi Layer Perceptron)[13] Recommended RNN
+
+RMSE (SBP) 5.75 6.54 4.45 7.40 3.63
+
+RMSE (DBP) 3.50 6.28 2.80 4.51 1.48
+
+According to the ANSI medical instrumentation development association standard, the blood pressure values predicted by the proposed model were obtained very close results to measured blood pressure values. Table 3 shows the RNN model and state of the art models. As can be seen from the Table 3, the RNN model obtained more accurate results than the other methods in the literature.
+
+IV. CONCLUSIONS
+In this paper, we only used the time domain features in the estimation of blood pressure using ECG and PPG signals with a RNN that is a deep learning method. With only 22time domain features, RNN got good results according to the literature works. The proposed RNN model with were obtained features from PPG and ECG signals got the RMSE value of 3.63 for SBP and obtained the RMSE value of 1.48 for DBP. By changing the number of features of the system and the number of hidden layers of the RNN, the system could be gotten at the optimum level. The proposed model could be designed as a hardware and made available on smart phones and other smart devices.
+
+REFERENCES
+
+[1] Hannah Ritchie and Max Roser (2018) - "Causes of Death". Published online at OurWorldInData.org. Retrieved
+from: 'https://ourworldindata.org/causes-of-death' [Online Resource]
+
+[2] World Healty Organization (WHO), A global brief on HYPERTANSION, world healtyday 2013
+
+[3] American Heart Association, Healthy and unhealthy blood
+
+pressure
+
+ranges,
+
+http://www.heart.org/HEARTORG/Conditions/HighBloodPre
+
+ssure/KnowYourNumbers/Understanding-Blood-Pressure-
+
+Readings_UCM_301764_Article.jsp#.WmYc8rxl9dg, 2018-
+
+01-22
+
+[4] Kuddusi Cengiz, BEYAZ ÖNLÜK ( White Coat) HİPERTANSİYONU, Türk Nefroloji Diyaliz ve Transplantasyon Dergisi I Offical Journal of the Turkish Nephrology Association 2000;2:75-78
+
+[5] Türk Kardiyoloji Derneği Ulusal Hipertansiyon Tedavi ve Takip Kılavuzu, 3. Kan Basıncının Ölçümü ve Klinik Değerlendirme,
+https://www.tkd.org.tr/kilavuz/k03/3_18530.htm?wbnum=110 3,05.01.2018, 23:15
+
+[6] Dilpreet Buxi, Jean-Michel Redout, Mehmet Rasit Yuce. " Blood Pressure Estimation Using Pulse Transit Time From
+
+Bioimpedance and Continuous Wave Radar ", IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, vol. 64, no. 4, 2017
+[7] C.C.Y. Poon and Y.T. Zhang, “Cuff-less and Noninvasive Measurements of Arterial Blood Pressure by Pulse Transit Time”, Engineering in Medicine and Biology Society, IEEE-EMBS 2005. 10.1109/IEMBS.2005.1615827
+[8] Sharad Verma, Mayank Saini, Aditi Sharan, “Deep Sequential Model for Review Rating Prediction”, Proceedings of 2017 Tenth International Conference on Contemporary Computing ( IC3), 10-12 August 2017, Noida, India, 978-1-5386-30778/17/$31.00 ©2017 IEEE
+[9] Goldberger AL, Amaral LAN, Glass L, Hausdorff JM, Ivanov PCh, Mark RG, Mietus JE, Moody GB, Peng C-K, Stanley HE. PhysioBank, PhysioToolkit, and PhysioNet: Components of a New Research Resource for Complex Physiologic Signals. Circulation101(23):e215-e220
+[10] Jiapu Pan and Willis j. Tompkins, “A Real-Time QRS Detection Algorithm”, IEEE Transactıons on Biomedical Engineering, 32, 3, 1985.
+[11] Mohammad Kachuee, Mohammad Mahdi Kiani, Hoda Mohammadzade, Mahdi Shabany, “Cuff-Less Blood Pressure Estimation Algorithms for Continuous Health-Care Monitoring”, TBME-00053-2016.R2
+[12] Umit Senturk, Ibrahim Yucedag, Kemal Polat, “Cuff-less continuous blood pressure estimation from Electrocardiogram(ECG) and Photoplethysmography (PPG) signals with artificial neural network”, 2018 26th Signal Processing and Communications Applications Conference (SIU), DOI: 10.1109/SIU.2018.8404255
+[13] Peng Su, Xiao-Rong Ding, Yuan-Ting Zhang, “Long-term Blood Pressure Prediction with Deep Recurrent Neural Networks”, arXiv:1705.04524
+[14] Xiaohan Li, Shu Wu and Liang Wang, “Blood Pressure Prediction via Recurrent Models with Contextual Layer”, Center for Research on Intelligent Perception and Computing National Laboratory of Pattern Recognition Institute of Automation, Chinese Academy of Sciences, 2017
+[15] William B. White, Alan S. Berson, Carroll Robbins, Michael J. Jamieson, L. Michael Prisant, Edward Roccella, and Sheldon G. Sheps, “National Standard for Measurement of Resting and Ambulatory Blood Pressures With Automated Sphygmomanometers”, Hypertension Vol 21, No 4 April 1993
+

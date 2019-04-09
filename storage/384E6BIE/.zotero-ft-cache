@@ -1,0 +1,1183 @@
+Hindawi Journal of Healthcare Engineering Volume 2018, Article ID 1548647, 13 pages https://doi.org/10.1155/2018/1548647
+
+Research Article
+Blood Pressure Estimation Using Photoplethysmography Only: Comparison between Different Machine Learning Approaches
+
+Syed Ghufran Khalid ,1 Jufen Zhang,1 Fei Chen ,2 and Dingchang Zheng 1
+1Faculty of Medical Science, Anglia Ruskin University, Bishop Hall Ln, Chelmsford CM11SQ, UK 2Department of Electrical and Electronic Engineering, Southern University of Science and Technology, Shenzhen 518055, China
+Correspondence should be addressed to Syed Ghufran Khalid; syed.khalid1@pgr.anglia.ac.uk and Dingchang Zheng; dingchang. zheng@anglia.ac.uk
+Received 20 June 2018; Revised 5 September 2018; Accepted 16 September 2018; Published 23 October 2018
+Guest Editor: Yu Shang
+Copyright © 2018 Syed Ghufran Khalid et al. is is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.
+Introduction. Blood pressure (BP) has been a potential risk factor for cardiovascular diseases. BP measurement is one of the most useful parameters for early diagnosis, prevention, and treatment of cardiovascular diseases. At present, BP measurement mainly relies on cuﬀ-based techniques that cause inconvenience and discomfort to users. Although some of the present prototype cuﬄess BP measurement techniques are able to reach overall acceptable accuracies, they require an electrocardiogram (ECG) and a photoplethysmograph (PPG) that make them unsuitable for true wearable applications. erefore, developing a single PPGbased cuﬄess BP estimation algorithm with enough accuracy would be clinically and practically useful. Methods. e University of Queensland vital sign dataset (online database) was accessed to extract raw PPG signals and its corresponding reference BPs (systolic BP and diastolic BP). e online database consisted of PPG waveforms of 32 cases from whom 8133 (good quality) signal segments (5 s for each) were extracted, preprocessed, and normalised in both width and amplitude. ree most signiﬁcant pulse features (pulse area, pulse rising time, and width 25%) with their corresponding reference BPs were used to train and test three machine learning algorithms (regression tree, multiple linear regression (MLR), and support vector machine (SVM)). A 10-fold cross-validation was applied to obtain overall BP estimation accuracy, separately for the three machine learning algorithms. eir estimation accuracies were further analysed separately for three clinical BP categories (normotensive, hypertensive, and hypotensive). Finally, they were compared with the ISO standard for noninvasive BP device validation (average diﬀerence no greater than 5 mmHg and SD no greater than 8 mmHg). Results. In terms of overall estimation accuracy, the regression tree achieved the best overall accuracy for SBP (mean and SD of diﬀerence: −0.1 ± 6.5 mmHg) and DBP (mean and SD of diﬀerence: −0.6 ± 5.2 mmHg). MLR and SVM achieved the overall mean diﬀerence less than 5 mmHg for both SBP and DBP, but their SD of diﬀerence was >8 mmHg. Regarding the estimation accuracy in each BP categories, only the regression tree achieved acceptable ISO standard for SBP (−1.1 ± 5.7 mmHg) and DBP (−0.03 ± 5.6 mmHg) in the normotensive category. MLR and SVM did not achieve acceptable accuracies in any BP categories. Conclusion. is study developed and compared three machine learning algorithms to estimate BPs using PPG only and revealed that the regression tree algorithm was the best approach with overall acceptable accuracy to ISO standard for BP device validation. Furthermore, this study demonstrated that the regression tree algorithm achieved acceptable measurement accuracy only in the normotensive category, suggesting that future algorithm development for BP estimation should be more speciﬁc for diﬀerent BP categories.
+
+1. Introduction
+Blood pressure (BP) is one of the main risk factors for cardiovascular diseases. Abnormal BP has been a potent issue that causes strokes, heart attacks, and kidney failure [1]. At present, cuﬀ-based BP measurement devices have been widely used in hospital settings to detect abnormal BP [2]. However, they are not convenient and comfortable for the users.
+
+In the past few years, various research groups have attempted numerous techniques in order to achieve cuﬄess BP measurement. e key measuring principle for cuﬄess BP estimation is based upon the time taken by a pulse from the heart to the ﬁnger. ey are known as pulse transit time (PTT) or pulse arrival time (PAT) [3–10]. Other researchers used vascular transit time (VTT) which was calculated from the time diﬀerence between photoplethysmograph (PPG)
+
+2
+
+Journal of Healthcare Engineering
+
+measured at the ﬁngertip and phonocardiograph measured at the chest [11]. Cuﬄess BPs were also measured using the tonometry technique based on the information from multiple pressure sensors on the radial artery tree [6, 12]. Another group of researchers introduced the cuﬄess BP measurement technique using modiﬁed normalised pulse volume and heart rate [13]. Multiple magnetic sensors have also been used to measure pulse wave velocity (PWV) for the estimation of cuﬄess BP [14]. Although some of the cuﬄess BP devices achieved overall acceptable accuracies, the above mentioned algorithms required at least two sensors [15], making them unsuitable for true wearable applications. erefore, developing a single PPG-based cuﬄess BP estimation algorithm with enough accuracy would be clinically and practically useful.
+Recently, machine learning algorithms, including support vector machine (SVM), multiple linear regression (MLR), and neural networks algorithms, have been used to estimate cuﬄess BP. Zhang and Feng applied the SVM algorithm to waveform features that were extracted from PPG signal segments collected from the University of Queensland Vital Signs dataset [16]. Nevertheless, their study only achieved the SBP and DBP measurement accuracies of 11.6 ± 8.2 mmHg and 7.6 ± 6.7 mmHg [16]. Kawanaka et al. tested MLR algorithm with their own collected dataset. eir training data included old individuals while testing datasets gathered from young individuals [17]. Visvanathan et al. also used PPG signal features with both linear regression and SVM algorithms to estimate cuﬄess BP [18]. However, these studies failed to meet ISO noninvasive BP device accuracy (average diﬀerence no greater than 5 mmHg and SD no greater than 8 mmHg). Other researchers also developed a cuﬄess BP measurement device with acceptable accuracy in terms of mean diﬀerence (3.8 mmHg for SBP and 4.6 mmHg for DBP) accuracy, but unfortunately, their measurement techniques have not been described in detail [19]. Furthermore, in all the published studies, the measurement accuracies have not been evaluated speciﬁcally in diﬀerent clinical BP categories (normotensive, hypertensive, and hypotensive).
+is research aimed to develop and compare three machine learning algorithms (regression tree, MLR, and SVM) to estimate BPs only using pulse waveform features derived from good quality PPG signals. In addition, their estimation accuracy would be evaluated for three diﬀerent clinical BP categories (normotensive, hypertensive, and hypotensive).
+2. Methods
+e overall ﬂow diagram of the proposed research methodology is presented in Figure 1, which is summarised in the following steps:
+(1) Extract PPG signal segments and reference BPs (SBP and DBP). Only the acceptable quality of 5 s data segments was saved.
+(2) Preprocess PPG signal segments, including baseline removal and PPG pulse waveform normalization.
+(3) Derive waveform features from preprocessed PPG signal segments.
+
+Input signal & reference BPs Raw PPG segment Reference SBP and DBP
+
+Pre-processing
+Feature extraction
+Three different machine learning algorithms
+(10-fold cross-validation)
+Categorical evaluation of algorithms
+
+Estimated SBP
+
+Estimated DBP
+
+Figure 1: Flow diagram of research methodology.
+
+(4) Train and test with 10-fold cross-validation of three diﬀerent machine learning algorithms to compare the overall estimation accuracy.
+(5) Evaluate estimation accuracy of the three machine learning algorithms speciﬁcally for each BP category.
+2.1. Online Database. e University of Queensland vital signs dataset (accessed on February 2017) was used in this study. e dataset was recorded from 32 cases in Royal Adelaide Hospital using Phillips IntelliVue MP70 and MP30 with the sampling rate of 100 Hz. e signal length from each case ranged from 13 minutes to 5 hours. Raw PPG signal waveforms with their corresponding noninvasive BP (NIBP) data were extracted [20]. e length of each extracted segment was 5 seconds. During data segmentation, a manual check was performed to avoid unacceptable quality of the PPG signal with the movement artefact and to exclude the segments without corresponding reference SBP and DBP data. e manual check was performed to ensure our machine learning models being developed did not have any interference of bad signals, allowing the BP results from diﬀerent machine learning approaches to be more comparable. e number of unacceptable signal segments and the segments without reference SBP and DBP data were 9772 and 5572. Figure 2 illustrates some examples of bad quality PPG segments.
+
+Journal of Healthcare Engineering
+
+3
+
+0.6
+
+0.6
+
+Amplitude (volts)
+
+Amplitude (volts)
+
+0.5 0.5
+0.4
+
+0.3
+
+0.4
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Number of samples
+
+Number of samples
+
+1
+
+1
+
+Amplitude (volts)
+
+Amplitude (volts)
+
+0.8 0.5
+0.6
+
+0.4
+
+0
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Number of samples
+
+Number of samples
+
+Figure 2: Examples of the bad quality PPG signal segments that cannot be processed and used to extract their waveform features.
+
+In total, as given in Table 1, 8133 signal segments of both good quality PPG and reference NIBP data were collected from the online database of 23617 signal segments. Next, each of the good quality segments was grouped into three diﬀerent BP categories according to their reference BPs and the BP classiﬁcation chart, as shown in Figure 3(a). e normotensive category included 6482 segments which were about 80% of the total good quality segments. e remaining hypertensive and hypotensive categories contained 1015 (12%) and 636 (8%), respectively, as shown in Figure 3(b). Since the BPs varied during the long period of recording, each case included variable BP segments under diﬀerent BP categories, as shown in Table 1.
+2.2. PPG Signal Preprocessing. Each PPG segment was ﬁrstly processed with a 4th order and 19 frame length Savitzky– Golay ﬁlter. is ﬁlter is a moving average ﬁlter to smooth the PPG signal. It was selected due to the advantage of sharp edge preservation [21]. Baseline wandering caused by the respiratory activity was also removed from the segments.
+e 2-dimensional normalization (in both width and amplitude) was then performed. Figure 4 shows how a raw PPG segment is transformed to a normalised pulse. Since the reference NIBP was constant during the 5-second period of the segment, no further preprocessing of reference NIBP was required.
+2.3. Features Extraction and Selection. Five diﬀerent waveform features were initially extracted from each of the preprocessed PPG segments, which consisted of pulse area, pulse rising time, width 25%, width 50%, and width 75%. e “pulse area” feature of the PPG segment reﬂects the vascular tone changes [22]. Pulse rising time is associated with BP changes. It has been reported that it appeared earlier in younger than in older individuals [23]. Sinha et al. included this important feature in their algorithm to estimate cuﬄess BP [18]. e PPG pulse widths are associated with the systemic vascular resistance [24].
+
+To select the most signiﬁcant features, the multicollinearity test was applied in this study. e presence of multicollinearity among the predictor variables aﬀects the generalizability of the algorithm, causing a high estimated mean square error of the algorithm. Variance inﬂation factor (VIF) as an important diagnostic tool for multicollinearity among predictors, was used to determine the presence of collinearity among predictors [25]. If VIF of a predictor is larger than 10, it indicates that the predictor is highly collinear with another predictor. e most signiﬁcant features were identiﬁed with the multicollinearity test on the basis of their VIF. After the multicollinearity, width_50% and width_75% were eliminated from the training dataset due to their VIF > 10.
+2.4. Machine Learning Algorithms to Estimate BPs. e training and testing dataset consisted of three most significant PPG waveform features (pulse area, pulse rising time, and Width_25%) from each of the 8133 PPG segments and their corresponding reference BPs (SBP and DBP). Due to the continuous nature of data, three commonly used regression-based machine learning algorithms were applied in this study as follows.
+2.4.1. Multiple Linear Regression (MLR). MLR is a type of the machine learning algorithm that has been widely used by previous researchers to estimate cuﬄess BP [3, 7, 26].
+e algorithm started with the random selection of coeﬃcients of the linear algorithm (θ0, θ1, θ2, and θ3). Each predictor was associated with a coeﬃcient as shown in a virtual box in Figure 5(a). After each iteration, the coeﬃcients and random error (ε, the diﬀerence between the estimated and reference BP) were updated. e least square algorithm was used to minimize the squared error as shown in Equation (1). Iterative minimization of the squared error continued until it converged when BP estimation was generated:
+
+4
+Case
+Case 1 Case 2 Case 3 Case 4 Case 5 Case 6 Case 7 Case 8 Case 9 Case 10 Case 11 Case 12 Case 13 Case 14 Case 15 Case 16 Case 17 Case 18 Case 19 Case 20 Case 21 Case 22 Case 23 Case 24 Case 25 Case 26 Case 27 Case 28 Case 29 Case 30 Case 31 Case 32 Total
+
+Journal of Healthcare Engineering
+
+Table 1:
+Normotensive
+581 12 1099 496 50 357 128 248 465 44 395 312 324 — — — 65 81 40 286 101 56 22 20 101 152 98 231 211 48 315 144 6482
+
+e number of segments for each BP categorical groups, separately for each case.
+
+Hypertensive
+— — — — 32 56 — — — 1 51 — — — — — — — 15 3 0 52 76 — 57 21 — — — — 72 200 636
+
+Hypotensive
+64 14 50 — — 69 56 — — — 71 392 8 61 12 46 4 — — 11 59 11 — — 19 7 — — 27 — 34 — 1015
+
+Bad quality signals
+419 166 1400 649 352 158 289 296 178 195 203 468 223 95 158 86 70 81 84 256 119 167 226 160 468 367 388 403 480 84 798 286 9772
+
+Without reference BPs
+376 — 1051 295 1726 80 247 152 77 — — 268 165 — — 28 27 — 20 164 81 74 — — 75 173 101 79 — — 221 90 5570
+
+Total
+1440 192 3600 1440 2160 720 720 696 720 240 720 1440 720 156 170 160 166 162 159 720 360 360 324 180 720 720 720 720 720 132 1440 720 23617
+
+SBP (mmHg)
+
+190 180 170 160 150 140 130 120 110 100 90 80 70
+40
+
+Hypertensive category
+
+Normotensive category
+
+Hypotensive category
+50
+
+60
+
+70
+
+80
+
+DBP (mmHg)
+
+(a)
+
+BP level categorical distribution in database
+1015 636 (12%) 8%
+6482 (80%)
+
+90
+
+100
+
+Normotensive BP Hypertensive BP Hypotensive BP
+(b)
+
+Figure 3: (a) BP classiﬁcation chart to deﬁne the three BP categories and (b) categorical distribution of reference BPs of good quality PPGs in the database.
+
+Journal of Healthcare Engineering
+
+5
+
+BP level (mmHg)
+
+110
+100
+90
+80
+70 0
+0.8 0.7 0.6 0.5 0.4 0.3 0.2
+0
+
+SBP Reference BP
+DBP
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Raw PPG signal segment
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Number of samples
+
+(a)
+
+Amplitude (volts)
+
+Normalized Y-axis
+
+0.8
+
+0.7
+
+C
+
+0.6
+
+D
+
+0.5
+
+B
+
+0.4
+
+E
+
+A
+
+Preprocessed signal segment with extracted features
+
+0.3
+
+0.2
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+Normalized X-axis
+
+(b)
+
+Figure 4: Illustration of preprocessing of raw PPG signals to normalised pulses and demonstration of extracted waveform features. (a) e two horizontal straight lines are for the reference BPs, and the middle subﬁgure shows a 5 s raw PPG signal segment; (b) preprocessed signal segment with extracted features indicated by alphabets (A � pulse area, B � pulse rising time, C � width_75%, D � width_50%, and E � width_25%).
+
+J
+
+1 θ0, θ1, θ2, θ3������ � m
+
+m
+������������hθ������x(i)������ − y(i)������,
+i�1
+
+(1) hθ(x) � θ0 + θ1(area) + θ2 cresttime������
+
++ θ3(Width 25)������ + ε,
+
+where m � total number of training data (90% of 8133),
+ε � random error, θ0–3 � coeﬃcients, h(x) � estimated BP, and y � reference BP.
+
+2.4.2. Support Vector Machine (SVM). SVM is a nonparametric algorithm that uses kernel function. SVM regression has a similar goal as in the least square method of MLR to minimize the error function (squared error between the estimated and reference BP). However, its approach for minimizing the function is diﬀerent with MLR as it uses epsilon (ε), and the goal is to ﬁnd a function
+
+whose error was no greater than ε. In this study, linear epsilon SVM (ε-SVM) regression which is also called L1 loss was implemented. ε-SVM has two boundaries across the hyperplane (regression line), as shown in the line across hyperplane in Figure 5(b). However, in reality, not all residuals were laid in epsilon boundary. erefore, slack variables (another boundary) were introduced to cover all the remaining residuals, as shown in a dashed line across hyperplane in Figure 5(b). Slack variables were added to make a dual objective. Each iteration updated the vectors existing in a dual objective, and the equation was analytically solved by Lagrangian function.
+In SVM, the convergence criteria were based on the following equation:
+
+Δ
+
+�
+
+J(β) + J(β)
+
+L(α), +1
+
+(2)
+
+where J(β) is called the primal objective. L(α) is a dual objective that was solved by the Lagrangian function. e
+
+6
+
+Journal of Healthcare Engineering
+
+P.area C.time W.25
+
+P.area C.time
+
+Coef. Coef.
+
+W.25
+
+Coef.
+
+R.error
+
+Least square error
+
+BP estimation
+
+Input parameters
+P.area C.time W.25 Input parameters
+
+Coefficients and R.error update
+
+Function to converge
+
+SBP and DBP estimation
+
+(a)
+Slack variables
+
+Epsilon tolerance
+
+Hyperplane
+
+Hyperplane
+
+Lagrangian function
+
+BP est.
+
+Regression hyperplane
+
+Tolerance and slack variables inclusion
+(b)
+
+Function to solve equation
+
+SBP and DBP estimation
+
+P.area C.time W.25
+Input parameters
+
+P.area C.time BP
+P.area BP C.time W.25
+. . .
+Different model combinations
+
+Least square error
+
+Function to converge (c)
+
+Pruning of trees
+
+BP estimation
+SBP and DBP estimation
+
+Figure 5: (a) Simpliﬁed ﬂow diagrams of MLR in which coeﬃcients and the random error were updated in each iteration to converge the least square error function. (b) Flow diagrams of SVM regression. Epsilon and slack variables surrounding the hyperplane contributed to make the dual objective formula with the Lagrangian function to solve the equation for BP estimators. (c) Simpliﬁed ﬂow diagrams of regression tree algorithms. Diﬀerent algorithm combinations were used to derive least square function, prune, and split tree in to branch nodes. Each node (small black colour-ﬁlled circles) contains an estimation result.
+
+goal was to minimize the Lagrangian function to get BP estimations. Δ represents the feasibility gap. To converge the algorithm, feasibility gap should be less than the gap tolerance [27].
+2.4.3. Regression Tree. Regression tree algorithm is another nonparametric machine learning approach for making predictions. It is a relatively fast algorithm to train the data as compared to the SVM algorithm. It carries decisions from the root nodes to the leaf nodes. Regression trees are the binary trees, and the leaf that contains responses is in numeric form [28]. It splits the data with the best optimization criteria (that subject to tree depth (α); minimum leaf size (β)) on each predictor (pulse area, pulse rising time, and width_25%). Criterion for stopping the split to make a pure node based on the mean square error (MSE) is shown as follows:
+
+MSE(observed response)
+< MSE(observed response from all data) × tolerance.
+(3)
+A pure node indicates that the MSE of the observed response is less than the MSE of the observed response from all the data multiplied by the tolerance [28]. For optimization, the algorithm splits the branches of trees to minimize the prediction error as shown in Figure 5(c).
+2.4. Tenfold Cross-Validation. In total, 8131 × 3 good quality PPG signal features and reference BPs were used to train and test the above three machine learning algorithms with 10-fold cross-validation. In each iteration, 9 folds were used to train an algorithm, and the remaining fold was used to test that algorithm. e process continued until 10 iterations were completed. In the end, there was one
+
+Journal of Healthcare Engineering
+
+7
+
+estimated SBP and one DBP for each of the 8133 signal segments.
+2.5. Data Analysis to Evaluate Overall Measurement Accuracy. e three machine learning algorithms (regression tree,
+MLR, and SVM) were ﬁrstly evaluated in terms of overall BP estimation accuracy. After the 10-fold cross-validation of all available segments, each segment contained reference BPs (mmHg), estimated BPs (mmHg), and the diﬀerence (mmHg) between reference and estimated BP.
+e averaged BPs (including both reference and estimated BPs) were calculated for each case based on all the available segments in that case. e ﬁnal mean and SD of estimated BPs were then calculated for all 32 cases as an overall estimation for SBP and DBP, separately for the three machine learning algorithms. ey were then compared with their reference BPs in each case to obtain overall estimation accuracy (mean diﬀerence and SD of diﬀerence).
+2.6. Data Analysis to Evaluate Measurement Accuracy in Each BP Category. For the categorical evaluation, the estimated BPs for each of the available PPG segments in each case were separated into three groups according to their reference BP category (normotensive, hypertensive, and hypotensive). For each case, the averaged BPs were then calculated from all the available segments under each category, which were used to obtain overall BPs across all the 32 cases, separately for each BP category. Finally, the mean diﬀerence and SD of diﬀerence between the reference and estimated BPs were calculated for each BP category and plotted using the BlandAltman method.
+3. Results
+3.1. Comparison of Overall BP Measurement Accuracy. e overall BP measurement accuracy, as shown in
+Figures (6(a) and 6(b)) and Table 2, showed that the regression tree achieved the smallest mean diﬀerence of SBP (−0.1 mmHg between reference and estimated SBP) and SD of diﬀerence (6.5 mmHg) when compared with the MLR and SVM algorithms. Similarly, the regression tree achieved an acceptable mean diﬀerence (−0.6 mmHg between reference and estimated SBP) and SD of diﬀerence (5.2 mmHg) for DBP. It was also observed that only the regression tree method achieved overall acceptable accuracy to ISO standard for NIBP device validation with an average diﬀerence no greater than 5 mmHg and SD no greater than 8 mmHg. Figures (6(c)–6(h)) shows the Bland–Altman plots between the reference and estimated BPs from the three machine learning algorithms.
+3.2. BP Measurement Accuracy under Each BP Category. e estimation accuracies of the three machine learning
+algorithms under each BP category are presented in Figure 7. It can be seen that only the regression tree achieved acceptable accuracy to meet the ISO standard for device evaluation, and it was only observed in normotensive BP category. Its mean diﬀerences and SDs of diﬀerence for SBP
+
+and DBP were −1.1 ± 5.7 mmHg and −0.3 ± 5.6 mmHg. e detailed results from the regression tree for each BP category are presented in Tables 3 and 4. It can be seen that the regression tree algorithm produced higher mean diﬀerences and SD of diﬀerence under both hypertensive and hypotensive BP categories in comparison with normotensive category. It was also observed that, although the mean diﬀerences for the MLR and SVM algorithms were acceptable in the normotensive category, they did not achieve an acceptable ISO standard for device evaluation in terms of SD of diﬀerence, as shown in Figure 7.
+4. Discussion
+In this study, the overall BP estimation accuracy from three supervised machine learning algorithms (regression tree, MLR, and SVM) was compared to determine which algorithm was better to estimate cuﬄess BPs using PPG signals only. To prevent the selection of an overﬁtted algorithm, the 10-fold cross-validation was used to test the overall measurement accuracy of the algorithms. e results showed that the regression tree achieved better overall accuracy in terms of mean and SD of BP diﬀerence as required by the ISO [29].
+Researchers have attempted to develop the MLR algorithm for PTT-based cuﬄess BP estimation [7, 30]. Although the MLR algorithm in those studies achieved acceptable measurement accuracy, their research was still susceptible to the practical issues with two sensors for the measurement. Measurements from multiple wearable sensors could cause restricted movement and discomfort to the users [31]. Another group also used the MLR algorithm with tonometry for the estimation of cuﬄess BP, and they succeeded to pass the ISO requirement [12], but MLR is sensitive to the outliers as shown in Figure 6(e), suggesting that MLR is probably not an ideal algorithm for BP estimation [32]. In this study, SD of BP diﬀerence was higher than the requirement of no more than 8 mmHg, and this was partially due to the presence of outliers.
+e SVM algorithm has been used to estimate cuﬄess BP using heart sound signals, where acceptable BP measurement accuracy was achieved [33]. Similarly, in our study, the SVM algorithm was applied to PPG signal features to estimate cuﬄess BP. However, the SVM algorithm did not achieve acceptable accuracy with high SD of BP diﬀerence.
+e performance of the SVM algorithm is mostly based on the selection of the kernel. ree diﬀerent kernels (linear, Gaussian, and polynomial) have been widely used [34]. In this study, the linear kernel was used to get the estimation output because the selected signal features and their corresponding BPs were in linear relationships. Zhang and Feng used the same database (University of Queensland) but with diﬀerent PPG signal features to test three machine learning algorithms (MLR, neural network, and SVM). In their study, SVM achieved best measurement accuracy for SBP (11.6 ± 8.2 mmHg) and DBP (7.6 ± 6.7 mmHg), which were not up to the ISO standard [16]. erefore, there is a need to better understand the potential reasons to improve the algorithm development.
+
+8
+
+Journal of Healthcare Engineering
+
+SBP difference (mmHg)
+
+Reference SBP –estimated SBP (mmHg)
+
+25
+
+20
+
+0.5 ± 15.3
+
+15
+
+10 –0.1± 6.5 5
+
+0
+
+–5
+
+–10
+
+–15
+
+–20 Regression MLR
+
+tree
+
+3.9 ± 15.9 SVM
+
+(a)
+
+N = 32
+
++2SD
+
+15
+
+5
+
+Bias
+
+–5 –2SD
+–15
+
+–25 80
+
+100 120 140
+
+Mean of reference and estimated SBP
+
+(mmHg)
+
+(c)
+
+40
+
+N =32
+
++2SD
+
+20 Bias
+0
+
+–20
+
+–2SD
+
+–40 90
+
+110
+
+130
+
+Mean of reference and estimated SBP
+
+(mmHg)
+
+(e)
+
+60
+
+N =32
+
++2SD
+
+40
+
+20
+
+Bias
+
+0
+
+–20
+
+–2SD
+
+–40 90
+
+100 110 120 130
+
+Mean of reference and Estimated SBP
+
+(mmHg)
+
+(g)
+
+Reference DBP– estimated DBP (mmHg)
+
+Reference DBP –estimated DBP (mmHg)
+
+Reference DBP –estimated DBP (mmHg)
+
+DBP difference (mmHg)
+
+25
+
+20
+
+15
+
+10 5
+
+–0.6 ±5.2
+
+0
+
+–5
+
+–10
+
+–15
+
+–20 Regression
+
+tree
+
+0.05 ±9.0 MLR
+
+1.2 ±8.5 SVM
+
+(b)
+
+N = 32
+
+15
+
++2SD
+
+5
+
+Bias
+
+–5
+
+–2SD
+
+–15
+
+–25
+
+45
+
+55
+
+65
+
+75
+
+Mean of reference and estimated DBP
+
+(mmHg)
+
+(d)
+
+40
+
+N = 32
+
++2SD 20
+
+Bias 0
+
+–2SD –20
+
+–40
+
+45
+
+55
+
+65
+
+75
+
+Mean of Reference and estimated DBP
+
+(mmHg)
+
+(f )
+
+40
+
+N = 32
+
+20
+
++2SD
+
+Bias
+
+0 –2SD
+
+–20
+
+–40
+
+45
+
+55
+
+65
+
+75
+
+Mean of reference and estimated DBP
+
+(mmHg)
+
+(h)
+
+Reference SBP –estimated SBP (mmHg)
+
+Reference SBP–estimated SBP (mmHg)
+
+Figure 6: (a, b) Overall BP measurement accuracy from the 10-fold cross-validation, separately for the three machine learning algorithms; (c–h) Bland–Altman plots for the BPs estimated from the regression tree, MLR, and SVM. (c), (e), and (g) are for SBP, and (d), (f ), and (h) are for DBP. MLR, multiple linear regression; SVM, support vector machine.
+
+Regression tree algorithm is robust to the noisy data and able to make a better-ﬁtted algorithm for discrete target data [28]. Researchers used the regression tree algorithm for PTT-based cuﬄess BP estimation and achieved acceptable results [35]. In this study, the regression tree algorithm was among the best algorithm for BP estimation. e possible reason behind the success of regression tree is their nonvulnerability to the outliers. Another strong characteristic of
+
+this algorithm is that it also produces a well-ﬁtted algorithm in the presence of slight nonlinearity within the data [28].
+Most importantly, this study further analysed the estimation accuracy of the three machine learning algorithms under diﬀerent BP categories (normotensive, hypertensive, and hypotensive) and found that most of the algorithms exhibited better accuracy in the normotensive category. Previous research only presented overall BP accuracies (overall mean of
+
+Journal of Healthcare Engineering
+
+9
+
+Table 2: Estimated BPs (SBP and DBP) from the regression tree with their corresponding reference BPs and their diﬀerence. e results are given separately for each case.
+
+Case
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 Mean SD
+
+Reference BP
+96.8 102.1 98.7 107.5 139.6 112.3 91.5 103.6 103.0 118.4 109.9 89.6 101.2 84.8 84.5 85.0 92.9 113.6 116.9 115.2 94.4 128.3 148.4 95.0 124.2 121.3 124.0 108.3 103.2 108.0 118.0 147.2 108.9 16.8
+
+SBP (mmHg)
+Estimated BP
+97.1 112.0 100.7 108.1 135.7 108.3 96.3 105.3 100.7 107.1 111.0 93.5 101.8 86.9 87.6 86.6 105.1 117.7 116.3 115.7 103.0 117.7 132.4 100.0 123.1 116.1 118.6 115.0 101.6 118.3 118.7 135.1 109.1 12.8
+
+Diﬀerence
+−0.3 −9.9 −1.9 −0.6 4.0 4.1 −4.8 −1.8 2.4 11.3 −1.1 −3.9 −0.6 −2.1 −3.1 −1.6 −12.1 −4.1 0.6 −0.6 −8.6 10.7 16.1 −5.0 1.0 5.2 5.4 −6.7 1.6 −10.3 −0.7 12.0 −0.1 6.5
+
+Reference BP
+49.1 43.2 53.1 58.2 71.8 58.4 44.4 52.1 46.0 51.8 67.4 53.0 64.4 56.7 49.6 56.2 57.5 59.3 58.1 59.8 45.4 59.7 80.5 61.4 65.8 59.0 71.1 59.6 61.3 71.1 72.3 77.4 59.2 9.4
+
+DBP (mmHg)
+Estimated BP
+49.1 64.7 53.1 58.6 69.3 56.7 46.8 53.1 46.0 50.5 66.0 53.2 61.5 56.4 52.4 57.3 59.4 62.6 63.9 62.8 51.2 60.1 71.1 70.1 63.6 60.5 68.2 62.4 60.3 63.3 69.8 71.6 59.8 7.2
+
+Diﬀerence
+0.0 −21.5
+0.0 −0.3 2.5 1.7 −2.5 −1.0 −0.1 1.3 1.4 −0.2 2.9 0.3 −2.8 −1.1 −1.9 −3.2 −5.8 −3.0 −5.7 −0.4 9.4 −8.7 2.1 −1.6 2.8 −2.8 1.0 7.8 2.5 5.8 −0.6 5.2
+
+80
+
+47.7± 24.9
+
+51.9 ±24.3
+
+80
+
+60
+
+60
+
+SBP difference (mmHg) DBP difference (mmHg)
+
+40 21.0 ± 12.9 –1.1 ± 5.7
+20
+
+1.0± 9.0
+
+0
+
+4.6 ± 8.8
+
+40
+
+20
+
+8.6 ±6.5
+
+–0.3 ±5.8
+
+0
+
+21.7 ± 12.8 0.4 ± 8.6
+
+22.3 ±12.7 1.5 ±8.3
+
+–20
+
+–40
+
+–16.0 ± 13.3
+
+Regression
+
+tree
+
+–21.4 ±5.9 MLR
+
+–18.8 ±4.9 SVM
+
+–20
+
+–7.0 ±7.0
+
+–40 Regression
+tree
+
+–9.9 ±7.4 MLR
+
+–7.6 ±7.3 SVM
+
+Normotensive Hypertensive Hypotensive
+
+Normotensive Hypertensive Hypotensive
+
+Figure 7: BP estimation accuracy under each BP category, separately for the three machine learning algorithms (regression tree, MLR, and SVM). e data are presented with mean BP diﬀerence ± SD of BP diﬀerence. MLR, multiple linear regression; SVM, support vector machine.
+
+10
+
+Journal of Healthcare Engineering
+
+Table 3: Estimated SBP from the regression tree for each individual case under the three categories and its diﬀerence with reference SBP.
+
+Case
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 Mean SD
+
+Normotensive
+
+Reference SBP
+
+Estimated SBP
+
+98.0 120.2 99.5 107.6 121.8 108.5 97.3 104.4 105.7 117.7 111.1 103.0 101.7
+— — — 93.6 113.7 106.3 116.0 99.9 116.0 123.2 95.0 119.5 117.0 124.0 106.3 105.7 108.0 114.9 118.7 109.4 8.9
+
+97.6 108.2 100.7 108.2 120.4 104.5 101.6 105.9 103.2 107.0 110.2 103.3 102.2
+— — — 103.9 117.1 115.9 115.8 106.3 111.6 134.1 97.7 120.2 114.9 118.6 115.2 102.9 118.3 118.5 122.7 110.5 8.6
+
+Diﬀerence
+0.4 12.1 −1.1 −0.6 1.4 4.0 −4.3 −1.5 2.4 10.7 1.0 −0.3 −0.6 — — — −10.3 −3.4 −9.6 0.2 −6.4 4.4 −11.0 −2.7 −0.7 2.0 5.4 −8.9 2.8 −10.3 −3.6 −4.0 −1.1 5.7
+
+Reference SBP
+— — — — 188.7 188.9 — — — 104.0 131.9 — — — — — — — 145.0 144.0 — 150.4 155.7 — 147.8 162.0 — 135.5 — — 147.0 171.6 151.7 22.9
+
+Hypertensive
+Estimated SBP
+— — — — 185.6 155.4 — — — 104.0 130.6 — — — — — — — 117.3 105.9 — 124.9 131.8 — 127.7 124.3 — 121.2 — — 125.0 146.0 130.7 21.5
+
+Diﬀerence
+— — — — 3.2 33.5 — — — 0.0 1.3 — — — — — — — 27.8 38.1 — 25.5 23.9 — 20.1 37.7 — 14.3 — — 22.0 25.6 21.0 12.9
+
+Normotensive
+
+Reference SBP
+
+Estimated SBP
+
+85.7
+
+92.4
+
+85.1
+
+115.7
+
+80.2
+
+99.1
+
+—
+
+—
+
+—
+
+—
+
+84.2
+
+93.2
+
+87.6
+
+90.7
+
+—
+
+—
+
+—
+
+—
+
+—
+
+—
+
+87.7
+
+100.5
+
+78.9
+
+85.7
+
+84.0
+
+86.5
+
+84.8
+
+87.0
+
+84.6
+
+88.2
+
+85.0
+
+86.6
+
+82.5
+
+124.4
+
+—
+
+—
+
+—
+
+—
+
+87.0
+
+116.0
+
+85.0
+
+97.8
+
+87.0
+
+117.4
+
+—
+
+—
+
+—
+
+—
+
+83.7
+
+125.9
+
+87.0
+
+109.5
+
+—
+
+—
+
+—
+
+—
+
+83.8
+
+91.8
+
+—
+
+—
+
+85.2
+
+105.7
+
+—
+
+—
+
+84.6
+
+100.7
+
+2.3
+
+13.5
+
+Diﬀerence
+−6.7 −30.6 −18.9
+— — −9.0 −3.1 — — — −12.8 −6.8 −2.5 −2.1 −3.6 −1.6 −41.9 — — −29.0 −12.8 −30.4 — — −42.1 −22.5 — — −8.0 — −20.5 — −16.0 13.3
+
+diﬀerence ± SD of diﬀerence) rather than individual categorical BP accuracies [3, 9, 36]. Some studies only included normotensive subjects [10, 17, 37]. In our study, regression tree was found with higher mean BP diﬀerence and SD of diﬀerence in hypertensive and hypotensive categories in comparison with the normotensive group. is could be caused by the low amount of data within the hypertensive and hypotensive categories of the online database. To make an accurate algorithm for each BP category, it is therefore suggested that the speciﬁc algorithm approach for diﬀerent BP categories should be considered in a future study.
+is study has some limitations. Firstly, manual check to determine the quality of PPG signal segments is not practical in real scenario. e development of advanced preprocessing algorithms to automatically determine signal quality is important. It is also worth investigating the eﬀect of noise on the estimation accuracy of machine learning models. Secondly, the training and test of the three machine learning algorithms were limited to the database of the University of Queensland. It would be useful to test the algorithms in a new database. irdly, due to the lack of the basic clinical
+
+variables (e.g., BMI, gender, weight, and height) in the dataset, these variables were not included to train the machine learning algorithms, which may improve the measurement accuracy of some of the algorithms [12]. Finally, the BP estimation was performed on the basis of each segment and only noninvasive intermittent BPs were available to be used as reference BPs to train the algorithms. In a future study, using continuous BP as reference BPs may improve the algorithms, allowing beat-to-beat BP estimation.
+5. Conclusions
+is study developed and compared three machine learning algorithms to estimate BPs using PPG only and revealed that the regression tree algorithm was the best approach with overall acceptable measurement accuracy to the ISO standard for device validation. Furthermore, this study demonstrated that the regression tree algorithm achieved acceptable measurement accuracy only in the normotensive category, suggesting that the future algorithm development
+
+Journal of Healthcare Engineering
+
+11
+
+Table 4: Estimated DBP from the regression tree for each individual case under the three BP categories and its diﬀerence with reference DBP.
+
+Case
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 Mean SD
+
+Normotensive
+
+Reference DBP
+
+Estimated DBP
+
+49.8
+
+49.3
+
+43.0
+
+64.3
+
+54.5
+
+53.3
+
+59.0
+
+58.5
+
+67.0
+
+65.6
+
+60.5
+
+57.2
+
+49.3
+
+48.4
+
+53.0
+
+53.5
+
+49.3
+
+48.2
+
+51.9
+
+49.9
+
+69.9
+
+66.3
+
+63.2
+
+60.2
+
+64.6
+
+61.5
+
+—
+
+—
+
+—
+
+—
+
+—
+
+—
+
+58.3
+
+59.8
+
+59.7
+
+62.2
+
+51.6
+
+64.6
+
+60.3
+
+62.5
+
+45.4
+
+51.6
+
+63.1
+
+58.9
+
+74.1
+
+69.1
+
+61.5
+
+67.3
+
+63.9
+
+62.0
+
+57.4
+
+60.2
+
+71.1
+
+68.2
+
+60.7
+
+63.2
+
+65.8
+
+61.7
+
+71.1
+
+63.3
+
+70.8
+
+68.5
+
+66.6
+
+65.5
+
+59.8
+
+60.1
+
+8.2
+
+6.3
+
+Diﬀerence
+0.5 −21.3
+1.2 0.5 1.4 3.3 0.9 −0.5 1.1 2.0 3.6 3.0 3.0 — — — −1.6 −2.5 −13.0 −2.2 −6.2 4.2 5.0 −5.8 1.9 −2.8 2.8 −2.5 4.1 7.8 2.3 1.1 −0.3 5.6
+
+Reference DBP
+— — — — 79.1 88.0 — — — 54.7 93.0 — — — — — — — 77.0 76.0 — 62.5 82.3 — 73.2 75.0 — 87.5 — — 87.4 88.0 78.7 10.9
+
+Hypertensive
+Estimated DBP
+— — — — 79.1 74.0 — — — 54.7 80.3 — — — — — — — 60.9 77.4 — 61.3 71.7 — 66.1 60.2 — 72.3 — — 76.0 76.8 70.0 8.4
+
+Diﬀerence
+— — — — 0.0 14.0 — — — 0.0 12.7 — — — — — — — 16.1 −1.4 — 1.2 10.6 — 7.1 14.8 — 15.2 — — 11.5 11.2 8.6 6.5
+
+Reference DBP
+45.7 44.0 48.4 — — 41.6 43.1 — — — 49.2 46.7 56.0 57.6 54.3 56.2 45.5 — — 50.0 45.7 40.0 — — 51.7 53.0 — — 52.3 — 57.4 — 49.3 5.4
+
+Hypotensive
+Estimated DBP
+46.8 65.1 50.0 — — 46.8 45.6 — — — 54.3 47.7 60.2 56.7 54.3 57.3 52.8 — — 65.8 50.6 62.5 — — 63.0 67.0 — — 57.5 — 68.3 — 56.4 7.4
+
+Diﬀerence
+−1.0 −21.1 −1.6
+— — −5.2 −2.5 — — — −5.0 −1.0 −4.2 0.9 0.1 −1.1 −7.3 — — −15.8 −4.9 −22.5 — — −11.3 −14.0 — — −5.2 — −10.9 — −7.0 7.0
+
+for BP estimation should be more speciﬁc for diﬀerent BP categories.
+Data Availability
+e database used in this study is available to access via the link: https://outbox.eait.uq.edu.au/uqdliu3/uqvitalsignsdataset/ index.html.
+Conflicts of Interest
+e authors declare that there are no conﬂicts of interest regarding the publication.
+Acknowledgments
+Syed Ghufran Khalid is funded by a studentship from Anglia Ruskin University.
+
+References
+[1] C. Ho¨cht, “Blood pressure variability: prognostic value and therapeutic implications,” ISRN Hypertension, vol. 2013, Article ID 398485, 16 pages, 2013.
+[2] A. De La Sierra, “Ambulatory blood pressure monitoring is a useful tool for all patients,” Hipertens Riesgo vascular, vol. 34, no. 1, pp. 45–49, 2017.
+[3] D. Buxi, J. M. Redoute, and M. R. Yuce, “Cuﬄess blood pressure estimation from the carotid pulse arrival time using continuous wave radar,” in Proceedings of Annual International Conference of the IEEE Engineering in Medicine and Biology Society, IEEE Engineering in Medicine and Biology Society Annual Conference, pp. 5704–5707, Milano, Italy, August 2015.
+[4] W. Chen, T. KobayashI, S. Ichikawa, Y. Takeuchi, and T. Togawa, “Continuous estimation of systolic blood pressure using the pulse arrival time and intermittent calibration,” Medical and Biological Engineering and Computing, vol. 38, no. 5, pp. 569–574, 2000.
+
+12
+
+Journal of Healthcare Engineering
+
+[5] X. Ding, B. P. Yan, Y. T. Zhang, J. Liu, N. Zhao, and H. K. Tsang, “Pulse transit time based continuous cuﬄess blood pressure estimation: a new extension and a comprehensive evaluation,” Scientiﬁc Reports, vol. 7, no. 1, 2017.
+[6] X. Ding, Y. Zhang, and H. K. Tsang, “Impact of heart disease and calibration interval on accuracy of pulse transit timebased blood pressure estimation,” Physiological Measurement, vol. 37, no. 2, pp. 227–237, 2016.
+[7] H. Gesche, D. Grosskurth, G. Kuchler, and A. Patzak, “Continuous blood pressure measurement by using the pulse transit time: comparison to a cuﬀ-based method,” European Journal of Applied Physiology, vol. 112, no. 1, pp. 309–315, 2012.
+[8] M. Kachuee, M. M. Kiani, H. Mohammadzade, and M. Shabany, “Cuﬄess blood pressure estimation algorithms for continuous health-care monitoring,” IEEE Transactions on Bio-Medical Engineering, vol. 64, no. 4, pp. 859–869, 2017.
+[9] L. Wan-Hua, W. Hui, O. W. Samuel, and L. Guanglin, “Using a new PPG indicator to increase the accuracy of PTT-based continuous cuﬄess blood pressure estimation,” in Proceedings of Annual International Conference of the IEEE Engineering in Medicine and Biology Society, IEEE Engineering in Medicine and Biology Society Annual Conference, pp. 738–741, Jeju Island, Korea, July 2017.
+[10] M. Y. Wong, E. Pickwell-Macpherson, and Y. T. Zhang, “ e acute eﬀects of running on blood pressure estimation using pulse transit time in normotensive subjects,” European Journal of Applied Physiology, vol. 107, no. 2, pp. 169–175, 2009.
+[11] S. N. Shukla, K. Kakwani, A. Patra et al., “Noninvasive cuﬄess blood pressure measurement by vascular transit time,” in Proceedings of 28th International Conference on VLSI Design, pp. 535–540, Bangalore India, January 2015.
+[12] M. Park, H. Kang, Y. Huh, and K. C. Kim, “Cuﬄess and noninvasive measurement of systolic blood pressure, diastolic blood pressure, mean arterial pressure and pulse pressure using radial artery tonometry pressure sensor with concept of Korean traditional medicine,” in Proceedings of 29th Annual International Conference of the IEEE Engineering in Medicine and Biology Society, pp. 3597–3600, Lyon, France, August 2007.
+[13] K. Matsumura, P. Rolfe, S. Toda, and T. Yamakoshi, “Cuﬄess blood pressure estimation using only a smartphone,” Scientiﬁc Reports, vol. 8, no. 1, 2018.
+[14] P. M. Nabeel, J. Joseph, and M. Sivaprakasam, “Magnetic plethysmograph transducers for local blood pulse wave velocity measurement,” in Proceedings of Annual International Conference of the IEEE Engineering in Medicine and Biology Society, IEEE Engineering in Medicine and Biology Society Annual Conference, pp. 1953–1956, Chicago, IL, USA, August 2014.
+[15] B. M. Mccarthy, C. J. Vaughan, B. O’ﬂynn, A. Mathewson, and C. O´ Mathuna, “An examination of calibration intervals required for accurately tracking blood pressure using pulse transit time algorithms,” Journal of human hypertension, vol. 27, no. 12, pp. 744–750, 2013.
+[16] Y. Zhang and Z. Feng, “A SVM method for continuous blood pressure estimation from a PPG signal,” in Proceedings of 9th International Conference on Machine Learning and Computing, pp. 128–32, Singapore, February 2017.
+[17] K. Atomi, H. Kawanaka, M. S. Bhuiyan, and K. Oguri, “Cuﬄess blood pressure estimation based on data-oriented continuous health monitoring system,” Computational and
+
+Mathematical Methods in Medicine, vol. 2017, Article ID 1803485, 10 pages, 2017. [18] A. Visvanathan, A. Sinha, and A. Pal, “Estimation of blood pressure levels from reﬂective photoplethysmograph using smart phones,” in Proceedings of 13th IEEE International Conference on BioInformatics and BioEngineering, pp. 1–5, Chania, Greece, November 2013. [19] N. Watanabe, Y. K. Bando, T. Kawachi et al., “Development and validation of a novel cuﬀ-less blood pressure monitoring device,” JACC: Basic to Translational Science, vol. 2, no. 6, pp. 631–642, 2017. [20] D. Liu, M. Gorges, and S. A. Jenkins, “University of Queensland vital signs dataset: development of an accessible repository of anesthesia patient monitoring data for research,” Anesthesia and Analgesia, vol. 114, no. 3, pp. 584–589, 2012. [21] R. W. Schafer, “What is a Savitzky-Golay ﬁlter? (lecture notes),” IEEE Signal Processing Magazine, vol. 28, no. 4, pp. 111–117, 2011. [22] E. R. Seitsonen, I. K. Korhonen, M. J. Van Gils et al., “EEG spectral entropy, heart rate, photoplethysmography and motor responses to skin incision during sevoﬂurane anaesthesia,” Acta Anaesthesiologica Scandinavica, vol. 49, no. 3, pp. 284–292, 2005. [23] S. R. Alty, N. Angarita-Jaimes, S. C. Millasseau, and P. J. Chowienczyk, “Predicting arterial stiﬀness from the digital volume pulse waveform,” IEEE Transactions on Biomedical Engineering, vol. 54, no. 12, pp. 2268–2275, 2007. [24] A. A. Awad, A. S. Haddadin, H. Tantawy et al., “ e relationship between the photoplethysmographic waveform and systemic vascular resistance,” Journal of Clinical Monitoring and Computing, vol. 21, no. 6, pp. 365–372, 2007. [25] M. Schroeder, J. Lander, and S. Levine-Silverman, “Diagnosing and dealing with multicollinearity,” Western Journal of Nursing Research, vol. 12, no. 2, pp. 175–187, 1990. [26] R. Wang, W. Jia, Z. Mao, R. J. Sclabassi, and M. Sun, “Cuﬀfree blood pressure estimation using pulse transit time and heart rate,” in Proceedings of International Conference on Signal Processing Proceedings, International Conference on Signal Processing, pp. 115–118, HangZhou, China, October 2014. [27] P. H. Chen, R. E. Fan, and C. J. Lin, “A study on SMO-type decomposition methods for support vector machines,” IEEE Transactions on Neural Networks, vol. 17, no. 4, pp. 893–908, 2006. [28] L. Breiman, Classiﬁcation and Regression Trees, Wadsworth International Group, Belmont, CA, USA, 1984. [29] E. O’brien, T. Pickering, R. Asmar et al., “Working group on blood pressure monitoring of the European Society of hypertension international protocol for validation of blood pressure measuring devices in adults,” Blood pressure monitoring, vol. 7, no. 1, pp. 3–17, 2002. [30] M. Mase, W. MatteI, R. Cucino, L. Faes, and G. Nollo, “Feasibility of cuﬀ-free measurement of systolic and diastolic arterial blood pressure,” Journal of electrocardiology, vol. 44, no. 2, pp. 201–207, 2011. [31] E. Mcdams, A. Krupaviciute, C. Gehin et al., “Wearable sensor systems: the challenges,” in Proceedings Annual International Conference of the IEEE Engineering in Medicine and Biology Society, pp. 3648–3651, Boston MA, USA, August 2011. [32] M. R. Chernick, e Essentials of Biostatistics for Physicians, Nurses, and Clinicians, Wiley, Hoboken, NJ, USA, 2011. [33] R. Peng, W. Yan, N. Zhang, W. Lin, X. Zhou, and Y. Zhang, “Cuﬄess and continuous blood pressure estimation from the
+
+Journal of Healthcare Engineering
+
+13
+
+heart sound signals,” Sensors (Basel, Switzerland), vol. 15, no. 9, pp. 23653–23666, 2015. [34] N. Cristianini and J. Shawe-Taylor, An Introduction to Support Vector Machines, Cambridge University Press, Cambridge, UK, 2002. [35] B. Zhang, Z. Wei, J. Ren, Y. Cheng, and Z. Zheng, “An empirical study on predicting blood pressure using classiﬁcation and regression trees,” IEEE Access, vol. 6, pp. 21758– 21768, 2018. [36] F. Miao, N. Fu, Y. Zhang et al., “A novel continuous blood pressure estimation approach based on data mining techniques,” IEEE Journal of Biomedical and Health Informatics, vol. 21, no. 6, pp. 1730–1740, 2017. [37] H. Shin and S. D. Min, “Feasibility study for the non-invasive blood pressure estimation based on PPG morphology: normotensive subject study,” Biomedical Engineering Online, vol. 16, no. 1, p. 10, 2017.
+
