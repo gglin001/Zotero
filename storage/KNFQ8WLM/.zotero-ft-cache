@@ -1,0 +1,2158 @@
+Physiological Measurement
+ACCEPTED MANUSCRIPT
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography
+To cite this article before publication: Mustafa Radha et al 2019 Physiol. Meas. in press https://doi.org/10.1088/1361-6579/ab030e
+Manuscript version: Accepted Manuscript
+Accepted Manuscript is “the version of the article accepted for publication including all changes made as a result of the peer review process, and which may also include the addition to the article by IOP Publishing of a header, an article ID, a cover sheet and/or an ‘Accepted Manuscript’ watermark, but excluding any other editing, typesetting or other changes made by IOP Publishing and/or its licensors” This Accepted Manuscript is © 2018 Institute of Physics and Engineering in Medicine.
+During the embargo period (the 12 month period from the publication of the Version of Record of this article), the Accepted Manuscript is fully protected by copyright and cannot be reused or reposted elsewhere. As the Version of Record of this article is going to be / has been published on a subscription basis, this Accepted Manuscript is available for reuse under a CC BY-NC-ND 3.0 licence after the 12 month embargo period. After the embargo period, everyone is permitted to use copy and redistribute this article for non-commercial purposes only, provided that they adhere to all the terms of the licence https://creativecommons.org/licences/by-nc-nd/3.0 Although reasonable endeavours have been taken to obtain all necessary permissions from third parties to include their copyrighted content within this article, their full citation and copyright line may not be present in this Accepted Manuscript version. Before using any content from this article, please refer to the Version of Record on IOPscience once published for full citation and copyright details, as permissions will likely be required. All third party content is fully copyright protected, unless specifically stated otherwise in the figure caption in the Version of Record. View the article online for updates and enhancements.
+This content was downloaded from IP address 129.186.138.35 on 31/01/2019 at 09:19
+
+Accepted Manuscript
+
+Page 1 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography
+Mustafa Radha1,2, Koen de Groot1, Nikita Rajani3, Cybele CP Wong3, Nadja Kobold3, Valentina Vos3, Pedro Fonseca1,2, Nikolaos Mastellos3, Petra A Wark3,4, Nathalie Velthoven2, Reinder Haakma2, Ronald M Aarts1,2
+1 Personal Health, Philips Research, Royal Philips, Eindhoven, The Netherlands 2 Signal Processing Systems, Electrical Engineering, Eindhoven University of Technology, Eindhoven, The Netherlands 3 Global eHealth Unit, Department of Primary Care and Public Health, Imperial College London, London, United Kingdom 4 Faculty of Health and Life Sciences, Coventry University, Coventry, United Kingdom E-mail: mustafa.radha@philips.com
+October 2018
+Abstract.
+Objective: Evaluate a method for the estimation of the nocturnal Systolic Blood Pressure (SBP) dip from 24-hour blood pressure trends using a wrist-worn Photoplethysmography (PPG) sensor and a deep neural network in free-living individuals, comparing the deep neural network to traditional machine learning and non-machine learning baselines.
+Approach: A wrist-worn PPG sensor was worn by 106 healthy individuals for 226 days during which 5111 reference values for Blood pressure (BP) were obtained with a 24-hour ambulatory BP monitor and matched with the PPG sensor data. Features based on heart rate variability and pulse morphology were extracted from the PPG waveforms. Long- and short-term memory (LSTM) networks, dense networks, random forests and linear regression models were trained and evaluated in their capability of tracking trends in BP, as well as the estimation of the SBP dip.
+Main results Best performance for estimating the SBP dip were obtained with a deep LSTM neural network with a Root Mean Squared Error (RMSE) of 3.12±2.20 ∆mmHg and a correlation of 0.69 (p = 3 ∗ 10−5). This dip was derived from trend estimates of BP which had an RMSE of 8.22±1.49 mmHg for systolic and 6.55±1.39 mmHg for diastolic BP. While other models had similar performance for the tracking of relative BP, they did not perform as well as the LSTM for the SBP dip.
+Signiﬁcance The work provides ﬁrst evidence for the unobtrusive estimation of the nocturnal SBP dip, a highly prognostic clinical parameter. It is also the ﬁrst to evaluate unobtrusive BP measurement in a large data set of unconstrained 24hour measurements in free-living individuals and provides evidence for the utility of LSTM models in this domain.
+
+Accepted Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 2
+
+4
+
+5
+
+1. Introduction
+
+6
+
+7
+
+Cardiovascular disease is a leading cause of death worldwide [1]. An important early
+
+8
+
+indicator of cardiovascular risk is BP elevation known as hypertension. BP mea-
+
+9
+
+surement is currently mainly done through point measurement (i.e. non-continuous
+
+10
+
+controlled measurement at a singular point in time) using obtrusive inﬂatable cuﬀs
+
+11
+
+(auscullatory and oscillatory sphygmomanometer cuﬀs), through which elevations in
+
+12
+
+BP can be detected. Over the last decade, there has been strong evidence to suggest
+
+13
+
+that BP should not be regarded as a static number, given its daily variation [2, 3, 4].
+
+14
+
+In particular, the nocturnal variation in SBP has unique prognostic value. A noctur-
+
+15
+
+nal decrease (i.e. dip) in SBP of 5 mmHg was associated with a 17% reduction of
+
+16
+
+cardiovascular risk [5, 6, 7].
+
+17
+
+18
+
+Currently, the European Society of Hypertension [8] recommends measuring the
+
+19
+
+SBP dip using the Ambulatory Blood Pressure Monitor (ABPM), the current gold
+
+20
+
+standard for BP measurement in daily life [9]. An ABPM is an oscillometric cuﬀ worn
+
+21
+
+across a 24-hour period and that inﬂates at regular intervals. However the ABPM
+
+22
+
+procedure is highly obtrusive, especially during sleep, as the repeated cuﬀ inﬂation
+
+23
+
+generates a substantial amount of noise and cuts oﬀ blood ﬂow to the brachial artery,
+
+24
+
+both of which can disturb sleep [10]. This makes it diﬃcult to adopt SBP dip mea-
+
+25
+
+surement into clinical practice.
+
+26
+
+27
+
+This motivates the need for BP monitors that can unobtrusively and continuously
+
+28
+
+measure BP, or at least the relative changes in BP, throughout the day. These relative
+
+29
+
+changes, that in this manuscript are called trends, indicate how the BP is changing
+
+30
+
+from day to night without requiring to know the absolute value of BP. These diur-
+
+31
+
+nal variations are suﬃcient to extract meaningful prognostic information such as the
+
+32
+
+nocturnal SBP dip. The aim of this study was to propose such a method using a
+
+33
+
+wrist-worn wearable PPG sensor and evaluate it in free-living individuals against the
+
+34
+
+gold-standard ABPM. The method consists of a machine learning algorithm trained
+
+35
+
+to predict how the BP changes with respect to the mean BP of a person, and then
+
+36
+
+uses that information to compute the SBP dip.
+
+37
+
+38
+
+In Section 2 an overview of the existing literature on unobtrusive BP measurement
+
+39
+
+is presented, current limitations are discussed and the objective and motivation of
+
+40
+
+this study are given in detail. In Section 3 an overview of the data collection process,
+
+41
+
+the feature extraction methods, the machine learning methods and the evaluation
+
+42
+
+strategies are presented. Results are presented in Section 4 and discussed in Section
+
+43
+
+5.
+
+44
+
+45
+
+2. Background
+
+46
+
+47
+
+In this section the scientiﬁc background is described. The most notable and relevant
+
+48
+
+works are summarized in Table 1.
+
+49
+
+50
+
+2.1. Physiological models
+
+51
+
+52
+
+Unobtrusive BP measurement research has investigated a variety of sensors and al-
+
+53
+
+gorithms that operate non-invasively and don’t require an inﬂatable cuﬀ, typically
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 2 of 20
+
+Accepted Manuscript
+
+Page 3 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 3
+through sensors that are placed on the surface of the skin. The majority of research in this area is based on the Moens-Korteweg equations, which relate the velocity of the arterial pulse wave to BP [11, 12, 13], which is known as the Pulse Arrival Time (PAT). PAT is measured as the time delay between the ejection of the blood pulse from the heart (i.e. pulse onset) and the arrival of the pulse at an arterial site (i.e. pulse arrival). Most commonly, the R-peak on an Electrocardiogram (ECG) is used to indicate the pulse onset while arrival is measured with PPG at peripheral sites, most commonly the wrist or ﬁnger [11, 14, 15], but also other body locations such as ears [16], ankles [16], toes [17] the chest [18], or even using remote PPG [19]. However studies show that measuring PAT in free-living individuals during the day has limited accuracy [20]. Posture compensation methods have been proposed [21, 22] to improve the accuracy of day-time measurements but the eﬀectiveness of such methods in free-living individuals remains to be assessed. Another issue with measuring PAT is obtrusiveness as it requires the placement of two sensors on separate locations on the body which is cumbersome for the individual. Thus PAT could be feasible to use in a clinical setting but not at home. Some of the above-mentioned studies were included in Table 1. More comprehensive reviews of PAT-based BP were given by Mukkamala et al. [11] and Peter et al. [12].
+Research focus then shifted towards pulse morphology analysis [23] as a step away from PAT, inspired by physiological explanations of the dynamics in the pulse waveform in PPG. While pulse wave analysis expands the set of methods that may be used for BP estimation, these features have only been tested in controlled lab circumstances, where the eﬀects of movement and free-living activities are not present.
+2.2. Machine learning models
+To avoid heavy reliance on a single physiological model for BP prediction that could be aﬀected by confounding factors or noise, a shift is being made towards machine learning methods. This approach was pioneered by Monte-Moreno [24] who combined a set of features describing several PPG characteristics in a random forest model [25] to predict continuous SBP. Later, similar methods were applied to continuous intensive care unit measurements [26], providing the ﬁrst evidence for continuous BP measurement using deep belief networks [27]. Since then, similar approaches have been published that have experimented with machine learning. Sun et al. [28] evaluated a linear regression model in bicycle tests for SBP prediction, combining a large number of morphological properties of the PPG. Xing et al. [29] had a similar approach but used support vector regression and only evaluated on point measurement data. Miao et al. [30] used a multilayer perceptron model trained on a large intensive care database and evaluated on point measurement samples.
+A recently published study compared the traditional ECG-to-PPG PAT method to machine learning models that include both PAT as well as PPG morphology in continuous measurements of 8 minutes, conducted in a lab (12 participants, 4 times each). They showed that PAT is a less accurate model in comparison to the more sophisticated linear and non-linear models such as linear regression and random forest. However the best-performing model was a deep neural network approach using LSTM cells, a type of sequence-to-sequence model [31]. While normal machine learning
+
+Accepted Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 4
+
+4
+
+5
+
+models take as input the feature values from the sensors at one point in time and
+
+6
+
+predict the BP for that same point in time [24, 26], sequence-to-sequence models
+
+7
+
+regard the classiﬁcation task as mapping a sequence of inputs (sampled over time)
+
+8
+
+to a sequence of outputs (sampled at the same time points). These models condition
+
+9
+
+the prediction at some time t not only on the feature values measured at time t
+
+10
+
+but also on feature values measured at other time points in the sequence. The
+
+11
+
+LSTM cells achieve this through recurrence [32]. The prediction ht (at time point
+
+12
+
+t) is based on its input xt, its last prediction ht−1 (short-term recurrence) and its
+
+13
+
+internal cell state Ct (long-term recurrence). The internal memory state variables
+
+14
+
+are controlled through gating mechanisms. A forget gate can clear the contents of the
+
+15
+
+state while an input gate can feed data into the cell state. The variables controlling the
+
+16
+
+input gate, forget gate and the predictions are trainable parameters. LSTM cells are
+
+17
+
+usually incorporated in neural networks and trained through back-propagation. Exact
+
+18
+
+mathematical deﬁnitions are given by Hochreiter et al. [32] for the LSTM model and
+
+19
+
+sequence-to-sequence models are extensively described by Sutskever et al. [31]
+
+20
+
+21
+
+2.3. Evaluation in free-living context
+
+22
+
+23
+
+Unobtrusive approaches for the estimation of BP have most of their value in a free-
+
+24
+
+living context, where users can carry on with their daily activities while their BP
+
+25
+
+is measured. Such approaches could also address the estimation of the SBP dip
+
+26
+
+that was introduced in the previous section. However, although the aforementioned
+
+27
+
+studies evaluated their methods using continuous data, this data was collected in the
+
+28
+
+controlled environment of a lab and often across a limited time span ranging from a
+
+29
+
+few minutes to half an hour. Therefore, while lab studies provide initial evidence for
+
+30
+
+the feasibility of such methods, the performance reported may not extrapolate to free-
+
+31
+
+living context. The only study where BP surrogates were evaluated in a free-living
+
+32
+
+setting was done by Zheng et al. [20] where PAT-based BP estimation was evaluated in
+
+33
+
+12 healthy volunteers. The method’s performance however, was only reported during
+
+34
+
+night-time in which person movement is minimal and yet, the reported RMSE was
+
+35
+
+higher than in lab studies using PAT [14, 18] (see Table 1).
+
+36
+
+37
+
+2.4. Objective of the current study
+
+38 39 40 41 42 43 44 45 46
+
+The aim of this study is to propose and evaluate a method using PPG morphology to estimate diurnal BP trends in free-living individuals, with the ﬁnal goal of estimating the SBP dip from those trends. The model predicts relative BP, which means that it is trained to predict change in BP with respect to the mean BP of a person. This information is suﬃcient to extract the SBP dip as this is also a relative measure. With a careful calibration these measurements could be used to derive absolute BP, but the calibration is not in the scope of this study. The evaluation is done using a unique data set containing 226 days of ABPM measurements from 103 individuals.
+
+47 48 49 50 51 52 53
+
+The proposed method is based on a deep LSTM neural network. The performance of this proposed method is compared to more traditional methods: a random forest regressor which has no ability to infer over temporal structure, a linear regression model which in addition also has no ability to infer non-linear relations, as well as two simple baseline models for the SBP dip estimation: one using demographics and the other using heart rate.
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 4 of 20
+
+Accepted Manuscript
+
+Page 5 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 5
+
+Table 1: Overview of studies of unobtrusive SBP and Diastolic Blood Pressure (DBP) estimation, categorized by study protocol, and their obtained performance.
+
+Citation Sensors Method
+
+N
+
+Point measurements
+
+2011 [24] PPG
+
+Random forest
+
+410
+
+2016 [29] PPG
+
+Multilayer perceptron
+
+92
+
+2017 [30] ECG, PPG Support vector regression 73
+
+Continuous measurements in controlled lab setting
+
+2006 [14] ECG, PPG PAT
+
+18
+
+2013 [26] PPG
+
+Deep belief networks
+
+572
+
+2016 [28] PPG
+
+Linear regression
+
+19
+
+2018 [33] ECG, PPG LSTM
+
+12
+
+Continuous measurements in 24-hr free-living setting
+
+2014 [20] ECG, PPG PAT
+
+10
+
+a Performance was only reported in R2 b Performance was only reported for night-time measurement c No performance reported for DBP
+
+RMSE (mmHg)
+
+SBP
+
+DBP
+
+R2 : 0.91a 1.67 3.10
+
+R2 : 0.89a 1.29 2.20
+
+6.9
+
+−
+
+9.01
+
+0.47
+
+8.99
+
+−c
+
+4.13
+
+2.8
+
+8.7b
+
+−c
+
+This work is the ﬁrst to evaluate an un-obtrusive PPG-based BP trend estimation method for the prediction of the SBP dip and is also the ﬁrst to evaluate PPG morphology as a predictor of BP in free-living context. Finally, it is the ﬁrst to evaluate deep learning algorithms for BP measurement in free-living context.
+3. Methods
+3.1. Data
+The study was conducted across three Imperial College London Healthcare NHS Trust Hospitals (Charing Cross Hospital, St. Mary’s Hospital and Hammersmith Hospital) and at the Philips Research laboratory in Eindhoven, the Netherlands. The study was approved by the ethics institutions of each of the participating organisations. Participants (N=110) were healthy volunteers aged 18-65 years, who had worked in a medical setting for at least 6 months in the same type of rota, had not travelled across more than two time zones in the 30 days prior to enrolment, and who continued to work at least 21 hours a week during the course of the study. To conﬁrm eligibility for the study, participants attended a screening visit where they had their BP taken on both arms using a standard BP monitor. Those with a diﬀerence in BP between arms of more than 10 mmHg were excluded. In addition, weight and height measurements were taken using a standard weight scale and measuring tape to determine body-mass index. Participants were excluded if the body-mass index was above 30 kg/m3. Other exclusion criteria included: being pregnant, having taken BP altering medication in the last six months or the regular use of light therapy. These criteria were assessed by an intake questionnaire.
+
+Density
+Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 6
+
+4
+
+5
+
+6
+
+7
+
+0.035
+
+SBP
+
+8 9
+
+0.030
+
+DBP
+
+10 11
+
+0.025
+
+12
+
+0.020
+
+13
+
+14
+
+0.015
+
+15
+
+16
+
+0.010
+
+17 18
+
+0.005
+
+19 20 21
+
+0.000
+
+40
+
+60
+
+80 BP in10m0mHg 120
+
+140
+
+160
+
+22
+
+23
+
+Figure 1: Distribution of SBP and DBP in the data set after cleaning.
+
+24
+
+Accepted
+
+25
+
+26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+
+Participants were asked to participate in up to 3 measurement days, which were each at least a week apart. At the start of each measurement day, participants were ﬁtted with a clinically validated ABPM (Mobil-o-Graph NG [34]) which was set up to measure BP automatically every 30 minutes. At the same time, participants were asked to wear a wrist band containing a green PPG sensor and a triaxial accelerometer. Both sensors were calibrated to sample data at 128 Hz. A more detailed description can be found in [35] where the same sensors were used for the detection of atrial ﬁbrillation. Participants were instructed on how to wear the band and at what tightness (based on arm circumference). It was decided to standardise the location of the PPG sensor in this study to the right wrist as diﬀerences in PPG are minimal across wrists [36, 37]. Participants were asked to wear the devices for 24-hours and carry on with their regular working patterns and routine.
+Data was then extracted from the devices and checked for quality. Eleven days of data were excluded due to a malfunctioning or disconnected ABPM or less than 25% of expected BP samples measured by the ABPM. In addition, measurements where SBP was > 180 or < 80 mmHg were regarded as noise given that the population
+
+41
+
+sample was not hyper- or hypotensive. Successive diﬀerences in SBP of more than
+
+42
+
+twice the SBP standard deviation were also seen as noise and discarded. This is
+
+43
+
+comparable to methodology seen in [29]. The remaining data consisted of 226 days
+
+44
+
+from 103 participants (Age: 36.6±11.7 years, body-mass index: 24.7±4.2 kg/m2, 93%
+
+45
+
+right-handed, 84% female), including 6629 valid BP measurements extracted from the
+
+46
+
+ABPM, which formed the ground truth for this study. The distribution of SBP and
+
+47
+
+DBP in the ﬁnal ﬁltered data can be seen in Figure 1.
+
+48
+
+49
+
+50
+
+3.2. Feature extraction
+
+51
+
+An overview of the entire feature extraction process up to the classiﬁcation and
+
+52
+
+comparison with the ground truth is given in Figure 2.
+
+53
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 6 of 20
+
+Accepted Manuscript
+
+Page 7 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 7
+Figure 2: Overview of the feature extraction procedure for one day of data (the early morning did not include many measurements and is not shown here). A: raw PPG signal; B: the ﬁltered and down-sampled PPG signal; C: the augmentation index (AI) and Amplitude of the second pulse (A2) generated from the Gaussian mixture model features (see Figure 3 and Section 3.2.3 for details); D: the same features, sampled at the same time as the ground truth was measured (see subﬁgure H); E: the normalised and ﬁltered features (A2: Winsor normalisation and rolling mean ﬁlter, AI: Quantile normalization to a uniform distribution and rolling mean ﬁlter); F: the prediction of SBP by the machine learning model using all features (including AI and A2) with the sleep period highlighted, and estimation of the SBP dip from wake/sleep SBP; H (bottom Figure): the ground truth SBP and DBP from ABPM; G: the normalized BP (mean removed) with sleep period highlighted and SBP dip calculated.
+
+Accepted Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 8
+
+4
+
+5
+
+3.2.1. Activity features The tri-axial accelerometer data was used to estimate the
+
+6
+
+likelihood of the person being at rest for non-overlapping windows of 30 seconds.
+
+7
+
+It computes 1 second-based motion characteristics such as number of zero crossings,
+
+8
+
+periodicity, vertical acceleration, and motion cadence. These features were aggregated
+
+9
+
+into samples of 30 seconds from which the mean, standard deviation, maximum
+
+10
+
+value and 95th percentile were calculated. A pre-trained Bayesian linear discriminant
+
+11
+
+(trained using a separate dataset that is described in [38]) was used to estimate the
+
+12
+
+probability per sample that the participant was at rest in order to estimate the SBP
+
+13
+
+dip (see Section 3.4). An example of a sleep-wake segmentation is shown in Figure
+
+14
+
+2F. The features were also used as an input for BP estimation.
+
+15
+
+16
+
+3.2.2. Heart rate variability Individual heart beats were extracted from the pulsatile
+
+17
+
+component of the PPG. The same algorithm was also used by Fonseca et al. [38] and
+
+18
+
+Chiu et al. [39]. The beats were segmented into 5 minute windows as recommended by
+
+19
+
+the heart rate variability task force [40] with an overlap of 1 minute. The variability
+
+20
+
+in the beats was analyzed using the multi-scale sample entropy algorithm [41], which
+
+21
+
+was found to be useful for the analysis of regularity in physiological time series across
+
+22
+
+diﬀerent time scales. Sample entropies were calculated for scales 1 to 10, but only 6
+
+23
+
+to 10 had good correlation with SBP and thus those were the only ones used.
+
+24
+
+25 26 27 28 29
+
+3.2.3. PPG Morphology features Finally, a set of morphological features were extracted directly from the PPG pulse. The ﬁrst family of features were taken from a PPG morphology review by Elgendi et al. [23] and are based on the analysis of diﬀerent peaks in the PPG pulse waveform and its derivatives.
+
+30 31 32 33 34 35 36 37
+
+The second set of features are based on pulse decomposition analysis. Each pulse wave is decomposed into a mixture of 4 gaussians [42] that are thought to be caused by reﬂections in the arterial pathways due to vasoconstriction. Vasoconstriction itself is correlated with BP. The amplitudes, widths and timings of each pulsatile component were used as features. The procedure for a single PPG pulse wave is shown in Figure 3. Two of these features were used as an example in Figure 2C to illustrate the feature extraction pipeline.
+
+38 39 40 41
+
+The ﬁnal set of features were proposed by Monte-Moreno [24] for BP estimation. They consist of signal processing techniques to quantify entropy, irregularity and frequency content. The underlying algorithms are Shannon’s entropy, Kaiser-teager energy, Qi-Zheng energy and auto-regressive analysis. The features were computed on
+
+42
+
+5 second frames of PPG with an overlap of 2.5 seconds. Subsequently, statistics were
+
+43
+
+derived over all the frames per minute and used as features. These included the mean,
+
+44
+
+standard deviation, inter-quartile range and skewness.
+
+45
+
+46
+
+47
+
+48
+
+3.2.4. Feature optimization As discussed in the related work, while complex
+
+49
+
+morphological features are known to correlate to BP in lab studies, their applicability
+
+50
+
+in practice is limited. This is because they usually have a person-speciﬁc response
+
+51
+
+to BP and/or may suﬀer from noise. Usually, features are normalized to reduce
+
+52
+
+their persons-speciﬁc nature and ﬁltered to remove noise. To determine the optimal
+
+53
+
+normalizations and ﬁlters, all of the features in this study were optimized individually
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 8 of 20
+
+Normalized Accepted Manusc amplitudeript
+
+Page 9 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 9
+
+1.0
+
+Pulse decomposition analysis
+
+Pulse
+
+Model
+
+0.8
+
+Systolic PW1
+
+PW2
+
+PW3
+
+0.6
+
+PW4
+
+0.4
+
+0.2
+
+0.00.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 Time in seconds
+Figure 3: Gaussian Mixture Model feature extraction [42]. A single PPG pulse is decomposed into four Gaussians (PW1, PW2,PW3 and PW4), each representing diﬀerent reﬂections in the arterial blood pulse. Amplitude, location, area and width of each pulse are used as features, as well as the diﬀerence in amplitude and area between the combined ﬁrst 2 pulses (systolic pulse) and the third pulse, referred to respectively as the augmentation and reﬂection indices. In Figure 2C the augmentation index and the amplitude of the second pulse are used as example.
+to maximize correlation with SBP. First, for each feature, the cross-person correlation for SBP was maximized by selecting one out of a set of normalization functions. The functions used were Z-score [43], Min-Max [43], Boxcox [44], quantile [45] and Winsor [46] normalization. After normalization, a set of ﬁlters was explored in the same manner to select the best ﬁlters. Considered ﬁlters were the Butterworth low-pass and high-pass ﬁlters (at a variety of cutoﬀs), as well as rolling mean, median and standard deviation ﬁlters. In some cases, multiple ﬁlters were found to improve a feature, and in those cases only the two best transformations were used. Optimization was done using only the training data set (see Section 3.2.6 below). An example of the optimization of two features is shown in Figure 2.
+3.2.5. Feature extraction procedure All features were averaged over a 5-minute window centred around each BP measurement. BP measurements where no features could be extracted in that window due to a lack of detected heart beats were excluded. When comparing a BP surrogate to ABPM, the low sampling frequency of the BP ground truth is not suﬃcient to capture high frequency changes in both BP and its predictor. Zheng et al. proposed low-pass ﬁltering both signals, removing frequencies above 1/30/60/3 Hertz. This technique was applied to the dataset [20]. Finally, the mean of both the targets (SBP and DBP) as well as the features per day was
+
+Accepted Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 10
+
+4
+
+5
+
+subtracted from the values. This allows for prediction of deviation from a basal BP
+
+6
+
+level. An example of the re-sampling and ﬁltering procedure is shown in Figures 2D,E.
+
+7
+
+8
+
+9
+
+3.2.6. Data splitting After excluding invalid points (see Section 3.2.5 the ﬁnal data
+
+10
+
+set contained 5111 BP samples,measured using the ABPM ground truth and their
+
+11
+
+corresponding PPG-derived feature vectors with 195 features per sample. The data of
+
+12
+
+82 randomly selected participants was reserved for training the models. The training
+
+13
+
+set contained 4126 samples from 185 days. The data from the remaining 21 partic-
+
+14
+
+ipants was used to evaluate the performance of the models. This test set consisted
+
+15
+
+of 985 samples collected from 41 days. The training and testing set had comparable
+
+16
+
+body-mass index (training: 24.3 ± 3.9kg/m2, testing: 24.1 ± 3.5kg/m2), age (training:
+
+17
+
+34.9 ± 10.0 years, testing: 36.5 ± 15.4 years), weight (training: 67.5 ± 12.8 kg, testing:
+
+18
+
+67.6 ± 11.1 kg) and sex distributions (training: 85% female, testing: 73% female).
+
+19
+
+20
+
+21 22
+
+3.3. Models
+
+23
+
+The following machine learning models were trained to estimate relative SBP and
+
+24
+
+DBP using the created training data including: linear regression, random forest, dense
+
+25
+
+neural networks and LSTM neural network.
+
+26
+
+27
+
+Linear regression This classic regression model trains a linear combination of all
+
+28
+
+input features to generate SBP and another set of linear combinations to estimate
+
+29
+
+DBP. As this model is unable to learn non-linear patterns in the data and cannot
+
+30
+
+infer over temporal data, it forms the baseline machine learning model.
+
+31
+
+32
+
+Random forest regression Before the widespread use of neural networks, random
+
+33
+
+forest models [25] were state of the art. An ensemble of decision trees make predictions
+
+34
+
+about the ground truth and the ﬁnal outcome is a vote of the diﬀerent trees. Random
+
+35
+
+forests are very capable of inferring non-linear relationships between features and
+
+36
+
+ground truth, but lack the capacity to infer over temporal structure. Three random
+
+37
+
+forest regression models were trained: with 8, 16 and 32 trees.
+
+38
+
+39 40 41 42 43 44 45 46
+
+Dense network Also known as a multi-layer perceptron network [47], the dense network is the most basic of neural network architecture. It consists of perceptrons which perform linear combinations of their input (similar to linear regression) and generate intermediate outputs that are then fed to a next layer of perceptrons. The network used here consists of a ﬁrst hidden layer that takes the features as input, and a second layer of perceptrons that take the ﬁrst layer’s outputs and predicts the BP labels. Three perceptron networks were trained using 8, 16 and 32 trees.
+
+47
+
+48
+
+LSTM network Finally, an LSTM model with the potential ability to infer over the
+
+49
+
+temporal structure in free-living data is trained. The LSTM cells are included in a
+
+50
+
+three-layer neural network, with the ﬁrst hidden layer consisting of 32 perceptrons,
+
+51
+
+the second hidden layer consisting of 32 LSTM cells and the last layer consisting again
+
+52
+
+of a perceptron layer to predict the labels. This model is an extension of the multi-
+
+53
+
+layer perceptron network network, whereby an an intermediate layer is added to allow
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 10 of 20
+
+Accepted Manuscript
+
+Page 11 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 11
+for temporal connections to be made. The number of perceptrons in the ﬁrst hidden layer was ﬁxed at the best-performing number obtained when training the multilayer perceptron networks, while three conﬁgurations for the LSTM network were trained using 8, 16 and 32 cells.
+Both the multilayer perceptron network and the LSTM network are trained through back-propagation with a batch size of 32 days of data at a time. Of the training data set, 80% was used in back-propagation while the remainder was used to see whether the model was converging. To avoid overﬁtting, once the loss on this subset stopped improving for 20 consecutive passes over the data, the training was stopped (early stopping criterion [48]).
+For all machine learning models, relative mean arterial pressure was also included as a third output of the model. This was done to improve convergence of the more complex models such as the random forest and two neural networks (same approach as introduced in [33]). The loss function used for all models is the mean squared error. However, as mean squared error optimization favours minimizing instances with large errors, the criterion is known to lead to models that are not sensitive to outliers. This is a challenge for regression models, especially ones where the ground truth is normally distributed such as in this data set (see Figure 1). To remedy this, the loss was ampliﬁed by the absolute diﬀerence of the SBP value from the mean SBP in the training set. This means that the larger the deviation of the SBP value from the mean, the more its loss was ampliﬁed. This ampliﬁcation remedied the outlier insensitivity in all of the machine learning models.
+3.4. Blood pressure tracking evaluation
+The quality of the predictions on the test set were compared using two criteria: the RMSE as well as the Pearsons’ correlation between ground truth and predicted SBP/DBP. Both metrics were calculated per day and both the mean and standard deviation are reported.
+3.5. Blood pressure dip evaluation
+The use case for the developed models is to estimate the SBP dip as a daily SBP statistic from the trend estimations. The procedure is illustrated in Figures 2F,G. The day is segmented into either sleep or wake segments. The dip is then calculated as the diﬀerence between the mean SBP during the wake segment and the mean SBP during the sleep segment. Note that this procedure does not require recalibration to absolute values, as the dip itself is a relative measure. The predicted and true SBP dip are also compared through RMSE and correlation analysis. The prediction performance of the machine learning models will be compared to two base line models that do not rely on machine learning:
+Demographic-based SBP dip estimation A linear regression model of the SBP dip will be ﬁtted on the training data using only age, weight and body-mass index characteristics of participants and evaluated on the test set as a baseline that does not require physiological signals.
+
+Accepted Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 12
+
+4
+
+5
+
+Relative SBP
+
+Relative DBP
+
+SBP dip
+
+6
+
+RMSE
+
+Corr
+
+RMSE
+
+Corr
+
+RMSE
+
+Corr
+
+7
+
+(mmHg) (Pearson) (mmHg) (Pearson) (mmHg) (Pearson) Linear regression 8.90±2.11 0.68±0.16 6.76±1.48 0.76±0.13 3.92±3.36 0.49∗
+
+8 9
+
+Random forest (8 trees)
+
+8.20±1.50 0.64±0.16 7.03±1.25 0.72±0.13 4.46±2.30 0.61∗∗∗
+
+10 11 12
+
+Random forest (16 trees) Random forest (32 trees)
+
+7.90±1.46 0.69±0.14 7.86±1.57 0.69±0.16
+
+6.68±1.44 6.75±1.41
+
+0.75±0.13 0.75±0.13
+
+4.65±3.00 4.75±3.33
+
+0.63∗∗∗ 0.57∗∗
+
+13 14
+
+Dense (8 perceptrons)
+
+9.07±2.01 0.71±0.15 6.49±1.59 0.77±0.12 4.68±3.43 0.66∗∗∗∗
+
+15
+
+Dense (16 perceptrons)
+
+9.21±2.09
+
+0.71±0.15
+
+6.53±1.56
+
+0.77±0.12
+
+4.70±3.46
+
+0.65∗∗∗∗
+
+16 17
+
+Dense (32 perceptrons)
+
+9.27±2.09
+
+0.71±0.15
+
+6.53±1.52
+
+0.77 ±0.12 4.52±3.41
+
+0.65∗∗∗∗
+
+18
+
+LSTM (8 cells)
+
+8.12±1.67 0.70±0.12 6.68±1.37 0.76±0.12 3.56±2.28 0.63∗∗∗
+
+19 20
+
+LSTM (16 cells)
+
+7.96±1.63 0.69±0.17 6.57±1.51 0.76±0.13 3.45±2.33 0.63∗∗∗
+
+21 22
+
+LSTM (32 cells)
+
+8.22±1.49 0.69±0.16 6.55±1.39 0.76±0.13 3.12±2.20 0.69∗∗∗∗
+
+23
+
+Table 2: Overview of the performance of the models evaluated in this study. The
+
+24
+
+number of stars in the last column denotes the signiﬁcancy level of the correlation:
+
+25
+
+*, **, *** and **** respectively denote p < 0.05, p < 10−2, p < 10−3 and p < 10−4.
+
+26
+
+RMSE, correlation (Corr) for SBP and DBP were computed per day of data and
+
+27
+
+reported as the mean over all days in the test set ± the standard deviation. Numbers
+
+28
+
+in bold are the highest scores for the metric. For correlation of SBP and DBP the
+
+29
+
+numbers were too close to select a clear best score and thus none of the entries are in
+
+30
+
+bold.
+
+31
+
+32
+
+33
+
+Heart rate based SBP dip estimation Heart rate also exhibits a dipping pattern
+
+34
+
+controlled partially by the same physiological mechanisms as the SBP dip [49, 50].
+
+35
+
+The dip in the heart rate will be computed in the same manner as for the SBP dip
+
+36
+
+(diﬀerence between mean heart rate during the day and mean heart rate at night) and
+
+37
+
+a linear ﬁt will be determined between the heart rate and SBP dips using the training
+
+38
+
+set. This will form a second baseline that does use physiological signals, but does not
+
+39
+
+require a model to estimate SBP ﬁrst.
+
+40
+
+41
+
+4. Results
+
+42
+
+43
+
+The main results of the study are included in Table 2. The performance is shown for
+
+44
+
+ten models: linear regression, random forest models with 8, 16 and 32 trees, dense
+
+45
+
+networks with 8, 16 and 32 perceptrons and ﬁnally LSTM networks with 8, 16 and
+
+46
+
+32 cells. For the LSTM models, the ﬁrst hidden layer had 8 dense perceptrons as
+
+47
+
+the performance of all three dense networks was close to each other. RMSE and cor-
+
+48
+
+relation were computed per day of data and both averages and standard deviations
+
+49
+
+are given in Table 2. For the SBP dip estimation task, the sleep-wake classiﬁer was
+
+50
+
+used to segment every day into waking and sleep. The diﬀerence between mean SBP
+
+51
+
+during the wake and sleep periods was calculated per day. The RMSE for the esti-
+
+52
+
+mated SBP dips is also given in Table 2. Correlation was computed once for the entire
+
+53
+
+test set (using every day as a sample) and the signiﬁcance level is reported in the table.
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 12 of 20
+
+Accepted Manuscript
+
+Page 13 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 13
+Next to the machine learning models, two baseline models were also tested. The linear regression model based on demographics was trained using age, sex and bodymass index as input variables on the training set and evaluated on the test set. It had an RMSE of 2.22±5.36 ∆ mmHg and a non-signiﬁcant correlation of 0.15 (p = 0.44) with the ground truth. The baseline model based on heart rate was not trained. Instead, the dip in heart rate was computed in the same manner as was done for SBP and a correlation analysis between the heart rate and SBP dip was performed, resulting in a negative non-signiﬁcant correlation of -0.27 (p = 0.16) with the ground truth.
+A Bland-Altmann analysis was performed to compare the best-performing model for SBP prediction (random forest with 32 trees) to the best-performing model for SBP dip prediction (LSTM with 32 cells) on their ability to estimate both the SBP and the SBP dip, as visualized in Figure 4. The LSTM model had the following estimation errors (mean±standard deviation): -2.60±9.82 mmHg for SBP and 0.13±3.88 mmHg for the SBP dip. The random forest model had an estimation error of -1.17±8.01 for SBP and 3.77±4.43 for the SBP dip.
+Finally, regression and correlation analyses for the estimation of SBP and DBP using the LSTM model with 32 cells are visualized in Figure 5a while the same analyses for the model’s estimations of the SBP dip are shown in Figure 5b.
+5. Discussion
+A system for the estimation of BP trends was evaluated in 24-hour free-living individuals, with two main evaluations: the accuracy of estimating relative changes in SBP and DBP, as well as the accuracy of the nocturnal SBP dip estimates. The system used PPG and acceleration from a wearable wrist device as input and features were extracted based on heart rate variability and pulse morphology. Several machine learning models were compared in their accuracy. In this section the predictive capacity of the models is discussed and compared to earlier studies. The limitations are highlighted and suggestions for future work to improve accuracy and clinical applicability is proposed.
+5.1. Machine learning models
+Several models representing diﬀerent categories were evaluated. This included linear regression which represents a strictly linear model, the random forests and dense networks which represent non-linear models while the LSTM model represents a sequential model (both non-linear and capable of inference over temporal structure in the data). When comparing the performance of the estimates of these models with the ground truth for SBP and DBP tracking, they all have a similar level of accuracy. For SBP however, the random forest with 32 trees and the LSTM with 8 cells had respectively the best RMSE and correlation, though the diﬀerences with other models were minimal and not signiﬁcant. For DBP prediction, the dense model with 8 perceptrons achieved the best performance, but again it was very close to the other models.
+The results become more informative when considering the SBP dipping estimations. The LSTM with 32 cells achieved the highest correlation between its estimate
+
+Difference(SBP,cr predictediSBP)pt
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 14
+
+4
+
+5
+
+6
+
+7
+
+30
+
+30
+
+Difference(SBP, predicted SBP)
+
+8
+
+9
+
+20
+
+20
+
+10 11
+
+10
+
+10
+
+12
+
+0
+
+0
+
+13
+
+14
+
+10
+
+10
+
+15
+
+16
+
+20
+
+20
+
+Difference(SBP dip, predicted SBP dip)
+
+Difference(SBP Accepted M dip,predictedSBPdip)anus
+
+17 18 19
+
+30
+
+20 Aver1a0ge(SBP0, predic1t0ed SBP2)0
+
+30
+
+30 20 Aver1a0ge(SBP0, predict1e0d SBP)20
+
+20 21
+
+(a) Relative SBP, using LSTM with 32 cells
+
+(b) Relative SBP, using random forest with 32 trees
+
+22
+
+23
+
+24
+
+25
+
+15
+
+26
+
+15
+
+27
+
+10
+
+28
+
+10
+
+29
+
+5
+
+5
+
+30
+
+31
+
+0
+
+0
+
+32
+
+33
+
+5
+
+5
+
+34
+
+10
+
+35
+
+10
+
+36 37 38
+
+15 7.5 A1v0e.0rage1(2S.5BP d1ip5,.0pred1i7c.5ted S2B0.P0 dip2)2.5 25.0
+
+15 6 8Avera1g0e(SB1P2dip,1p4redic1te6d SB1P8dip)20 22
+
+39 40
+
+(c) SBP dip, using LSTM with 32 cells
+
+(d) SBP dip, using random forest with 32 trees
+
+41
+
+42
+
+Figure 4: Comparison of systematic errors between the LSTM and random forest
+
+43
+
+models through Bland-Altman analysis of the uncalibrated values of SBP (upper
+
+44
+
+subﬁgures) as well as the SBP dip (lower subﬁgures).
+
+45
+
+46
+
+47
+
+48
+
+49
+
+50
+
+51
+
+52
+
+53
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 14 of 20
+
+Predicted Accepted ManuscrBP(mmHg)ipt Predicted SBP dip ( mmHg)
+
+Page 15 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 15
+
+20
+
+10
+
+0
+
+Metric
+SBP
+
+DBP
+
+10
+
+20
+30 20 1T0rue B0P (mm10Hg) 20 30 40 (a) Relative SBP and DBP
+
+25
+
+pearsonr = 0.69; p = 3e-05
+
+20
+
+15
+
+10
+
+5
+
+5
+
+1T0rue SB1P5dip ( 2m0mHg) 25
+
+30
+
+(b) SBP dip
+
+Figure 5: Correlation and regression analyses for the prediction of relative SBP and DBP (left) and the SBP dip (right) using the LSTM with 32 cells.
+
+of the dip and the true dip of 0.69 (p = 3 ∗ 10−5), while the linear regression model achieved the lowest with a correlation coeﬃcient of only 0.49 (p = 0.03), providing the ﬁrst evidence for the superiority of sequence-to-sequence modelling over linear modelling. All other machine learning models also strongly outperformed the baselines. Both heart rate based and demographics-based dip estimation did not correlate with the true SBP dip. For all other models, the correlation ranged between 0.57 and 0.65, which is still markedly lower numbers than for the LSTM model with 32 cells, especially in comparison to the limited diﬀerences between the models in estimation accuracy of relative SBP and DBP.
+This is likely because the estimation of the dip not only requires the direction of the BP trend to be estimated, but also the magnitude of change. This becomes more clear in the Bland-Altmann analysis presented in Figure 4. The errors for the estimation of the relative SBP values are similar for both the random forest (Figure 4b) and LSTM models (Figure 4a), however for the SBP dip (Figures 4c and 4d) there is a clear diﬀerence. As the dip assessment relies on good approximation of deviation from the mean, the random forest model shows both an over-estimation bias as well as a strong amplitude-dependent error while the errors of the LSTM model is not biased and shows a smaller amplitude-dependent error. This implies that even though the RMSE for SBP was lower for the random forest model, the LSTM model still has a more consistent prediction capability because of a better sensitivity to BP values that are deviant from the mean.
+5.2. Comparison to earlier work
+In Section 2, related work was discussed and summarized in Table 1. Most of the studies presented in this table (apart from Zheng et al. [20] and Ruiz-Rodriguez et al. [26]) have been performed in controlled lab studies, in which eﬀects as described
+
+Accepted Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 16
+
+4
+
+5
+
+in Section 5.1 could not be tested for. The studies involving point measurements had
+
+6
+
+the highest accuracy level, but the application areas of such methods is limited as
+
+7
+
+point measurements can also be performed with a regular BP cuﬀ. Studies involving
+
+8
+
+continuous measurements might at ﬁrst sight give the impression of being more rig-
+
+9
+
+orously tested than point measurements, but machine learning models can overﬁt to
+
+10
+
+the speciﬁc experimental protocol with which the data is obtained. For example, in a
+
+11
+
+highly controlled intermittent exercise test on an ergometer, the increase in heart rate
+
+12
+
+will strongly relate to the increase in BP as they are both primarily being controlled
+
+13
+
+by oxygen demands in the muscles. This relation may be exploited by a machine
+
+14
+
+learning model to generate seemingly accurate results. However once a person is mon-
+
+15
+
+itored outside of exercise, the correlation between heart rate and BP weakens, making
+
+16
+
+such a model invalid. The weak correlation between heart rate and BP was observed
+
+17
+
+in this study as well: the heart rate based dip estimation had no correlation with
+
+18
+
+the BP dip. The lower performance achieved in this work for PPG-based monitoring
+
+19
+
+in comparison to lab studies that controlled lab-based evaluation of unobtrusive BP
+
+20
+
+estimation might suﬀer from poor external validity as results cannot be extrapolated
+
+21
+
+to real-world use cases.
+
+22
+
+23
+
+Zheng et al. [20] was the only work to evaluate their method in free-living in-
+
+24
+
+dividuals. However the RMSE was only reported for the night-time period and the
+
+25
+
+report discloses that day-time PAT has a very limited correlation with BP due to its
+
+26
+
+high sensitivity to posture changes. Thus the method is not suitable for the estimation
+
+27
+
+of the SBP dipping for which day-time BP is also needed. In that work, PAT was
+
+28
+
+esimated through a unique technology in which both ECG and PPG could be mea-
+
+29
+
+sured with a single wrist device. A future study in which the ECG-to-PPG measure
+
+30
+
+of PAT from such a device could be combined with heart rate variability and PPG
+
+31
+
+morphology as used in this work can lead to marked improvements in the accuracy of
+
+32
+
+the method with minimal impact on the comfort of the wearer, especially during the
+
+33
+
+night time.
+
+34
+
+35
+
+Ruiz-Rodriguez et al. [26] used a large cohort of intensive care patients. The
+
+36
+
+reported error margins are slightly higher than in the current study, which could be
+
+37
+
+because they estimated absolute BP or because intensive care patients may suﬀer from
+
+38
+
+extreme health conditions that lead to inconsistent pulse morphology. However, the
+
+39
+
+low mobility of patients in intensive care units does eliminate confounding factors re-
+
+40
+
+lated to motion and posture change. In short, the protocols used by Ruiz-Rodriguez
+
+41
+
+et al. and this study are highly disparate making it diﬃcult to compare performance.
+
+42
+
+Future work in which a model is trained on both clinical intensive care data as well as
+
+43
+
+free-living individuals would likely result in an algorithm that can handle a very wide
+
+44
+
+range of use cases.
+
+45
+
+46
+
+47
+
+5.3. Sources of error and limitations
+
+48
+
+49
+
+The results presented in this study provide encouraging evidence for BP trend mea-
+
+50
+
+surement using PPG in free-living individuals. However there are a few limitations
+
+51
+
+that could be addressed in future work to improve the model’s performance. One likely
+
+52
+
+source of error could come from motion artefacts as free-living individuals are not re-
+
+53
+
+stricted in their activities. Such artefacts also reduce the coverage of the method, as
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 16 of 20
+
+Accepted Manuscript
+
+Page 17 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 17
+low-quality PPG data is automatically discarded by the feature extraction methodology we used. One possible solution to this is to use a PPG sensor mounted to a body part that undergoes less movement than the wrist such as the chest or head. However, although a diﬀerent body location may suﬀer less from motion artefacts, there would be the additional challenge of ﬁxing a PPG sensor to those body parts. At least with the wrist an occlusive band can be tightened to the right skin contact level, without requiring any adhesives or causing discomfort.
+Another limitation for this study is the ABPM ground truth. These monitors are highly obtrusive and can only measure semi-continuously. During sleep their obtrusiveness becomes close to unbearable (which was a motivation for the method proposed in this study in the ﬁrst place). Other studies have used non-invasive continuous BP monitors based on the volume clamp principle [26, 33] which yields a high temporal resolution. However this method is already on its own a surrogate for BP estimation and is not recommended for clinical use [51]. Moreover, Imholz et al. [52] showed that using the volume clamp principle suﬀers from structural under-estimations in daily life activities. A far better ground truth is the invasive BP estimation procedure through catheters, but patients undergoing such treatments are rare, not mobile and often suﬀer from complicated pathologies, making them a diﬃcult-to-access population for large-scale studies. Nevertheless data from both these sensors could be used as a supplementary source to pre-train the model, which can then be adapted to free-living data through techniques such as transfer learning [53].
+5.4. Clinical signiﬁcance
+Finally, a note on the clinical signiﬁcance of the results should be made. While the used data set in this study is larger than most previous work and the results provide a ﬁrst view about the utility of PPG morphology in free-living individuals, only healthy individuals were included. The next research step would be to evaluate the methodology used in this study on populations for which such technology may provide actionable information for clinical treatment. An example of this would be sleep apnea patients who are known to suﬀer from non-dipping [54]. The use of the proposed SBP dip estimation method in early screening and home assessment procedures could potentially help clinicians to more eﬃciently triage patients. Another use case is in occupational health of regular shift-workers where a disruption in the circadian rhythm can lead to (temporary) shifts in the SBP diurnal rhythm that may manifest as an unhealthy dipping pattern [55]. Finally, regular screening for hypertension usually only involves measuring day-time BP as the ABPM procedure is too burdensome to prescribe to all patients as a screening tool. Disrupted night-time BP may be overlooked and underdiagnosed because of this. The proposed method is a highly ergonomic surrogate to the ABPM procedure that could be used to screen for non-dipping and thus allow for the appropriate prescription of chrono-therapy to help control this risk factor of cardiovascular disease, as evidenced in the work of Hermida et al. [5].
+
+Accepted Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 18
+
+4
+
+5
+
+6. Conclusions
+
+6
+
+7
+
+Several machine learning models have been compared for the prediction of relative
+
+8
+
+SBP and DBP in free-living as well as the SBP dip. The methods were evaluated in
+
+9
+
+a large cohort of 103 participants measured for a combined total of 226 days. The
+
+10
+
+neural network consisting of 8 perceptrons in the ﬁrst hidden layer and 32 LSTM cells
+
+11
+
+in the second hidden layer was found to produce best results for the estimation of the
+
+12
+
+SBP dip. It had the highest Pearsons’ correlation (0.69, p = 3 ∗ 10−5) and lowest
+
+13
+
+error (RMSE of 3.12±2.20 mmHg) for the estimation of the SBP dip. For tracking
+
+14
+
+of relative SBP and DBP there were no big diﬀerences in RMSE or correlation be-
+
+15
+
+tween random forests, dense networks or LSTM networks. However, further analysis
+
+16
+
+revealed that the LSTM model was better at predicting deviant values of SBP. Thus
+
+17
+
+the LSTM model was overall the best model.
+
+18
+
+19
+
+The reported error rates are higher than what is typically measured in lab
+
+20
+
+studies, even though the used algorithms were comparable to those of other PPG-
+
+21
+
+only studies. This warrants that performance results of BP surrogates obtained in
+
+22
+
+strongly controlled environments may suﬀer from poor external validity for real-world
+
+23
+
+usage.
+
+24
+
+25
+
+7. Acknowledgements
+
+26
+
+27
+
+The authors would like to thank the European Institute of Technology for funding the
+
+28
+
+project and the many involved individuals from Imperial College London and Royal
+
+29
+
+Philips. Special thanks to Prof. Azeem Majeed, Dr. Josip Car, Dr. Antonio Vallejo-
+
+30
+
+Vaz and Prof. Kausik K. Ray for their support and insights in the organisation and
+
+31
+
+clinical judgements of the study.
+
+32
+
+33
+
+Bibliography
+
+34
+
+35
+
+[1] Roth G A, Abate D, Abate K H, Abay S M, Abbafati C, Abbasi N, Abbastabar H, Abd-Allah
+
+36
+
+F, Abdela J, Abdelalim A et al. 2018 The Lancet 392 1736–1788
+
+37
+
+[2] Hansen T W et al. 2010 Hypertension 55 1049–1057 [3] Floras J S 2013 Canadian Journal of Cardiology 29 557–563
+
+38
+
+[4] Mancia G 2012 Hypertension 60 512–517
+
+39
+
+[5] Hermida R C, Ayala D E, Fern´andez J R and Calvo C 2008 Hypertension 51 69–76
+
+40
+
+[6] Hermida R C, Ayala D E, Moj´on A and Fern´andez J R 2011 Journal of the American College
+
+41
+
+of Cardiology 58 1165–1173 [7] Hermida R C, Ayala D E, Mojo´n A and Fern´andez J R 2011 Diabetes Care 34 1270–1276
+
+42
+
+[8] Mancia G et al. 2013 European Heart Journal 34 2159–2219
+
+43
+
+[9] Pickering T G, Hall J E, Appel L J, Falkner B E, Graves J, Hill M N, Jones D W, Kurtz T,
+
+44
+
+Sheps S G and Roccella E J 2005 Hypertension 45 142–161 [10] Heude E, Bourgin P, Feigel P and Escourrou P 1996 Clinical Science 91 45–50
+
+45
+
+[11] Mukkamala R, Hahn J O, Inan O T, Mestha L K, Kim C S and Hakan T 2015 IEEE Transactions
+
+46
+
+on Biomedical Engineering 62 1879–1901
+
+47
+
+[12] Peter L, Noury N and Cerny M 2014 Innovation and Research in Biomedical Engineering 35
+
+48
+
+271–282 [13] Buxi D, Redout´e J M and Yuce M R 2015 Physiological Measurement 36 R1–R26
+
+49
+
+[14] Muehlsteﬀ J and Aubert X 2006 Cuﬄess estimation of SBP for short eﬀort bicycle test the
+
+50
+
+prominent role of PEP EMBS Annual International Conference vol 28 (IEEE) pp 5088–5092
+
+51
+
+[15] Gesche H, Grosskurth D, Ku¨chler G and Patzak A 2012 European Journal of Applied Physiology
+
+52
+
+112 309–315 [16] Radha M, Zhang G, Gelissen J, de Groot K, Haakma R and Aarts R M 2017 Biomedical Physics
+
+53
+
+& Engineering Express 3 015022
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 18 of 20
+
+Accepted Manuscript
+
+Page 19 of 20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 19
+[17] Nitzan M, Khanokh B and Slovik Y 2002 Physiological measurement 23 85–93 [18] Sola J, Proenc¸a M, Ferrario D, Porchet J A, Falhi A, Grossenbacher O, Allemann Y, Rimoldi
+S F and Sartori C 2013 IEEE Transactions on Biomedical Engineering 60 3505–3513 [19] Zhang G, Shan C, Kirenko I, Long X and Aarts R M 2017 Sensors 17 1541 [20] Zheng Y L, Yan B P, Zhang Y T and Poon C C Y 2014 IEEE Transactions on Biomedical
+Engineering 61 2179–2186 [21] Thomas S S, Nathan V, Zong C, Soundarapandian K, Shi X and Jafari R 2015 IEEE journal of
+biomedical and health informatics 20 1291–1300 [22] Poon C, Zhang Y T Z Y T and Liu Y L Y 2006 Modeling of Pulse Transit Time under the
+Eﬀects of Hydrostatic Pressure for Cuﬄess Blood Pressure Measurements 2006 3rd EMBS International Summer School on Medical Devices and Biosensors (IEEE) pp 65–68 [23] Elgendi M 2012 Current Cardiology Reviews 8 14–25 [24] Monte-Moreno E 2011 Artiﬁcial Intelligence in Medicine 53 127–138 [25] Liaw A, Wiener M et al. 2002 R News 2 18–22 [26] Ruiz-Rodr´ıguez J C, Ruiz-Sanmart´ın A, Ribas V, Caballero J, Garc´ıa-Roche A, Riera J, Nuvials X, De Nadal M, De Sola-Morales O, Serra J and Rello J 2013 Intensive Care Medicine 39 1618–1625 [27] Hinton G E, Osindero S and Teh Y W 2006 Neural Computation 18 1527–1554 [28] Sun S, Bezemer R, Long X, Muehlsteﬀ J and Aarts R M 2016 Physiological measurement 37 2154 [29] Xing X and Sun M 2016 Biomedical Optics Express 7 3007–3020 [30] Miao F, Fu N, Zhang Y T, Ding X R, Hong X, He Q and Li Y 2017 IEEE Journal of Biomedical and Health Informatics 21 1730–1740 [31] Sutskever I, Vinyals O and Le Q V 2014 Sequence to sequence learning with neural networks Advances in neural information processing systems pp 3104–3112 [32] Hochreiter S and Schmidhuber J 1997 Neural Computation 9 1735–1780 [33] Su P, Ding X R, Zhang Y T, Liu J, Miao F and Zhao N 2018 Long-term blood pressure prediction with deep recurrent neural networks EMBS International Conference on Biomedical & Health Informatics (IEEE) pp 323–328 [34] Franssen P M and Imholz B P 2010 Blood Pressure Monitoring 15 229–231 [35] Bonomi A G, Schipper F, Eerika¨inen L M, Margarito J, Aarts R M, Babaeizadeh S, de Morree H M and Dekker L 2016 Atrial ﬁbrillation detection using photo-plethysmography and acceleration data at the wrist Computing in Cardiology Conference (IEEE) pp 277–280 [36] Buchs A, Slovik Y, Rapoport M, Rosenfeld C, Khanokh B and Nitzan M 2005 Medical and Biological Engineering and Computing 43 252–257 [37] Bozkurt S and Ertas G 2015 Journal of Biomedical and Life Sciences 3 6–10 [38] Fonseca P, Weysen T, Goelema M S, Most E I, Radha M, Lunsingh Scheurleer C, van den Heuvel L and Aarts R M 2017 Sleep 40 97–98 [39] Chiu Y C, Arand P W, Shroﬀ S G, Feldman T and Carroll J D 1991 American Heart Journal 121 1460–1470 [40] Camm A J, Malik M, Bigger J, Breithardt G, Cerutti S, Cohen R J, Coumel P, Fallen E L, Kennedy H L, Kleiger R E et al. 1996 Circulation 93 1043–1065 [41] Costa M, Goldberger A L and Peng C K 2005 Physical Review E 71 021906 [42] Couceiro R, Carvalho P, Paiva R P, Henriques J, Antunes M, Quintal I and Muehlsteﬀ J 2012 Multi-Gaussian ﬁtting for the assessment of left ventricular ejection time from the Photoplethysmogram EMBS Annual International Conference (IEEE) pp 3951–3954 [43] Jain A, Nandakumar K and Ross A 2005 Pattern recognition 38 2270–2285 [44] Sakia R 1992 The Statistician 41 169–178 [45] Bolstad B M, Irizarry R A, ˚Astrand M and Speed T P 2003 Bioinformatics 19 185–193 [46] Dixon W J and Yuen K K 1974 Statistische Hefte 15 157–170 [47] Ruck D W, Rogers S K, Kabrisky M, Oxley M E and Suter B W 1990 IEEE Transactions on Neural Networks 1 296–298 [48] Prechelt L 1998 Early stopping-but when? Neural Networks: Tricks of the trade, Lecture Notes in Computer Science vol 1524 (Springer) pp 55–69 [49] Fava C, Burri P, Almgren P, Arcaro G, Groop L, Hulth´en U L and Melander O 2005 American Journal of Hypertension 18 1402–1407 [50] Sherwood A, Steﬀen P R, Blumenthal J A, Kuhn C and Hinderliter A L 2002 American Journal of Hypertension 15 111–118 [51] Berne R M and Levy M N 1967 Cardiovascular physiology (Mosby) [52] Imholz B P, Langewouters G J, Van Montfrans G A, Parati G, Van Goudoever J, Wesseling K H, Wieling W and Mancia G 1993 Hypertension 21 65–73
+
+Accepted Manuscript
+
+AUTHOR SUBMITTED MANUSCRIPT - PMEA-102796.R1
+
+1
+
+2
+
+3
+
+Estimating blood pressure trends and the nocturnal dip from photoplethysmography 20
+
+4
+
+5
+
+[53] Pan S J, Yang Q et al. 2010 IEEE Transactions on Knowledge and Data Engineering 22 1345–
+
+6
+
+1359
+
+7
+
+[54] Loredo J S, Ancoli-Israel S and Dimsdale J E 2001 American Journal of Hypertension 14 887–
+
+8
+
+892 [55] Sternberg H, Rosenthal T, Shamiss A and Green M 1995 Journal of Human Hypertension 9
+
+9
+
+349–353
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+27
+
+28
+
+29
+
+30
+
+31
+
+32
+
+33
+
+34
+
+35
+
+36
+
+37
+
+38
+
+39
+
+40
+
+41
+
+42
+
+43
+
+44
+
+45
+
+46
+
+47
+
+48
+
+49
+
+50
+
+51
+
+52
+
+53
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+Page 20 of 20
+

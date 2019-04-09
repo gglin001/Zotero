@@ -1,0 +1,1059 @@
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+EXTRACTION OF RESPIRATORY RATE FROM PPG SIGNALS USING PCA AND EMD
+
+B Prathyusha1, T Sreekanth Rao2, D. Asha3
+1Graduate Student, Department of ECE, Malla Reddy College of Engineering & Technology, Hyderabad, Andhra Pradesh, India -500014, prathyusha.signalprocessing@gmail.com 2Dell International Services India, sreekanth_tangellapa@dell.com
+3Assistant Professor, Department of ECE, Malla Reddy College of Engineering & Technology, Hyderabad, Andhra Pradesh, India -500014, ashamanickrao@gmail.com
+
+Abstract
+Photoplethysmography is a non-invasive electro-optic method developed by Hertzman, which provides information on the blood volume flowing at a particular test site on the body close to the skin. PPG waveform contains two components; one, attributable to the pulsatile component in the vessels, i.e. the arterial pulse, which is caused by the heartbeat, and gives a rapidly alternating signal (AC component). The second one is due to the blood volume and its change in the skin which gives a steady signal that changes very slowly (DC component). PPG signal consists of not only the heart-beat information but also a respiratory signal.
+
+Estimation of respiration rates from Photoplethysmographic (PPG) signals would be an alternative approach for obtaining respiration related information.. There have been several efforts on PPG Derived Respiration (PDR), these methods are based on different signal processing techniques like filtering, wavelets and other statistical methods, which work by extraction of respiratory trend embedded into various physiological signals. PCA identifies patterns in data, and expresses the data in such a way as to highlight their similarities and differences. Since patterns in data can be hard to find in data of high dimension, where the luxury of graphical representation is not available, PCA is a powerful tool for analyzing such data.
+
+Due to external stimuli, biomedical signals are in general non-linear and non-stationary. Empirical Mode Decomposition is ideally suited to extract essential components which are characteristic of the underlying biological or physiological processes. The basis functions, called Intrinsic Mode Functions (IMFs) represent a complete set of locally orthogonal basis functions whose amplitude and frequency may vary over time. The contribution reviews the technique of EMD and related algorithms and discusses illustrative applications. Test results on PPG signals of the well known MIMIC database from Physiobank archive reveal that the proposed EMD method has efficiently extracted respiratory information from PPG signals. The evaluated similarity parameters in both time and frequency domains for original and estimated respiratory rates have shown the superiority of the method.
+
+Index Terms: Respiratory signal, PPG signal, Principal Component Analysis, EMD, ECG
+
+-----------------------------------------------------------------------***-----------------------------------------------------------------------
+
+1. INTRODUCTION
+Optical assessment of physiological parameters is very attractive because they often provide simple, non-invasive, continuous physiological monitoring conditions. Photoplethysmography (PPG) is such a low-cost optical technique, and can simply and continuously record the light intensity scattered from a given source by the tissue and collected by a suitable photodetector. The arterial pulse waveform carries physiological information about mechanical properties of the peripheral arteries, and thus the PPG pulse wave could be used to noninvasively assess artery stiffness. A pulsatile PPG signal reveals the heart rate (HR) and could be used to study heart rate variability (HRV). The noncontact concept provides an innovative development for PPG technique.
+
+Human skin plays an important role in various physiological processes including thermoregulation, neural reception, and mechanical and biochemical protection. The heart-generated blood-pressure waves propagate along the skin arteries, locally increasing and decreasing the tissue blood volume with the periodicity of heartbeats. The dynamic blood volume changes basically depend on the features of the heart function, size and elasticity of the blood vessels, and specific neural processes. Therefore direct monitoring of skin blood pulsations may provide useful diagnostic information, especially if realized non-invasively. Optical technologies are well suited for non invasive monitoring of skin blood pulsation. Radiation of the red to near infrared spectral region penetrates several millimeter under the skin surface. Skin blood pumping and transport dynamics can be monitored at different body location (e.g. fingertip, earlobe, and forehead) with relatively simple and convenient PPG contact probes. Simultaneous data flow
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+164
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+from several body locations the multi channel PPG technique increases the reliability of clinical measurements also allowing us to study heart beat pulse wave propagation in real time and to evaluate the vascular blood flow resistance an important physiological parameter for vascular diagnostics. In general each recorded PPG pulse contains useful information can be obtained by analysis of the PPG signal sequence recorded [1]. Plethysmograph is a combination of the Greek word. Plethysmos meaning is increase and Graph is the words for write [2]. It is an instrument used mainly to determine and register the variation in blood volume or blood flow in the body. We used photo electric type plethysmograph. Hence is known as Photoplethysmograph [3]. Pulse wave analysis helps to study diabetes & arthritis & it is unique for each individual so it would also give unique identification as biometric identification [4]. Pulse wave analysis also helps to study large artery damage and an abnormality in the cardiovascular disease which is one of the common causes of high mortality rate.PPG analysis emphasizes the importance of early evaluation of the diseases [5]. Several studied conducted by various groups of population showed that in PPG, the reflectance of light from in vivo tissue is described as a function of light for the wavelength in the range from 420 to 940 nm [6]. The electrical signal from PPG is related to blood volume changes in tissue. This signal provides a means of determining the diseases related to cardiac cycle & changes in arthritis & diabetes. The suggested PPG method is reliable, simple, low cost & noninvasive which could become an effective new screening tool for the early detection of diabetes neuropathic foot [7].
+Electrocardiogram (ECG) is used in general by the physicians for clinical monitoring as it represents the electrical manifestation of contractile activity of the heart [5]. It is also evident from the literature that the ECG carries respiratory information and hence much work has been done on ECG derived respiratory activity (EDR) [13]-[14].
+In past, researchers were attempting to extract the respiratory information embedded in PPG signals in the form of RIIV signal, which includes a simple band pass filter [8], but the band pass filter must be adaptive in nature to allow the band of all possible frequencies corresponding to the respiratory rates. An adaptive band-pass finite impulse response (FIR) filter, designed in frequency sampling method with suitable pass band specifications drawn automatically from the spectrum of the signal itself has efficiently separated heart and respiratory related signals [15]. A bivariate AR modeling algorithm demonstrated a high coherence between respiration and PPG signals [16]. Other significant works done in this direction include a time frequency spectral estimation [17], time varying AR model by Ki H. Chon et al [18], an automated wavelet transform method by P Addison et al [19] and an order reduced AR method by the authors [20]. In all of the mentioned methods, there is a definite requirement of a prior knowledge of respiratory rate range.
+
+Therefore to improve upon the limitations of currently available methods of extracting the respiratory information from the PPG signals, a method based on principal component analysis (PCA) is developed, which is able to extract the respiratory signal accurately and continuously from non invasive recordings of artifact corrupted PPG signals. The proposed method is a robust yet simple method for acquiring the PPG derived respiratory (PDR) signal.
+Since the EMD method can be used both in nonstationary and nonlinear cases well [9, 10, 11] and it is self-adaptive to decompose the signal into several IMFs fell into place from smaller temporal scale to larger temporal scale. We can denoise the noisy data via processing on the IMFs, and then get the recovered signal. This paper proposes a combined denoising method based on EMD, using the different traditional denoising methods (filter operator) to process the IMFs decomposed from the corresponding noisy signal.
+1.1 Aim
+The main aim of the report is to evaluate various signal processing methods, to extract the respiratory information from more commonly available biomedical signals such as ECG, PPG and BP to avoid the additional sensor and avoid usage of additional sensor to record respiratory Signals. Though few researches have addressed the problem in recent past, but we are using different signal processing technique based on source statistics using principal component analysis (PCA) and Empirical mode decomposition (EMD) considering the varying nature or quasi stationary of PPG signal.
+2. LITERATURE REVIEW
+The effect of respiration-induced heart displacement on the ECG was first studied by Einthoven. It has been experimentally shown that ―electrical rotation‖ during the respiratory cycle is mainly caused by the motion of the electrodes relative to the heart, and that thoracic impedance variations contribute to the electrical rotation just as a secondorder effect.
+Furthermore, it is well known that respiration modulates heart rate such that it increases during inspiration and decreases during expiration, and is referred to as respiratory sinus arrhythmia (RSA). It has also been shown that the mechanical action of respiration results in the same kind of frequency content in the ECG spectrum as does heart rate variability (HRV).
+Several studies have developed signal processing techniques to extract respiratory information from the ECG, so-called ECGderived respiratory (EDR) information. Some techniques are based on respiration-induced variations in beat-to-beat morphology, while others attempt to extract respiratory information from the heart rate.
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+165
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+2.1 Respiration
+Exchange of gases in humans is commonly termed as respiration. Actually it includes internal and external respiration.
+External Respiration: The exchange of oxygen and carbon dioxide between the environment and lungs. It involves inspiratory cycle in which oxygenated air is taken in and exchanged with CO2 and same is transported in to atmosphere in expiratory cycle.
+Internal Respiration: The metabolic process by which living cells absorb oxygen and release carbon dioxide.In general respiratory signals are recorded by specialized equipment and most of them working on the principle of sensing the volumetric changes of the thoracic cage in every breathing cycle.
+
+hemoglobin molecule is saturated with oxygen then the natural chromophore absorbs all other components of light except the red and that gives the arterial blood its red color.
+2.3 Respiratory induced modulation of PPG signals
+As the AC component of PPG signal is synchronous with the heart beat and thus can be identified as a source of heart rate information. In addition to heart-synchronous variations, the PPG signal contains respiratory-induced intensity variations (RIIV) [21]. This modulation arises from respiratory-induced variations in venous return to the heart, caused by the alterations in intrathoracic pressure. A part of the respiratoryrelated fluctuations in perfusion also originates from the autonomous control of the peripheral vessels and is also synchronous with respiration
+2.4 Normal Heart Rate
+
+Spirometry: It is a basic and commonly performed pulmonary function test. It measures lung's capacity to move air in and out of the lungs. The test is performed using a spirometry and must conform to standardization specifications developed by the American Thoracic Society.
+Pneumotachometry: A device that measures the flow of gas through it under local conditions of temperature and pressure.
+Whole body plethysmography: Body plethysmography or "Body Box" for short, is a very sensitive lung measurement used to detect lung pathology that might be missed with conventional pulmonary function tests.
+Respiratory Inductance Plethysmography (RIP) is a method of evaluating pulmonary ventilation by measuring the movement of the chest and abdominal wall.
+2.2 ECG and its modulation by respiratory activity
+Electrocardiography (ECG or EKG in German Elektrokardiogramm) is a transthoracic (across the thorax or chest) interpretation of the electrical activity of the heart over a period of time, as detected by electrodes attached to the outer surface of the skin and recorded by a device external to the body. The recording produced by this noninvasive procedure is termed as electrocardiogram (also ECG or EKG). An electrocardiogram (ECG) is a test that records the electrical activity of the heart.
+ Additive component  AM component  FM component (RSA)
+The arterial blood carries nutrients and oxygen to all the cells of the body and removes waste from the cells to waste disposal parts of the body. The natural chromophore contained in the hemoglobin absorbs light depending on the number of oxygen molecules attached to a molecule of hemoglobin. If the
+
+Generally, heartbeat can be felt at locations where large arteries are close to the surface of the body. The rate of heartbeat is measured in beats per minute (BPM). Normal heart rate may be indicated by the state of the natural pacemaker, SA node and the state of the conduction pathways. During resting, an infant rate of heartbeat ranges around 130--150 beats per minute toddler‘s around 100-130 beats per minute and an older child's about 90-110 beats per minute. Adult's heart rate is about 60-100 beats per minute with average heart rate at about 70 beats per minute for males and 75 beats per minute for females.
+However, heart rate varies depending on the age and health condition of a person. In a well-trained athletes, it can be significantly low ranging around 40-60 beats per minute.
+2.5 Verification of Heart Rate Analysis Program
+The normal cardiovascular response to mental stress involves an increase in heart rate, blood pressure and cardiac contraction. Such abnormal response to mental stress has become a social problem because its deleterious effect on health and work is continuously increasing.
+Heart rate variability (HRV) represents one of the most promising quantitative markers of autonomic nervous system activity. It is commonly derived from RR interval of ECG signal to evaluate the balance of sympathetic and parasympathetic responses due to the change in heart rhythm. In this section, peak-to-peak interval variability of PPG signal has been used for the estimation of HRV. Further, to demonstrate the accuracy and feasibility of HRV extraction from PPG signal, finger-tip PPG and ECG signals were simultaneously acquired.
+It is generally accepted that PPG can provide valuable information about the cardiovascular system. The autonomic influences on PPG signal have been analyzed in several studies and recently pulse rate variability (PRV) extracted from PPG
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+166
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+has been studied as a potential surrogate of HRV. The difference between HRV and PPGV is the time it takes the pulse wave to travel from the heart to the finger. This time, called the pulse transit time (PTT), is tie-related to arterial compliance and blood pressure and changes beat to beat.
+Figure 2.1 Beat and Pulse detection
+For heart rate analysis purpose, For example a reading is taken from a female age 29 in sitting position.
+Heart rate of the subject is calculated using
+(BPM) = Freq (Hz) × 60 Heart Beat per Minute = 1.04Hz × 60
+= 62 Beats per Minute
+3. PHOTOPLETHYSMOGRAPHY (PPG)
+Photo plethysmography is the electro-optic technique of measuring the cardiovascular pulse wave found throughout the human body. This pulse wave is caused by the periodic pulsations in arterial blood volume and is measured by the consequential changing optical absorption that this induces. The measurement system consists of a light source (usually infrared), a detector (positioned in reflection or transmission mode) and a signal recovery/processor/display system. Infrared light is predominantly used since it is relatively well absorbed in blood and weakly absorbed in tissue; blood volume changes are therefore observed with reasonable contrast. The PPG measurement is entirely non-invasive and can be applied to any blood bearing tissue, although the majority of investigations performed to date are of peripheral microcirculation
+3.1Principles of Photoplethysmography 3.1.1The origins of the PPG waveform
+PPG is based on the determination of the optical properties of a selected skin area. Although without complete knowledge of the optical structure of tissue, a general understanding of the optical behavior of skin has been formulated through experiments on excised tissue and the theoretical models which have been proposed. The basic anatomy of the skin with the
+
+blood vessels is shown in Figure 2-2 [22]. The diagram is representative but there are considerable variations from one site on the body to another. The skin consists of three main visible layers from the surface: epidermis, dermis and subcutaneous fat. The epidermis (100 μm thick), outside, contains no blood vessels and dead cells are continually being shed from its surface. Less numerous cells called melanocytes located near the base of the epidermis produce a dark-brown pigment called melanin, which is responsible for the protection of the skin against harmful radiation by means of absorption. The dermis (1–4 mm thick), inside, contains an extensive network of arterioles, capillaries and venules. Capillaries are very thin, fragile blood vessels that receive oxygen-rich blood from arterioles, exchange oxygen and carbon dioxide and then deliver the waste-rich blood to the venules. The capillaries are usually oriented perpendicular to the surface in most skin areas, but in the skin bordering the nails, the nail fold, the capillary loops are parallel to the surface. The subcutaneous tissue (from 1 to 6 mm thick, in dependence from the body site) is a layer of fat and connective tissue that houses larger blood vessels and nerves. This layer plays a big role in the regulation of skin and body temperature. The interaction of light with biological tissue is complex and includes the optical processes of (multiple) scattering, absorption, reflection, transmission and fluorescence. Beer-Lambert‘s law helps understanding of the absorbance of light as it passes through living tissue and why and how PPG works. Beer-Lambert‘s law describes the attenuation of light travelling through a uniform medium containing an absorbing substance. If monochromatic incident light of intensity I0 enters the medium, a part of this light is transmitted through the medium while another part is absorbed. The intensity I of light travelling through the medium decreases exponentially with the distance, as can be expressed.
+(1)
+where ε(λ ) is the extinction coefficient or absorptive of the absorbing substance at a specific wavelength, c the concentration of the absorbing substance which is constant in the medium, and d the optical path length through the medium. The concentration c is measured in mmol L-1 and the extinction coefficient is expressed in L mmol-1 cm-1.
+3.2 METHODS OF PHOTOPLETHSMOGRAPHY
+(PPG)
+The heartbeat monitoring device proposed uses Plethysmography method instead of skin electrode. Plethysmography (PG) is a method used to determine and register the variations in blood volume or blood flow in the body. These transient changes occur with each heart beat. There are several different types of PG, which vary according to the type of transducers used. The common types include air, impedance, photoelectric and strain gauge.
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+167
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+Each type of PG measures the changes in blood volume in a different manner and is used in different types of applications. Compared to other types of Plethysmography, Photoplethysmography is a non-invasive technique easy to set up, simple to use and low in cost. In addition, PPG has the ability to take measurement without having direct contact with the skin surface, as is necessary with other Plethysmography methods.
+3.3 Respiration and PPG: relationship between the PPG and blood pressure
+PPG measures the pulse wave caused by periodic pulsations in arterial blood volume. These periodic pulsations give rise to the blood pressure waveform. Several studies have attempted to determine the correlation between the respiration induced effects in the blood pressure and PPG signals, the aim of these studies being to investigate the possibility of non-invasive analysis of pulsus paradoxus using PPG. Steele et al. [23] report on different methods of continuous non invasive monitoring of pulsus paradoxus. The reference measurement of pulsus paradoxus is taken as the measurement derived from an arterial catheter — i.e., the difference between the highest (during expiration) and lowest (during inspiration) systolic blood pressure. Pulsus paradoxus determined by a non-invasive continuous blood pressure signal and the PPG signal are compared with the reference measurement. A respiratory cycle is determined using a strain gauge placed around the chest. It is concluded that the PPG pulsus paradoxus measurement, although less accurate than the Finapres measurement shows a strong linear correlation with the reference measurement.
+Design
+The Photoplethysmographic sensor will be placed below the tip of the finger and pressure will be applied on the proximal phalanx. Since the cuff is wrapped on the proximal phalanx of the finger rather than arm, it makes less discomfort for prolonged used. The blood volume changes on the finger will be notified by the sensor and transmitted to the system by Bluetooth transmitter.
+Figure 3.1 Location of the sensor and cuff
+
+There is a timer attached on the device to time the cuff pressure applied time and transmitter so that it is semi-continuous measurement as shown in Fig 3.1. This is because to decrease the energy consumption of Bluetooth transmission and to avoid discomfort of the wearer‘s finger due to continuous pressure applied.
+The idea of the blood pressure sensor is much like the Photoplethysmography Fingernail Sensor for measurement of finger force. The finger force is measuring coloration of fingernail by using reflectance photoplethysmography.
+3.4 Databases
+The MIT-BIH Polysomnography database is part of the PhysioNet archive of biomedical signal databases. It was designed with investigating the feasibility of monitoring respiration from PPG signals.
+3.5 MIT-BIH Polysomnography database
+The PhysioNet website contains an archive of well characterised multi-parameter biomedical signals for use by the research community [24]. The use of objective assessment procedures alongside the available databases allows researchers to objectively test and compare algorithms.
+The MIT-BIH Polysomnography Database comprises 16 continuous Polysomnography recordings from male subjects all of whom suffer from sleep apnoea. The recordings are between 2 and 7 hours in duration and digitised at 250 Hz with 12 bit resolution. A direct respiratory signal is also available, obtained from a nasal thermistor, i.e., a thermistor placed in the airflow of the nasal passages. This is used as the reference respiration signal.
+3.6Subjects and data acquisition
+To verify the practicality of proposed technique used for extracting the respiratory information from a PPG signal, the necessary hardware for sensing, software for acquiring and processing the PPG signals have been developed. A clip-on type sensor with two light-emitting diodes (LEDs) (an IR and a red) on one side and a photodiode on the other side of a soft plastic clip was used.
+The plastic clip is shaped such that the clip snugly fits on the finger of a subject. The drives to LEDs were time sliced and output from the photodiode is suitably demultiplexed to separate red and IR PPG signals. Analog red and IR PPG signals are then acquired with a 16 bit resolution data acquisition card NI DAQPad-6015manufactured by National Instruments.
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+168
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+Figure 3.2 Developed analog front-end for PPG acquisition
+The data were acquired at a sampling rate of 200Hz and processing of the acquired samples was accomplished under the LabVIEW environment. Experiments were carried out on ten volunteers within the age group of 22-35 after obtaining "informed consent".
+Signals drawn from PhysioNet archive Eight records from MIMIC database in the Physiobank archive were identified for use in assessing the accuracy of the algorithms for extraction of breathing rates.
+
+3.7 Comparison of Respiratory induced modulation of
+ECG, BP signals
+It has been experimentally shown that the ECG variations in one respiration cycle are due to three different reasons.  The position of electrodes on the chest surface moves
+relatively to the heart, and there by transthoracic impedance varies, as the lungs fill and empty, during recording of the ECG.  The mean electrical axis of the cardiac vector changes its direction during respiration, leading to amplitude modulation of the pulmonary component, which is the mirror image of the respiratory signal.  Change of the heart rate during the respiratory cycle, which is a natural phenomenon that occurs over every respiratory cycle and known as Respiratory Sinus Arrhythmia (RSA) leading to frequency modulation of respiratory signal with cardiac components.  Pulses Paradoxus (PP) is the inspiratory decrease in systolic blood pressure which is proportional to changes in intrathoracic pressure during inspiration and expiration.  Blood Pressure Variability (BPV) is due to the sudden increase in volume when, the heart contracts and the blood is pumped through the aorta in to arteries. Each time interval of systolic blood pressure has been shown to have a cyclic variation related to respiration.
+
+Figure 3.3 Typical record from MIMIC database showing ECG (lead II, I, V), BP, PPG and Respiratory signals
+These records all contain PPG signals with simultaneously recorded respiratory waveforms for use as reference Fig 3.3 All these signals were recorded at a sampling rate of 125Hz. Five neat portions, each of one minute from eight different records are taken which did not have missing data in any of the three signals. An extrema detection algorithm is used for detection of time stamps for individual breaths in the reference respiratory signal, with results checked visually so that all of the respiratory cycles are compared with that of the derived ones.
+
+4. PRINCIPLE COMPONENT ANALYSIS
+Principal Component Analysis is a standard technique used in signal processing for data reduction and Feature extraction. Principal Component Analysis (PCA) is a dimensionality reduction technique based on extracting the desired number of principal components of the multi-dimensional data. The purpose of PCA is to reduce the large dimensionality of the data space (observed variables) to the smaller intrinsic dimensionality of feature space (independent variables), which are needed to describe the data economically. This is the case when there is a strong correlation between observed variables. The first principal component is the linear combination of the original dimensions that has the maximum variance; the nth principal component is the linear combination with the highest variance, subject to being orthogonal to the n -1 first principal components.
+4.1 The Eigen value problem
+Consider a square matrix A of full rank N. A vector w is said to be an eigenvector of A with a corresponding (scalar) eigenvalue ���if
+(2)
+The eigenvalue problem (equation 3) can be solved analytically
+by subtracting from both sides
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+169
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+(3)
+Taking the determinant of both sides yields an Nth order polynomial in ���called the characteristic polynomial of A
+(4)
+
+The Nth roots are the eigenvalues, and each eigenvalue has
+
+a corresponding eigenvector . Each solution to the eigenvector problem is a paired eigenvalue and corresponding
+
+eigenvector
+
+. From equation 3, it should be clear that
+
+if w is an eigenvector and k is an arbitrary scalar, then kw is
+
+also an eigenvector with the same eigenvalue. Given a non-
+
+repeating eigenvector ���, the corresponding eigenvector is
+
+unique except for scale factor k. Without loss of generality,
+
+eigenvectors are usually scaled such that
+
+=1
+
+(5)
+
+If the eigenvalues are unique (non-repeated), then a unique eigenvector exists for each eigenvalue. The (normalized)
+eigenvectors are orthonormal.
+
+(6)
+Define the modal matrix W as the matrix whose columns are the normalized eigenvectors of A
+(7)
+In general, there are N! Permutations of eigenvectors. Without loss of generality, order the eigenvectors such that the eigenvalues are non-increasing,
+(8)
+Define the diagonal matrix Ʌ as the matrix with a main diagonal consisting of the (ordered) eigenvalues of A.
+
+Toeplitz matrices that are always diagonalizable. The orthonormality condition of equation 9 can also be restated
+(11) A matrix satisfying equation 12 is said to be unitary. The modal matrix W is unitary and is said to diagonalize the matrix A.
+How PCA can extract the respiratory signal from PPG signal As the PPG signal is modulated by respiratory signal, PPG signal can be used to identify the repetitive data pertaining to breath cycles.
+4.2 An example for PCA
+The properties of PCA will be discussed more rigorously in next section, but a quick example should provide an intuitive grasp of some of the properties of PCA. Consider L = 20 vectors of dimension N = 3 arranged into the data matrix X
+(12)
+The autocorrelation of the data is estimated by the scatter matrix
+
+Eigenvalue decomposition yields
+
+W=
+
+(14)
+
+Each input vector can be interpreted as a set of coordinates. The standard basis functions for the input space are normalized vectors in each of the input coordinates
+
+(15)
+
+(9) The eigenvalue problem can be restated in matrix notation,
+(10) If equation 11 is satisfied, the matrix A is said to be diagonalizable. For this study, the matrices of interest are real
+
+4.4 Key properties of PCA
+Eigen decomposition has a strong mathematical foundation and is a tool used across several disciplines. Eigenvalue decomposition is an optimal representation in many ways. Key properties of PCA include  The elements of (eigenvalues) are positive and real, and
+the elements of W (eigenvectors) are real.
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+170
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+ Aside from scaling and transposing columns, W is the unique matrix that both decor relates the xN(n) and maximizes variance for components.
+
+ Since W is unitary,
+
+= and reconstruction is easy.
+
+The mapping is norm preserving and reconstruction error is easily measured. PCA has several criticisms
+
+ The mapping is linear. The underlying structure for some applications may be nonlinear. However, a nonlinear problem can be made into a linear problem by projection to a higher dimension.
+ The mapping is global. Each output component is dependent on all the input components. If important features are dependent on some subset of input components, it would be desirable to have output components that are localized to the appropriate input components.
+ PCA components resemble each other. Approaching the transform as an eigenfilter bank provides some insight. FIR filters have large side lobes. Orthogonality is obtained by constructive and destructive combinations of side lobes. It seems typical that the low frequency component is so large that the side lobes do not provide sufficient attenuation.
+
+4.5 Simulation
+To construct the simulation data set, the motion artifacts are modeled by sine functions because finger and arm movements during real life were low-frequency motions. This artificial signal composed of motion artifact and white Gaussian noise were merged with the real PPG signals having the same timepoints which are obtained using commercial PPG sensor and customized acquisition device. The block diagram employed for extraction of respiratory signal from PPG signals is shown in Fig 4.1
+
+Figure 4.1 Block diagram of model based system for estimation of respiratory rate
+4.6 Singular Value Decomposition
+Singular value decomposition (SVD) is an important tool of linear algebra. Let X be an m x n matrix of real valued data, with m ≥ n and hence rank of X ≤ n. Then singular value decomposition of X is given by
+
+(16)
+
+where U is an m x n matrix, S is an n x n diagonal matrix and
+
+is also an n x n matrix, S = diag (
+
+). U and V
+
+are unitary matrices with U = I and V= I, where I is an identity matrix. The diagonal elements of S are called singular values. The singular values are the positive square roots of the
+
+Eigen values of X. The columns of U are called the left singular vectors of X, while the columns of V are called the right singular vectors of X. The fact that singular values of a given data matrix contains information about the noise level in the data, energy and rank of the matrix is exploited for signal processing (data compression, noise removal and pattern extraction). We now exploit this feature to remove motion artifacts from corrupted PPGs.
+
+4.7 Identifying the periodicity
+
+SVD is applied to aligned data matrix, the ratio of first two
+
+singular values, called singular value ratio (SVR) is computed
+
+in each case of length of signal to be considered as a period for
+
+expected range of heart rates. The ratios are then plotted
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+171
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+against the period to obtain graph called SVR spectrum of the signal. From SVR spectrum, the particular value of period for which the SVR is maximum, is considered as the period of PPG signal as shown in Fig 5.6. Then the data is aligned according to the period of PPG signal.
+
+pertaining to each period of length n as a row of X as given below
+
+4.8 Principal Component Extraction using SVD
+It is a way of identifying patterns in data, and expressing the data in such a way as to highlight their similarities and differences. Since patterns in data can be hard to find in data of high dimension, where the luxury of graphical representation is not available, PCA is a powerful tool for analyzing such data. PCA is a technique which is generally used for reducing the dimensionality of multivariate datasets i.e. reducing the number of dimensions, without much loss of information. Considering a vector of n random variables x for which the covariance matrix is Ʃ, the principal components (PCs) can be defined by
+
+Z = Ax
+
+(17)
+
+where z is the vector of n PCs and A is the n by n orthogonal matrix with rows that are the eigenvectors of Ʃ [25].
+
+SVR
+
+SVR trend 8 7 6 5 4 3 2 1 0 -1 60 70 80 90 100 110 120 130 140 150
+Periodicity no.
+
+Figure 4.2 SVR profile for typical PPG signal
+
+The eigenvalues of Ʃ are proportional to the fraction of the
+
+total variance accounted for by the corresponding eigenvectors,
+
+so the PCs explaining most of the variance in the original
+
+variables can be identified. If, as is usually the case, some of
+
+the original variables are correlated, a small subset of the PCs
+
+describes a large proportion of the variance of the original data.
+
+PCA has found widespread application in ECG signal
+
+processing [26]. These applications include noise estimation
+
+[27] and source separation applied to fetal ECG [28] and atrial
+
+fibrillation [29].
+
+It can be
+
+easily shown that if a perfectly periodic waveform x(k) with a
+
+period length n is formed into a data matrix X by placing data
+
+(18)
+
+Then the SVD S of X will be a rank one matrix, where only
+
+be nonzero and to will all be zero. Thus a dominant first singular value obtained from the SVD of a given data matrix indicates a strong periodic component in the rows of the data matrix. In such a case, the periodic signal is enshrined in
+
+where and are the first columns of the corresponding left and right singular vectors.
+
+However, for a quasi periodic signal like the PPG, to
+
+would never become zero. On the other hand, if a particular
+
+matrix with a row length r that matches with the dominant frequency of the given PPG then the ratio of the first two
+
+singular values
+
+will be a maximum. This fact is the
+
+basis for the method being presented here, for extracting an
+
+artifact free PPG from a corrupted PPG. The procedure is:
+
+Let x(k), k = 1... m represent the sampled values of the PPG to
+
+be processed. Matrices ,
+
+... .... of different row
+
+lengths, n, are formed using the data x(k). The range of row
+
+lengths are chosen to represent expected range of heart rate,
+
+say, between 0.8 Hz to 2 Hz. SVD is performed on each matrix
+
+and ratio of the first two singular values,
+
+called
+
+singular value ratio (SVR), is computed. The ratios are then
+
+plotted against the row length to obtain a graph called the SVR
+
+spectrum of the signal. From the SVR spectrum, the particular
+
+value of row length say r, for which the SVR
+
+is
+
+maximum is obtained and the corresponding data matrix is selected to represent the data. It is evident then that the row length, say r represents the dominant periodicity of the PPG.
+
+From the SVD of one cycle representing the dominant PPG
+
+signal is reconstructed by taking the average of all rows of . It should be noted here that the averaging process eliminates noise and artifact present in the signal and extracts only the signal corresponding to the dominant periodicity represented by the row length r. Once one cycle of the signal is extracted from x(k), k = 1... m then the first r values x(1) to x(r) are dropped from x(k) and r new values from the samples of the raw PPG appended to x(k) at the end and the new data x(k), k= (r+1)... (m+r) is obtained. The whole procedure of obtaining an SVR spectrum is repeated with the new data set, and the second PPG cycle is extracted from that data matrix that exhibits maximum value of SVR. After extraction, once again the first row of data is dropped and an equal number of
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+172
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+samples appended at the end to get a new data set. The entire process is repeated in a continuous manner and the processed PPG is obtained cycle after cycle incessantly from the samples of the raw PPG.
+4.9 Applying PCA
+PCA can be solved using two methods, one of which is using covariance matrix and the other is using singular value decomposition (SVD). The steps involved in covariance method are discussed below. Form a data set by using the periodicity of the PPG signal. Periodicity will be found using SVR profile i. e. the ratio of first principal component to the second principal component. The data matrix X is size of m x n, where n is the SVR computed periodicity and m is the number of periods considered.
+(19)
+is the time ordered collection of the feature at all beats into a single matrix to which PCA can be applied. The means of the Xi are removed and the covariance matrix computed. The covariance is defined as
+
+(20)
+is an m x m square symmetric matrix, eigenvalues ( ) and
+corresponding eigenvectors ( ) will be calculated, In general, once eigenvectors are found from the covariance matrix, the next step is to order them by eigenvalues, highest to lowest. This gives you the components in order of significance. The lesser eigenvalues can be ignored; this will form the basis for compression. Principal components are ordered eigenvectors of the covariance matrix.
+The PCs were obtained using
+
+j= 1, 2...n
+
+(21)
+
+The PCs are a linear transformation of the beats with
+transformation coefficients given by the eigenvectors It is the eigenvectors which provide the surrogate respiratory signal in our analysis. PCA provides as many PCs as there are analyzed beats however, because these beats are highly correlated and the respiratory related PPG changes are large, most of the variability was expressed by the first few PCs. Therefore the assessed eigenvectors of the first three PCs as surrogates for the respiratory signal for all PPG features.
+
+The SVD based method for solving PCA problem is discussed here. Let X is an arbitrary n × m matrix and XTX be a rank r, square, symmetric m × m matrix. {vˆ1,vˆ2 ,vˆ3 ......vˆr} is the set of
+
+orthonormal m×1 eigenvectors with associated eigenvalues for {1,2 ,3,......r} the symmetric matrix XTX.
+
+( X T X ) vˆi  i vˆi
+
+(22)
+
+i  i are positive real and termed the singular values {uˆ1,uˆ2 ,uˆ3 ......uˆr}is the set of n×1 vectors defined by
+
+uˆi
+
+
+
+1 
+
+i
+
+
+
+X
+
+vˆi
+
+
+
+(23)
+
+uˆi
+
+uˆ
+
+j
+
+
+
+1  0
+
+i j i j
+
+(24)
+
+Eigenvectors are orthonormal.
+
+X vˆi i
+
+(25)
+
+The scalar version of singular value decomposition is
+
+X vˆi i uˆi
+
+(26
+
+X multiplied by an eigenvector of XTX is equal to a scalar times another vector. The set of eigenvectors {vˆ1,vˆ2 ,vˆ3 ......vˆr} and the set of vectors are {uˆ1,uˆ2 ,uˆ3 ......uˆr}both orthonormal sets and bases in r dimensional space.
+
+1  0
+
+
+
+
+
+
+
+ 
+
+
+
+ 0
+
+   
+
+
+
+
+
+ 
+
+0 
+
+(27)
+
+1  2 3  are the rank-ordered set of singular
+values. Likewise we construct accompanying orthogonal matrices,
+
+V  vˆ1,vˆ2 ,vˆ3 ......vˆr 
+
+(28)
+
+U  uˆ1,uˆ2 ,uˆ3 ......uˆr 
+
+(29)
+
+Matrix version of SVD
+
+XV  U 
+
+(30)
+
+where each column of V and U perform the scalar version of the decomposition (Equation 3). Because V is orthogonal, we
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+173
+
+IJRET: International Journal of Research in Engineering and Technology
+
+can multiply both sides by V−1 =VT to arrive at the final form of the decomposition
+
+XV  U V T
+
+(31)
+
+Flowchart
+
+ISSN: 2319-1163
+
+Figure 4.4 Original PPG signal and respiratory signal
+
+Figure 4.3 Flowchart for finding Principal Components
+Steps to Extract Respiratory Rate
+i) Compute the SVR trend to identify the period of the beat (no of samples ‗say n samples)
+ii) Form the data matrix by placing say m no. of beats in the matrix forming a mXn matrix
+iii) Compute covariance matrix iv) Find the eigen vectors and corresponding eigen values v) Place these vectors in descending order of their
+corresponding eigen values vi) Finally reconstruct the signal pertaining to the Respiratory
+activity from the principal components.
+4.10 Experimental Results and Discussion
+The respiratory signals derived using the PCA on PPG signals of the different records of MIMIC database are compared with the reference respiratory signal present in the records. Fig 4.4 shows a original PPG signal, respiratory signal and Fig 4.3 shows SVR profile for typical PPG signal.
+Fig 4.5, 4.6, 4.7 shows a PPG signal, original respiratory signal and first three principal components for three different data sets. These two measures were computed for the surrogate respiratory signal and reference respiratory signal.
+
+Figure 4.5 (i) Original PPG signal (ii) Original respiratory signal (iii) Extracted Principal Component 1
+Figure 4.6 (i) Original PPG signal (ii) Original respiratory signal (iii) Extracted Principal Component 2
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+174
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+Figure 4.7 (i) Original PPG signal (ii) Original respiratory signal (iii) Extracted Principal Component 3
+
+Figure 4.10 Original Respiratory signal (blue) & Principle Component 3 (red)
+The results clearly indicated that the extracted respiratory signal (Fig 4.8, 4.9, 4.10) is having a strong correlation with that of the actual respiratory signal.
+
+Figure 4.8 Original Respiratory signal (blue) & Principle Component 1 (red)
+
+Figure 4.11 Spectrum of Original PPG, Original Respiratory signals & PCA1
+
+Figure 4.9 Original Respiratory signal (blue) & Principle Component 2 (red)
+
+Figure4.12 Spectrum of Original PPG, Original Respiratory signals & PCA2
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+175
+
+IJRET: International Journal of Research in Engineering and Technology
+Fig 4.11, 4.12, 4.13 shows the spectra for PPG signal, original respiratory signal and first three principal components for three different data sets.
+
+ISSN: 2319-1163
+
+Figure 4.13 Spectrum of Original PPG, Original Respiratory signals & PCA3
+
+Though the visual inspection of the derived respiratory signals indicates a close match with those of reference respiratory signals, a degree of similarity in time domain is quantified in terms of relative correlation co-efficient (RCC) defined as
+
+RCC  RXY (0)
+
+RXX (0)
+
+(32)
+
+where RXY (0) is maximum value of cross correlation between
+
+derived and original respiratory signal, RXX (0) is the
+
+maximum value of auto correlation function of original
+
+respiratory signal. The maximum absolute value for both auto
+
+correlation and cross correlation were determined for each
+
+recording, hence correlation was unaffected by differences in
+
+phase between the PPG derived respiratory signal and the
+
+reference respiratory signal. In addition, a frequency domain
+
+measure of similarity, the magnitude squared coherence
+
+(MSC), was also estimated for each recording as defined in
+
+equation (15).
+
+MSC  PXY ( f ) 2
+
+PX ( f ) PY ( f )
+
+(33)
+
+Figure 4.14 (i) Original PPG signal (ii) Original respiratory signal (iii) Extracted Principal Component 1 (iv) Extracted Principal Component 2 (v) Extracted Principal Component 3
+along with their corresponding spectra
+
+where PXY (f) is cross power spectral density of original and surrogate respiratory signals, PX (f), PY (f) are auto power spectral density of original and surrogate respiratory signals respectively.
+Table 4.1 Statistical measures for PDR
+
+ORR
+
+Data 1
+
+14.17
+
+Data 2
+
+10.38
+
+Data 3
+
+12.36
+
+Data 4
+
+15.72
+
+PC1
+
+ERR
+
+AR( %)
+
+14.00 98.92
+
+10.08 97.10
+
+12.06 97.57
+
+15.01 95.48
+
+PC2 ER AR R (%) 13.8 97.32
+10.0 96.33
+12.0 97.09
+15.0 95.39
+
+PC3 ER AR( R %) 12.4 89.85
+9.12 89.41
+11.2 92.86
+13.8 87.85
+
+Table 4.2 Accuracy calculation for PDR
+
+PPG Derived Respiratory
+
+PC1
+
+PC2
+
+PC3
+
+MSC RCC MSC RCC MSC RCC
+
+Data 1 0.96 0.60 0.40 0.42 0.30 0.23
+
+Data 2 0.95 0.63 0.48 0.31 0.25 0.14
+
+Data 3 0.94 0.66 0.34 0.37 0.25 0.17
+
+Data 4 0.92 0.65 0.42 0.30 0.32 0.20
+
+Table I indicates the computed RCC and MSC for the
+
+presented method for first three principal components. Table II
+
+presents the Accuracy Rate (AR) calculated from Original
+
+Respiratory Rate (ORR) and Extracted Respiratory Rate (ERR)
+
+as ratio of ORR to ERR.
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+176
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+Test results on PPG data recorded from various volunteers and the records of MIMIC database of PhysioNet clearly indicated the efficacy of the presented technique. This new PPG based technique is a convenient and promising technique developed for estimating the heart and respiratory rates. Clinical investigation of some sleep disorders requires simultaneous monitoring of heart and respiratory rates. Among the important clinical applications of the PPG signals in addition to HR, its relationship with respiration has attracted attention of researchers [66].
+5. EMPERICAL MODE DECOMPOSITION
+Empirical Mode Decomposition (EMD) is a method proposed by Huang et al [30] that can be applied to study the nonlinear and non-stationary properties of a time series. EMD method separates time-series into intrinsic oscillations using local temporal and structural characteristics of the data. The EMD technique is an important alternative to traditional methods for analyzing time series such as wavelet methods [12], Fourier methods, and empirical orthogonal functions. The starting point of EMD is to locally estimate a signal as a sum of a local trend and a local detail: the local trend is a low frequency part, and the local detail is a high frequency. When this is done for all the oscillations composing a signal, the high frequency part is called an Intrinsic Mode Function (IMF) and the low frequency part is called the residual. The procedure is then applied again to the residual, considered as a new times series, extracting a new IMF and a new residual.
+5.1 EDR Signal by EMD method
+Recent works have shown that EMD method is able to identify hidden signals in ECG [31]-[32]. The ECG signal can be decomposed by IMFs components and the respiratory waveform signal can be derived. The EDR evaluation was based on the identification of the IMFs related to the respiratory activity. In this preliminary analysis the selection was performed by the IMFs visual inspection. The EMD method introduces a significant advantage with respect of the DWT analysis because the decomposition bases are not fixed a priori. In fact the EMD algorithm determines the intrinsic oscillations (IMFs) using structural characteristics of the data. In other words, the EMD uses adaptive bases that are directly generated from data.
+
+RIIV signal was extracted from PPG by a band pass filter, but the band pass filter characteristics must be adaptive in nature to allow all possible frequencies corresponding to respiratory frequencies. An adaptive FIR filter, designed in frequency sampling method with suitable specifications drawn automatically from the PSD, efficiently separated heart and respiratory related signals [35]. A bivariate AR spectral estimation method demonstrated a high coherence between respiration and PPG [36]. Several other efforts in that direction include [37]-[38]. In this paper, we present an EMD based method for estimation of respiratory activity from the ECG, BP and PPG signals.
+5.4 Noise reduction
+By using the EMD and Hilbert transform we can derive the instantaneous frequency of a signal at different resolution scales. For example, a PPG signal can be decomposed into 6 scales as shown in Fig 5.1. The mean frequencies of scale from 1 to scale 6 are 1.5 Hz, 1.5 Hz, 0.85 Hz, 0.45 Hz, 0.25 Hz and 0.10 Hz respectively. According the mean frequency, the components of scale 1-3 mostly likely correspond to the PPG signal and its harmonics; while the components of scale 4-6 mostly likely correspond to artifacts. Therefore, IMFs of scale 4-6 were discarded and only IMFs of scale 1-3 are used for reconstructing PPG signals, in this way, the motion artifact is reduced in the reconstructed PPG signal [39].
+EMD has been proposed as an adaptive time-frequency data analysis method [40]. It has proven to be quite versatile in a broad range of applications for extracting signals from data generated in noisy nonlinear and non-stationary processes.The EMD is basically defined by a process called sifting. It decomposes a given signal x(t) into a set of AM–FM components, called Intrinsic Mode Functions (IMF).
+
+5.2 BDR Signal by EMD method
+The blood pressure induced respiration is also extensively studied by different researchers. Various signal processing methods [33]-[34] were proposed for extracting BDR activity. These algorithms mainly utilize the amplitude and temporal variations of systolic blood pressure. In this paper, our work is also extended to estimate the breathing rates from the ABP signals.
+
+5.3 PDR signal by EMD method
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+177
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+the simple example of constant plus sinusoidal function given above. The total number of the IMF components is limited to ln2N, where N is the total number of data points. It satisfies all the requirements for a meaningful instantaneous frequency through Hilbert transform.
+
+Pursuant to the above definition for IMF, one can implement the needed decomposition of any function, known as sifting, as follows: Take the test data; identify all the local extrema; divide the extrema into two sets: the maxima and the minima. Then connect all the local maxima by a cubic spline line to form an upper envelope. Repeat the procedure for the local minima to form a lower envelope. The upper and lower envelopes should encompass all the data between them as shown in Figure 5.3. Their mean is designated
+
+as , and the difference between the data and
+
+is
+
+designated as, , a proto-IMF
+
+(34)
+
+Figure 5.1 An example PPG signal and the instantaneous frequency of its IMF
+
+An IMF Fig. 5.2 is a function that satisfies two conditions: Firstly, in the whole data set, the number of extrema and the number of zero crossings must either equal or differ at most by one; and finally, at any point, the mean value of the envelope defined by the local maxima and the envelope defined by the local minima is zero. The first condition is obvious; it is similar to the traditional narrow band requirements for a stationary Gaussian process. The second condition is a new idea; it modifies the classical global requirement to a local one; it is necessary so that the instantaneous frequency will not have the unwanted fluctuations induced by asymmetric wave forms. Ideally, the requirement should be the local mean of the data being zero.
+
+The name intrinsic mode function is adopted because it represents the oscillation mode imbedded in the data. With this definition, the IMF in each cycle, defined by the zero crossings, involves only one mode of oscillation, no complex riding waves are allowed.
+
+With this definition, an IMF is not restricted to a narrow band signal, and it can be both amplitude and frequency modulated. In fact, it can be non-stationary.
+
+The essence of the method is to identify the intrinsic oscillatory modes by their characteristic time scales in the data empirically, and then decompose the data accordingly. The IMF is a counter part to the simple harmonic function, but it is much more general: instead of constant amplitude and frequency, IMF can have both variable amplitude and frequency as functions of time. This definition is inspired by
+
+Figure 5.2 Block diagram of Empirical Mode Decomposition
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+178
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+Ideally,
+
+should satisfy the definition of an IMF by
+
+construction of described above, which should have made it symmetric and having all maxima positive and all minima negative. Yet, in changing the local zero from a rectangular to a curvilinear coordinate system some inflection points could become additional extrema. New extrema generated this way actually reveal the hidden modes missed in the initial treatment. The sifting process sometimes can recover signals representing low amplitude riding waves with repeated siftings. The sifting process serves two purposes: to eliminate riding waves and to make the wave profiles more symmetric. While the first condition is absolute necessary for Hilbert transform to give a meaningful instantaneous frequency, the second condition is also necessary in case the neighboring wave amplitudes having too large a disparity. As a result, the sifting process has to be repeated many times to reduce the extracted
+
+signal an IMF. In the subsequent sifting process, is treated as the data for the next round of sifting; therefore,
+
+sifting will not have a valid IMF. In the past, different criteria have been used, including Cauchy type criterion (Huang et al. 19980), S-number criterion (Huang et al. 2003), fixed-number criterion (Wu and Huang 2004), and etc.
+With any stoppage criterion, the, hould contain the finest scale or the shortest period component of the signal. one can, then, remove from the rest of the data by
+(38)
+Since the residue, contains all longer period variations in the data, it is treated as the new data and subjected to the same sifting process as described above. This procedure can be repeated to all the subsequent rj‘s, and the result is
+
+………….
+
+(39)
+
+The sifting process should stop when the residue becomes a constant, a monotonic function, or a function contains only a single extrema, from which no more IMF can be extracted. The resulting K modes, dk(t), and a residual term, r(t), are obtained and expressed by:
+
+K
+
+x(t)   dk (t)  r(t),
+
+k  1, 2,......, K.
+
+k 1
+
+(40)
+
+Figure 5.3 Interpolation between maxima and minima and their mean
+(35) After repeated sifting, up to k times, h1k
+(36)
+If becomes an IMF, it is designated as d1
+(37) the first IMF component from the data. Here one has a critical decision to make: when to stop. Too many rounds of sifting will reduce the IMF to FM page criterion; too few rounds of
+
+Thus, sifting process produces a decomposition of the data into k-intrinsic modes, and a residue, rk. When apply the EMD method, a mean or zero reference is not required; EMD needs only the locations of the local extrema. The sifting process generates the zero reference for each component. Without the need of the zero reference, EMD avoids the troublesome step of removing the mean values for the large non-zero mean. Two special notes here deserve our attention. First, the sifting process offered a way to circumvent the difficulty of define the local mean in a nonstationary time series, where no length scale exists for one to implement the traditional mean operation. The envelope mean employed here does not involve time scale; however, it is local. Second, the sifting process is Reynolds-type decomposition: separating variations from the mean, except that the mean is a local instantaneous mean, so that the different modes are almost orthogonal to each other, except for the nonlinearity in the data.
+The EMD algorithm is remarkably elegant. The EMD algorithm is summarized by the following steps:
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+179
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+Algorithm Offline EMD algorithm Empirical-Mode Decomposition
+
+1
+2 3 repeat 4 5 n=n+1 6 until max(
+7 return
+
+= EXTRACT-MODE(
+< OR residue is monotone ...
+
+Original signal, to be decomposed into intrinsic mode functions (IMFs)
+
+...
+
+The intrinsic mode functions
+
+extracted from c(t). The number of
+
+IMFs is not known in advance.
+
+r (t) residue after IMF extraction.
+
+Extract-Mode
+
+1
+
+2 3 Identify all local extrema of 4 calculate the upper
+the maxima and minia 5 calculate
+
+and by cubical spline of
+.mean
+
+The ―detail‖ of the signal - an estimation of the IMF. is reﬁned by successive iterations of the sifting
+loop until it becomes an IMF.
+
+The lower envelope of the signal, obtained by interpolation between the minima. (resp. upper envelope and maxima.)
+
+The average of the upper and lower envelopes, which
+
+estimates the ―carrier signal‖ or ―trend‖ in
+
+- i.e.
+
+the ―low frequency‖ part of dn(t). Subtracting
+
+= part from
+
+removes the low frequency
+
+In practice, the above procedure has to be refined by a sifting process which amounts to first iterating steps 1 to 7 upon the detail signal dk(t), until this latter can be considered as zero-mean according to some stopping criterion. Once this is achieved, the detail is referred to as an IMF, the corresponding residual is computed and step 9 applies. By construction, the number of extrema is decreased when going from one residual to the next, and the whole decomposition is guaranteed to be completed with a finite number of modes.
+
+Flow Chart
+
+6 extract the detail
+
+7 if
+
+is an IMF go to step 8;
+
+else iterate step 3 to 6 upon the signal
+
+8 extract the mode
+
+9 calculate the residual
+
+=
+
+10 if
+
+has less than 2 minima or 2 extrema,
+
+the extraction of IMFs is finished,
+
+;
+
+else, iterate the algorithm from step1 upon the residual
+
+11 compute the spectrum of each IMF
+12 Identify and add the IMFs falling in the range of respiratory frequencies (0.22 to 0.33Hz) to get surrogate respiratory signal
+
+Figure 5.4: Flowchart for finding IMF
+5.5 Experimental Results and Discussion
+The respiratory signals derived using the EMD method from different ECG, BP and PPG records of MIMIC database are compared with the reference respiratory signal present in the records. The results clearly indicated that the extracted respiratory signal is having a strong correlation with that of the
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+180
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+actual respiratory signal. The original PPG (record-041m) and it‘s decomposed IMFs after EMD are shown in Fig 5.7, from high to low frequencies. It is clearly seen that each IMF is carrying specific information about the PPG signal. The crucial part here is identification of IMFs representing the low frequency respiratory information. The respiratory signal can thus be extracted by adding the identified IMFs. Though the visual inspection of the derived respiratory signals indicates a close match with those of reference respiratory signals, a degree of similarity in time domain is quantified in terms of relative correlation co-efficient (RCC) defined as
+
+RCC  RXY (0)
+
+RXX (0)
+
+(41)
+
+where RXY (0) is maximum value of cross correlation between derived and original respiratory signal, RXX (0) is the maximum value of auto correlation function of original respiratory signal. The maximum absolute value for both auto correlation and cross correlation were determined for each recording, and can be seen that correlation was unaffected by differences in phase between surrogate respiratory signal and the reference respiratory signal. In addition to a frequency domain measure of similarity, the magnitude squared coherence (MSC) was also estimated for each recording, as defined below
+
+MSC  PXY ( f ) 2
+
+PX ( f ) PY ( f )
+
+(42)
+
+where PXY (f) is cross power spectral density of original and surrogate respiratory signals, PX (f), PY (f) are auto power spectral density of original and surrogate respiratory signals respectively.
+
+These two measures were computed on the surrogate and reference respiratory signals. Table 5.1 indicates the computed RCC and MSC for EMD based method. The accuracy rate (AR) is defined as ratio of estimated respiratory rate (ERR) to original respiratory rate (ORR). Table 5.2 presents the accuracy rate for EDR, BDR and PDR
+Detection devices today require that a health care professional be in the room checking a number of different devices. An unconstrained and noninvasive monitoring system would allow for the health care professional to be removed from the room. Remote patient monitoring also allows for multiple patient monitoring. With the health care professional removed from the patient's room, they are able to monitor more patients quickly and efficiently, and then tend to those requiring immediate attention. Of the numerous conditions related to respiration, one such condition is obstructive sleep apnea syndrome [41]. Obstructive sleep apnea is one of the most common syndromes in America, affecting about 18 million Americans. Obstructive sleep apnea is a respiratory condition that causes a patient to stop breathing while they are asleep. Left untreated, obstructive sleep apnea can lead to a number of health problems, including sudden death. There are a number of methods for detecting obstructive sleep apnea, but due to the invasive and constricting nature of respiration monitoring, they can be unpleasant. A further extension can be realized by noninvasive and unconstrained respiration monitor could be beneficial for people with obstructive sleep apnea.
+
+Figure 5.6 Original respiratory signal (red) and its mean envelope (blue)
+
+Figure 5.5 Original Photoplethysmography, Original Respiratory signals, Extracted PPG & Extracted Respiratory
+signals
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+181
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+Table 5-2 Accuracy calculation for PDR
+
+Record # ORR
+
+ERR
+
+PDR AR (%)
+
+041m 055m 240m 254m
+
+14.10 15.06 15.70 15.72
+
+14.04 14.87 15.66 15.72
+
+99.57 98.73 99.74 99.87
+
+ORR: Original respiratory Rate, ERR: Estimated Respiratory Rate
+AR: Accuracy Rate
+
+CONCLUSIONS
+Extraction of surrogate respiratory activity from electrocardiogram (ECG), blood pressure (BP) and Photoplethysmographic (PPG) signals will potentially eliminate the use of additional sensor intended to record respiration. In this report, a novel PCA based algorithm is presented and applied to extract surrogate respiratory signals from Photoplethysmographic (PPG) signals. The respiratory induced intensity variations of PPG signal are described by coefficients of computed principal components. The derived respiratory signal using principal component1 was compared with the recorded respiratory signals available in MIMIC database and shown a strong correlation.
+
+Figure 5.7 PPG and its IMFs after EMD
+
+Table 5-1Statistical measures for PDR
+
+Record #
+041m 055m 240m 254m
+
+PDR MSC
+0.98 0.97 0.99 0.99
+
+RCC 0.55 0.80 0.70 0.70
+
+PDR: PPG Derived Respiration, MSC: Magnitude Squared Coherence RCC: Relative Correlation Co-efficient
+
+Extraction of respiratory information from biomedical signals, has attracted the attention of researchers in the recent past. Several algorithms addressing ECG-derived, BP-derived and PPG-derived respiratory signals have been proposed in the literature. The proposed EMD based method has efficiently extracted the respiratory information from ECG, BP and PPG signals. The evaluated statistical measures on the original and extracted respiratory signals revealed the efficacy of EMD based method
+REFERENCES:
+[1]. Janis Spigulis, ―Optical Non-Invasive Monitoring of Skin Blood Pulsations‖. Applied Optics Vol. 44, No.10.April 2005.pp.1850-1857.
+[2]. Peck Y.S.Cheng and P.R.Smith, ―An Overview of NonContact Photoplethysmography‖, Dept.of Electronics & Electrical Engineering, Loughborough University, LE 1 1 3TU, UK, pp57-59.
+[3]. Leslie Cromwell, Fred J.Weibell, Erich A. Pfeiffer, ―Biomedical Instrumentation and Measurement‖.
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+182
+
+IJRET: International Journal of Research in Engineering and Technology
+
+ISSN: 2319-1163
+
+Second Edition, Prentice-Hall of India Private Limited, New Delhi, pp.150-163. [4]. M.H.Sherebin, R.Z. Sherebin, ―Frequency Analysis of Peripheral Pulse Wave Detected in the Finger with Photoplethysmograph‖.IEEE Transaction on Biomedical Engineering, Vol.37No.3, March 1999. [5]. K.Meigas, R.Kattai, M.Nigul, ―Comparisons of Signal of Pulse Profile as Skin Surface Vibration PPG and Doppler Spectrogram for Continuous Blood Pressure Monitoring‖. Proceeding of The International Federation for Medical and Biological Engineering, Vol. 3, 2002.pp. 510-511. [6]. Weijia Cui, Lee E. Ostrander & Bok Y. Lee, ―In Vivo Reflectance of Blood and Tissue As a Function of Light Wavelength,‖ EEE Transaction on Biomedical. Engg. Vol - 37, No. 6 June 1990, pp.1-1. [7]. Deon Won Kim, Sung Woo Kim, ―Detection of Diabetic Neuropathy Using Blood Volume Ratio of Finger and Toe by PPG‖. Engineering in Medicine and biology Society, 2007.EMBS 2007.29TH Annual international Conference of the IEEE. pp. 2211-2214. [8]. Vincent P.Crabtree, ―Prospective Venox Feasibility Study,‖ Dept. of EEE, Loughborough University.pp.2727. [9]. N.E. Huang, Z. Shen, S.R. Long, M.L. Wu, H.H. Shih, Q.Zheng, N.C. Yen, C.C. Tung and H.H. Liu, ―The empirical mode decomposition and Hilbert spectrum for nonlinear and non-stationary time series analysis,‖ Proc. Roy. Soc. London A, Vol. 454, pp. 903–995, 1998. [10]. Zhaohua Wu, Norden E.Huang,―A study of the characteristics of whitenoise using the empirical mode decomposition method‖,roc. Roy. Soc.London A,Vol.460, pp.1594-1611,2004 [11]. P. Flandrin, G. Rilling and P. Goncalves, ―Empirical Mode Decomposition as a filter bank,‖ IEEE Sig. Proc. Lett., Vol. 11, No. 2, pp. 112–114, 2004. [12]. Jiang Hong, Wang Jun. ―Denoising by Sigularity Detection‖, Journal of Electronics & Information Technology. Vol.27 No.3, pp.419-422, Mar.2005 [13]. L. Nilsson, A. Johansson and S. Kalman, ―Respiration can be monitored by photoplethysmography with high sensitivity and specificity regardless of anaesthesia and ventilatory mode,‖ Acta Anaesthesiol Scand, vol. 49, pp. 1157-1162, 2005. [14]. G. B. Moody, R. G. Mark, A. Zoccola, and S. Manterso, ― Derivation of respiratory signals from multi-lead ECGs,‖ Computers in Cardiology, IEEE Computer Society Press, vol. 12, pp. 113-116, 1986. [15]. K. V. Madhav, M. R. Ram, E. H. Krishna and K. A. Reddy, ―On the extraction of respiratory activity from Photoplethysmographic signals,‖ in proceedings Int. conf. ASECI-2010, pp. 367-370, 6-7 Jan, 2010. [16]. Yue-Der Lin, Wei-Ting Liu, Ching-Che Tsai, and WenHsiu Chen ―Coherence Analysis between Respiration and PPG Signal by Bivariate AR Model‖, World Acady. of Scie. Engg. and Tech. 53, 2009.
+
+[17]. Ki H. Chon, S. Dash, and K. Ju, ―Estimation of respiratory rate from photoplethysmogam data using time-frequency spectral estimation‖, IEEE Trans. on Biomed. Eng., vol. 56, no. 8, pp. 2054-2063, August 2009.
+[18]. S. Dash, K. H. Shelley, D. G. Silverman, and Ki H. Chon, ―Estimation of respiratory rate from ECG, photoplethysmogram, and piezoelectric pulse transducer signals: A comparative study of time-frequency methods‖, IEEE Trans. on Biomed. Eng., vol. 57, no. 5, pp. 1099-1107, May 2010.
+[19]. P. A. Leonard, J. G. Douglas, N. R. Grubb, D. Clifton, P. S. Addison, and J. N. Watson, ―A fully automated algorithm for the determination of respiratory rate from the photoplethysmogram,‖ J. Clin. Monit. Comput., vol. 20, no. 1, pp. 33–36, Feb. 2006.
+[20]. K. V. Madhav, M. R. Ram, E. H. Krishna and K. A. Reddy, ―Monitoring respiratory activity using PPG signals by order reduced modified covariance AR technique,‖ in pro.4th IEEE Int. conf. on Bioinfom. Biomed. Eng., iCBBE-2010, Chengdu, China, June 1820, 2010, pp.1-4.
+[21]. K. V. Madhav, M. R. Ram, E. H. Krishna and K. A. Reddy, ―On the extraction of respiratory activity from Photoplethysmographic signals,‖ in proceedings Int. conf. ASECI-2010, pp. 367-370, 6-7 Jan, 2010.
+[22]. D W Steele, R O Wright, C M Lee, and G D Jay. Continuous Non-invasive Determination of Pulsus Paradoxus: A Pilot Study. Academic Emergency Medicine, 2(10):894–900, October 1995.
+[23]. A L Goldberger, L A N Amaral, L Glass, J M Hausdorff, P Ch Ivanov, R G Mark RG, J E Mietus, G B Moody, C K Peng, and H E Stanley. PhysioBank, PhysioToolkit, and Physionet: Components of a New Research Resource for Complex Physiologic Signals. Circulation, 101(23), June 2000.
+[24]. F. Castells, P. Laguna, L. Sörnmo, A. Bollmann and J. Millet Roig. ―Principal component analysis in ECG signal processing,‖ EURASIP J. Adv. Si. Pr., vol. 2007.
+[25]. F. Castells, P. Laguna, L. Sörnmo, A. Bollmann and J. Millet Roig. ―Principal component analysis in ECG signal processing,‖ EURASIP J. Adv. Si. Pr., vol. 2007.
+[26]. G. B. Moody and R. G. Mark. ―QRS morphology representation and noise estimation using the KarhunenLoeve transform,‖ Comput. Cardiol., vol. 16, pp. 269272, 1989.
+[27]. P. P. Kanjilal, S. Palit and G. Saha. ―Fetal ECG extraction from single channel maternal ECG using singular value decomposition,‖ IEEE Trans. Bio-med. Eng., vol 44, no. 1, pp. 51-59, 1997.
+[28]. P. Langley, J. J. Rieta, M. Stridh, J. Millet-Roig, L. Sörnmo and A. Murray. ―Comparison of atrial signal extraction algorithms in 12-lead ECGs with atrial fibrillation,‖ IEEE Trans. Bio-med. Eng., vol. 53, no. 2, pp. 343-346, 2006.
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+183
+
+IJRET: International Journal of Research in Engineering and Technology
+[29]. B Frey and W Butt. Pulse Oximetry for assessment of pulsus paradoxus: a clinical study in children. Intensive Care Med, 24:242–246, 1998.
+[30]. N. E. Huang et al., "The empirical mode decomposition and the Hilbert spectrum for non-linear and non stationary time series analysis," Proc. Royal Soc. London A, vol. 454, pp. 903-995, 1998.
+[31]. A. Karagiannis, P. Constantinou, ―Noise components identification in iomedical signals based on Empirical Mode Decomposition,‖ in Proc. 9th International Conference Information Technology and Applications in Biomedicine, (ITAB 2009), pp. 1-4, 2009.
+[32]. Lu Yan, Yan Jingyu, Yam Yeung, ―Model-Based ECG Denoising Using Empirical Mode Decomposition,‖ in Proc. 2009 IEEE International Conference on Bioinformatics and Biomedicine (BIBM 2009), pp. 191196, 2009.
+[33]. Shanon, T.T., et al., ―Estmatoring Respiration from Blood Pressure Waveform signals: An Independent Component Approch. EMBS, 2001.
+[34]. S. Iamratanakul, J. MC Names, B. Goldtein, ― Estimation of Respiration from Physiologic Pressure Signals,‖ in Proc. 25th Annual International conf. IEEE Eng. Med. Biol. Soc., Part 3, pp 2734-2737.
+[35]. K. V. Madhav, M. R. Ram, E. H. Krishna and K. A. Reddy, ―On the extraction of respiratory activity from photoplethysmographic signals,‖ in proceedings IEEE Int. conf. ASECI-2010, pp. 367-370, 6-7 Jan, 2010.
+[36]. Yue-Der Lin, Wei-Ting Liu, Ching-Che Tsai, and WenHsiu Chen ―Coherence Analysis between Respiration and PPG Signal by Bivariate AR Model‖, World Acady. of Scie. Engg. and Tech. 53, 2009
+[37]. A. Johansson and P. Å. Öberg, "Estimation of respiratory volumes from the photoplethysmographic signal. Part I: experimental results," Med. Biol. Eng. Comput., 1999, vol.37, pp.42-47.
+[38]. A. Johansson and P. Å. Öberg, "Estimation of respiratory volumes from the photoplethysmographic signal. Part II: A Model study," Med. Biol. Eng. Comput., 1999, vol.37, pp.48-53.
+[39]. Yue-Der Lin, Wei-Ting Liu, Ching-Che Tsai, and WenHsiu Chen ―Coherence Analysis between Respiration and PPG Signal by Bivariate AR Model‖, World Acady. of Scie. Engg. and Tech. 53, 2009.
+[40]. N. E. Huang et al., "The empirical mode decomposition and the Hilbert spectrum for non-linear and non stationary time series analysis," Proc. Royal Soc. London A, vol. 454, pp. 903-995, 1998.
+[41]. Waters, J.R.; LaCourse, J.R.; , "Unconstrained and noninvasive respiration monitoring for obstructive sleep apnea prevention," Bioengineering Conference, 2009 IEEE 35th Annual Northeast , vol., no., pp.1-2, 3-5 April 2009 doi: 10.1109/NEBC.2009.4967656.
+
+ISSN: 2319-1163
+
+__________________________________________________________________________________________
+
+Volume: 01 Issue: 02 | Oct-2012, Available @ http://www.ijret.org
+
+184
+

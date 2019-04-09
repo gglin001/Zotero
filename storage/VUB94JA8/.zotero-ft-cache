@@ -1,0 +1,779 @@
+Microsystem Technologies https://doi.org/10.1007/s00542-018-3957-4
+(0123456789().,-volV)(0123456789().,-volV)
+TECHNICAL PAPER
+
+Continuous blood pressure measurement based on a neural network scheme applied with a cuffless sensor
+Tse-Yi Tu1 • Paul C.-P. Chao1
+Received: 16 November 2017 / Accepted: 14 May 2018 Ó Springer-Verlag GmbH Germany, part of Springer Nature 2018
+Abstract A new computation method of a back-propagation neural network (BPNNs) is designed and expected to implement continuous measurement of blood pressures (BPs) by a noninvasive, cufﬂess, handheld strain-type BP sensor. The sensor is successfully designed to acquire pulsation signals at the wrist artery of a subject with a readout designed of a Wheatstone bridge, ampliﬁer, ﬁlter, and a digital signal processor. To predict BP based on the obtained pulsation signals, 22 features are extracted to compute systolic blood pressure (SBP) and diastolic blood pressure (DBP) based an established BPNN. There are 22 input neurons, 30 hidden layers and 2 output neurons in BPNN model. The inputs are presented to the pulsation signal of time domain and frequency domain and outputs are presented to SBP and DBP. Experiments are conducted to show the validness of the developed sensor and BPNN. The data show that the prediction errors are within mmHg, respectively. SBP and DBP are 1.35 ± 3.45 and 2.29 ± 3.28 mmHg, respectively. The errors of blood pressure pass the criteria for Association for the Advancement of Medical Instrumentation (AAMI) method 2 and the British Hypertension Society (BHS) Grade B.
+
+1 Introduction
+According to WHO reports (WHO 2017), an average of 1.65 million people died of cardiovascular diseases (CVDs) every year. In clinical practices, long-time blood pressure (BP) data collection is important for giving therapy (Kario et al. 2003; Charbonnier et al. 2000). Doctors monitor patients’ conditions using either conventional blood pressure devices with inconvenient cuffs or implanting invasive blood-pressure sensory devices into the neighborhoods of blood vessels. To realize continuous, comfortable and long-time monitoring and collecting BP data, cuff-less and noninvasive blood pressure sensors have been proposed.
+Most of cufﬂess BP sensors reported to date consist of a photoplethysmographic (PPG) sensor and an electrocardiogram (ECG) sensor to acquire pulse transient time (PTT), the time period for the pulse wave traveling from heart to wrist or ﬁnger, then with obtained PTT one can calculate BPs based theories of cardiovascular dynamics (Peltokangas et al. 2017). In these sensors, the PPG sensor
+& Paul C.-P. Chao pchao@mail.nctu.edu.tw
+1 Department of Electrical Engineering, National Chiao Tung University, Hsinchu 300, Taiwan
+
+is operated based on optical reﬂection, refraction and absorption, while the ECG on human body electronics. This study considered instead a new strain-type BP sensor uniquely developed by Kao et al. (2016) and Wang et al. (2016), which owns high sensitivity to skin vibration due to artery pulsating underneath. This high sensitivity makes possible a clear detection of the reﬂected peak in a typical arterial pulsating waveform (APW), thus being able to obtain accurate pulse wave velocity (PWV) based on the period between the incident and reﬂected peaks acquired from a measured APW. In results, BPs can calculate based on a single sensor instead of two sensors required by most of cufﬂess BP sensors reported. Note that this is difﬁcult to be achieved by the previous studies using a PPG sensor, since the secondary peak of the PPG sensor is usually not clear due to varied reasons, like low sensitivities of photodetectors, serious inﬂuence of ambient lightings and ﬁltering/scattering effects of tissue and bones under skin.
+Moreover, the base assuming of PWV is the path arteries to be an elastic tube with the same thickness (h), diameter (d), and blood density (Bramwell and Hill 1922; Fulton and McSwiney 1930; Gao et al. 2017; Xu 2002). The diameter of muscular artery and arteriole are 4 to 0.3 mm and the thickness of artery wall of the muscular artery and arteriole are 1 to 0.006 mm (as shown in
+
+123
+
+h≈ 2 mm d≈ 25 mm
+h≈ 1 mm d≈ 4 mm
+h≈ 6 μm d< 0.3 mm
+h≈ 0.5 μm d≈ 8 μm
+
+Microsystem Technologies
+
+Fig. 1 Varied sizes of blood vessels in a human cardiovascular system (Cummings 2004)
+
+Fig. 1) (Cummings 2004; Laurent et al. 1994; Huzjan et al. 2004). As shown in Fig. 2 (Koeppen and Stanton 2008), the aorta consists of endothelium, thick elastic tissue, thin smooth muscle and ﬁbrous tissue, but the arteriole consists of endothelium, thin elastic tissue, thick smooth muscle and ﬁbrous tissue. Using the parameters of muscular artery and arteriole to calculate the BP, respectively, the difference of DBP almost will be 20 mmHg, which is larger than the allowance BP error (8 mmHg) of Association for the
+
+Advancement of Medical Instrumentation (AAMI) (AAMI 2010).
+To serve the new strain-type, non-invasive, cuff-less BP sensor, a front-end readout circuit with artiﬁcial neural network (ANN) is proposed in this study to render BPs. Kurylyak et al. (2013) used more than 15,000 pulsations to train ANN, and 21 time-domain-only features were extracted from each of them. The obtained error results 3.48 ± 3.19% for systolic blood pressure (SBP) and 3.90 ± 3.51% for diastolic blood pressure (DBP). Wu et al.
+
+Fig. 2 Measurement of blood vessels in terms of diameter, wall thickness, endothelium, elastic tissue, smooth muscle, and ﬁbrous tissue (Koeppen and Stanton 2008)
+123
+
+Microsystem Technologies
+
+(2015) used four inputs (age, cholesterol, blood sugar and ECG) of ANN structure and three hidden nodes. The objective of the structure is to predict the systolic blood pressure based on the different input variables. The result of the comparisons between the two values has shown that in around 90% of the cases, the error in the prediction is within 25–30 mmHg.
+In this study, SBP and DBP estimation model were built up by using ANN method. The artiﬁcial neural network used for modeling is back-propagation neural network (BPNN). The eighteen statistical factors of each series signal from strain BP sensor and four subject information are inputs to BPNN corresponding SBP and DBP sensing electric sphygmomanometer as target signal for training BPNN. The trained BPNN outputs SBP and DBP while measuring with other time series signal from strain-type BP sensor which is compared with SBP and DBP from electronic sphygmomanometer, which passed U. S. Food and Drug Administration (FDA) certiﬁcate.
+2 The stain-type BP sensor
+The proposed new noninvasive, cuff-less blood pressure sensor is designed and fabricated to continuously measure blood pressures and the heart rates. The strain BP sensor which is shown as Fig. 3 includes the strain gauge, the encapsulating polymer with bio-compatibility, the readout circuit, and the guide interface for recording the pulsation and analysis the BP. To assist the sensor, a readout circuit is devised with a Wheatstone bridge, an ampliﬁer, a ﬁlter, and an analog to digital converter (ADC). The BP sensor detects the vibration of radial artery upon a human wrist.
+The amplitude of all bio-electrical signals is a faint signal. The measurement of some physical quantity could be useful in order to obtain a pre-diagnosis result or for a treatment. There are three main parts of analog readout circuits (as Fig. 4): Wheatstone bridge, ampliﬁer, and low pass ﬁlter. The Wheatstone bridge transforms the strain to electrical signal, voltage. In this circuit, it used the invert ampliﬁer to ampliﬁes 15,000 times. The frequency of pulsation is almost 1–2 Hz, and thus the ﬁlter is a low pass ﬁlter to remove the high-frequency noise. In additional, a 12-bit ADC featuring a fully input signal after the analog circuit.
+3 Back-propagation neural network
+The cardiac events that occur from the beginning of one heartbeat to the beginning of the next one are called the cardiac cycle. Each cycle is initiated by spontaneous generation of an action potential in the sinus node. A cardiac
+
+cycle waveform could reﬂect the corresponding physiological events, and provided more information of cardiac function as peripheral resistance, arterial compliance, blood pressure waveform reﬂex, atherosclerosis, ejection phase and more. In this study, it analyzes the features of BP in cardiac cycle waveform by using the neural network. As shown in Fig. 5, one cycle pulsation includes the incident wave and the reﬂected wave which are caused by the reﬂected blood ﬂow from expanded vessel wall of the extremities (Shin and Min 2017).
+A BPNN is designed to estimate SBP and DBP in the continuous BP sensor as shown in Fig. 6, which is composed by 22 nodes (S1–S22) in input layer, 30 nodes (H1– H30) in hidden layer and 2 nodes (O1–O2) in output layer. Based on the cardiovascular hemodynamics, the pulse wave velocity is high enough for the reﬂected wave to arrive in the proximal aorta within the same cardiac cycle and so the reﬂection overlays the incident wave with both contributing to the arterial waveform. However the arterial waveform it difﬁcult to separate the incident wave from the reﬂected wave, the precise pulse transit time is between the incident wave and the reﬂected wave. The goal of a BPNN model is to ﬁnd a function that best maps a set of inputs to their correct output without the real mathematical model of PWV. The input nodes of BPNN model include the subject’s physiological information like aged, gender, height, weight and the features of arterial waveform, known as pulsation. The features of pulsation, which shown in Table 1 extracted from time domain signal as the external cardiovascular physiological condition, frequency domain signal as the cardiac function and cepstrum analysis as the information of reﬂected wave. The S1–S4 are the subject information, S5–S14 are the pulsation features of time domain as shown in Fig. 7a, S15–S20 are the are the pulsation features of frequency domain as shown in Fig. 7b and S21–S22 are the pulsation features with cepstrum analysis as shown in Fig. 7c.
+In this study, the statistical factors of pulsation as radial vibration signals in time domain, frequency domain and cepstrum analysis used for estimate BP shown as Fig. 7. Since these statistical factors have been used as inputs to the BPNN which used sigmoid function to activated function, the inputs and outputs of BP network can be normalized into a range from 0 to 1. The connections between the input and hidden layers, the hidden and output layers are weighting coefﬁcient wij and wjk, respectively. The input of the j-th neuron in the hidden layer can be expressed by
+
+X 30
+
+netj ¼ wijsi;
+
+ð1Þ
+
+i¼1
+
+where si is the i-th input, wij is the weighting coefﬁcient between the i-th neuron in the input layer and the j-th
+
+123
+
+BP Sensor
+
+BP Sensor
+
+Shell
+
+Artery
+
+Human Wrist
+
+Strain-type BP sensor
+
+Readout circuitry
+
+Computer & Software
+
+Microsystem Technologies
+
+Fig. 3 The blood pressure sensor module and its computer interface
+
+neuron in the hidden layer. Thus, the output of the j-th neuron in the hidden layer can be obtained by
+
+oj ¼ f ðnetjÞ ¼ 1=ð1 þ expðÀnetjÞÞ;
+
+ð2Þ
+
+where f(Á) is the sigmoid function adopted to be the acti-
+
+vation function.
+
+The output of BPNN can be expressed by
+
+Xm
+
+netk ¼ ojwjk; k ¼ 1;
+
+ð3Þ
+
+j¼1
+
+where m is the neuron number in the hidden layer, wjk is the weighting coefﬁcient between the j-th neuron in the hidden
+
+layer and the k-th neuron in the output layer. Then, the output ok of the BPNN can be obtained by
+
+ok ¼ f ðnetkÞ ¼ 1=ð1 þ expðÀnetkÞÞ:
+
+ð4Þ
+
+The BPNN is trained using the error between the actual output and the ideal output, to modify wij and wjk until the output of BPNN is close to the ideal output, with an acceptable accuracy. On the basis of the gradient descent method for the minimization of error, the correction increments of weighting coefﬁcients are deﬁned to be proportional to the slope, related to the changes between the error estimator and the weighting coefﬁcients as
+
+123
+
+Microsystem Technologies
+Fig. 4 a A photo of the circuit board; b the front-end readout circuit for the BP sensor
+
+Wheatstone bridge
+
+R2
+350
+
+R1
+120
+
+R3
+350
+
+(a)
+
+Filter Amp
+
+R6
+1500K
+
+C2 V+
+
+R4
+
+R5
+
+0.05µ 15V
+
+10K
+
+10K
+
+- + U1
++ - LT1001
+
+Vout
+
+C1
+
+V-
+
+0.01µ
+
+-15V
+
+3V
+(b)
+
+Pulse Signal
+incident wave R-PTT
+reflected wave
+
+Pulse Signal
+incident wave R-PTT reflected wave
+
+pressure pressure
+
+normotensive time (a)
+
+per-hypertensive time
+
+Blood Flow Inlet
+
+Blood Flow Inlet
+
+incident wave
+
+Artery (b)
+
+reflected wave
+
+Extremities
+
+Fig. 5 a The pulse signals of normotensive and pre-hypertension subjects; b deformation of artery in one cycle pulsation (Shin and Min 2017)
+
+123
+
+Fig. 6 The neural network in back propagation
+
+S1
+
+subject
+
+S2
+
+information
+
+S3
+
+S4
+
+S5
+
+S6
+
+S7
+
+features
+
+S8
+
+in time-domain
+
+S9
+
+S10
+
+S11
+
+S12
+
+S13
+
+S14
+
+S15
+
+S16
+
+S17
+
+features
+
+S18
+
+in freq.-domain
+
+S19
+
+S20
+
+features by
+
+S21
+
+cepstrum analyasis
+
+S22
+
+Input layer
+
+w ij
+
+H1 H2
+H29 H30
+Hidden layer
+
+Microsystem Technologies
+wjk
+O1 O2
+Output layer
+
+Dwij
+
+¼
+
+Àg
+
+oE owij
+
+;
+
+Dwjk
+
+¼
+
+Àg
+
+oE owjk
+
+;
+
+ð5Þ
+
+where g is the learning rate used for adjusting the increments of weighting coefﬁcients and controls the convergent speed of the weighting coefﬁcients. E is the error estimator of the network and is deﬁned by
+
+E
+
+¼
+
+1 XN 2 p¼1 Ep
+
+¼
+
+1 2
+
+XN
+p¼1
+
+X1
+k¼1
+
+ðTk
+
+À
+
+ok Þ2p ;
+
+ð6Þ
+
+where N is the total number of training samples. ðTkÞp is the ideal output of the p-th sample and ðokÞp is the actual output of the p-th sample. Substituting Eq. (6) into Eq. (5)
+
+and executing derivations give the increments of weighting coefﬁcients as
+
+Dwjk ¼ gdkoj ¼ g Á f 0ðnetkÞ Á ðTk À okÞpÁoj;
+
+ð7Þ
+
+for the output layer, and
+
+Dwij ¼ gdjoi ¼ g Á wjk Á dk Á f 0ðnetjÞ Á oi;
+
+ð8Þ
+
+where f0(Á) is the ﬁrst derivation of f(Á). Therefore, in the training process, the weighting coefﬁcients must be modiﬁed by using
+
+wjk ¼ wjk þ Dwjk; wij ¼ wij þ Dwij;
+
+ð9Þ
+
+until the error estimator E converges to an acceptable accuracy.
+
+123
+
+Microsystem Technologies
+
+Table 1 Feature of inputs in the established NN model
+
+Domain
+
+Symbol Unit Quantity
+
+Time domain
+
+tmin
+
+s
+
+Starting time of the pulse
+
+tmax
+
+s
+
+Time of the max blood ﬂow through the measure point
+
+tder
+
+s
+
+Time of the max blood velocity
+
+tR,min
+
+s
+
+Time of the reﬂected pulse wave through the measure point
+
+tR,der
+
+s
+
+Time of the max blood velocity of the reﬂected pulse wave
+
+Pmin
+
+V
+
+The volume ﬂow rate of the artery in ventricular ejection
+
+Pmax
+
+V
+
+THE max volume ﬂow rate of the artery
+
+Pder
+
+V
+
+The volume ﬂow rate of the artery in the max blood velocity
+
+PR,min
+
+V
+
+The volume ﬂow rate of the artery when the reﬂected pulse wave through the measure point
+
+PR,der
+
+V
+
+The volume ﬂow rate of the artery when the max blood velocity of the reﬂected pulse wave
+
+tpp1
+
+s
+
+The time difference between the ﬁrst and reﬂected pulse wave
+
+tpp2
+
+s
+
+The time difference between the max velocity of the ﬁrst and reﬂected pulse wave
+
+Frequency domain
+
+f1
+
+Hz
+
+The frequency of the max power
+
+P1
+
+–
+
+The power amplitude of f1 Hz
+
+P2
+
+–
+
+The power amplitude of double f1 Hz
+
+P3
+
+–
+
+The power amplitude of triple f1 Hz
+
+Cepstrum analysis
+
+tcep
+
+s
+
+The time difference between the ﬁrst and reﬂected pulse wave
+
+tc,HR
+
+s
+
+The time of heart rate
+
+Fig. 7 Features extraction of a typical sensor signal in a time domain; b frequency domain and by c cepstrum analysis
+
+Pmax
+
+Pder Pmean
+
+PR, der PR, max
+
+Pmi n
+
+tPP1 tPP2
+
+tmi n
+
+tder
+
+tmean tmax
+
+(a)
+
+tR, max tR, der
+
+Pf 1
+
+Pf 2
+Pf 3 f1 f2 f3
+(b)
+
+tcep
+
+tp, HR
+
+(c)
+
+123
+
+Mean Squared Error (mse)
+
+Best Training Performance is 2.1721e-05 at epoch 287156
+0
+10
+
+Train
+
+Best
+
+-1
+10
+
+Goal
+
+10-2
+
+-3
+10
+
+10-4
+
+-5
+10
+
+10-6
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+287156 Epochs
+
+5
+x 10
+
+(a)
+
+Best Training Performance is 0.0037117 at epoch 200000
+10-1
+
+Train
+
+Best
+
+-2
+
+Goal
+
+10
+
+Computer & Interface
+
+Microsystem Technologies a typical cuff-type monitor
+
+the developed BP sensor Wireless transmit module
+(a)
+
+Mean Squared Error (mse)
+
+10-3
+
+10-4
+
+10-5
+
+10-6 0
+
+0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2
+
+200000 Epochs
+
+5
+x 10
+
+(b)
+
+Fig. 8 The performance of a SBP; b DBP in NN training model
+
+When the network accomplish training, using the eight coefﬁcient values of statistical factors to computed with the trained weighting coefﬁcients wij and wjk and obtained output value of network. The output neuron represents each of SBP and DBP. The training performance is shown as Fig. 8. The training mean square error (MSE) of NN model of SBP is 0.0000217, which almost 0.32 mmHg and the training MSE of NN model of DBP is 0.0037, which is almost 2.4 mmHg.
+
+(b)
+Fig. 9 a The experiment setup denotations on the ﬁgure; b a typical measured, continuous pulse signal
+
+Table 2 The information for subjects Female
+
+Gender
+
+4 Min
+
+Aged
+
+20
+
+Weight (kg)
+
+53
+
+Height (m)
+
+1.63
+
+SBP (mmHg)
+
+100
+
+DBP (mmHg)
+
+57
+
+HR
+
+61
+
+Male
+31 Max
+25 71 1.80 142 89 87
+
+Average
+23 57 1.72 118 74 74
+
+4 Experiment results
+The experiment setup show as Fig. 9a and the continuous pulse signal show as Fig. 9b. As Table 2, there are 35 subjects, which include 4 females and 31 males. Based on
+
+the protocol of British Hypertension Society (BHS) (O’Brien et al. 1990), the subject should rest for more than 5 min before taking the measurement and should not involve in any physical activity in the last 30 min. In
+
+123
+
+Microsystem Technologies
+Fig. 10 The correlation in measurement data between the developed BP sensor and a typical proven cuff-type monitor; a systolic BP, b diastolic BP
+
+Fig. 11 Bland–Altman plots of a systolic BP; b diastolic BP
+Fig. 12 The error of cufﬂess blood pressure measuring devices of approval
+
+Difference (mmHg) Difference (mmHg)
+
+Bland-Altman of SBPNN
+10
+1.96 x SD:8.12
+5
+
+0 -5
+-1.96 x SD:-5.41
+
+Mean:1.35
+
+100
+
+110
+
+120
+
+130
+
+140
+
+Blood Pressure (mmHg)
+
+(a)
+
+Bland-Altman of DBPNN 10 1.96 x SD:8.72
+5
+Mean:2.29
+0
+
+-5 -1.96 x SD:-4.15
+
+55
+
+60
+
+65
+
+70
+
+75
+
+80
+
+Blood Pressure (mmHg)
+
+(b)
+
+The error of SBP The error of DBP
+
+addition, blood pressure should not be taken within 30 min from drinking caffeinated drinks, smoking or eating. The calibration requires placing, the BP strain sensor and upper arm blood pressure monitor on the same arm. Then subject
+
+should be sitting down in a quiet place, preferably at a desk or table, with his/her arm resting on a ﬁrm surface and his/ her feet ﬂat on the ﬂoor. The subject shall remain still and silent while taking the measuring since the radial arterial is
+
+123
+
+Microsystem Technologies
+
+blocked by the cuff of upper arm blood pressure monitor in the measuring process and the BP strain sensor could not be used with BP monitor at the same time.
+Using 28 data for training the NN model, the 35 data for testing the established NN model. The systolic BP of training subjects are from 100 to 142 mmHg and the diastolic BP are from 57 to 89 mmHg. The BP correlation between strain BP sensor and OMRON are shown as Fig. 10a, b. The Bland–Altman plot of SBP and DBP as shown in Fig. 11a, b. The mean and standard error of mean are used to describe the variability within the sample, a 95% of which conﬁdence interval should be preferred. The errors (MD ± SD) of SBP and DBP are 1.35 ± 3.45 and 2.29 ± 3.28 mmHg, respectively. As shown in Fig. 12, which is the BP error distribution of Association for the Advancement of Medical Instrumentation (AAMI) and BHS, this BP sensor pass the criteria for AAMI method 2 and the BHS Grade B (IEEE Standards Association 2014).
+Using the same data in reﬂected pulse transit time (RPTT) method, the SBP and DBP obtained by
+
+DBP
+
+¼
+
+À
+
+1 3
+
+Ka R-PTT 2
+
+þ
+
+2 c
+
+ln
+
+Kb R-PTT
+
+;
+
+ð10Þ
+
+SBP
+
+¼
+
+DBP
+
+þ
+
+Ka
+
+Â
+
+1 R-PTT
+
+2
+
+;
+
+ð11Þ
+
+where Ka and Kb are the individual parameters and to be identiﬁed from calibration, R-PTT is the reﬂected pulse transit time, c is a coefﬁcient depending on radial arterial. The correlation of SBP between strain-type and cuff-type BP sensor with R-PTT method is 0.38 and the correlation of DBP is 0.87; the correlation of SBP with NN method is 0.9 and the correlation of DBP is 0.78. The NN model successful predicted the SBP with high accuracy.
+
+5 Conclusion
+The new method with back-propagation neural network (BPNN) is established by this study to calculate blood pressures based on measurements by a newly-developed strain-type sensor, which is expected to be capable of continuous measurement of blood pressures. The eight features in time and frequency domains are extracted from measured pulse signal by the strain sensor in real time to fed into the established BPNN for calculating systolic and diastolic blood pressures. The resulted errors of SBP and DBP are 1.35 ± 3.45 and 2.29 ± 3.28 mmHg, respectively. The errors of blood pressure pass the criteria for Association for the Advancement of Medical Instrumentation (AAMI) method 2 and the British Hypertension Society (BHS) Grade B.
+
+Acknowledgements The authors appreciate the supported in part by National Applied Research Laboratories IoT Program under Grant number: NARL-IOT-106-004, NARL-IOT-105-006 and support from Ministry of Science and Technology of R.O.C under Grant number: MOST 106-3114-E-009-004- and 106-2634-F-009-010-CC2. This work was also supported in part by the Novel Bioengineering and Technological Approaches to Solve Two Major Health Problems in Taiwan sponsored by the Taiwan Ministry of Science and Technology Academic Excellence Program under Grant number: MOST 106-2633-B-009-001 and MOST 107-2633-B-009-003.
+References
+American National Standards Institute/Association for the Advancement of Medical Instrumentation ANSI/AAMI (2010) Human factors engineering guidelines and preferred practices for the design of medical devices. ANSI/AAMI HE-75-2010. Association for the Advancement of Medical Instrumentation, Arlington
+Bramwell JC, Hill AV (1922) The velocity of the pulse wave in man. Proc R Soc Lond Philos Trans R Soc 93(652):298–306
+Charbonnier S, Galichet S, Mauris G, Siche JP (2000) Statistical and fuzzy models of ambulatory systolic blood pressure for hypertension diagnosis. IEEE Trans Instrum Meas 49(5):998–1003
+Cummings B (2004) Blood vessels and circulation. New York City College Technology Websupport Publishing PhysicsWeb. http:// websupport1.citytech.cuny.edu/Faculty/ibarjis/Teaching/Anat omy%20and%20Physiology/lecture21/Lecture/Lecture1.htm. Accessed 22 Jun 2018
+Fulton JS, McSwiney BA (1930) The pulse wave velocity and extensibility of the brachial and radial artery in man. J Physiol 69(4):386–392
+Gao M, Cheng H-M, Sung S-H, Chen C-H, Mukkamala R (2017) Estimation of pulse transit time as a function of blood pressure using a nonlinear arterial tube-load model. IEEE Trans Biomed Eng 64(7):1524–1534
+Huzjan R, Brkljacic B, Delic-Brkljacic D, Biocina B, Sutlic Z (2004) B-mode and color doppler ultrasound of the forearm arteries in the preoperative screening prior to coronary artery bypass grafting. Coll Antropol 28(Suppl. 2):235–241
+IEEE Standards Association (2014) IEEE standard for wearable cufﬂess blood pressure measuring devices. IEEE Standard 1708–2014, pp 1–38
+Kao Y-H, Tu T-Y, Chao Paul C-P, Lee Y-P, Wey C-L (2016) Optimizing a new cufﬂess blood pressure sensor via a solid– ﬂuid-electric ﬁnite element model with consideration of varied mis-positionings. Microsyst Technol 22:1437–1447
+Kario K, Yasui N, Yokoi H (2003) Ambulatory blood pressure monitoring for cardiovascular medicine. IEEE Eng Med Biol Mag 22(3):81–88
+Koeppen BM, Stanton BA (2008) Berne and Levy physiology, 6th edn. Elsevier Inc., New York
+Kurylyak Y, Lamonaca F, Grimaldi D (2013) A neural network-based method for continuous blood pressure estimation from a PPG signal. In: 2013 IEEE International instrumentation and measurement technology conference (I2MTC), pp 280–283
+Laurent S, Girerd X, Mourad JJ, Lacolley P, Beck L, Boutouyrie P, Mignot JP, Safar M (1994) Elastic modulus of the radial artery wall material is not increased in patients with essential hypertension. Arterioscler Thromb J Vasc Biol Am Heart Assoc 14(7):1223–1231
+O’Brien E, Petrie J, Littler W, de Swiet M, Padﬁeld PL, O’Malley K, Jamieson M, Altman D, Bland M, Atkins N (1990) The British Hypertension Society Protocol for the evaluation of automated and semi-automated blood pressure measuring devices with
+
+123
+
+Microsystem Technologies
+
+special reference to ambulatory systems. J Hypertens 8(7):607–619 Peltokangas M, Vehkaoja A, Verho J, Mattila VM, Romsi P, Lekkala J, Oksala N (2017) Age dependence of arterial pulse wave parameters extracted from dynamic blood pressure and blood volume pulse waves. IEEE J Biomed Health Inform 21(1):142–149 Shin H, Min SD (2017) Feasibility study for the non-invasive blood pressure estimation based on PPG morphology: normotensive subject study. Biomed Eng Online 16(1):1–14 Wang Y-J, Chen T-Y, Tsai M-C, Wu CH (2016) Noninvasive blood pressure monitor using strain gauges, a fastening band, and a wrist elasticity model. Sens Actuators A 252:198–208 World Health Organization (2017) Cardiovascular diseases (CVDs). WHO Publishing PhysicsWeb. http://www.who.int/mediacentre/ factsheets/fs317/en/index.html. Accessed 22 Jun 2018
+
+Wu TH, Kwong EW-Y, Pang GK-H (2015) Bio-medical application on predicting systolic blood pressure using neural networks. In: 2015 IEEE ﬁrst international conference on big data computing service and applications, pp 456–461
+Xu M (2002) Local measurement of the pulse wave velocity using doppler ultrasound. Dissertation, Engineering in Electrical Engineering and Computer Science, Massachusetts Institute of Technology
+Publisher’s Note Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional afﬁliations.
+
+123
+

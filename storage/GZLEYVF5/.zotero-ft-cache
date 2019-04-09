@@ -1,0 +1,260 @@
+Cuffless Blood Pressure Estimation Based on Photoplethysmography Signal and its Second Derivative
+
+Mengyang Liu, Lai-Man Po, and Hong Fu
+
+ Abstract—In personal healthcare, blood pressure (BP) is an
+important vital sign to be monitored frequently. However, traditional BP measurement devices require cuff’s inflation and deflation that is very uncomfortable for many users. Cuffless noninvasive BP estimation methods are very attractive especially on using Photoplethysmography (PPG) approach for achieving continuous BP monitoring and minimal user’s inconvenience. From recent studies on the second derivative of PPG (SDPPG) for vascular aging, SDPPG contains the information about aortic compliance and stiffness, which is highly related to blood pressure. To making use of this new finding, 14 new SDPPG based features are proposed in this paper. They are combined with conventional 21 time-scale PPG features to develop a Support Vector Regression based BP estimator. Experimental results demonstrated that the combined features based BP estimator could improve accuracy of the conventional time-scale PPG based BP estimation by 40%.
+Index Terms—Blood pressure, photoplethysmography (PPG), Second derivative wave, Support vector Regression
+I. INTRODUCTION
+Blood pressure (BP) is one of the four vital signs of human body besides heart rate, respiratory rate, and body temperature. Recently, the risk of having hypertension is extending from older to younger groups of the population. This trend making the number of people who need daily monitoring of BP is significantly increased. In addition, the demand for public resources in the hospital is becoming more and more serious and the type of healthcare is tending to individual-centered rather than hospital-centered. The need of self-monitoring BP devices dramatically increases in the recent decades. However, most of the commercial BP measuring devices require to inflate and deflate a cuff for determining the BP values. This measurement has a high demand for the medical practitioner’s operation skills.
+Self-monitoring BP devices using cuffless and noninvasive detective methods are very attractive for personal healthcare applications. It was reported that cuff-less, noninvasive, and continuous measurement of BP could be achieved by
+Manuscript received April 20, 2016. This work was supported in part by a grant from the Research Grants Council of the Hong Kong Special Administrative Region, China (Project No. UGC/IDS13/14).
+Mengyang LIU was with City University of Hong Kong, Hong Kong SAR, China. He is now with the Department of Computer Science, Chu Hai College of Higher Education, Hong Kong SAR, China. (e-mail: lmyleon2014@gmail.com).
+Lai-Man Po is with City University of Hong Kong, Hong Kong SAR, China. (e-mail: eelmpo@cityu.edu.hk).
+Hong FU is with the Computer Science Department, Chu Hai College of Higher Education, Hong Kong SAR, China. (e-mail: hongfu@chuhai.edu.hk).
+
+photoplethysmography (PPG) [2–7]. PPG [1] is a simple, portable and low-cost optical pulse that can be used to detect blood volume changes. The waveform of PPG is formed by heartbeat and affected by the condition of cardiovascular system [8]. When BP increases, the volumetric elasticity of blood vessel increases. This makes vessel wall stiff and the pulse wave propagation velocity is increased. The pulse wave propagation velocity (PWV) is represented as the pulse wave propagation distance divided by Pulse transit time (PTT). PTT is the time for the pulse wave to travel between two arterial sites, which is highly related with PWV. Normally, PTT is calculated from the time distance between R wave of ECG signal and following peak of fingertip PPG signal [10]. PTT based methods [5-7,10] have been demonstrated to achieve relatively high accuracy on BP estimation, but two devices are required for the measurement. This is inconvenient and requires high operation skill in practical usage. Moreover, synchronization between two devices is also a big challenge of PTT approach. Therefore, PPG waveform analysis approach using a single PPG signal is very attractive for continuous and noninvasive BP measurement. However, several reported PPG waveform analysis based BP estimation methods [14, 15] are still in the incremental development stage especially on achieving high accuracy of BP estimation. In these methods, the features for BP estimation are only defined in one domain especially the time domain. In [15], 21 features are defined based on time and amplitude scales in time-domain of the PPG signal and Neural Network (NN) based machine learning algorithm is used as BP estimator that is trained by Multi-parameter Intelligent Monitoring in Intensive Care waveform database. Experimental results show that this method can achieve better accuracy than the linear regression estimator and satisfy the American National Standards of the Association for the Advancement of Medical Instrumentation. In order to further enhance the BP estimation accuracy of [15], additional 14 features in the second derivative of PPG signal are combined with time-scale 21 features of [15] for designing a new BP estimator. Moreover, the estimator is trained by Support Vector Regression (SVR) instead of NN, which can further enhance the performance of the trained estimator.
+The paper is organized as follows. In section II, we first review the conventional 21 PPG features of [15] in the time domain and then the new 14 features in the second derivative of PPG signal are presented. For training the estimator, we choose Support Vector Regression as the training method, which will be introduced in section III. The experimental setting and results are presented in section IV. Finally, a conclusion is given in section V.
+
+II. PPG FEATURES EXTRACTION A. Time-Scale PPG Features In [15], 21 time-scale PPG features are defined from the amplitude of the PPG signal and duration of specific components of the cardiac cycle as shown in the upper part of Fig. 1. Several of these features are based on [14,16] for characterizing the PPG pulsatile component such as Cardiac Period (CP), Systolic Upstroke Time (SUT), Diastolic Time (DT), pulse width at 10%, 50% and 66% of the pulse amplitude in Systolic and Diastolic intervals. Additional features added in [15] are pulse width at 25%, 33% and 75% of the pulse amplitude in Systolic and Diastolic intervals as shown in Fig. 1. These 21 features can be summarized as below: • CP, SUT, DT • 10%: DT10, ST10+DT10, DT10/ST10 • 25%: DT25, ST25+DT25, DT25/ST25 • 33%: DT33, ST33+DT33, DT33/ST33 • 50%: DT50, ST50+DT50, DT50/ST50 • 66%: DT66, ST66+DT66, DT66/ST66 • 75%: DT75, ST75+DT75, DT75/ST75 B. Second Derivative PPG Features From the recent studies [17, 18] of vascular aging through the second derivative of PPG (SDPPG), Pulse Wave Velocity (PWV) and SDPPG contain the information about aortic compliance and stiffness. These factors highly correlated with blood pressure. Basically, SDPPG is the acceleration of PPG and its waveform is in “W” shape with five sequential waves normally, as shown in the lower part of Fig. 1. These five waves are named as Initial Positive Wave (IPW), Early Negative Wave (ENW), Late Upsloping Wave (LUW), Late
+Fig. 1. Features’ Definition
+
+Downsloping Wave (LDW), and Diastolic Positive Wave
+
+(DPW). The positions of ‘a’, ‘b’, ‘c’, ‘d’, and ‘e’ are peaks of
+
+these waves as defined in [17-19]. One of their findings is that
+
+the ratio of late systolic peak to early systolic peak is
+
+influenced by age and systolic blood pressure (SBP).
+
+Moreover, Jeong et al. [20] investigated the applicability of
+
+SDPPG for blood pressure measurement through analysis of
+
+the relationship between blood pressure and SDPPG features.
+
+They find that diastolic blood pressure (DBP) has a good
+
+relationship with the amplitude ratios of peak “b” to peak “a”
+
+and peak “e” to peak “a”.
+
+Based on these recent findings, we combine SDPPG
+
+features with the conventional 21 time-scale PPG features [15]
+
+to develop a better BP estimator. We assume that the ratio of
+
+amplitudes and the amplitudes of corresponding PPG points
+
+(A_a, A_b, A_c, A_d, A_e, AP_a, AP_b, AP_c, AP_d, and
+
+AP_e), as shown in lower part of Fig.1, are good features for
+
+BP estimation. These ratios of five characteristic points’
+
+amplitude in SDPPG could reveal the condition of the
+
+cardiovascular system, such as the vascular aging,
+
+atherosclerosis, and the vasoactive [17, 18]. Moreover, we
+
+believe that the shape of PPG signal or the changes of PPG’s
+
+acceleration is highly related with vessel condition. To further
+
+reveal the shape of PPG signal, we define four new features
+
+which combine PPG and SDPPG signal. Using the location of
+
+five points on SDPPG, we can get the corresponding five
+
+points on PPG signal and then, we can get the amplitude of
+
+these five points. Their ratios are the four new features. Thus,
+
+we propose to define four features based on SDPPG
+
+amplitude ratio and another four features based on PPG
+
+amplitude ratio as:
+
+ A_b/A_a  A_c/A_a  A_d/A_a  A_e/A_a
+
+ AP_b/AP_a  AP_c/AP_a  AP_d/AP_a  AP_e/AP_a
+
+Those five characteristic points can be considered as the
+
+end point of a stage in heartbeat cycle. So the time interval of
+
+those special points represents the time of duration of each
+
+stage. Thus, we propose other five features based on time
+
+interval between two consecutive points as:
+
+ T_a  T_c  T_e
+
+ T_b  T_d
+
+Finally, Aging Index (AI) has been proved to have good
+
+relation with vascular aging and our SDPPG’s AI feature is
+
+defined as:
+
+ AI = (A_b - A_c - A_d - A_e) / A_a
+
+Thus, there are 14 SDPPG and 21 PPG features for the
+
+proposed BP estimation. The extraction of those features is
+
+following this step. Firstly, we filter the noise and find the
+
+local peaks of each PPG cycle. Secondly, we separate PPG
+
+signal into each cycle based on the local peaks. In the next, we
+
+compute the second derivative waveform. For each cycle, we
+
+identify the five SDPPG peaks based on the characteristics of
+
+IPW, ENW, LUW, LDW, and DPW. The peak ‘a’ is always
+
+the maximum point in one cycle of an SDPPG waveform,
+
+while the peak ‘b’ is the minimum point. They can use this
+
+characteristic to identify the IPW and ENW. After the ENW is
+
+identified, the DPW is the positive maximum value from
+
+ENW to the end, which can be used for peak ‘e’ detection.
+
+LUW is the local peak point in the area between ENW and DPW. The peak ‘c’ is determined by the maximum after peak ‘b’. LDW can be simply considered as the minimum point in the period that between the LUW and DPW, which can be used to detect the peak ‘d’.
+In addition, this SDPPG feature point detection method is also used to remove bad cycle. It is because errors generate at the LUW and LDW detection for some SDPPG signals without local maximum peaks between ENW and DPW or have more than one peak. These kinds of pulse cycle are removed after peak detection. We define some conditions to determine which cycle is bad cycle, which will be discussed in the following section.
+III. SUPPORT VECTOR REGRESSION
+In [15], Linear Regression (LR) and Neural Networks (NN) are used to train the BP estimation module from the 21 time-scale PPG features. To further improve the BP estimation accuracy using the proposed combined features in PPG and SDPPG domains, we adopt Support Vector Regression (SVR) algorithm to train the estimation module. Basically, SVR is an extension algorithm of the well-known Support Vector Machine (SVM) with use of loss function such as Vapnik’s-insensitive loss function and Huber’s loss function for solving regression estimation problems. It is well known that SVR can minimize the over-fitting problem as compared with LR and NN.
+The basic idea of SVR is to map the input space into a high-dimension space by a non-linear mapping achieved implicitly by the trick of kernel function and to do a linear regression in the new feature space. Given a time series samples {xi, yi} xi ∈ Rl, yi ∈ R,i=1,2,3…,N, where xi is the input feature variable, yi is the target value. Firstly, SVR algorithm maps the data to a high-dimension feature space and then a linear function is found in the condition of minimizing the sum of empirical risk and the complexity term that enforce flatness in feature space. The linear function in the high dimensional feature space corresponds to the non-linear function in the original lower dimensional feature space.
+In order to train the BP estimation module using SVR, we employed the LIBSVM [21] developed by Lin and his group. This library is very popular in Support Vector Machine which support many different platform include MATLAB. We choose their library to do the regression job, so we use epsilon-SVR to train the estimation module. During the training, we also design the cross-validation set in order to set the best parameters of the epsilon-SVR – gamma and epsilon. Epsilon-SVR is a regression method whose parameters – epsilon, can control the final accuracy of this model. Even if the number of support vector may become many or the complexity of the module may become high, the first priority of blood pressure estimation is accuracy. So we choose epsilon-SVR as our model.
+
+IV. EXPERIMENTS
+A. Dataset
+In order to evaluate the performance of the proposed combined features using SVR based BP estimation, we employed the dataset from the Multiparameter Intelligent Monitoring in Intensive Care II (MIMIC II) database [22]. This dataset provides a wide representation of PPG signals with correspondent beat-to-beat BP values. However, not all the PPG pulse cycles can provide the second derivative waveform with clear “W” shape. Thus, we developed a method to remove some of the pulse cycles with bad SDPPG waveform. Though observation, we found that if the typical “W” shape is required, the position and amplitude of the five SDPPG characteristic points (a, b, c, d and e) should satisfy the following conditions:
+ The results of characteristic point detection must have five points.
+ The amplitude of ‘a’ points should be the largest one and the amplitude of ‘b’ points should be the smallest one.
+ The order of these five points should be disturbed in order such that “a” have to be before “b” and “b” have to before “c”, etc.
+ The time interval between two successive points should larger than a predefined threshold, such as 3% of the length of that pulse cycle.
+ The amplitude distance between two successive points should larger than a predefined threshold. This threshold is about 5% of the amplitude distance between “a” and “b”.
+With use of these screening conditions, 910 good PPG pules cycles are detected from MIMI II dataset for our experiments. These good PPG cycles cover the population of normal, hypertension, and hypotension. In which, 648 pulse cycles (around 70%) are randomly selected as training data and 262 cycles (around 30%) are used as test data. Fig. 2 shows one example PPG waveform with its corresponding BP waveform that extracted from MIMIC II database. The x-axis is just the sample number. The website of this dataset give the information of sample rate. The sample rate is 125/s, so 125 scales in x-axis represents a second. The y-axis is the amplitude of PPG signal which is meaningless, because the absolute value of PPG amplitude can change a lot under different lighting situation and operation. However, for the blood pressure signal, we consider that the y-axis value represents the value of blood pressure. We found that most of the good pulse cycles are extracted from mimic2wdb/35, which is a sub-database of MIMIC II. Most of PPG and BP signals in this sub-database are relatively clean without noise and distortion. Fig. 3 shows one of the SDPPG waveform after low-pass filter with the five detected SDPPG points. The blue line in Fig. 3 is the PPG signal and the red line is the coordinate SDPPG waveform. The five detected SDPPG points are marked by red “X” marker. The x-axis is still the sample number which indicates 1/125 second per scale and the y-axis doesn’t have physical meaning. We only consider the relative value of these signal amplitude.
+
+(a) PPG signal
+
+TABLE I: THE MAE AND RMSD OF THE ESTIMATED SBP AND DBP USING
+
+METHOD [15] AND PROPOSED METHOD
+
+NN
+
+SVR
+
+SBP
+
+DBP
+
+SBP
+
+DBP
+
+Kurvlyak [15] 21 features
+
+(15.1±13.3) (7.7±6.6) (13.6±13.6) (7.7±7.9)
+
+Proposed method 35 features
+
+(13.4±11.6)
+
+(6.9±5.9)
+
+(8.54±10.9) (4.34±5.8)
+
+(b) Blood Pressure signal Fig. 2. (a) Extracted PPG signal, and (b) its corresponding BP signal.
+
+Fig. 3. Example of detected five SDPPG points.
+B. BP Estimation Results
+In order to compare the performance of the proposed method with the conventional NN based 21 features method [15], we also used our training set to train a NN based BP estimator with 32 neurons in hidden layer. The proposed BP estimator uses both 21 time-scale PPG features and 14 SDPPG features to train a SVR based BP estimator. In the training set, we randomly select 20% samples in training set as cross validation set. To get best parameters, we select cross validation (CV) set five times every training stage and for each training we try many different parameters combination and using CV set to find the one with best performance. To compare the proposed method with the 21 features NN based BP estimator, we use Mean Absolut Error (MAE) and Relative-Mean-Square-Deviation (RMSD) as the basic performance metric. In addition, Bland-Altman plot is also used, as it is commonly used for medical parameter measurement method comparison [23]. The MAE and RMSD are defined as:
+
+ MAE
+
+
+
+1m n t 1
+
+yˆt
+
+ yt
+
+(1)
+
+RMSD 
+
+ 1
+n
+
+n
+(yˆt
+t 1
+
+ yt )2
+
+(2)
+
+Fig. 4. BA-plot of referenced method (left) and proposed method (right)
+find that the combined features can always achieve better performance as compared with use of only 21 time-scale features on using both NN and SVR estimation methods. Moreover, the proposed BP estimator with use of combined features and SVR can achieve lowest MAE and RMSD for both SBP and DBP estimations. The improvement of the proposed method is up to 40% as compared with the conventional method using NN and 21 features. To further prove the results improvement is significant, we calculate p-value to check the significance of this improvement. For SBP, the p-value between referenced method and proposed method is 0.001 and for DBP, p-value is 2.19E-09. The p-values are smaller than 0.01, which means the improvement of proposed method is significant.
+Bland-Altman plot (BA-plot) is a special performance evaluation method, which is used to compare the agreement between two methods. BA-plot can visualize the distance between predicted value and true value. The confidence interval also can indicate the performance is better or not. If the length of confidence interval is small, the errors concentrate in small area, which means better performance. Fig. 4 is the BA-plot for method [15] and proposed method.
+The left side of Fig.4 represents BA plot of method [15] and the right side is for proposed method. It is clear that the confidential interval of proposed method is smaller and the mean line that is the middle of three lines is more fitting the identity line (error = 0).
+
+Where the means the prediction result of tth sample and
+is the true value of that sample. Table 1 shows the MAE and RMSD in form of (MAE±RMSD) on SBP and DBP estimations using conventional method [15] and the proposed method for the testing set. Lower MAE means that average error between the estimated BP and true value is small. RMSD reveals the fluctuation of the error. From Table 1, we
+
+V. CONCLUSION
+Based on the recent findings of blood pressure is related to the second derivative of PPG signal, we proposed 14 new features based on the five characteristic points of SDPPG. Moreover, PPG cycle screen method is proposed to make sure that the pulse cycles used for training and estimation are having good “W” shape SDPPG waveform. To enhance the
+
+accuracy of the PPG signal based blood pressure estimation,
+we combined the proposed 14 SDPPG features with the
+conventional 21 time-scale PPG features to training an SVR
+based blood pressure estimator. Experimental results show
+that the proposed blood pressure estimator can achieve 40%
+accuracy improvement as compared with a conventional
+neural network and 21-feature based method.
+REFERENCES
+[1] A.B. Hertzman, “Photoelectric plethysmography of the fingers and toes in man,” Exp. Biol. Mel. 37(3), pp. 529-534, 1937. Pink one, second.
+[2] Srinivasan N, Rao M M, Ramamoorthy S, et al. Photoplethysmography signal analysis for cardiovascular disorders[J]. ASIAN JOURNAL OF PHYSICS, 2002, 11(4): 471.
+[3] McCombie D B, Reisner A T, Asada H H. Adaptive blood pressure estimation from wearable PPG sensors using peripheral artery pulse wave velocity measurements and multi-channel blind identification of local arterial dynamics[C]//Engineering in Medicine and Biology Society, 2006. EMBS'06. 28th Annual International Conference of the IEEE. IEEE, 2006: 3521-3524.
+[4] Zhang J M, Wei P F, Li Y. A LabVIEW based measure system for pulse wave transit time[C]//Information Technology and Applications in Biomedicine, 2008. ITAB 2008. International Conference on. IEEE, 2008: 477-480.
+[5] Fung P, Dumont G, Ries C, et al. Continuous noninvasive blood pressure measurement by pulse transit time[C]//Engineering in Medicine and Biology Society, 2004. IEMBS'04. 26th Annual International Conference of the IEEE. IEEE, 2004, 1: 738-741.
+[6] Poon C C Y, Zhang Y T. Cuff-less and noninvasive measurements of arterial blood pressure by pulse transit time[C]//Engineering in Medicine and Biology Society, 2005. IEEE-EMBS 2005. 27th Annual International Conference of the. IEEE, 2006: 5877-5880.
+[7] Jeong G Y, Yu K H, Kim N G. Continuous blood pressure monitoring using pulse wave transit time[J]. measurement, 2005, 4: 7.
+[8] Reisner A, Shaltis P, McCombie D, et al. Utility of the photoplethysmogram in circulatory monitoring[J]. Anesthesiology, 2008, 108(5): 950.
+[9] Daimiwal N, Sundhararajan M, Shriram R. Respiratory rate, heart rate and continuous measurement of BP using PPG[C] //Communications and Signal Processing (ICCSP), 2014 International Conference on. IEEE, 2014: 999-1002.
+[10] L. Peter, N. Noury, M. Cerny, A review of methods for non-invasive and continuous blood pressure monitoring: Pulse transit time method is promising?, IRBM, Volume 35, Issue 5, October 2014, Pages 271-282, ISSN 1959-0318.
+[11] Chandrasekaran V, Dantu R, Jonnada S, et al. Cuffless differential blood pressure estimation using smart phones[J]. Biomedical Engineering, IEEE Transactions on, 2013, 60(4): 1080-1089.
+[12] Kachuee M, Kiani M M, Mohammadzade H, et al. Cuff-less high-accuracy calibration-free blood pressure estimation using pulse transit time[C]//Circuits and Systems (ISCAS), 2015 IEEE International Symposium on. IEEE, 2015: 1006-1009.
+[13] Jadooei A, Zaderykhin O, Shulgin V I. Adaptive algorithm for continuous monitoring of blood pressure using a pulse transit time[C]//Electronics and Nanotechnology (ELNANO), 2013 IEEE XXXIII International Scientific Conference. IEEE, 2013: 297-301.
+[14] Teng X F, Zhang Y T. Continuous and noninvasive estimation of arterial blood pressure using a photoplethysmographic approach [C]//Engineering in Medicine and Biology Society, 2003. Proceedings of the 25th Annual International Conference of the IEEE. IEEE, 2003, 4: 3153-3156.
+[15] Kurylyak Y, Lamonaca F, Grimaldi D. A neural network-based method for continuous blood pressure estimation from a PPG signal[C]//Instrumentation and Measurement Technology Conference (I2MTC), 2013 IEEE International. IEEE, 2013: 280-283.
+[16] Linder S P, Wendelken S M, Wei E, et al. Using the morphology of photoplethysmogram peaks to detect changes in posture[J]. Journal of clinical monitoring and computing, 2006, 20(3): 151-158.
+
+[17] Bortolotto L A, Blacher J, Kondo T, et al. Assessment of vascular aging and atherosclerosis in hypertensive subjects: second derivative of photoplethysmogram versus pulse wave velocity[J]. American journal of hypertension, 2000, 13(2): 165-171.
+[18] Takazawa K, Tanaka N, Fujita M, et al. Assessment of vasoactive agents and vascular aging by the second derivative of photoplethysmogram waveform[J]. Hypertension, 1998, 32(2): 365-370.
+[19] Jang, Dae-Geun, Seung-Hun Park, and Minsoo Hahn. "Framework for Automatic Delineation of Second Derivative of Photoplethysmogram: A Knowledge-based Approach." Journal of Medical and Biological Engineering 34.6 (2014).
+[20] Jeong, Ilsu, and Joseph Finkelstein. "Applicability of the second derivative photoplethysmogram for non-invasive blood pressure estimation during exercise." Health Care Exchanges (PAHCE), 2013 Pan American. IEEE, 2013.
+[21] Chang, Chih-Chung, and Chih-Jen Lin. "LIBSVM: a library for support vector machines." ACM Transactions on Intelligent Systems and Technology (TIST) 2.3 (2011): 27.
+[22] Goldberger, Ary L., et al. "Physiobank, physiotoolkit, and physionet components of a new research resource for complex physiologic signals." Circulation 101.23 (2000): e215-e220.
+[23] Bland, J. Martin, and DouglasG Altman. "Statistical methods for assessing agreement between two methods of clinical measurement." The lancet 327.8476 (1986): 307-310.
+Mengyang Liu received his B.Eng. degree in Optoelectronic Engineering from Shanghai University of Electric power, Shanghai, China, in 2014 and his MSc. Degree with dissertation in Electronic and Information Engineering from City University of Hong Kong, Hong Kong SAR, China, in 2015. Currently, he is a research assistant at the Department of Computer Science, Chu Hai college of higher education. His research interests include image processing for vital signs and machine learning.
+Lai-Man Po received the B.S. and Ph.D. degrees in electronic engineering from the City University of Hong Kong, Kowloon, Hong Kong, in1988 and 1991, respectively. Since1991, he has been with the Department of Electronic Engineering, City University of Hong Kong, and is currently an Associate Professor and lab director of TI Educational Training Centre. He has published over 140 technical journal and conference papers. His current research interests are in the areas of image and video coding with emphasis on fast encoding algorithms, new motion compensated prediction techniques and 3D video processing. He is a member of the Technical Committee on Multimedia Systems and Applications, IEEE Circuits and Systems Society. Dr. Po was the chairman of the IEEE Signal Processing Hong Kong Chapter in 2012 and 2013. He was an Associate Editor of the HKIE Transactions in 2011 to 2013. He also served on the organizing committees of the IEEE International Conference on Acoustics, Speech and Signal Processing in 2003, the IEEE International Conference on Image Processing in 2010, and other conferences.
+Hong Fu received her Bachelor and Master degrees from Xi’an Jiaotong University in 2000 and 2003, and Ph.D. degree from the Hong Kong Polytechnic University in 2007. She is now an Associate Professor in Department of Computer Science, Chu Hai College of Higher Education, Hong Kong. Her research interests include eye tracking, computer vision, pattern recognition, and artificial intelligence.
+

@@ -1,0 +1,301 @@
+Smart Phone Based Blood Pressure Indicator
+
+AishwaryaVisvanathan, Rohan Banerjee, Anirban Dutta Choudhury, Aniruddha Sinha
+Innovation Labs, Tata Consultancy Services, Kolkata, India Phone - +91-66367357
+{aishwarya.visvanathan, rohan.banerjee, anirban.duttachoudhury, aniruddha.s}@tcs.com
+
+ShaswatiKundu
+Sikkim Manipal Institute of Technology, India
+shaswatikundu91@gmail.com
+
+ABSTRACT
+In this paper, we propose a methodology to estimate the range ofhuman blood pressure (BP) using Photoplethysmography(PPG). 12 time domain features and 7 frequency domain features are pointed out and extracted from the PPG signal. A feature selection algorithm based on Maximal Information Coefficient (MIC) is presented to reduce the dimensionality of the feature set to effective ones, thereby cutting down resource requirements. Support Vector Machine (SVM) is used to classify the BP values into separate bins. The proposed methodology is validated and tested on a standard benchmark clean dataset as well as phone captured noisy dataset to justify its robustness and efficiency. Apart from a commending performance improvement, BP estimation is achieved with minimal features and processing, making the algorithm light weight for porting on smart phones.
+Categories and Subject Descriptors
+J.3 [Life and Medical Sciences]: Health --- Wellness Measurement; H.1 [Models and Principles]: User/Machine Systems: Human information processing --- Robust System Development
+Keywords
+Photoplethysmography; Blood Pressure; mobile Health;Preventive Healthcare
+1. INTRODUCTION
+Arterial blood pressure, commonly abbreviated as BP is the pressure exerted by blood, on blood vessels. Following the periodic nature of blood pumping by the human heart,BP goes through a periodic change. However, the maximum (systolic) and minimum (diastolic)BPs measured are considered to reflect heart condition well enough. Abnormal BP can causehypotension (low BP) orhypertension (high BP). Detection of these medical conditions helps physicians to perform a root cause analysis of the visible symptoms,e.g. a high BP can be a direct result of vessel narrowing, or vasoconstriction, low BP canlead to low heart rate, heart valve problems and so on [8].
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from Permissions@acm.org. MobileHealth'14, August 11 - 14 2014, Philadelphia, PA, USA Copyright 2014 ACM 978-1-4503-2983-5/14/08…$15.00. http://dx.doi.org/10.1145/2633651.2633657
+
+Photoplethysmography (PPG) is a simple, well-known technique, predominantly used to measure the volumetric flow of blood in different human organs. A wide range of medical devices, ranging from affordable consumer-grade devices to costly high-end devices with medical-grade precision are available in the market. Even the low end devices mostly use transmissive technology leading to a fairly usable system. Grimaldi et al. [9] and Gregoski et al. [10] proposed simple reflective PPG capturing technique, using android smart phones. The idea of estimating PPG signal using smart phone cameras is both indicative and preventive. Academic research is going on to make the process more precise. Pal et al. [1,16] introduced a robust fault-tolerant technique of capturing PPG signal using smart phones. Chandrasekaranet. al [11] et al. proposed an idea of combining the audio sound of heart beat along with peripheral PPG signal to estimate systolic and diastolic BPs. However this system is not very easy-to-use as the user is required to place a sensitive microphone near to the heart. In this paper, we have proposed several time and frequency domain features, to achieve robustness in BP estimation from PPG. These features are further processed to form a subset of features, using Maximal Information Coefficient (MIC). Machine learning based approach has been deployed to estimate BP ranges, followed by performance evaluation against BP data measured using medical sphygmomanometers. Different analog and digital sphygmomanometers are used to measure BP for clinical practice. However our main goal is not to match the medical precision, but to create a reliable easy-to-use system to provide an indicative and preventive measure of BP. In this paper, BP bins are used to train rather than actual BP values, and so is the case with prediction as well. The division of BP values into bins is shown in Table I, obtained from [12] as per standard medical definition. Rest of the paper is organized as follows, Section 2 explains the prior art and our proposed methodology. Section 3 discusses the results, followed by conclusion in Section 4.
+
+Table 1. Blood Pressure Bin Levels (in mm Hg)
+
+BP Level
+Hypotension Desired Prehypertension Stage 1 hypertension Stage 2 hypertension Hypertensive emergency
+
+Systolic (Ps)
+<90 90-119 120-139 140-159 160-179 >=180
+
+Diastolic (Pd)
+<60 60-79 80-89 90-99 100-109 >=110
+
+19
+
+2. METHODOLOGY
+This section discusses a highly referred prior art method vis-a-vis our proposed method to estimate Systolic (Ps) and Diastolic (Pd) BP using PPG signal only.
+
+2.1 Prior Art Method
+Teng et.al [14] presenteda mechanism forthe estimation of arterial BP from PPG signals thereby establishing relationship between arterial BP with certain selected PPG features, namely systolic upstroke time,diastolic time,width of half pulse amplitude, and width of two-third pulse amplitude. Continuous Wavelet Transform (CWT)was used to deal with the problems arisen due to the inaccurate measurement of the position of foot in some PPG recordings owing to the poor signal quality; keeping in mind that the accurate positions of the peak and trough are necessary for ascertaining the feature values. After analyzing the correlation between BP and the features individually it was found that diastolic time had the highest mean correlation coefficient and hence was used for further linear regression analysis.
+2.2 Proposed Methodology
+Although the discussed prior art method in 2.1 claims to estimate the absolute BP value, the standard deviation from the ground truth values are significantly large. When these methods are trained and computed bin wise, the results are not encouraging, as discussed in Section 3.
+Moreover, the prior art used only time domain features and the PPG signal is not analyzed in the frequency domain. The most dominant spike in the frequency spectrum corresponds to cardiac beat and the remaining spikes are associated with the location and amplitude of the waves reflected from the periphery towards the aorta, the frequency spectrum in reality gives us a picture of the blood flow which is in turn related to the BP.
+In this paper, we propose anindicative BP estimation method based on time and frequency domain analysis of the PPG signal. The steps in our algorithm are illustrated in Fig. 1.
+2.2.1 PPG Signal Pre-Processing
+For standard medical equipment captured data set, the PPG signal contains minimal noise and hence exhaustive noise cleaning is not required. To remove any DC as well as high frequency noise component, the PPG signal samples are broken into small 30% overlapping windows and passed through a 4th order Band Pass Filter withcut-off frequencies of 0.25 Hz and 20 Hz.
+However, the smart phone captured PPG signals are noise prone, due to improper placement of finger, excess pressure of the finger on the camera lens or phone and finger movement. Thus the noise cleaning needs to be extensive and the method described in [1] is used for such a case.
+
+Figure 1. BP Estimation methodology from PPG Signal
+2.2.2 Feature Extraction from PPG Signal
+Twelve time domain features and seven frequency domain features are extracted from the PPG signal, which are used for creatingtraining models for BP estimation.
+Figure 2. PPG signal for Time Domain Feature Extraction
+2.2.2.1 Time Domain Feature Extraction
+The peaks of the PPG signal are analyzed along with their neighboringtroughs anddicrotic notch points. Fig. 2 shows 2 cycles of a sample PPG signal, where (Tsn, Vsn) is the peak point, (Tvn, Vvn) is the trough point and (Tdn, Vdn) is the dicrotic notch. Based on the above 3 important points, features can be calculated for each cycle in the PPG signal, as mentioned in [2]. The 12 time domain features, FT= [f1, f2, f3,…f11,f15], used in this paper are shown in Table 2.
+
+20
+
+Table 2. PPG time and frequency domain features
+
+f1: Trough Point Vvn
+
+f12: Age of the subject in year
+
+f2: Systolic Peak Amplitude f13: Height of the subject in cm Vsn
+
+f3: Dicrotic Notch Amplitude Vdn
+f4: Pulse Area f5+f6
+
+f14: Weight of the subject in kg
+f15: Pulse Height Vsn-Vvn
+
+f5: Systolic Area ΣTsnTdn PS
+
+f16: Dominant Peak Location
+
+f6: Dicrotic Notch Area ΣTdnTvn+1 PS
+f7: Area Ratio f6/f5
+f8: Peak Interval Tsn+1-Tsn
+
+f17: Distance between minor peak locations, one before and after the dominant peak.
+f18: Distance between dominant peak and previous peak
+f19: Distance between dominant peak and next peak
+
+f9: Pulse Interval Tvn+1-Tvn
+
+f20: Dominant Peak Amplitude
+
+f10: Crest Time Tsn-Tvn
+
+f21: Width of Dominant Peak
+
+f11: Delta Time Tdn-Tsn
+
+f22: Spectral Centroid
+
+2.2.2.2 Frequency Domain Feature Extraction
+To enhance the training model and to improve the estimation accuracy, a combined approach of time domain features and frequency domain features needs to be used.
+The Frequency spectrum of the PPG signal is obtained by applying Short Time Fourier Transform, as shown in Fig. 3, which consists of several peaks, with the dominant peak related to the heart rate of the person. Based on the dominant peak and the neighboring peak before and after the dominant peak, seven features are extracted, FF=[f16, f17, …,f22], as shown in Table 2.
+2.2.3 Feature Selection
+Feature selection is commonly used in data mining, pattern recognition and statistics. Features, havinglittle or no predictive content and redundant features can besuccessfully eliminated by applying a feature selection algorithm. From studies [15], it is known that feature selection can significantly improve the transparency of the classifier model and in most cases, boost up the classification accuracy upto a certain level.
+
+Figure 3. PPG signal in Frequency Domain
+However, the traditional approaches to feature selection with single evaluation criterion have shown limited capability in terms of knowledge discovery and decision support.
+In this paper we have proposed an effective feature extraction approach using the concept of Maximal Information Coefficient (MIC).
+MIC, a statistical tool, proposed by Reshef et al. [3]is based on the understanding that if a relationship (linear or non-linear) exists between two real data variables, then constructing optimized grids with various sizes to find the largest mutual information between a pair of data will return a fractional number between 0 and 1.This MIC value indicates the dependency between the pair of number. Higher the MIC value, stronger is the association between the data pair. Mathematically, for a pair of dataset x and y, if I denotes the mutual information for a grid G, then MIC of a set D of pairwise data with sample size n and grid size (xy),less than B(n) is given by
+MIC(D) = maxxy<B(n) {M(D)x,y} WhereB(n) is a function of sample size (usually B(n)=n0.6).
+Our aim is to maximize I/ log min(x,y) – which gives the MIC score [3].
+To find relationship between large pair of database, we have used a package called MINE [5], which measures several statistical parameters, MIC being one of them.
+Fig. 4 shows the relation between the time domain features and frequency domain features with Ps and Pd bin values, as calculated by MINE for the phone dataset. The horizontal axis represents the index of the PPG feature, as defined in Table 2. Features f23 and f24, as shown in Fig. 4, are the two additional features (width of half pulse amplitudeand width of two-third pulse amplitude) defined in prior art [14]. As seen in Fig. 4, these features have low MIC values for phone data and hence are not considered for further analysis.For a particular BP parameter, the subset of features to be used is determined if the MIC value for a particular feature is greater than the median value of the set of MIC values found for all the features. Using this approach, the feature subset for Ps and Pd is determined to be f1, f3, f12-f22.
+It can be seen from Fig. 4 that the MIC values of the frequency domain features are significantly higher than that of the time domain features. This implies that the frequency domain features play an important role in theestimation of human BP, pointing out a major drawback in the prior art discussed.
+
+21
+
+Figure 4. MIC values for BP features
+
+2.2.4 Model Creation and Estimation
+The subset of features thus obtained by performing feature selection is used for classification using Support Vector Machine (SVM). The classification process was performed using the CSVC [6] algorithm, with RadialBasis Function (RBF) kernel. Instead of using the actual ground truth Ps and Pd values, we divided the BP value range into bins of Hypotension, Desired, Prehypertension, Stage 1 hypertension, Stage 2 hypertension and Hypertensive emergency, as shown in Table 1. These bins were used for classification. Similarly, the estimation process determined the BP bins rather than the actual BP bins, as this method is used to indicate a person’s BP range only.
+
+Table 3a.Queensland Dataset: BP estimation Accuracy
+
+Accuracy (%)
+
+Prior Art [14]
+
+ProposedApproach
+
+Ps
+
+66.12
+
+98.12
+
+Pd
+
+54.93
+
+97.22
+
+Table 3b. Queensland dataset: confusion matrix of BP estimation using proposed method
+
+Ps
+
+1
+
+1 4471
+
+2 98
+
+3 22
+
+4 31
+
+5
+
+9
+
+2 187 46181 73 12 17
+
+3 82 280 8460 57 48
+
+4 54 32 24 1523 128
+
+5 0 0 11 6 1566
+
+Pd
+
+1
+
+1 4439
+
+2 147
+
+3 25
+
+4 58
+
+5 34
+
+2 198 46073 152 76 69
+
+3 35 321 8209 51 72
+
+4 54 48 74 1424 148
+
+5 68 2 98 20 1445
+
+Figure 5.Weight, Height, Age, Systolic BP and Diastolic BPdistribution of test subjects
+
+3. RESULTS
+For proof of concept, our proposed method with frequencydomain features was first tested with The University of Queensland Vital Signs Dataset [7], which covers wide range of BP values, recorded from 32 surgical cases ranging in duration from 13 minutes to 5 hours over a period of 4 weeks, at the Royal Adelaide Hospital. This PPG signal is considered noise free and clean. The dataset was segregated to training and testing such that sufficient entries were present in a balanced way in all the bins and Table 3 (a) shows the comparison of percentage accuracy of BP estimation using prior art [14] and our method. Table 3 (b) shows the confusion matrix of the test Queensland dataset using our approach, where the F-score was obtained to be 0.9481 for Ps and 0.91 for Pd.
+
+22
+
+Next, PPG signals were captured using iPhone 4. The video signal was captured by placing a finger on the camera lens of the smart phone at an averageframe rate of 30fps, with the flash ON. The red channel from the video signal was used as the PPG signal. The BP ground truth data was collected using - ETCOMM Bluetooth Blood Pressure Monitor HC-5021.
+The PPG data was collected from 156 adults during a fitness drive organized by our lab. Participants included male and female associates varying in age from their early twenties to late forties, and sufficient entries in all the BP bins were obtained in this process as shown in Figure 5.
+Our entire experiments are performed in the following stepsfirstly, one commonly used technique in machine learning and classification problems, k-fold cross-validation scheme [13], was performed on all the entries in the dataset. As seen in Table 4, our method outperforms the prior art method. However, intense use of cross validation can over fit.
+
+Table 4. Phone dataset: BP Estimation Accuracy
+
+Accuracy % Cross-Validation
+
+Prior Art [14]
+
+Ps
+
+Pd
+
+65.6
+
+68
+
+Proposed
+
+Approach
+
+Ps
+
+Pd
+
+98.81 98.21
+
+Cycle Wise
+
+66.12 54.93 85.98 66.66
+
+File Wise
+
+66.67 60.37 82.53 82.53
+
+In the next stage, the entire dataset was dividedinto two halves, one for training and the other for performance evaluation. The training setwas ensured to containalmost equal number of entries in all the respective bins as shown in Table I. Remaining 63 files were used for testing our method.
+If an input PPG signal containsnfull cycles, then the number of feature vector is Fn, each consisting of features [f1,f2,…fk], as determined by their MIC values as calculated by MINE tool. An estimation of Ps and Pd bin is obtained corresponding to each row of the extracted feature vector.Thus we have n values of Ps and Pd bin estimated in the process. The results of such cycle wise BP estimation is shown in the penultimate row of Table 4, with the distribution of estimation shown by confusion matrix in Table 5a, where the F-scorewas obtained to be 0.86 for Ps and 0.57 for Pd respectively.
+However, to arrive at a single Ps and Pd bin value for a PPG signal, from n values, histogram analysis is performed, the maximum occurring bin value, i.e. the mode, being chosen as the final estimated Ps and Pd bin value. The final row of Table 4 shows the BP estimation accuracy for the test files, which is clearly better than the prior art method. The confusion matrix for this case is shown in Table 5b, where the F-score was obtained to be 0.78 for Ps and 0.8 for Pd.
+As shown in Table 5a and 5b, although the diagonal values of the confusion matrix are quite promising, there is a distinct biasing towards bin 3. A possible explanation would be that most of the user would have their BP in normal range, i.e. bin 3.
+
+1http://www.etcomm.cn/en/products_hc-502b.html
+
+Although the frequency spectrum of the PPG signal directly correlates to the blood flow, heart rate and BP, the frequency domain features independently does not provide good estimation accuracy; Fig. 4 shows that age, weight and height, along with time domain features like the dicrotic notch amplitude and area along with the trough information are required to increase the estimation accuracy.
+Since our approach of BP estimation is for indicative purpose only, we tried our approach on a slightly broader BP bin ranges from [4]. This classification of BP ranges - to very low, low, normal, high and very high bin - increased the BP estimation accuracy tremendously to about 95% on the same phone dataset. This indicates that our method is robust for wide bin ranges and does not require heavy changes to adapt to different bin ranges according to demographic and utility needs.
+
+Table 5a. Phone dataset: Cycle wise confusion matrix of BP estimation using proposed method
+
+Ps 2 3 4 2 228 180 2
+
+Pd 2 3 4 2 150 258 2
+
+3 0 854 0
+
+3 109 681 64
+
+4 0 0 35
+
+4 0 0 35
+
+Table 5b. Phone dataset: File wise confusion matrix of BP estimation using proposed method
+
+Ps 2 2 11
+
+34 10 1
+
+3 0 39 0
+
+40 0 2
+
+Pd 2 2 11
+
+34 91
+
+3 0 36 0
+
+40 1 5
+
+From experimentation with our dataset, the BP estimation accuracy using feature subset gives only a marginal accuracy improvement, however the main importance of using a reduced feature set is that the computation cost, computational time and storage needs are hugely reduced, which is a key feature while porting in handheld systems like Smart Phones.
+Using MATLAB on a PC with Intel Core i5 processor @ 2.60GHz and 4GB RAM, we have measured the time required to compute all the frequency domain features to be an average of 2.4ms, while the time domain features required around 157msto be computed, as the time domain features were calculated for every PPG cycle. Thus a total of ~160ms were required to compute all the time and frequency domain features. However with the reduced feature set after MINE analysis, the number of time domain features required to be computed was reduced and hence the time to compute them dropped to 3.2ms, thereby reducing the time for feature computation to only 5.6 ms.
+
+23
+
+For the real time computation in iPhone4, the training models for Ps and Pd are computed and stored in the phone offline. To acquire 512 good samples for feature extraction, as explained in [1], 14 windows of 64 frames with an overlap of 16 frames between adjacent windows, i.e. (64+48*13) frames at 30fps ~23seconds of time is required. The remaining process of feature extraction and SVM prediction and histogram analysis takes less than a second. Fig. 6 shows the method of capturing PPG data from iPhone4, where the person’s fingertip is placed on the camera lens with the flash on. The right side image is a screen shot of the app developed, where the heart rate of a person is displayed in BPM and the BP values are displayed as Ps and Pd bin values.
+Figure 6. Capturing data using Phone and BP (Ps and Pd) bin values displayed in our app.
+4. CONCLUSION and FUTURE WORK
+This paper presents a learning-based approach to estimate BP ranges using smartphone PPG signal. Feature set reduction is achieved using MIC. Reduction of features makes the application computationally lighter, and hence, more portable to smart phones. The methodology is successfully tested on phone based PPG dataset and significant increase in estimation accuracy is achieved. Our future work will encompass finding the right combination of denoising, followed by new PPG features related to BP estimation for accuracy improvement.
+5. REFERENCES
+[1] A. Pal, A. Sinha, A.D. Choudhury, T. Chattopadhyay, A. Visvanathan, "A Robust Heart Rate Detection using Smartphone Video," MobileHealth Workshop in MobiHoc 2013, pp:43-48.
+
+[2] Elgendi M., "On the analysis of fingertip photoplethysmogram signals", Current Cardiology Reviews, vol.8, 2012 pp. 14-25.
+[3] Reshef, D. et al., "Detecting Novel Associations in Large Data Sets" Science, 2011, vol. 334, pp. 1518-1524.
+[4] A Visvanathan, A Sinha, A Pal, "Estimation of blood pressure levels from reflective Photoplethysmograph using smart phones", IEEE Bioinformatics and Bioengineering, pp. 1-5, 2013
+[5] http://www.exploredata.net/, Last accessed on 22 July 2013.
+[6] C.-C. Chang and C.-J. Lin, "LIBSVM : a library for support vector machines” ACM Transactions on Intelligent Systems and Technology," vol. 2, pp. 27:1--27:27, 2011
+[7] Liu D, Görges M, Jenkins SA, "University of Queensland vital signs dataset: development of an accessible repository of anesthesia patient monitoring data for research", AnesthAnalg. 2012 Mar; 114(3):584-9.
+[8] http://www.mayoclinic.com/health/low-bloodpressure/DS00590/DSECTION=causes, Last accessed on 3rd Nov 2013
+[9] D. Grimaldi, Y. Kurylyak, F. Lamonaca, and A. Nastro, "Photoplethysmography detection by smartphone’s videocamera, " IEEE 6th International Conference on Intelligent Data Acquisition and Advanced Computing Systems (IDAACS), 2011, pp. 488–491.
+[10] M. Gregoski, a. Vertegel, and F. Treiber, "Photoplethysmograph (ppg) derived heart rate (hr) acquisition using an android smart phone, " 2nd Conference on Wireless Health, 2011.
+[11] Chandrasekaran, V.; Dantu, R.; Jonnada, S.; Thiyagaraja, S.; Subbu, K.P., "Cuffless Differential Blood Pressure Estimation Using Smart Phones," IEEE Transactions on Biomedical Engineering, vol.60, no.4, pp.1080,1089, April 2013
+[12] "Understanding blood pressure readings". American Heart Association. 11 January 2011. Retrieved 30 March 2011.
+[13] Y. Bengio, Y. Grandvalet, "No Unbiased Estimator of the Variance of K-Fold Cross-Validation", Journal of Machine Learning Research 5 (2004) 1089–1105
+[14] X.F. Teng and Y.T. Zhang, "Continuous and noninvasive estimation of arterial blood pressure using a photoplethysmographic approach, " Engineering in Medicine and Biology Society, 2003. Proceedings of the 25th Annual International Conference of the IEEE, 2003, pp.3153-3156
+[15] I. Guyon, A. Elisseeff, "An Introduction to Variable and Feature Selection", Journal of Machine Learning Research 3 (2003) 1157-1182.
+[16] A. Pal, A. Visvanathan, A.D. Choudhury, A. Sinha, " Improved Heart Rate Detection using Smart Phone", Proceedings of the 29th ACM Symposium On Applied Computing, 2014
+
+24
+

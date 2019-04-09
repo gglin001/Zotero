@@ -1,0 +1,1043 @@
+See discussions, stats, and author profiles for this publication at: https://www.researchgate.net/publication/303982112
+Cuff-Less Blood Pressure Estimation Algorithms for Continuous Health-Care Monitoring
+Article in IEEE Transactions on Biomedical Engineering · June 2016
+DOI: 10.1109/TBME.2016.2580904
+
+CITATIONS
+50
+4 authors, including: Mohammad Kachuee University of California, Los Angeles 16 PUBLICATIONS 107 CITATIONS
+SEE PROFILE
+Hoda Mohammadzade University of Toronto 21 PUBLICATIONS 250 CITATIONS
+SEE PROFILE
+
+READS
+493
+Mohammad Mahdi Kiani Sharif University of Technology 3 PUBLICATIONS 86 CITATIONS
+SEE PROFILE
+
+Some of the authors of this publication are also working on these related projects: Spinal cord injury and epidural stimulation View project Metaheuristic Optimization Algorithms View project
+
+All content following this page was uploaded by Mohammad Kachuee on 10 August 2017.
+The user has requested enhancement of the downloaded file.
+
+1
+Cuff-Less Blood Pressure Estimation Algorithms for Continuous Health-Care Monitoring
+Mohammad Kachuee, Student Member, IEEE, Mohammad Mahdi Kiani, Student Member, IEEE, Hoda Mohammadzade, Member, IEEE, and Mahdi Shabany, Member, IEEE
+
+Abstract—Goal: Continuous Blood Pressure monitoring can provide invaluable information about individuals’ health conditions. However, BP is conventionally measured using inconvenient cuff-based instruments, which prevents continuous BP monitoring. This work presents an efﬁcient algorithm, based on the Pulse Arrival Time (PAT), for the continuous and cuff-less estimation of the Systolic Blood Pressure (SBP), Diastolic Blood Pressure (DBP), and Mean Arterial Pressure (MAP) values. Methods: The proposed framework estimates the BP values through processing vital signals and extracting two types of features, which are based on either physiological parameters or whole-based representation of vital signals. Finally, the regression algorithms are employed for the BP estimation. Although the proposed algorithm works reliably without any need for calibration, an optional calibration procedure is also suggested, which can improve the system’s accuracy even further. Results: The proposed method is evaluated on about a thousand subjects using the Association for the Advancement of Medical Instrumentation (AAMI) and the British Hypertension Society (BHS) standards. The method complies with the AAMI standard in the estimation of DBP and MAP values. Regarding the BHS protocol, the results achieve grade A for the estimation of DBP and grade B for the estimation of MAP. Conclusion: We conclude that by using the PAT in combination with informative features from the vital signals, the BP can be accurately and reliably estimated in a non-invasive fashion. Signiﬁcance: The results indicate that the proposed algorithm for the cuff-less estimation of the blood pressure can potentially enable mobile health-care gadgets to monitor the BP continuously.
+Index Terms—Blood Pressure, Mobile Health, Pulse Arrival Time (PAT), Photoplethysmograph (PPG), Electrocardiograph (ECG)
+I. INTRODUCTION
+B ASED on the World Heath Organization (WHO) report, hypertension prevalence is 24 and 20.5 percent in men and women, respectively [1]. Unfortunately, most of the hypertension patients are not aware of their disease, while it harms their internal body organs silently (e.g. brain, eyes, kidneys, and viscus), which is why it is called the silent killer [2] .
+For accurate diagnosis and treatment of hypertension, continuous Blood Pressure (BP) measurement is necessary. BP is a periodic signal with the Heart Rate (HR) frequency that is normally bounded in a limited range. The BP swings between maximum and minimum values, which are called Systolic Blood Pressure (SBP) and Diastolic Blood Pressure (DBP), respectively. If, in a rest situation, an individual’s SBP or DBP
+The authors are with the Department of Electrical Engineering, Sharif University of Technology, Tehran 1458889694, Iran (e-mail: m.kachuee@gmail.com; mahdikiani@gmail.com; hoda@sharif.edu; mahdi@sharif.edu).
+
+reaches more than 140 mmHg or 90 mmHg, respectively, the person is called hypertensive [1]. The average of the BP signal in a single cardiac cycle, Mean Arterial Pressure (MAP), is another description of the BP signal. BP is inﬂuenced by many factors like food taking, exercise, mental situations, stress, and etc, thus, it varies considerably over time. As a result, continuous BP monitoring seems vital, in order to help doctors to diagnose and control patients’ hypertension in an effective way.
+A traditional BP measurement method, yet the most accurate noninvasive one, is using mercury sphygmomanometers [3]. In this method, a nurse wraps an inﬂatable cuff around the patient’s arm and inﬂates it. After enough inﬂation, he/she deﬂates the cuff slowly while listening for a rhythmic sound. The ﬁrst time that the sound is heard, the blood begins to ﬂow in patient’s vessel, which indicates the systolic pressure. When the sound fades, the pressure of the cuff is equal to the diastolic pressure. The cuff makes this method inconvenient and it can get germy especially in the public places. Moreover, due to its inconvenience, using an inﬂatable cuff prevents a continuous monitoring.
+Recently, in the literature, there has been a huge attention to cuff-less BP measurement methods toward the goal of continuous BP monitoring. The most prominent methods suggested for achieving this objective are described in the sequel.
+Using the Pulse Wave Velocity (PWV) is the most common method [4]. PWV is the velocity of the pressure wave propagation in the vessels. This method is based on wave propagation theory of ﬂuids in elastic pipes. On the other side, in many works, the Pulse Transit Time (PTT), the time interval that heart beat transfers to a body peripheral, is used for the PWV estimation. Ahmad et al. [5] and Xuan et al. [6] showed that there is a signiﬁcant correlation between BP and PTT, but this correlation depends on many parameters, which are varying among individuals [7], [4]. Many other works tried to ﬁt regression models for BP estimation using PTT [8], [9], [10], but did not satisfy the standard criteria. Wong et al. [11] studied the correlation between individuals’ BP and their PTT in different situations. They investigated the correlation between the normal subject’s BP and PTT in a six-month period. Gesche et al. [12] suggested a calibration procedure to eliminate this dependency. However, such a calibration is reliable for only a short time interval [13]. Although calibration-based methods can not be reliably used as replacements of the conventional BP measurement devices, they are applicable for BP monitoring in short intervals such as exercise tests [14].
+
+2
+
+Despite their merits, the PWV based methods are faced with several difﬁculties such as dependency to individual physiological parameters, which necessitates elaborate calibration procedures. This concern prevents the PWV based BP measurement methods to become approved by established health-care standards because the standards does not allow calibration procedures. Consequently, the PWV based methods cannot practically substitute the traditional BP measurement methods.
+This work presents a novel approach that exploits various machine learning and signal processing algorithms to achieve an accurate and continuous estimation of BP in health-care monitoring systems. In summary, after denoising the PPG and ECG signals, their informative features are extracted, and ﬁnally, these features serve as an input to a regression model, which estimates the BP value.
+The rest of this paper is organized as follows: Section II explains the physical background of the blood ﬂow in the vascular system. Section III presents the proposed methodology for cuff-less BP estimation. Section IV explains calibrationbased and calibration-free variations of the algorithm in more details. Section V demonstrates the results and compares them with health standards as well as other works, and ﬁnally, Section VII concludes the paper.
+II. BACKGROUND
+The vascular system can be modeled as connected elastic tubes in which the blood ﬂows. In the next two subsections we will present a brief discussion about the theory and properties of arterial walls as well as physics of the wave propagation in arteries.
+A. The Arterial Wall
+The arterial wall constitutes of 4 layers namely, endothelium, elastin, collagen, and smooth-muscle. Endothelium serves as a wall for blood ﬂow inside vessels, and it has a negligible effect on arterial wall mechanical properties. Elastin has a considerable elastic properties, which can produce tension on the arterial walls. Collagen is much more stiffer, as compared to the elastin, and exerts tension as soon as the arterial wall becomes stretched. Smooth-muscle modulates arterial elasticity by producing tension [7].
+Due to its properties, elastin is responsible for the arterial elasticity at low BP values; while collagen signiﬁcantly determines the arterial elasticity at high BP values. In the peripheral arteries, smooth-muscle plays a signiﬁcant role in the wall mechanics, while in the central arteries, the role of elastin is more signiﬁcant. Aging or diseases can contribute to strong changes in the mechanical properties of the arterial wall. Compared to peripheral arteries, aging affects the central arteries more considerably by replacing elastin with collagen [15].
+B. Wave propagation in Arteries
+Propagation of the pressure wave in the vascular system can be modeled by the propagation of a pressure wave inside
+
+tubes that have mechanical properties similar to arterial walls. A pressure wave propagates from the proximal end through the tube, and reaches the distal end after a time interval, called PTT. Elastic modulus (E) of the tube wall in central arteries is related to the Pressure (P ) in the tube as:
+
+E = E0.eα.(P −P0),
+
+(1)
+
+where E0, P0, and α are subject-speciﬁc parameters [16]. Compliance (C) is deﬁned as the changing rate of the tube cross section in terms of P . By writing the conservation of mass and momentum equations and solving them, we ﬁnd that C is a function of P through the following equation:
+
+C(P )
+
+=
+
+πP1[1
+
+Am + (P
+
+−P0 P1
+
+)2
+
+]
+
+,
+
+(2)
+
+where P0, P1, and Am are varying among individuals [7]. By writing the wave propagation equations inside an elastic
+
+tube with these characteristics (see [17] for derivation) the
+
+following equation is achieved:
+
+P (x, t) = f (x ± t/ LC(P )),
+
+(3)
+
+where L = ρ/A, in which ρ is the blood density. According to (3), the PWV is equal to 1/ LC(P ). Therefore, PTT, which is the time interval for traversing the pressure wave through a tube of length l, is deﬁned by:
+
+P T T = l LC(P ).
+
+(4)
+
+By substituting C(P ) from (2) and L, (4) can be reformulated
+
+as:
+
+PTT = l
+
+π
+
+AP1
+
+ρAm [1 + ( P
+
+−P0 P1
+
+)2
+
+]
+
+.
+
+(5)
+
+In fact, (5) describes the relationship between the PTT and P, in which P0, P1, Am, and A are subject-speciﬁc parameters, and l is related to the experimental setup in which the PTT is measured.
+In literature, it is prevalent to simplify equation (5) further by assuming C(P ) to be constant [18], and approximating the subject-speciﬁc parameters using calibration procedures. However, a number of researchers believe that this simpliﬁcation limits the accuracy of such methodologies, and enforces an elaborated calibration procedure [12]. To address this concern, in Section III, we propose a novel methodology, which employs machine learning algorithms to approximate the BP-PTT relationship.
+Pulse Arrival Time (PAT), which is deﬁned as the time interval between the electrical activation of the heart and arrival of the pulse pressure at a distal point, can be used as a measure of the PTT. In other words, PAT consists of the PTT in addition to the time interval between the electrical activation and the mechanical movement of the heart. Although, it is shown that using PAT instead of PTT can reduce the DBP estimation accuracy [19], in literature, it is widely used as a proximal reference due to its convenience of measurement [7].
+In order to measure the PTT (or PAT) value between proximal and distal in a non-invasive manner, various vital signals such as photoplethysmograph (PPG), electrocardiogram (ECG), as well as other signals such as ballistocardiogram
+
+3
+
+Fig. 1. Block-diagram of the proposed cuff-less BP estimation method.
+(BCG) and seismocardiogram (SCG) can be used [7]. In this work, due to the availability of large databases of ECG and PPG signal records, which is required for machine learning purposes, we use the ECG as the proximal reference, and the PPG as the distal reference (see Section III-A). However, utilizing other signals, particularly the SCG and BCG signals as proximal timing reference can potentially increase the accuracy of the proposed method in estimation of DBP (refer to [19] for more information).
+III. PROPOSED METHODOLOGY
+Fig. 1 shows the basic block diagram of the proposed cuffless BP estimation algorithm in this paper, which consists of the following steps: i) Buffering the ECG and PPG signals as the primary inputs of the algorithm ii) preprocessing the ECG and PPG signals consisting of removing artifacts and deniosing iii) extraction of informative features from the preprocessed signals iv) reduction of the dimension of the extracted features v) calibration-free regression, and ﬁnally, vi) an optional calibration step. These blocks are elaborated in the following subsections.
+A. Database
+In this work, the Physionet’s Multi-parameter Intelligent Monitoring in Intensive Care (MIMIC) II (version 3, accessed on Sept. 2015) online waveform database [20] is used as a source for the ECG and PPG signals as well as the Arterial Blood Pressure (ABP) signal. The ABP signal is used for the calculation of the SBP and DBP as target values. In order to collect the required raw signals from this source, we have developed a data collector program, which facilitates the process of downloading and converting records with the required signals. Additionally, the data collector program stores them with an appropriate data structure, i.e. Hierarchal Data Format (HDF) [21]. Utilizing this ﬁle structure not only speeds up the process of storing and retrieving the data, but also is very efﬁcient in terms of memory and handling massive database sizes. The resulting database ﬁelds consist of the previously mentioned ECG, PPG, and ABP signals as well as the Frequency of Sampling (FS) and the record name as an unique ID, which are essential to the future blocks.
+The collected database consists of 5599 record parts having all of the ECG, PPG, and ABP signals. However, after
+
+Frequency
+
+800 700 600 500 400 300 200 100
+080
+
+100 120 140 160 180 Value (mmHg) a)
+
+1600 1400 1200 1000
+800 600 400 200
+060 70 80 90 100 110 120 130 Value (mmHg) c)
+
+Frequency
+
+Frequency
+
+1000
+800
+600
+400
+200
+060 70 80 90 100 110 120 130 140 Value (mmHg) b)
+1200 1000
+800 600 400 200
+040 60 80 100 120 140 160 Value (bpm) d)
+
+Frequency
+
+Fig. 2. Histograms of the database parameters: a) SBP, b) MAP, c) DBP, and d) HR
+
+TABLE I BP AND HEART RATE RANGES IN THE DATABASE
+
+DBP MAP SBP HR
+
+Min (mmHg)
+60.2 68.6 81.5 54.4
+
+Max (mmHg)
+128.3 136.2 178.8 155.8
+
+STD (mmHg)
+9.2 9.7 18.7 14.6
+
+Mean (mmHg)
+70.9 93.2 137.9 93.6
+
+removing the record parts with insufﬁcient record durations (less than 10 minutes) or with very high or very low BP values (e.g SBP ≥ 180, DBP ≥ 130, SBP ≤ 80, DBP ≤ 60), the ﬁnal database consists of 3663 record parts associated with about a thousand unique subjects. Each part has its own unique ID, which indicates its record and part numbers. ID ﬁeld is used in the training and test process to prevent overlapping the subjects of the training set with that of in the test set. Fig. 2 and Table I demonstrates some statistical information about the distribution and ranges of the DBP, MAP, SBP, and HR values in the ﬁnal database.
+B. Preprocessing
+In order to remove the deteriorating effects of noise and artifacts from the raw signals, we have implemented a preprocessing block to ﬁlter and denoise the signals. Among various preprocessing approaches in the literature, we have analyzed the performance of various ﬁltering and denoising methods including Finite Impulse Response (FIR) ﬁlters, Inﬁnite Impulse Response (IIR), Empirical Mode Decomposition (EMD) [22], and Discrete Wavelet Decomposition (DWT) [23]. Finally, the wavelet denoising is selected because, compared to other methods, preprocessing the vital signals with DWT provides a number of merits such as a better phase response, more efﬁciency in terms of computational complexity, and adaptivity in different Signal to Noise Ratio (SNR) regimes and even non-stationary artifacts.
+
+4
+
+In general, there are three major interference sources, which are threatening the ECG signal quality: A) The 50 or 60 Hz
+
+Input Signal
+
+power-line noise that is almost stationary and constitutes the
+
+major percentage of noise power in these signals. B) The base-line wandering of the signal, which is considered as the
+
+Re-sampling (1KHZ)
+
+respiration artifact and appears as a low-frequency component in the time domain, and it can deteriorate the accuracy of digitalization due to the saturation of analog circuitry or
+
+Wavelet Decomposition (N=10, db8)
+
+reduced effective precision of them. C) High-frequency and
+
+Zeroing 0~0.25 Hz
+
+non-stationary noises that are due to muscular activities.
+
+Components
+
+Fig. 3 shows the preprocessing pipeline of the ECG and PPG signals. In order to make the following parts invariant to the probable changes of the sampling frequency of the
+
+Zeroing 250~500 Hz Components
+
+input signals, this block ﬁrst re-samples inputs at a ﬁxed frequency of 1KHz, which is equal to the high-resolution ECG sample rate. Afterwards, the signal is decomposed by
+
+Wavelet De-noising (soft rigrsure)
+
+means of the DWT with the Daubechies 8 (db8) mother
+
+wavelet and to 10 decomposition levels (see reference [23]
+
+Wavelet Reconstruction
+
+for a detailed discussion about the optimal mother wavelet
+
+and decomposition level selection). Then the components corresponding to the very low frequency range of 0 to 0.25 Hz (associated to the base-line wandering) and ultra-high
+
+Preprocessed Signal
+
+frequencies between 250 Hz to 500 Hz (associated to the Fig. 3. Raw signal preprocessing pipeline. power-line harmonics and the muscular activity artifacts) are
+
+eliminated by zeroing their decomposition coefﬁcients. The
+
+conventional wavelet denoising is preformed on the remaining
+
+decomposition coefﬁcients with soft Rigrsure thresholding
+
+strategy [24], [25]. Finally, cleaned signal is recovered by the reconstruction of the decomposition.
+Fig. 4 shows the performance of this block on a sample
+
+1
+Baseline Wandering
+0.5
+
+Input PPG
+
+Amplitude
+
+signal. As it is evident in this ﬁgure, the low-frequency base-
+
+line wandering of the PPG signal and the high-frequency
+
+0 0
+
+power-line interference on the ECG signal has been reduced
+
+considerably, while the signal morphology is preserved.
+
+1
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+Time (ms)
+(a) Preprocessed PPG
+
+Amplitude
+
+C. Feature Extraction
+The feature extractor block extracts two types of informative features from PPG and ECG signals. The ﬁrst type is based on physiological parameters (e.g., Heart Rate, Augmentation Index, Arterial Stiffness Index, etc). In the second type, however, the feature vector is merely a representation of signal shape and timing. As feature extraction is the integral part of the proposed cuff-less BP estimation algorithm, it will be discussed in Section IV, in more detail.
+According to the ofﬁcial documents from the Physionet organization, in the MIMIC II database, PPG signals are recorded at the sampling rate of 125Hz and no special processing is applied to them. However, in the MIMIC II database, regarding the ECG signal, a turning point compressor is used to reduce the sampling frequency of ECG signals from 500 Hz to 125 Hz. Consequently, compared to original signals, down-sampled signals might have at most about 8 ms time jitter [20]. This phenomenon considerably limits the accuracy of the feature extractor at the ﬁrst place and consequently, reduces the performance of the ﬁnal regression model. In order to compensate for the issue, this paper proposes to extract multiple feature vectors from different time windows within
+
+Amplitude
+
+0.5
+0 0
+1
+0.5
+0 0
+1
+0.5
+0 0
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+Time (ms)
+
+(b) Input ECG
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+Time (ms)
+(c) Preprocessed ECG
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+Time (ms) (d)
+
+Amplitude
+
+Fig. 4. Example signals before and after the preprocessing block. a) Raw PPG signal. b) Preprocessed PPG signal. c) Raw ECG signal. d) Preprocessed ECG signal.
+
+each record and then averaging them to reduce the time jitter effect, which can be modeled as a Gaussian noise.
+
+5
+
+D. Dimensionality Reduction
+The features extracted in the previous block are relatively correlated with one another, which limits the training efﬁciency of the models and results in a need for more valuable training data. On the other hand, the whole-based features, which will be elaborated upon in Section IV-A, are parts of the real signals with a considerable vector length. Training the regression models requires a massive size of training dataset and is computationally inefﬁcient. Reducing the length of the original feature vectors alleviates this problem. For the sake of these beneﬁts the basic Principal Components Analysis (PCA) dimensionality reduction is utilized in this work to reduce the feature length of about 190 associated with the whole-based features to 15, while preserving 98% of energy content of eigenvectors.
+E. Regression Models
+In the creation of the dataset for the supervised learning task, the Arterial Blood Pressure (ABP) signal is used to derive the target SBP and DBP values. In fact, ABP is a periodic signal with the heart rate period and values equal to instantaneous blood pressure inside the vessels. Accordingly, SBP and DBP are corresponding to the minimum and maximum values of the continuous blood pressure signal (ABP), respectively. It is important to note that although the ABP signal and the proposed methodology in this work are both referred to as continuous BP measurement approaches, but the meaning of continuous is different between them. In the case of ABP, continuous means instantaneous with the measurement frequency in an order of milliseconds (depending on the sensor and sampling frequency); however, the proposed methodology estimates the BP with the estimation frequency in an order of seconds (depending on the subject’s heart-rate), which can also be considered as continuous.
+Although the same feature vectors are used for the estimation of the SBP, DBP, and MAP, completely separate models are trained here for each of these targets. For the regression task, the following four machine learning algorithms are compared against one another in Section V-B.
+Regularized Linear Regression (RLR): Linear regression models, which are appropriately regularized by means of a K-fold cross validation, are trained for evaluating the linearity of the problem. It is well known that the ﬁnal trained models are not applicable when the feature vector and the target have a strong non-linear relationship. However, they are simple, easy to train, less prone to over-ﬁtting, and, compared to other alternatives, require less training samples, and hence they are more efﬁcient, which makes their implementation more efﬁcient.
+Decision Tree Regression: Decision trees build models in the form of a tree structure, which consists of a number of decision nodes that each selects a branch based on a trained condition. An input traverses decision nodes of a tree to a leaf node which determines the ﬁnal prediction value. Decision trees are models which are easy to understand and interpret.
+
+However, in some problems, they can create over-complex structures that do not generalize well, and hence demonstrate a poor performance.
+Support Vector Machine (SVM): Support vector machines are among the most powerful learning algorithms in terms of creating strong models with a reasonable training effort and a high noise tolerance. The Libsvm library [26] is used for training an “epsilon-SVR” with “RBF kernel” machine. Hyper-parameters, which are the misclassiﬁcation penalty C, kernel parameter γ and the tolerance of termination criterion , are chosen via an exhaustive grid search.
+Adaptive Boosting (AdaBoost): Adaptive boosting, in contrast to the SVM, creates a prediction by combining the outputs of a number of weak learners into a weighted sum that predicts the target value. Although each of the weak learners is merely a simple model that its prediction performance is insufﬁcient for many applications, their weighted combination is comparable to the performance of using strong learners. In addition, compared to complex and strong models, AdaBoost models are less prone to over-ﬁtting, and hence require less training samples. Here, AdaBoost models consisting of about 1000 decision trees are trained using the great Scikit-learn library [27]. For training the regression model, the “AdaBoost R2” algorithm [28] with the linear loss function is used.
+Random Forest Regression (RFR): Random forests are ensemble learning methods in which the ﬁnal prediction is created by combining predictions from a number of weak learners (e.g. decision trees). For the sake of having a low bias and a reasonably low prediction variance, each tree is trained on a random subset of the training data. In a regression problem, the ﬁnal prediction of a random forest model is the average of the predictions by each regression tree. Here, there is no limitation on the maximum depth of each tree. The number of trees in the ﬁnal regression model is selected by cross validation. The Scikit-learn library [27] is also used here for the model training purposes.
+IV. FEATURE EXTRACTION AND CALIBRATION METHODS
+As it is brieﬂy mentioned in Section III-C, the resultant feature vector from the feature extractor serves as an input to the regression model. In general, two BP estimation methods are proposed in this work. In the ﬁrst method, the blood pressure value is estimated based on a general pre-trained model and without any modiﬁcation for each individual (i.e. calibration-free). The second methodology, an extension to the ﬁrst method, creates calibration models on top of the pre-trained calibration-free models. The major functionality of a calibration model is the reﬁnement of a ﬁxed general model to make better predictions for each individual by using the information from a few calibration points. Each of these methodologies is discussed in the following subsections.
+A. Calibration-Free Method
+In order to estimate the BP in a cuff-less fashion, there are various methodologies in the literature which use the PAT as
+
+6
+
+1
+R-Peak 0.5
+R-R Interval
+
+Amplitude
+
+Amplitude
+
+0 0
+1
+0.8
+0.6
+0.4
+0.2
+0 0
+0.8
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+PATp PATd PATf
+
+Systolic Peak Diastolic Peak
+
+0.6
+
+0.4
+
+0.2
+Fig. 6. Calculation of PAT from the time taken for the heart beat pulse to
+
+0
+
+arrive in the ﬁnger PPG signal. a) ECG signal. b) PPG signal
+
+0
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+3000
+
+Time (ms)
+
+Amplitude
+
+Fig. 5. Examples of real PPG signals with inappropriate shape for an accurate extraction of the physiological parameters. Each sub-plot demonstrates the PPG signal shape for a different subject.
+well as other features from vital signals. However, to the best of our knowledge, this is the ﬁrst design that works out of the box and presents, compared to standard guidelines, reasonable BP estimation accuracies (for more information see Section V and Table IV and V) without any need for calibration.
+To achieve this goal, two sets of features are extracted from ECG and PPG signals. The ﬁrst one is based on features that are inspired by the physiological parameters from vital signals. The vector size of these features is relatively small, which helps creating models by a reasonable training computation and by using a feasible number of records. The main disadvantage of these features is that there exist samples with different signal morphology from the ideal and typical morphologies (see Fig. 7), which prevents the accurate and reliable extraction of physiological parameters from them. (See Fig. 5)
+The second feature extraction approach, however, tries to automate the parameter selection process by providing a whole-based representation of the signals. This approach relies on non-linear learning models to extract information. Compared to the previous method, this approach is more robust to the variations of signal shape and works reasonably for almost all valid signals. The major problem of this approach is that the length of the extracted feature vectors are relatively big, and therefore requires more training samples.
+Extraction of Physiological Parameters: Most of these features are extracted from the shape of PPG signals, and they are borrowed or inspired from various cardiovascular parameters. Others are measurements of the time shift between a few points of the ECG and PPG signals, which are, in fact, related to the measurements of the PAT parameter. The
+
+complete list of these features is as follows:
+1) PAT features: PAT values are obtained by the measurement of the time interval between the ECG R-peak and three points on the PPG signal: the PPG maximum peak (PATp), the PPG minimum (PATf), and the point at which the maximum slope of the PPG waveform occurs (PATd).(See Fig. 6)
+2) Heart rate Heart rate is calculated by the measurement of the peak-to-peak time interval of the PPG or ECG signals.
+3) Augmentation Index (AI): Augmentation is a measure of the wave reﬂection on arteries [29], it is calculated by taking the ratio between the systolic peak and the ﬁrst inﬂection point after it as (see Fig. 7),
+
+x
+
+AI = .
+
+(6)
+
+y
+
+4) Large Artery Stiffness Index (LASI): LASI is an indicator of the arterial stiffness, and it is inversely related to the time interval between the systolic peak and the ﬁrst inﬂection point after it. (see Fig. 7)
+5) Inﬂection Point Area ratio (IPA): IPA is deﬁned as the ratio of the areas under the PPG curve between selected points, denoted by S1, S2, S3 and S4 in Fig. 7. The ratio of heart pumping and pulse wave reﬂection parts in the PPG signal waveform can be used to measure the impedance mismatch between different parts of the arterial system. Therefore, IPA can be considered as an indicator of the total peripheral resistance [29]. In this paper, S1, S2, S3 and S4 areas are used directly as features.
+
+Extraction of the Whole-based features: This type of features are, in fact, representations of the time domain signal in a speciﬁc interval. Fig. 8 shows an example of extraction
+
+7
+
+Systolic Peak
+
+PPG Signal 1 0.5
+
+Amplitude
+
+Max Slope Inflection Point
+
+0 0
+1
+0.5
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+Time (ms)
+
+ECG Signal
+
+Amplitude
+
+y x
+
+S1 S2
+
+S3
+
+S4
+
+0 0
+1
+0.5
+
+500
+
+1000
+
+1500
+
+2000
+
+2500
+
+Time (ms)
+
+Extracted Feature
+
+Amplitude
+
+Fig. 7. Extraction of PPG signal features.
+
+0
+
+0
+
+10
+
+20
+
+30
+
+40
+
+50
+
+60
+
+70
+
+80
+
+90
+
+100
+
+Time (8 ms)
+
+of these features. The whole based features are extracted as follows:
+1) A ﬁxed-size interval of the ECG and PPG signals, which is long enough to contain at least two heart beat periods, is selected as a processing window.
+2) R peaks and systolic peaks of the ECG and PPG signals are determined, respectively.
+3) The ﬁrst ECG R peak is selected as a time reference and the PPG signal is shifted left equal to the time reference point.
+4) The ﬁrst PPG systolic point is selected as the corresponding peak, and a PAT candidate value is measured afterwards.
+5) If the measured PAT value is less than a predeﬁned minimum acceptable PAT value, then the ﬁrst systolic PPG peak is discarded and the next one is considered as the ﬁrst PPG peak in this window.
+6) The PPG signal part, which is between the ﬁrst and the second PPG systolic peaks, is selected and cropped; other parts are zeroed.
+7) The resultant PPG signal part is shifted left by the predeﬁned minimum PAT value, and it is re-sampled.
+It should be reminded that each of the ”parameter-based” and ”whole-based” feature extraction methods can be used to create the required feature vectors for the regression models in both of the training and test phases (see Section V-A for a comparison).
+B. Calibration-Based Method
+The proposed methods in Section IV-A were completely calibration free. However, in order to further increase the accuracy of the cuff-less BP estimation, calibration methods are proposed as optional and complement parts of the system. To achieve this goal, separate calibration models can be used on top of the previous calibration-free models, which are
+
+Fig. 8. Extraction of the whole-based features. Appropriate peaks selected from PPG and ECG signals, the speciﬁed part of the signal is cropped and shifted appropriately.
+created using the method introduced in Section IV-A (see Fig. 1).
+In the creation and evaluation of the calibration-based models, the following additional steps have been taken:
+1) A dataset consisting of the extracted features, target values (SBP or DBP), and part IDs is created.
+2) This dataset is partitioned into two smaller datasets. 3) The ﬁrst dataset is used in the training and evaluation
+of a calibration-free model. 4) The second dataset is divided into a number of groups,
+each group consisting of different parts of a speciﬁc record. 5) In each group, using a leave-one-out fashion, one part is used as a calibration point and other parts are used in the evaluation of the ﬁnal calibration-based model.
+V. RESULTS
+Testing each model is performed by a 10-fold separation of dataset samples to train and test sets. Special care is taken to ensure that there is no overlap between the train and test data. In the training and evaluation of the calibration-based models, the ID ﬁeld is used to identify different parts of each record and the calibration process is performed and evaluated on different parts of each record, separately. On this basis, the following results are reported.
+A. Parameter-Based Versus Whole-Based Approach
+Table II presents a comparison between the parameterbased and the whole-based methods. The best results in each feature and target set are indicated with gray background color. From Table II, it is clearly evident that in all cases, the performance of the parameter-based feature extraction
+
+8
+
+approach is slightly better than the whole-based method.
+
+However, this fairly small advantage comes with the penalty
+
+450
+
+of incapability of the parameter-based approach in the high400
+accuracy delineation of important signal points, which can be
+
+due to either differences in signal shapes among individuals
+
+350
+
+or due to possible mechanical or electrical faults in the data
+
+300
+
+recording phase. (See Fig. 5 for examples of such signals.)
+
+250
+
+Hist ogram of Error
+
+Fr e q u e n cy
+
+B. Machine Learning Algorithm Selection
+In addition to the comparison between the two feature extraction approaches, Table II also presents a comparison between the performance of various learning methods. In this comparison, simple regression models (i.e. linear regression and decision tree), strong and non-linear models (i.e. RBF kernel SVM) as well as boosting and ensemble methods are included.
+From Table II, it is evident that the performance of the BP estimation using Linear Regression is much lower than the estimation performance when using strong non-linear learning algorithms such as kernel machines or ensemble learning methods. Therefore, from the analysis of Table II, it can be inferred that there exists a considerable non-linearity and inherent complexity in this problem that necessitates employing powerful regression algorithms. Especially, in the whole-based approach, Linear Regression and Decision Tree are almost incapable of producing acceptable accuracies. On the other hand, other models such as SVM, AdaBoost, and Random Forest are more promising. Considering the Mean Absolute Error (MAE) criterion, the AdaBoost approach outperforms the others by a margin. The model weights were inspected using the Gini importance [30], which measures the importance of each feature in terms of the total reduction of the tree splitting criterion. It turned out that, compared to other features, PATd feature is playing a more signiﬁcant role in the BP prediction.
+Fig. 9 and Fig. 10 present histograms of estimation error, when the AdaBoost models and parameter-based features are used. From the estimation error histograms, it can be seen that error values are normally distributed around zero. The underlying reason behind the greater estimation errors for SBP values compared to those for DBP ones is that the variance of SBP target values is about twice as much as that of the DBP target variance (also, see Table I).
+Fig. 11 and Fig. 12 present Bland-Altman and Regression plots for SBP and DBP targets. It can be deduced from these plots that although a much percentage of the estimated values are within the 10 mmHg error lines; however, the samples with very low or very high BP values are not estimated as accurate as other samples. The main reason behind this issue is the existence of fewer number of subjects with very high or very low blood pressures in the training dataset, which limits the regression model performance in predicting infrequent BP values.
+C. Calibration-free Versus One-point Calibration Method
+A comparison between the calibration-free and calibrationbased methods is presented in Table III. In this comparison,
+
+200
+
+150
+
+100
+
+50
+
+0
+
+− 40 − 30 − 20 − 10
+
+0
+
+10
+
+20
+
+30
+
+40
+
+Error (mmHg)
+
+Fig. 9. DBP error histogram from the AdaBoost regression.
+
+Fr e q u e n cy
+
+Hist ogram of Error
+350
+
+300
+
+250
+
+200
+
+150
+
+100
+
+50
+
+0
+
+− 40 − 30 − 20 − 10
+
+0
+
+10
+
+20
+
+30
+
+40
+
+Error (mmHg)
+
+Fig. 10. SBP error histogram from the AdaBoost regression.
+parameter-based features and AdaBoost regression are used to evaluate the proposed methods. In this table, STD, MAE, and output-target correlation (r) values of each method are compared against others. From Table III, it is evident that the proposed calibration-based approach outperforms the calibrationfree approach with a considerable margin. Although using calibration dramatically increases the BP estimation accuracy, but since current health-care standards do not suggest any established methodology, as they do not provide any instruction for calibration procedure in BP measurement devices, a fair comparison with these standards and our calibration-based results is impossible [31]. It is also worth mentioning that the reason behind the smaller subject numbers in the calibrationbased method is that separate subjects, which are not included in calibration-free model training, are used here. In addition, we have only selected the subjects which have a considerable BP variation between their signal parts.
+
+9
+
+TABLE II COMPARISON OF THE PERFORMANCE USING THE TWO FEATURE SETS AND VARIOUS LEARNING ALGORITHMS.
+
+Feature Set Learner / Performance
+Linear Regression Decision Tree
+Support Vector Machine AdaBoost
+Random Forest
+
+Systolic Blood Pressure (mmHg) Parameter-based Whole-based
+
+MAE 14.71 16.28 12.26 11.17 11.80
+
+STD 10.79 16.28 10.32 10.09 9.87
+
+MAE 14.14 17.15 12.65 11.87 12.39
+
+STD 10.44 14.97 10.33 10.30 10.09
+
+Diastolic Blood Pressure (mmHg) Parameter-based Whole-based MAE STD MAE STD 6.74 6.11 6.75 6.12 7.75 8.54 8.44 9.17 5.91 5.78 6.19 6.07 5.35 6.14 5.78 6.61 5.83 5.71 6.39 6.06
+
+Error (mmHg)
+
+30 20 10
+0 −10 −20 −3090
+20 15 10
+5 0 −5 −10 −15 −2060
+
+100 110 120 130 140 150 160 170 (Target+Estimate)/2 (mmHg) a)
+
+65
+
+70
+
+75
+
+80
+
+85
+
+90
+
+95
+
+100
+
+(Target+Estimate)/2 (mmHg)
+
+b)
+
+Error (mmHg)
+
+Fig. 11. Bland-Altman plot for a) SBP and b) DBP targets using the AdaBoost regression.
+
+Estimate (mmHg) Estimate (mmHg)
+
+Regression Plot (r=0.59)
+160 140 120 100
+100 120 140 160 Target (mmHg) a)
+
+100 Regression Plot (r=0.48)
+95 90 85 80 75 70 65 6060 65 70 75 80 85 90 95 100
+Target (mmHg) b)
+
+Fig. 12. Regression plot for a) SBP and b) DBP targets using the AdaBoost regression.
+In the next few sub-sections, we will focus on the calibration-free approach to present our results; however, it should be considered that these accuracies can be enhanced substantially by utilizing the calibration method as it is introduced in Section IV-B.
+
+D. Comparison with other works
+Table III also demonstrates a comparison between the proposed approaches and other works in literature employing PAT measurements for the BP estimation. To perform a fair comparison, calibration-free methodologies should be only compared with themselves. Considering this, it is noticeable from Table III that our calibration-free approach, compared to other works, presents reasonable results (specially in STD and r criteria). It should also be noted that, compared to other works, the number of test subjects in the evaluation of this work is considerably higher, which means that our results enjoy a higher statistical reliability.
+E. Evaluation using the BHS Standard
+Table IV presents an evaluation of the proposed methodology using the parameter-based features and AdaBoost learning by the British Hypertension Society (BHS) standard. BHS grades BP measurement devices based on their cumulative percentage of errors under three different thresholds, i.e. 5, 10 and 15 mmHg [36]. According to the BHS standard, the proposed method is consistent with the grade A in the estimation of DBP and with the grade B in the estimation of the MAP value.
+F. Evaluation using the AAMI Standard
+Table V demonstrates a comparison between the results of using the parameter-based features and Random Forest regression with the Advancement of Medical Instrumentation (AAMI) criterion [37]. The AAMI requires BP measurement devices to have ME and STD values lower than 5 mmHg and 8 mmHg, respectively. According to Table V, the proposed method has ME values much lower than the maximum acceptable ME value. Regarding the STD criterion, the STD values for DBP and MAP are within the 8 mmHg standard margin. However, the STD value of the SBP estimation is slightly out of the AAMI acceptable limit.
+It is also noteworthy to mention that AAMI requires devices to be evaluated on a statistical population of at least 85 subjects; however, thanks to the huge number of available records in the MIMIC dataset (see Section III-A), we have veriﬁed the proposed method on a population of 942 subjects which guarantees a considerably higher statistical reliability
+
+10
+
+TABLE III COMPARISON WITH OTHER WORKS
+
+DBP
+
+MAP
+
+SBP
+
+Work
+
+Subjects
+
+STD
+
+MAE
+
+r
+
+STD
+
+MAE
+
+r
+
+STD
+
+MAE
+
+r
+
+(evaluation) (mmHg) (mmHg)
+
+(mmHg) (mmHg)
+
+(mmHg) (mmHg)
+
+This Work (calib-free)
+
+942
+
+6.14
+
+5.35 0.48 5.38
+
+5.92 0.56 10.09
+
+11.17 0.59
+
+This Work (calib-based)
+
+57
+
+3.52
+
+4.31 0.57
+
+-
+
+-
+
+-
+
+5.45
+
+8.21 0.54
+
+SVR [32] (calib-free)
+
+851
+
+8.45
+
+6.34
+
+-
+
+9.54
+
+7.52
+
+-
+
+16.17
+
+12.38
+
+-
+
+ECG IBP [33] (calib-based)
+
+22
+
+-
+
+-
+
+0.42
+
+-
+
+-
+
+0.46
+
+-
+
+-
+
+0.47
+
+rPTT [34] (calib-based)
+
+12
+
+-
+
+-
+
+0.14
+
+-
+
+-
+
+0.28
+
+-
+
+-
+
+0.62
+
+BPTT [35] (calib-based)
+
+30
+
+6.00
+
+-
+
+-
+
+-
+
+-
+
+-
+
+7.61
+
+-
+
+-
+
+TABLE IV COMPARISON WITH THE BHS STANDARD
+
+TABLE VI ACCURACY OF THE ALGORITHM IN BP CLASSIFICATION
+
+Our Results BHS [36]
+
+DBP MAP SBP grade A grade B grade C
+
+Cumulative Error Percentage
+
+≤ 5mmHg ≤ 10mmHg ≤ 15mmHg
+
+62.7%
+
+87.1%
+
+95.7%
+
+54.2%
+
+81.8%
+
+93.1%
+
+34.1%
+
+56.5%
+
+72.7%
+
+60%
+
+85%
+
+95%
+
+50%
+
+75%
+
+90%
+
+40%
+
+65%
+
+85%
+
+TABLE V COMPARISON WITH THE AAMI STANDARD
+
+Our Results AAMI [37]
+
+Diastolic Mean Pressure Systolic SBP and DBP
+
+ME (mmHg)
+0.36 0.16 -0.06 ≤5
+
+STD (mmHg)
+5.70 5.25 9.88 ≤8
+
+Subjects
+942 942 942 ≥ 85
+
+than the AAMI requirements. Here, the reason behind using the Random Forest regression instead of AdaBoost is, as it is evident from Table III, Random Forest learning method presents results with lower STD values, which is an important criterion of the AAMI standard.
+
+DBP
+
+SBP
+
+Class
+
+Range (mmHg) Accuracy Range (mmHg) Accuracy
+
+Desired
+
+BP ≤ 80
+
+88%
+
+BP ≤ 120
+
+87%
+
+Pre-hypertension 80 < BP ≤ 90 91% 120 < BP ≤ 140 73%
+
+Hypertension
+
+90 < BP
+
+98%
+
+140 < BP
+
+82%
+
+VI. DISCUSSION
+It should be noted that the MIMIC database, used in this paper and many other works, contains clinical data obtained from Intensive Care Units (ICU), which means that almost all samples are inﬂuenced by drugs that can potentially cause abnormal BP variations. In addition, due to using records of ICU patients, the average age of subjects in this study is higher than the average of the total population age. These conditions, compared to the standard requirements (see Section V-E and V-F), puts even more strain on the BP estimation system.
+As another important point, in this work, the ECG and PPG signals are used as input vital signals because of their availability in the Physionet MIMIC dataset [20]; however, using other signals (e.g. BCG, SCG, etc), specially for proximal time reference, can potentially produce more accurate BP estimations [19]. Apart from vital signals, there are a number of features including age, weight, and hight, which can be added to the features from vital signals to produce even more desirable accuracies.
+
+G. BP Classiﬁcation Performance
+In many health-care monitoring applications, the interpretation of the BP values is preferred to reporting the numerical BP values. Table VI presents the accuracy of the proposed algorithm in classifying BP values using the parameter-based features and AdaBoost learning method. In order to measure the performance of the algorithm in classifying BP values, three different BP ranges are deﬁned for each of the SBP and DBP targets, and the classiﬁcation accuracy is measured by getting the percentage of correct detections within each BP class range. From Table VI, it is clearly evident that the proposed method enjoys the capability to accurately classify SBP and DBP values.
+
+VII. CONCLUSION AND FUTURE WORK
+In this paper, we have addressed the problem of continuous and non-invasive BP estimation in health-care monitoring systems. Primarily, the proposed methodology consists of signal denoising, feature extraction, and regression stages. It was shown that the proposed BP estimation algorithm works properly, even without any need for calibration procedures. The estimation accuracy of the algorithm is evaluated using the BHS and AAMI standards. According to the BHS, our proposed calibration-free method has grade A in estimation of the DBP, and grade B in estimation of the mean blood pressure. According to the AAMI, the results for the DBP and MAP are approved by a considerable margin. In addition to the calibration-free method, a calibration procedure is also suggested in order to increase the estimation accuracy further.
+
+11
+
+REFERENCES
+[1] W. H. Organization et al., World Health Statistic 2015. World Health Organization, 2015.
+[2] W. H. Organization, A global brief on Hypertension, Silent killer, global public health crisis. World Health Organization, 2014.
+[3] G. Ogedegbe and T. Pickering, “Principles and techniques of blood pressure measurement,” Cardiology clinics, vol. 28, no. 4, pp. 571–586, 2010.
+[4] L. Peter et al., “A review of methods for non-invasive and continuous blood pressure monitoring: Pulse transit time method is promising?” IRBM, vol. 35, no. 5, pp. 271–282, 2014.
+[5] S. Ahmad et al., “Electrocardiogram-assisted blood pressure estimation,” IEEE Trans. Biomed. Eng., vol. 59, no. 3, pp. 608–618, 2012.
+[6] F. W. Xuan, “An exploration on real-time cufﬂess blood pressure estimation for e-home healthcare,” Ph.D. dissertation, University of Macau, 2011.
+[7] R. Mukkamala et al., “Toward ubiquitous blood pressure monitoring via pulse transit time: Theory and practice,” IEEE Trans. Biomed. Eng., vol. 62, no. 8, pp. 1879–1901, Aug 2015.
+[8] C. Poon and Y. Zhang, “Cuff-less and noninvasive measurements of arterial blood pressure by pulse transit time,” in Annu. Int. Conf. Eng. Med. Bio. (EMBS). IEEE, 2006, pp. 5877–5880.
+[9] N. Kumar et al., “Cufﬂess BP measurement using a correlation study of pulse transient time and heart rate,” in Int. Conf. Adv. Comp. Info. (ICACCI). IEEE, 2014, pp. 1538–1541.
+[10] D. B. McCombie et al., “Adaptive blood pressure estimation from wearable PPG sensors using peripheral artery pulse wave velocity measurements and multi-channel blind identiﬁcation of local arterial dynamics,” in Annu. Int. Conf. Eng. Med. Bio. (EMBS). IEEE, 2006, pp. 3521–3524.
+[11] M. Y. Wong et al., “An evaluation of the cufﬂess blood pressure estimation based on pulse transit time technique: a half year study on normotensive subjects,” Cardiovascular Engineering, vol. 9, no. 1, pp. 32–38, 2009.
+[12] H. Gesche et al., “Continuous blood pressure measurement by using the pulse transit time: comparison to a cuff-based method,” Eur. J. Appl. Physiol., vol. 112, no. 1, pp. 309–315, 2012.
+[13] F. S. Cattivelli and H. Garudadri, “Noninvasive cufﬂess estimation of blood pressure from pulse arrival time and heart rate with adaptive calibration,” in Wearable and Implantable Body Sensor Networks, 2009. BSN 2009. Sixth International Workshop on. IEEE, 2009, pp. 114–119.
+[14] M. Moghadam and M. H. Moradi, “Model based blood pressure estimation during exercise test using modiﬁed fuzzy function,” in ICBME. IEEE, 2014, pp. 69–73.
+[15] M. F. ORourke and J. Hashimoto, “Mechanical factors in arterial aging: A clinical perspective,” J. Am. Coll. Cardiol., vol. 50, no. 1, pp. 1 – 13, 2007.
+[16] D. J. Hughes et al., “Measurements of young’s modulus of the canine aorta in-vivo with 10 MHz ultrasound,” in 1978 Ultrasonics Symposium, 1978, pp. 326–326.
+[17] P. Mbius, “Remoissenet, m.: Waves called solitons. concepts and experiments. second revised and enlarged edition. berlin etc., springer-verlag 1996. xx, 260 pp., dm 78,00. isbn 3-540-60502-9,” J. Appl. Math. Mech., vol. 77, no. 7, pp. 560–560, 1997.
+[18] P. A. Obrist et al., “Pulse transit time: Relationship to blood pressure,” Behav. Res. Meth. Instr., vol. 10, no. 5, pp. 623–626, 1978.
+[19] C. Kim et al., “Ballistocardiogram as proximal timing reference for pulse transit time measurement: Potential for cufﬂess blood pressure monitoring,” IEEE Trans. Biomed. Eng., vol. 62, no. 11, pp. 2657–2664, Nov 2015.
+[20] A. L. Goldberger et al., “PhysioBank, PhysioToolkit, and PhysioNet : Components of a new research resource for complex physiologic signals,” Circulation, vol. 101, no. 23, pp. e215–e220, 2000.
+[21] The HDF Group. (1997-2015) Hierarchical Data Format, version 5. Http://www.hdfgroup.org/HDF5/.
+[22] B. Singh et al., “Various approaches to minimise noises in ECG signal: A survey,” Int. Conf. Adv. Comp. Comm. Tech., 2015.
+[23] B. N. Singh et al., “Optimal selection of wavelet basis function applied to ECG signal denoising,” Digital Signal Process., vol. 16, no. 3, pp. 275–287, 2006.
+[24] D. L. Donoho et al., “Ideal spatial adaptation by wavelet shrinkage,” Biometrika, vol. 81, no. 3, pp. 425–455, 1994.
+[25] D. Donoho, “De-noising by soft-thresholding,” IEEE Trans. Inform. Theory, vol. 41, no. 3, pp. 613–627, 1995.
+
+[26] C.-C. Chang and C.-J. Lin, “LIBSVM: A library for support vector machines,” ACM Trans. Intell. Syst. Technol., vol. 2, no. 3, pp. 27:1– 27:27, May 2011.
+[27] F. Pedregosa et al., “Scikit-learn: Machine learning in Python,” vol. 12, pp. 2825–2830, 2011.
+[28] H. Drucker, “Improving regressors using boosting techniques,” in Int. Conf. Mach. Learn., ser. ICML ’97. Morgan Kaufmann Publishers Inc., 1997, pp. 107–115.
+[29] M. Elgendi, “On the analysis of ﬁngertip photoplethysmogram signals,” CCR, vol. 8, no. 1, pp. 14–25, 2012.
+[30] L. Breiman, “Random forests,” Mach. Learn., vol. 45, no. 1, pp. 5–32, Oct. 2001.
+[31] “IEEE standard for wearable cufﬂess blood pressure measuring devices,” IEEE Std 1708-2014, pp. 1–38, Aug 2014.
+[32] M. Kachuee et al., “Cuff-less high-accuracy calibration-free blood pressure estimation using pulse transit time,” in IEEE Int. Symp. Circ. Syst. (ISCAS), May 2015, pp. 1006–1009.
+[33] C. Douniama et al., “Blood pressure tracking capabilities of pulse transit times in different arterial segments: A clinical evaluation,” in Computers in Cardiology, Sept 2009, pp. 201–204.
+[34] R. A. Payne et al., “Pulse transit time measured from the ECG: an unreliable marker of beat-to-beat blood pressure,” J. Appl. Physiol., vol. 100, no. 1, pp. 136–141, 2005.
+[35] S. C. Huang et al., “A new image blood pressure sensor based on PPG, RRT, BPTT, and harmonic balancing,” IEEE Sensors J., vol. 14, no. 10, pp. 3685–3692, Oct 2014.
+[36] E. O. Brien et al., “The british hypertension society protocol for the evaluation of automated and semi-automated blood pressure measuring devices with special reference to ambulatory systems.” J. Hypertens., vol. 8, no. 7, pp. 607–619, 1990.
+[37] Association for the Advancement Instrumentation, American National Standard for Electronic or Automated Sphygmomanometers, ANSI/AAMI SP 10 2002, Arlington, VA: AAMI, 2002.
+
+View publication stats
+
