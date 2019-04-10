@@ -1,0 +1,235 @@
+Estimating Blood Pressure using Windkessel Model on Photoplethysmogram
+
+Anirban Dutta Choudhury, Rohan Banerjee, Aniruddha Sinha and Shaswati Kundu
+
+Abstract— Simple and non-invasive methods to estimate vital signs are very important for preventive healthcare. In this paper, we present a methodology to estimate Blood Pressure (BP) using Photoplethysmography (PPG). Instead of directly relating systolic and diastolic BP values with PPG features, our proposed methodology initially maps PPG features with some person speciﬁc intermediate latent parameters and later derives BP values from them. The 2-Element Windkessel model has been considered in the current context to estimate total peripheral resistance and arterial compliance of a person using PPG features, followed by linear regression for simulating arterial blood pressure. Experimental results, performed on a standard hospital dataset yielded absolute errors of 0.78 ± 13.1 mmHg and 0.59 ± 10.23 mmHg for systolic and diastolic BP values respectively. Results also indicate that the methodology is more robust than the standard methodologies that directly estimate BP values from PPG signal.
+I. INTRODUCTION
+Affordable health care in developing countries and elderly health care in both developing and developed countries require unobtrusive, low-cost devices to estimate physiological parameters. Blood pressure (BP) is the pressure exerted by circulating blood, upon the walls of blood vessels. During each heartbeat, blood pressure varies between a maximum (systolic; Ps) and a minimum (diastolic; Pd) value. Systolic blood pressure is the pressure exerted in the arteries when the heart contracts, whereas diastolic blood pressure is the pressure when the heart relaxes. A very high BP (hypertension) is an indicator of potential heart attack, arterial damages and stroke. A very low BP (hypotension) on the other hand may also lead to heart damages, kidney failure and several other heart diseases. Thus a regular check up of Blood pressure is needed for a basic preventive health care. Invasive BP monitoring is rather uncommon, and generally takes place in hospital setups [1]. Traditionally, a physician or a trained medical technician uses combination of sphygmomanometer and stethoscope, listens for Korotkoff sounds, and determines the blood pressure levels. Though the later is a non-invasive procedure, the requirement of skilled professionals makes the process costly, and in some cases, regular check-up may become unaffordable. In the last decade, off-the-shelf digital sphygmomanometers have ﬂooded consumer market, offering medically unskilled users an opportunity to measure blood pressure, at virtually
+
+zero recurring cost. Some of these devices are medical-grade and aggressive pricing have made them quite affordable. Very recently, researchers have looked into cuff-less non-invasive blood pressure measurement with some of the products claiming FDA approval.1 Photoplethysmography (PPG) is a simple, non-invasive technique to measure instantaneous blood ﬂow in blood vessels [2]. Affordable commercial devices (pulse oximeter) are available in market that captures ﬁngertip PPG signal cleanly in transmissive mode. PPG is commonly used for the measurement of heart rate (HR), heart rate variability (HRV) [3] and arterial oxygen saturation (SpO2). Zhang et al. [4] used ECG as well as PPG waveforms to estimate BP levels based on the principle of pulse wave transition by measuring the time lapse between the peak of the ECG and the trough of the PPG waveform. Chandrasekaran et. al [5] have used two sensor signals - PPG and audio sound of heart beat for BP measurement. A linear regression based model is created to estimate the systolic and diastolic BP using the time difference between the peak of the audio wave and the peak of the PPG signal. However, the major challenge of this system lies in synchronizing the two separate sensors (audio recorder and PPG recorder). Few research works have tried to estimate Ps and Pd using PPG as their only input. Teng et al. [6] presented certain PPG features, for estimating human BP using linear regression. Lamonaca et al. [7] also proposed similar approach using neural network. Although these methods reported satisfactory accuracy, they do not physiologically relate PPG features with the values of Ps and Pd. On the other hand, there are several electrical [8] and mechanical [9] models available in literature that accurately simulate pressure wave propagation through arteries. In this paper, we have targeted the problem of estimation of Ps and Pd using PPG data through 2Element Windkessel model [8]. PPG features of a subject are used to derive various latent parameters of Windkessel model that controls human BP. Rest of the paper is organized as follows, BP wave simulation using 2-Element Windkessel model is brieﬂy described in Section II. Section III deals with our proposed methodology to estimate BP, followed by experimental results and conclusion in Section IV and V respectively.
+
+Anirban Dutta Choudhury, Rohan Banerjee and Aniruddha Sinha are with Innovation Lab, Tata Consultancy Services Limited, Kolkata, India. {anirban.duttachoudhury,rohan.banerjee, aniruddha.s}@tcs.com
+Shaswati Kundu is with Sikkim Manipal Institute of Technology, India.
+shaswatikundu91@gmail.com
+
+1http://www.medgadget.com/2013/10/fda-approves-visi-mobile-systemfor-cufﬂess-non-invasive-continuous-bp-monitoring.html
+
+978-1-4244-7929-0/14/$26.00 ©2014 IEEE
+
+4567
+
+II. SIMULATING ARTERIAL BP USING WINDKESSEL MODEL
+A. Windkessel Model
+The Windkessel model describes the human cardiovascular system in terms of an electrical circuit [8]. The model can mathematically relate blood ﬂow and blood pressure in arteries. In this analogy, arterial blood ﬂow is described as the ﬂow of ﬂuid through a pipe. In the simplest form of Windkessel model (2-Element Windkessel model), the total peripheral resistance and arterial compliance are modeled as a resistance (R in mmHg.s/mL) and capacitance (C in mL/mmHg) respectively. The blood ﬂow from ventricles to artery is analogous to a sinusoidal electrical current (I(t)) wave and arterial pressure wave is modeled as a time-varying electrical potential (P (t)).
+
+Fig. 1: Electrical analogy of 2-Element Windkessel model
+As the number of elements increase (3 or 4 Element model), the accuracy of the model increases with an additional penalty of more unknown variables to deal with. For simplicity, we have used 2-Element Windkessel model in our proposed methodology to reduce the number of unknown quantities to be predicted. The electrical analogy of 2Element Windkessel model is shown in Fig. 1. Applying Kirchhoff Law of Current, we get
+
+P (t) dP (t)
+
++C
+
+= I(t)
+
+(1)
+
+R
+
+dt
+
+B. Derivation of Ps and Pd
+
+Without loss of generality, the total blood pumped by heart during nth cardiac cycle can be expressed (as in Eq.2) as a
+sinusoidal function with a peak value of I0 during systole and zero during diastole.
+
+I(t) =
+
+I0
+
+sin(
+
+πt Ts
+
+),
+
+(n − 1)Tc < t ≤ (n − 1)Tc + Ts
+
+0,
+
+(n − 1)Tc + Ts < t ≤ nTc
+
+(2)
+
+Here Ts is the systolic upstroke time, Td is the diastolic time
+
+cycle
+
+CoTc 60
+
+=
+
+I0
+
+Ts
+
+πt
+
+sin( )dt
+
+0
+
+Ts
+
+(3)
+
+I0 = 60
+
+CoTc
+
+Ts 0
+
+sin(
+
+πt Ts
+
+)dt
+
+(4)
+
+Now, putting the conditions of Eq.2 in Eq.1 and solving them, we can form an expression for P (t), which brings us
+
+the following:
+
+Ps = P (t|t = Ts)
+
+=
+
+Ptse−Ts/RC
+
++
+
+I0 Ts C πR2 Ts2 + C2π2R2
+
+(1
+
++
+
+e−Ts/RC )
+
+(5)
+
+Pd = P (t|t = Td) = Ptde−Td/RC
+
+(6)
+
+Where Pts and Ptd are the initial values of Ps and Pd respectively. Similarly, R and C can also be expressed as function of Ps, Pd, Ts, Td and I0 using Eq.5 and Eq.6 respectively.
+
+C. Inputs and Assumptions
+We assume that every cardiac cycle starts at systole and Pts is supplied as 80 mmHg as an initial condition for the ﬁrst cycle. For every next cycle this gets replaced by Pd calculated in the previous cycle. Ptd is assigned to the value of Ps obtained in that cycle. The ventricular blood ﬂow and BP waveform of an imaginary subject having heartrate of 90 bpm, Ps and Pd of 160 mmHg and 100 mmHg respectively are shown in Fig. 3. It can be observed that after few cardiac cycles the waveform gets stabilized to the desired BP levels. For this example, we have assumed that Td/Ts = 1.5. Thus the model is capable of simulating any BP waveform, provided R, C, Ts and Td are known.
+
+Fig. 3: BP simulation using 2-Element Windkessel model for Ps/Pd = 160/100 mmHg and HR = 90 bpm
+
+Fig. 2: Sample PPG waveform. and the duration of one cardiac cycle is Tc = Ts + Td. If Co be the cardiac output of a person2, then for one cardiac
+2units of Co and Tc are litre/minute and second respectively
+
+As shown in Fig.2 parameters like Ts, Td and Tc can be accurately calculated from the input PPG signal. For a healthy adult person cardiac output can be well-assumed to be 5 litre/min. So I0 can be calculated from this using Eq.4. However there is no known mathematical relationship between PPG features and R, C. Physiologically, the R and C components affect the blood ﬂow in arteries and are expected to be related with the shape of the PPG waveform of the subject. So we use machine learning based approach to estimate R and C from PPG features.
+
+4568
+
+Ground truth BP values
+Calculate R and C
+PPG Features
+
+Linear regression
+
+Training Phase
+Models for R and C
+
+C. Estimation of R and C from PPG features
+R and C parameters are estimated using multiple linear regression where the PPG features are treated as independent variables. In training phase, the regression models are ﬁtted using least square method to calculate the regression parameters. These parameters are used for estimation of R and C of an untrained subject in the testing phase.
+
+Models for R and C
+PPG Features
+
+Predict R and C by regression
+
+Testing Phase
+Calculate Ps and Pd
+
+D. Estimation of BP values Ts and Td can be calculated from PPG waveform. Once R
+and C are estimated, BP values of the subject are calculated using Eq.5 and Eq.6 respectively.
+IV. EXPERIMENTAL RESULTS
+
+Fig. 4: Block diagram of proposed methodology
+In our proposed methodology (as in Fig. 4), R and C of the training subjects are ﬁrst calculated from ground truth BP values and are ﬁtted to a straight line using their PPG features in the off-line training phase. During testing, R and C are ﬁrst estimated from PPG features of the test subject and later Ps and Pd are calculated using Eq.5 and Eq.6.
+III. PROPOSED METHODOLOGY
+Different steps involved in analysing PPG signal for feature extraction, estimation of R, C parameters and later Ps and Pd are given in the following subsections.
+A. Feature Extraction from PPG signal
+Generally a PPG signal is noisy in nature and may contain a DC component along with some high frequency noise components. The fundamental frequency of PPG signal is typically concentrated around 1 Hz (depending upon the heart rate of the subject). So a bandpass ﬁlter having cutoff frequencies of 0.7 Hz and 3 Hz are used to remove the undesired frequency components form PPG signal as part of preprocessing. Later, a set of time domain features are extracted from each cycle of PPG signal. In our case, initially we have considered all the features mentioned in [6] and [7]. Applying the Maximal Information Coefﬁcient (MIC) based feature selection technique mentioned in [10], our optimum feature set gets reduced to the following - (1) systolic upstroke time (Ts), (2) diastolic time (Td), sum of systolic width and diastolic width at (3) 33% (B33) and (4) 75% (B75) of pulse amplitude for R and C. Heart rate of the subject is also considered as a feature for C.
+B. Outlier Removal
+Feature extraction requires an accurate detection of the peak and trough points from each cycle of the input PPG data. A misdetection or a false detection of peak or trough points can lead to wrong feature calculation. Generally the wrongly detected features (outliers) are either too large or too small compared to the actual range of the feature values. In our case, we use the threshold based approach mentioned in [11] to successfully remove the outlier feature data before regression analysis.
+
+All our experiments were conducted on The University of Queensland Vital Signs Dataset [12]. It is a standard hospital dataset containing simultaneously recorded PPG and BP data for 32 surgical cases, ranging in duration from 13 minutes to 5 hours over a period of 4 weeks, using standard medical devices. The dataset also contains the ﬂuctuation of BP values of a person over a long period of time and hence is an ideal dataset for performance analysis of our proposed methodology. The pleth data is sampled at 100 Hz. However, we neglect the instantaneous ﬂuctuation of Ps and Pd and take their arithmetic mode over a period of 5 minutes to return a single value for annotation. The dataset is split into two halves of equal size, one for training and the other for performance evaluation. The training set is ensured to contain a wide variation of Ps and Pd values in almost equal distribution in order to create unbiased training models. The performance of our proposed methodology is tested against the two methods mentioned in [6] and [7]. Linear regression is used as the machine learning tool for all the three methods for unbiased performance analysis. The absolute error from ground truth for both Ps and Pd are reported in the manner of mean ± std in Table I for performance comparison. Results clearly indicate that our proposed methodology outperforms methods [6] and [7].
+
+TABLE I: Performance comparison for Ps and Pd in absolute error (mean ± std) and slope of the best ﬁtted straight line in respective Bland-Altman plots
+
+Method
+Method [6] Method [7] Our Method
+
+Ps Ps (mmHg)
+1.5 ± 23.3 1.17 ± 19.1 0.78 ± 13.1
+
+Slope of B-A plot forPs
+0.83 0.7 0.42
+
+Pd Pd (mmHg)
+1.88 ± 16.6 1.3 ± 13.6 0.59 ± 10.2
+
+Slope of B-A plot forPd
+1.75 1.2 0.52
+
+Bland-Altman plot [13] is a well-known method for assessing agreement between two methods of clinical measurements. In Fig. 5 and Fig. 6, we have presented the agreements of each of the three methods ([6], [7] and our proposed methodology) against the clinically measured BP values. In all the plots, the horizontal axis indicates the mean of the estimated and clinical BP ground truth values, whereas the
+
+4569
+
+(a) Method [6]
+
+(b) Method [7]
+
+(c) Proposed method
+
+Fig. 5: Bland-Altman plot for measured Ps w.r.t Ground truth
+
+(a) Method [6]
+
+(b) Method [7]
+
+(c) Proposed method
+
+Fig. 6: Bland-Altman plot for measured Pd w.r.t Ground truth
+
+vertical axis represents the difference between them. Hence, a horizontal spread is desired in the Bland-Altman plots, as it conﬁrms that the concerned methods were tested on varied range of dataset. Conversely, a vertical spread is not desired as it would indicate the disagreement with clinical BP values.
+We have also plotted the best linear ﬁt for each of the Bland-Altman plots. A higher slope indicates a higher disagreement. A very small slope (≈ 0) of the best ﬁtted straight line in a Bland-Altman plot would indicate that the respective methods closely match with each other. As shown in Table I, our proposed method yields lowest slopes for both Ps and Pd, and hence we claim that the proposed methodology outperforms the other two methods, and matches more closely with clinical method.
+In all our cases, we have made an assumption of cardiac output of each subject as 5 litre/minute. As the current dataset holds a number of critical surgical cases, there can be instances where subjects having cardiac output lesser than that. For such cases there is a chance that the estimated BP values deviate much from the ground truth. Currently, we are exploring some non-invasive methods to coarsely estimate the cardiac output of a person.
+V. CONCLUSION
+A photoplethysmographic approach to estimate human blood pressure using 2-Element Windkessel model has been presented in the current context. Experimental results show that the methodology of estimating BP via the intermediate latent parameters of R and C can improve the overall accuracy. However, 2-Element Windkessel model does not take into account many internal parameters that affect human BP. Thus, the method still needs to be validated against 3 or 4-Element Windkessel models along with other standard models available in literature that simulate human BP more accurately. The present algorithm is tested on hospital PPG data, captured using standard medical device which is expected to be noise-free. Our future challenge lies in running the same algorithm successfully on noisy reﬂective PPG
+
+data captured by smart phones, to make the entire system
+available as a phone application for BP monitoring.
+REFERENCES
+[1] J. G. Webster, Medical lostnrmenfalion: Application and design, Wiley, New York, 1998.
+[2] J. Allen, “Photoplethysmography and its application in clinical physiological measurement,” Physiological Measurement, vol. 28, 2007.
+[3] M. Bolanos, H. Nazeran, and E. Haltiwanger, “Comparison of heart rate variability signal features derived from electrocardiography and photoplethysmography in healthy individuals,” in 28th Annual Int. Conf. of the IEEE EMBS, 2006.
+[4] J. M. Zhang, P.F. Wei, and Y. Li, “A labview based measure system for pulse wave transit time,” in International Conference on Information Technology and Applications in Biomedicine, 2008, pp. 177–480.
+[5] V. Chandrasekaran, R. Dantu, S. Jonnada, S. Thiyagaraja, and K.P. Subbu, “Ieee transactions on biomedical engineering,” Physiological Measurement, vol. 60, no. 4, pp. 1080–1089, APRIL 2013.
+[6] X.F. Teng and Y. T. Zhang, “Continuous and noninvasive estimation of arterial blood pressure using a photoplethysmographic approach,” in Engineering in Medicine and Biology Society, 2003. Proceedings of the 25th Annual International Conference of the IEEE, 2003, pp. 3153 – 3156.
+[7] Francesco Lamonaca et al., “Application of the artiﬁcial neural network for blood pressure evaluation with smartphones,” in The 7th IEEE International Conference on Intelligent Data Acquisition and Advanced Computing Systems: Technology and Applications, 2013, pp. 408 – 412.
+[8] Westerhof N., Lankhaar J.W., and Westerhof B.E., “The arterial windkessel,” Med Biol Eng Comput., vol. 47, no. 2, February 2009.
+[9] A. Mookerjee, A.M. Al-Jumaily, and A. Lowe, “Individualised pressure propagation model for the elastic arteriest,” in World Congress on Medical Physics and Biomedical Engineerin, 2010, pp. 586–589.
+[10] Rohan Banerjee, Aniruddha Sinha, Anirban Dutta Choudhury, and Aishwarya Visvanathan, “Photoecg: Photoplethysmography to estimate ecg parameters,” in Acoustics Speech and Signal Processing (ICASSP), 2014 IEEE International Conference on, 2014.
+[11] Rohan Banerjee, Aniruddha Sinha, Arpan Pal, and Anurag Kumar, “Estimation of ecg parameters using photoplethysmography,” in Bioinformatics and Bioengineering (BIBE), 2013 IEEE 13th International Conference on. IEEE, 2013, pp. 1–5.
+[12] Liu D, Grges M, and Jenkins SA, “University of queensland vital signs dataset: development of an accessible repository of anesthesia patient monitoring data for research,” Anesth Analg, vol. 114, no. 3, March 2012.
+[13] J Martin Bland and DouglasG Altman, “Statistical methods for assessing agreement between two methods of clinical measurement,” The lancet, vol. 327, no. 8476, pp. 307–310, 1986.
+
+4570
+
