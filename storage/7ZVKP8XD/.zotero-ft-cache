@@ -1,0 +1,503 @@
+第 27 卷 第 1 期 Vol.27 No.1
+
+电子设计工程 Electronic Design Engineering
+
+2019 年 1 月 Jan. 2019
+
+基于单路 PPG 信号的连续血压检测算法设计
+
+刘乔寿，王 森
+（重庆邮电大学 光通信与网络重点实验室，重庆 400065）
+
+摘要：针对当前光电容积描记法测量血压方法复杂，不适用于低功耗可穿戴设备的问题。文中在
+
+脉 搏 波 时 域 特 征 参 数 法 的 基 础 上 ，提 出 了 一 种 基 于 单 路 光 电 容 积 脉 搏 波（Photoplethysm ography，简
+
+称 PPG）的连续血压检测算法。选用 MAX30102 脉搏波传感器采集 PPG 信号，对脉搏波依次进行均
+
+匀滤波、周期分割、基线校准和归一化后，识别脉搏波的特征点并计算特征值。进而以特征值探究
+
+与 血 压 之 间 的 关 系 ，建 立 血 压 回 归 模 型 。 试 验 结 果 表 明 ，该 方 法 与 充 气 式 电 子 血 压 计 的 一 致 性 较
+
+好，测量误差符合美国医疗器械促进学会（AAMI：Association for the Advancement of Medical Instru⁃
+
+mentation）标准差不大于 8 mmHg 的范围。
+
+关键词：血压；PPG 信号；基线校准；归一化；特征值；回归模型
+
+中图分类号：TP212.3
+
+文献标识码：A
+
+文章编号：1674-6236（2019）01-0063-07
+
+Continuous blood pressure detection algorithm based on single PPG signal
+
+LIU Qiao⁃shou，WANG Sen （Key Laboratory of Optical Communication and Networks，Chongqing University of Posts and
+Telecommunication，Chongqing 400065，China）
+Abstract: For the problem that the current photoplethysmography method of measuring blood pressure is complex and not suitable for low power wearable devices，on the basis of method that the time- domain pulse wave characteristic parameters，a continuous blood pressure detection algorithm based on single photoplethysmography（PPG）signal is proposed. MAX30102 sensor is selected to collect the PPG raw signal. After uniform filtering，segmentation of cycle，Baseline calibration，normalization for PPG signal，we identifying pulse wave feature points and calculate feature parameters. Then the feature parameters is used to explore the relationship with the blood pressure to establish the blood pressure regression model. The results show the better consistency between algorithm proposed on article and inflatable electronic sphygmomanometer. The measurement error meets the Association for the Advancement of Medical Instrumentation（AAMI）standard deviation of not more than 8mmHg standard. Key words: blood pressure；PPG signal；baseline calibration；normalization；feature parameters；
+regression model
+
+根据世界卫生组织 2015 年非传染病报告显示， 值 称 为 舒 张 压（Diastolic Blood Pressure，DBP），正 常
+
+全球每年有超过 1 750 万人死于心血管疾病，占所有 范围为 60~90 mmHg[2]。当代血压测量手段中，柯氏
+
+非传染疾病致死人数的 46% 。 [1] 血压是心血管疾病 听诊法作为血压测量的“金标准”，在临床医学上被
+
+诊断的重要生理参数，时刻了解血压状况对心血管 广泛使用 。 [3] 随后出现的振荡法[4]、容积补偿法[5]、张
+
+病患者具有重要意义。血压是血液在血管内流动时 力测量法[6]以及光学容积描记法 等 [7] 无创血压测量方
+
+作用于血管壁的压力，其在每个心跳周期均连续变 法，将其的发展推向了一个新的高度。
+
+化 。 血 压 压 力 最 大 值 称 为 收 缩 压（Systolic Blood
+
+光 学 容 积 描 记 法 具 有 成 本 低 、功 耗 低 、体 积 小 、
+
+Pressure，SBP），正常范围为 90~140 mmHg；压力最小 无需袖带充气和可连续测量等优点，适用于可穿戴
+
+收稿日期：2018-01-19 稿件编号：201801106
+
+设备。该方法大多采用光电传感器采集人体生理信
+
+作者简介：刘乔寿（1979—），男，重庆人，博士，副教授。研究方向：超密度网络干扰管理、物联网应用。 - 63 -
+
+《电子设计工程》2019 年第 1 期
+
+号 ，由 光 电 传 感 器 在 人 体 表 面 检 测 出 的 脉 搏 信 号 称 为光电容积脉搏波，简称 PPG 信号。其工作原理为： 发 光 二 级 管 发 射 一 束 特 定 波 长 的 光 ，并 在 人 体 表 面 照 射 。 血 液 中 的 细 胞 能 对 光 进 行 吸 收 ，并 随 着 心 脏 搏动引起反射光强度的变化。光敏传感器对反射光 进行收集，并对反射光中的交流成分进行描记，得到 PPG 信号[8]。
+当前市场上已出现通过 PPG 信号测量血压的设 备 ，如 血 压 手 环 等 。 尽 管 血 压 手 环 的 问 世 给 消 费 者 提供了，更为方便、快捷的测量途径。但从消费者反 馈 来 看 ，其 存 在 测 量 不 准 确 的 问 题 。 例 如 短 时 间 内 测 量 差 别 较 大 或 无 法 测 得 数 据 ，给 消 费 者 带 来 困 扰 。 错 误 的 血 压 易 给 消 费 者 造 成 心 理 压 力 ，尤 其 是 心 血 管 病 患 者 甚 至 会 出 现 惊 慌 恐 惧 的 表 现 ，导 致 不 必要的身心伤害。这些设备检测不准确的根本原因 是 PPG 信号处理和计算模型设计不恰当，不能准确 反 应 人 体 血 压 状 况 。 针 对 上 述 问 题 ，本 文 设 计 了 一 种基于单路 PPG 信号的血压检测算法。其相比现有 算 法 复 杂 度 低 ，且 易 于 在 低 功 耗 、低 速 率 设 备 上 实 现。使用该算法测量的血压值将尽可能地缩小与真 实 值 的 差 距 ，实 现 血 压 标 准 差 满 足 AAMI 不 大 于 8 mmHg 的目标[9]。
+1 当前研究现状
+目前，基于 PPG 的血压算法主要有 ECG 与 PPG 结合法、多路 PPG 结合法以及脉搏波特征参数法。 1.1 ECG 与 PPG 结合法
+脉搏波从心脏位置传导至 PPG 信号测试点的时间 差，称为脉搏波传导时间（Pulse Transit Time，PTT）[10]。 PTT 血压测量模型通常使用心电信号（Electrocardio⁃ Gram，ECG）作为 PTT 的起点，而在身体其他位置（如 耳垂、指尖）记录的 PPG 信号作为 PTT 的终点 。 [11] 通 过识别 ECG 信号和 PGG 信号的主波峰，便可得到两 个主波峰的时间间隔 PTT。PTT 与 SBP 成线性相关， 运 用 线 性 回 归 方 程 建 立 矫 正 系 数 ，能 较 准 确 地 计 算 出 SBP[12]。但 PTT 与 DBP 相关性较小，通常配合其他 方法计算 DBP。而因人体差异及活动状态差异，需 不断对 PTT 模型进行校准。相对于其他研究方法， 该 方 法 的 理 论 研 究 较 为 成 熟 ，血 压 测 量 模 型 已 能 较 准确地测量血压。但除了所需测量的 PPG 信号外， 该方法还需额外的设备测量 ECG 信号。而 ECG 信 号 需 要 在 人 体 多 个 部 位 固 定 电 极 ，故 需 要 多 条 电 极 引线，设备结构复杂，导致测量不便 。 [13]
+- 64 -
+
+1.2 两路 PPG 结合法 两路光电容积脉搏波结合法利用人体两个不同
+部位，如手指、手腕、耳垂间等。根据测得的两路脉搏 波信号特征点的脉搏到达时间差（Pulse Arrive Time Difference，PATD），通过 PATD 模型来估算血压[14]。该 方法相比 ECG 与 PPG 结合法，在设备复杂度上更加 简单，成本较低。但需要佩戴多个传感器，且传感器 的时间同步要求度高，一定程度上加大了测量难度。 1.3 脉搏波特征参数法
+脉 搏 波 特 征 参 数 法 的 核 心 在 于 ，建 立 脉 搏 波 特 征参数与血压之间的关系。该方法提取每搏血压值 及 对 应 的 脉 搏 波 特 征 参 数 ，并 分 析 血 压 值 与 脉 搏 波 特征参数间的相关性。选择相关性较大的特征参数 与 血 压 进 行 回 归 分 析 ，推 导 出 血 压 和 特 征 参 数 的 方 程 。 [15] 相 比 前 两 种 只 需 提 取 主 波 峰 特 征 点 的 方 法 ， 脉搏波特征参数法通常需要多个特征点，对 PPG 信 号的完整程度要求较高。PPG 信号处理方法复杂， 特征点提取难，是该方法的主要问题。通常情况下， 脉搏波特征参数法只需一路 PPG 信号便可实现血压 的测量，这使得测量设备体积较小，成本和功耗也相 对 较 低 ，适 用 于 如 智 能 手 环 等 单 点 检 测 的 低 功 耗 穿 戴 设 备 。 因 此 ，本 文 采 用 脉 搏 波 特 征 参 数 法 设 计 了 一种血压测量算法。
+2 血压算法实现
+文中首先通过识别每个脉搏波的起始位置对 PPG 信号进行周期分割；接着对每个脉搏波的特征 点进行识别；进而对 PPG 信号进行基线校准和归一 化 处 理 便 于 计 算 特 征 值 ；最 后 探 究 特 征 值 与 血 压 之 间 的 相 关 性 ，筛 选 出 相 关 性 较 大 的 特 征 值 并 建 立 血 压 计 算 模 型 ，从 而 计 算 出 血 压 。 本 文 设 计 的 血 压 算 法基本流程，如图 1 所示。
+图 1 血压算法基本流程
+2.1 特征点的识别 图 2 是一个完整的脉搏波示意图。本文设定一
+个脉搏波中有 A、B、C、D 和 E 五个特征点，A 点为起 点；B 点为主波峰及最大值点；C 点为次波谷；D 点为 次波峰；E 点为终点，也是下一个周期波形的起点。 其中，A、E 两点均为主波谷及最小值点。
+
+刘乔寿，等 基于单路 PPG 信号的连续血压检测算法设计
+2.1.3 周期分割 对 PPG 信号进行周期分割的前提是，确定每个
+脉搏波的 A 点。PPG 信号的二阶导函数称为加速度 容 积 脉 搏 波（Acceleration Plethysmogram，APG），简 称 APG 信 号 。 [17] 如 图 3 所 示 ，APG 信 号 中 最 早 出 现 的正向波称为 a 波，a 波波峰对应 PPG 信号的 A 点[18- 。 20] 相 比 PPG 信 号 的 A 点 ，a 波 波 峰 更 尖 锐 ，特 征 更 明 显。本文通过自适应阈值法，对 APG 信号的 a 波波 峰进行识别，以确定 A 点。
+
+图 2 一个完整脉搏波
+
+2.1.1 实验数据采集 文中的实验对象为年龄在 20～50 周岁的健康
+成 年 人 。 实 验 对 象 采 用 静 坐 姿 势 ，通 过 传 感 器 MAX30102[16]采 集 PPG 信 号 。 MAX30102 体 积 小 、功 耗低，已大量应用于三星多种型号手机，且适用于穿 戴设备。本文设采样频率为 fs = 400 Hz ，测试时间 为 5 s。其中，400 Hz 的采样频率较为适中。既能防 止 因 采 样 频 率 较 小 而 样 本 点 数 量 不 足 ，导 致 时 间
+
+参 数 不 准 确 ；又 能 避 免 采 样 频 率 较 大 样 本 数 较 多 ， 给计算带来过多的开销。而 5 s 的测试时间既能保 证 一 定 数 量 的 脉 搏 波 参 与 血 压 的 计 算 ，又 能 确 保 设备的快速测量。PPG 信号的采集部位为左手食指 指尖处，测量过程中手指紧贴 MAX30102 感应面板， 并保持指尖和传感器不发生相对位移或整体抖动。 同 时 ，通 过 袖 带 充 气 式 电 子 血 压 计 Omron HEM7052 在人体左臂桡动脉（左臂手肘位置）记录真实血 压值。 2.1.2 滤波处理
+由于周围光的噪声影响，原始 PPG 信号的波形 具有毛刺，特征点不易识别。令 Sr(n) 表示原始 PPG 序 列 ，其 中 n = 0,1,...,1999 表 示 样 本 编 号 。 本 文 对 Sr(n) 进行跨度为 15 的滑动均匀滤波，得到滤波后的 脉 搏 波 序 列 Ss(n) ，如 公 式（1）所 示 。 滑 动 均 匀 滤 波 计算简单，在信号采集条件较为理想的情况下，能保 持波形特征情况下消除毛刺。
+
+∑ ìïæç
+ïè
+
+2i 0
+
+S
+
+r
+
+(i)
+
+ö
+÷
+ø
+
+/
+
+(2i
+
++
+
+1)
+
+,i ∈[0,6]
+
+∑ Ss(i) =
+
+ïæ íç ïè
+
+i+7 i-7
+
+S
+
+r
+
+(i)
+
+ö
+÷
+ø
+
+/15
+
+,i
+
+∈ [7, 1993]
+
+（1）
+
+∑ ( ïæ
+îïèç
+
+1999 2i - 1999
+
+S
+
+r
+
+(i)
+
+ö÷/ ø
+
+7999
+
+- 2i)
+
+,i
+
+∈ [493, 1999]
+
+图 3 APG 与 PPG
+
+文 中 先 对 Ss(n) 进 行 二 阶 差 分 计 算 得 到 APG 信
+
+号序列 Sa(n) ，如式（2）所示。
+
+Sa(i) =(Ss(i) - Ss(i - 1)) -(Ss(i - 1) - Ss(i - 2)) = Ss(i) - 2Ss(i - 1) + Ss(i - 2) ,i ∈[0,1998]
+
+（2）
+
+本文设门限值 T = 0.6 max(Sa(n)) ，其中 max(Sa(n))
+
+表示当前测试时间 APG 信号的最大值。当信号质量
+
+较为理想时，0.6 的系数大小既能保证 a 波波峰点位
+
+于门限值之上，又能保证其他波峰点位于门限值之下 。
+
+当 Sa(nA) > T 时，有 Sa(nA) > Sa(nA - 1)且 Sa(nA) > Sa(nA + 1)， 则所对应 PPG 信号的 A 点为 nA 。该方法计算简单、效
+
+率高，能较好地识别出脉搏周期的 A 点，如图 4 所示。
+
+图 4 A 点识别示意图
+
+- 65 -
+
+《电子设计工程》2019 年第 1 期
+2.1.4 特征点识别 本小节阐述脉搏波 B、C 和 D 3 个特征点的识别
+算法。如图 5 所示为一个完整脉搏波的一阶导信 号，本文设定该波形中有 M、N、O、P、Q 和 R 6 个特征 点，其含义在下文做出解释。
+
+图 5 一个完整脉搏波的一阶导信号 B 点 为 PPG 信 号 的 主 波 峰 及 最 大 值 点 ，也 是 一 个极大值点。其在 PPG 信号的一阶导信号中，对应 一 个 由 正 到 负 的 过 零 点 N，本 文 通 过 识 别 N 点 来 确
+定 B 点。令 Sd(n) 为 PPG 信号序列的一阶差分序列， 当 Sd(nN) > 0 且 Sd(nN + 1) < 0 成立时，则 nN 为 Ss(n) 的 极大值点。已知 D 点同样是极大值点，当脉搏波具 有较为明显的次波峰时，D 点在 Sd(n) 中所对应的点 将出现于正轴之上。从而出现其他由正到负的过零 点，如图 6 所示。M 点是当前脉搏波一阶导信号的最 大 值 点 ，本 文 定 义 阈 值 G = 0.6 max(Sd(n)) 。 其 中 ， max(Sd(n)) 表 示 当 前 测 试 时 间 PPG 一 阶 导 信 号 的 最 大值。0.6 的系数大小既能保证 M 点位于门限值之 上 ，又 能 保 证 其 他 波 峰 点 位 于 门 限 值 之 下 。 当 Sd(nM) > G 时，有 Sd(nM) > Sd(nM - 1) 且 Sd(nM) > Sd(nM + 1) ， 则 M 点为 nM 。已知在当前脉搏波中，N 点是 M 点后的 第一个从正到负的过零点，基于此原则可将其余由正 到负的零点筛除。最后，N 点识别效果如图 6 所示。
+C 点和 D 点的确定，需先通过识别 O、P 和 Q 3 个 点 来 确 定 。 已 知 前 文 已 确 定 N 点 ，R 点 为 当 前 脉 搏 波 的 最 后 一 个 样 本 点 ，所 以 O 点 作 为 NR 段 的 最 小 值，通过最值判决法确定 O 点；继而 P 点是 OR 段信 号 的 最 大 值 ，从 而 确 定 P 点 ；继 而 Q 点 是 PR 段 信 号 的最小值，从而确定 Q 点。令 O、P 和 Q 的位置分别 为 nO ，nP 与 nQ ，则 C 和 D 位 置 分 别 为 (nO + nP)/2 和 (nP + nQ)/2 。 C 和 D 两 点 识 别 效 果 ，如 图 7 所 示 。 通 过该方法确定的 C 点和 D 点不一定是波形中的实际 位置。这是由于 PPG 信号采集过程中的外界噪声、
+- 66 -
+
+图 6 N 点识别效果图 人为操作、设备灵敏度等原因，及有可能导致 C 点和 D 点分别表现为凹曲线一点和凸曲线一点。在该情 况 下 ，不 能 通 过 传 统 的 极 值 法 来 识 别 。 该 方 法 能 够 将识别的 C 点和 D 点位置尽可能控制在其真实位置 附 近 ，由 于 C 点 与 D 点 真 实 位 置 较 为 接 近 ，耗 时 较 短 。 故 该 算 法 的 误 差 对 最 终 结 果 并 无 较 大 影 响 ，且 提高了脉搏波的利用效率。
+图 7 C 点和 D 点识别效果图
+2.1.5 基线校准与归一化 采 集 PPG 信 号 时 ，由 于 周 围 光 噪 声 、手 指 与
+MAX30102 感 应 面 板 间 的 微 弱 位 移 或 是 手 指 与 MAX30102 感 应 面 板 接 触 松 紧 程 度 的 微 弱 变 化 ，均 会引起信号幅度在较小范围内的无规则变化。如图 8 所示，以原始 PPG 信号的下包络线作为基线示意信 号的基线漂移问题。基线漂移导致各个脉搏波相同 类 型 特 征 点 的 幅 值 差 别 较 大 ，从 而 影 响 幅 度 和 面 积 参数特征值，最终影响血压测量结果。因此，本文对 信 号 进 行 基 线 校 准 处 理 ，使 每 个 脉 搏 波 的 起 点 均 落
+
+刘乔寿，等 基于单路 PPG 信号的连续血压检测算法设计
+
+在同一水平位置。
+
+图 8 基线漂移示意图
+
+周期分割后，每个脉搏波持续时间较短，可视单
+
+个脉搏波的基线漂移是沿一条直线产生的。在单个
+
+脉搏波信号中，本文令基线漂移方程为 y(n) = an + b ，
+
+n 为样本编号；a 、b 表示系数，其可通过该脉搏波的
+
+A 点和 E 点求出。令 A 点和 E 点坐标分别为 (x1,y1) 和
+
+(x2, y2)
+
+，则基线漂移方程为
+
+y(n) - y1 n - x1
+
+=
+
+y2 - y1 x2 - x1
+
+。再令单
+
+个脉搏波信号序列为 Pr(n) ，将 Pr(n) 减去 y(n) 的对应
+
+项，得到基线校准后的序列 Po(n) ，如式（3）所示。式
+
+中 i = 0,1,∙∙∙,N - 1 ，N 表示当前脉搏波的样本数。
+
+Po(i) = Pr(i) - y(i)
+
+（3）
+
+如 图 9 所 示 ，尽 管 在 单 个 脉 搏 波 内 进 行 了 基 线
+
+校 准 ，使 得 每 个 脉 搏 波 的 起 点 与 终 点 均 落 在 一 个 水
+
+平线。但从整体 PPG 信号来看，各个脉搏波的位置
+
+却不在同一水平线。本文对 PPG 信号进行归一化处
+
+理 ，使 各 个 脉 搏 波 的 起 点 均 落 于 0。 本 文 将 序 列
+
+Po(n) 进行归一化，得到归一化后的序列 Pn(n) ，如式 （4）所示。式中 PMIN 和 PMAX 分别表示当前脉搏波的 最大与最小值，i = 0,1,∙∙∙,N - 1 。基线校准和归一
+
+化 即 保 存 了 脉 搏 波 原 有 的 特 性 ，又 消 除 了 噪 声 对 幅
+
+度参数的影响。
+
+Pn(i) =
+
+Po(i) - PMIN
+
+P - P MAX
+
+MIN
+
+（4）
+
+图 9 基线校准与归一化示意图
+
+图 10 所 示 的 是 图 9 中 第 3 个 脉 搏 波 的 处 理 示 意 图 。 由 于 噪 声 的 影 响 ，该 脉 搏 波 的 终 点 幅 值 高 于 起 点 幅 值 。 基 线 校 准 后 ，使 得 起 点 与 终 点 的 幅 度 相 同 。 进 而 进 行 归 一 化 处 理 ，在 没 有 影 响 波 形 形 状 的 情 况 下 摆 脱 了 幅 度 的 随 机 波 动 问 题 ，得 到 一 个 波 形 完 整 、特 征 点 明 显 的 脉 搏 波 。 归 一 化 使 得 幅 度 和 面 积 参 数 更 加 稳 定 ，且 时 间 参 数 不 受 任 何影响。
+图 10 单个脉搏波基线校准与归一化示意图
+2.2 血压回归模型 特 征 点 识 别 出 后 需 计 算 特 征 值 ，接 着 对 这 些 特
+征值与袖带充气式电子血压计测量的 SBP 和 DBP 分 别 进 行 相 关 性 分 析 ，并 选 择 相 关 性 比 较 大 的 特 征 值 作为回归变量。再接着将这些回归变量分别与 SBP 和 DBP 进行线性回归分析，建立血压与这些特征值 之间的回归方程。 2.2.1 特征值计算与筛选
+本 文 选 用 特 征 参 数 主 要 包 括 时 间 参 数 、幅 度 参 数、面积参数以及人体心率，如图 2 所示。时间参数 有收缩期时间占比 t1 t 、舒张期时间占比 t2 t ；幅度 参 数 有 降 中 峡 相 对 高 度 h2 h1 ，重 搏 波 相 对 高 度 h3 h1 。 面 积 参 数 有 脉 搏 波 特 征 值 K1 = SABCU /SAFHU 、 K2 = SUCDE /SUHIE ，其 [19] 中 SABCU 表 示 ABCU 4 个 点 围 成 的 面 积 。 面 积 参 数 采 用 微 元 法 进 行 计 算 ，令 一 个 t 时 间 内 的 脉 搏 波 ABC 段 有 N1 个 样 本 点 ，CDE 段 有 N2 个样本点。时间元 Δt = 1/fs ，则 K1 和 K2 的计算分 别 ，如 式（5）与（6）所 示 。 由 于 信 号 的 归 一 化 操 作 h1 = 1 。
+- 67 -
+
+《电子设计工程》2019 年第 1 期
+
+∑ ∑ K1 =
+
+S ABCU S AFHU
+
+=
+
+æ ç
+
+N1
+
+Pn(i)ö÷∙Δt
+
+è i=1
+
+ø
+
+h1N1Δt
+
+=
+
+N1
+Pn(i)
+i=1
+N1
+
+（5）
+
+∑ ∑ K2 =
+
+SUCDE SUHIE
+
+=
+
+æ ç
+
+N2
+
+Pn(i)ö÷∙Δt
+
+è i=1
+
+ø
+
+h1N2Δt
+
+=
+
+N2
+Pn(i)
+i=1
+N2
+
+（6）
+
+心 率 参 数 HR 直 接 由 式（7）计 算 得 出 ，式 中 A(i)
+
+表示第 i 个脉搏波的起点。
+
+hri = 60∙fs/( A(i + 1) - A(i)) bpm
+
+（7）
+
+文中共有 50 组有效 PPG 序列参与回归模型的
+
+建立，每组序列时长为 5 s，含有 2 000 个样本点，且
+
+各组序列对应一组真实血压值。实际上每个脉搏波
+
+即 可 对 应 一 组 血 压 值 ，考 虑 到 算 法 的 实 用 性 与 准 确
+
+性，本文针对同一种特征值在一个测试序列中，先求
+
+出 每 个 脉 搏 波 的 特 征 值 ，再 取 平 均 值 作 为 最 终 特 征
+
+值。假设一个测试序列有 m 个脉搏波，对于任意特 征 值 v ，本 文 在 第 i 个 脉 搏 波 中 取 出 特 征 值 kiv ， i = 1,2,...,m ，并通过式（8）求出该组序列的特征值 v 的最终数值 kv 。
+
+∑ kv
+
+=
+
+æ
+ç
+è
+
+i
+
+m =1
+
+kiv
+
+ö
+÷
+ø
+
+/m
+
+（8）
+
+依次求出 50 组测试序列的各个特征值及血压
+
+真 实 值 后 ，需 探 究 特 征 值 与 血 压 之 间 的 影 响 效 果 。
+
+本文通过式（9），计算特征值 v 与真实血压值 p 的相
+
+关系数 ri 。式中，vi 表示第 i 组序列的特征值，vˉ 通 过式（10）计算，表示 50 个特征值 v 的平均值；pˉ 通过 式（11）计算，表示 50 个真实血压值 p 的平均值。求
+
+得各个特征值与收缩压 SBP、舒张压 DBP 的相关性，
+
+如表 1 所示。
+
+∑(vi - vˉ)( pi - pˉ)
+
+ri =
+
+i
+
+,i = 1,2,...,50
+
+∑ ∑ (vi - vˉ)2 ( pi - pˉ)2
+
+i
+
+i
+
+（9）
+
+∑ vˉ
+
+=
+
+æ
+ç
+
+è
+
+50 i=1
+
+vi
+
+ö
+÷
+ø
+
+/50
+
+,i = 1,2,...,50
+
+（10）
+
+∑ pˉ
+
+=
+
+æ
+ç
+
+è
+
+50 i=1
+
+p
+
+i
+
+ö
+÷
+ø
+
+/50
+
+,i = 1,2,...,50
+
+（11）
+
+2.2.2 数学模型建立
+
+文本选择两个相关性最大的特征值作为回归参
+
+数。由表 1 可知，t2 t 和 HR 与 SBP 的相关性较强，逐 步 分 析 得 到 SBP 的 方 程 为 SBP = - 141.3t2/t + 0.68HR +145.6 。 t2 t 和 HR 与 DBP 的相关性较强，逐 步分析 得到 DBP 的方程为 DBP = -93.3t2/t + 0.15HR + 120.6 。
+
+- 68 -
+
+表 1 特征值与 SBP、DBP 相关性
+
+特征值 收缩期时间占比 舒张期时间占比 降中峡相对高度
+重搏波相对高度 特征值 K1 特征值 K2 心率
+
+表达式 t1 t t2 t h2 h1 h3 h1
+S S ABCP AMSP S S PCDE PSNE
+HR
+
+SBP 相关性 0.567 1 -0.680 8 -0.314 1
+-0.445 7 0.100 6 -0.105 6 0.739 0
+
+DBP 相关性 0.382 0 -0.573 0 0.144 3
+0.044 1 0.298 6 0.266 6 0.428 9
+
+3 试验结果
+
+文中利用 Bland-Altman 方法[20]对血压算法的准 确性进行一致性检验，SBP 和 DBP 的实验结果如图 11 所示。图中，横轴表示真实血压值 BP 和测量血压 值 bp 的 平 均 值 ；纵 轴 表 示 BP 和 bp 的 差 值 。 SBP 的 一致性占比为 95%，DBP 的一致性占比为 95%，测量 结果较为准确。SBP 的精确度为 0.45 ± 6.57 mmHg ， DBP 的精确度为 0.09 ± 4.75 mmHg ，均满足血压标准 差不大于 8 mmHg 的要求。
+
+图 11 SBP、DBP 的一致性示意图
+4 结束语
+文 中 针 对 低 功 耗 可 穿 戴 设 备 ，提 [21] 出 了 一 种 低 复 杂 度 、高 效 率 的 血 压 测 量 算 法 。 此 方 法 通 过 滑 动 均匀滤波、周期分割、基线校准、归一化等处理，识别 出特征点并计算出特征值，进而回归分析建立 SBP、 DBP 各自与特征值的关系表达式，实现无创连续的 血压测量。本文的血压测量算法与实际的电子血压 计具有较好的一致性，SBP 与 DBP 一致性占比均达 到 95% 以 上 ，且 SBP 与 DBP 的 精 确 度 分 别 为 0.45 ± 6.57 mmHg 和 0.09 ± 4.75 mmHg ，满足血压标 准差不大于 8 mmHg 的要求。 参考文献: [1] World Health Organization. Noncommunicable dis⁃
+eases（CVDs）[EB/OL].（2017- 04- 01）[2017- 06-
+
+刘乔寿，等 基于单路 PPG 信号的连续血压检测算法设计
+
+07]http://www.who.int/mediacentre/factsheets/fs317 /en/. [2] Shahrbabaki S S，Ahmed B，Penzel T，et al. Photo⁃ plethysmography derivatives and pulse transit time in overnight blood pressure monitoring[C].IEEE En⁃ gineering in Medicine and Biology Society，2016. [3] Njoum H，Kyriacou P A.Photoplethysmography: to⁃ wards a non- invasive pressure measurement tech⁃ nique[C].IEEE Engineering in Medicine and Biolo⁃ gy Society，2016. [4] Fan Z，Zhang G，Liao S.Clinical analysis for cardio⁃ vascular disease by calculating stiffness index，car⁃ diac output from pulse wave[C].IEEE Electrical and Computer Engineering，2009. [5] Kohara K，Tabara Y，Oshiumi A，et al.Radial aug⁃ mentation index: a useful and easily obtainable pa⁃ rameter for vascularaging[J].American Journal Hy⁃ pertension，2005，18（S1）: 11-14. [6] 杨锋，卢竞前，何亚磊，等.不同中心动脉压测定 方 法 的 差 异 及 临 床 意 义 [J]. 吉 林 医 学 ，2013，34 （34）:7168-7169. [7] Duan K，Qian Z，Atef M，et al.A feature exploration methodology for learning based cuffless blood pres⁃ sure measurement using photoplethysmography[C]. IEEE Engineering in Medicine and Biology Soci⁃ ety，2016. [8] 张珣，傅伟伟.基于脉搏波速法的动态血压测量 系统设计[J].电子科技，2014，27（1）:63-66. [9] Association for the Advancement of Medical Instru⁃ mentation. ANSI/AAMI/ISO 81060- 2:2013 Noninvasive sphygmomanometers - Part 2: Clinical in⁃ vestigation of automated measurement type[M].Ar⁃ lington，VA:Association for the Advancement of Medical Instrumentation，2013. [10]Ghosh S，Banerjee A，Ray N，et al.Continuous blood pressure prediction from pulse transit time using ECG and PPG signals[C].IEEE Healthcare Innovation Point- Of- Care Technologies Confer⁃ ence，2016.
+
+[11]Bose S S N，Kumar C S.Improving the performance of continuous non- invasive estimation of blood pressure using ECG and PPG[C].IEEE India Con⁃ ference，2015.
+[12]Zhang Y，Berthelot M，Lo B.Wireless wearable pho⁃ toplethysmography sensors for continuous blood pressure monitoring[C].IEEE Wireless Health， 2016.
+[13]张旭，欧阳斌林，李景辉，等.便携式电子血压计 连续动态监测的设计[J].电子科技，2010，23（5）: 76-80.
+[14]Chen C M，Onyenso K，Yang G Z，et al. A multisensorplatform for monitoring diabetic peripheral neuropathy[C].IEEE Wearable and Implantable Body Sensor Networks，2015.
+[15]高有华，袁宏，李忠波，等.基于 EWB 电子脉搏测 量仪的仿真研究[J].沈阳工业大学学报，2004，26 （4）:403-406.
+[16]Maxim Integrated.High- sensitivity pulse oximeter and heart- rate sensor for wearable health[DB/OL]. （2016-09-21）[2017-11-1]https://www.maximinte⁃ grated.com/en/products/analog/sensors- and- sen⁃ sor-interface/MAX30102.html.
+[17]Elgendi M，Jonkman M，Boer F D.Applying the APG to measure heart rate variability[C].Interna⁃ tional Conference on Computer and Automation En⁃ gineering，IEEE.
+[18]Xiong J，Cai L，Jiang D，et al.Spectral matrix de⁃ composition- based motion artifacts removal in multi- channel PPG sensor signals[J].IEEE Ac⁃ cess，2016（4）:3076-3086.
+[19]赵志强，郑国维，沈巍，等.脉搏波信号降噪和特 征 点 识 别 研 究 [J]. 电 子 设 计 工 程 ，2013，21（5）: 57-60.
+[20] 萨 建 ，刘 桂 芬. 定 量 测 量 结 果 的 一 致 性 评 价 及 Bland-Altman 法的应用[J].中国卫生统计，2011， 28（4）: 409-411.
+[21]梅涛，黄堡垒，徐晓光.嵌入式系统网卡驱动模型 设计与实现[J].电子科技，2016（4）:111-115.
+
+- 69 -
+
