@@ -1,0 +1,967 @@
+computation
+Article
+Advanced Bio-Inspired System for Noninvasive Cuff-Less Blood Pressure Estimation from Physiological Signal Analysis
+Francesco Rundo 1,*, Alessandro Ortis 2 ID , Sebastiano Battiato 2 ID and Sabrina Conoci 1 ID 1 STMicroelectronics, ADG Group‚ÄîCentral R&D, 95121 Catania, Italy; sabrina.conoci@st.com 2 Department of Mathematics and Computer Science, University of Catania, 95125 Catania, Italy; ortis@dmi.unict.it (A.O.); battiato@dmi.unict.it (S.B.) * Correspondence: francesco.rundo@st.com; Tel.: +39-095-7404566
+Received: 30 July 2018; Accepted: 23 August 2018; Published: 28 August 2018
+Abstract: Blood Pressure (BP) is one of the most important physiological indicators that provides useful information in the Ô¨Åeld of health-care monitoring. Blood pressure may be measured by both invasive and non-invasive methods. A novel algorithmic approach is presented to estimate systolic and diastolic blood pressure accurately in a way that does not require any explicit user calibration, i.e., it is non-invasive and cuff-less. The approach herein described can be applied in a medical device, as well as in commercial mobile smartphones by an ad hoc developed software based on the proposed algorithm. The authors propose a system suitable for blood pressure estimation based on the PhotoPlethysmoGraphy (PPG) physiological signal sampling time-series. Photoplethysmography is a simple optical technique that can be used to detect blood volume changes in the microvascular bed of tissue. It is non-invasive since it takes measurements at the skin surface. In this paper, the authors present an easy and smart method to measure BP through careful neural and mathematical analysis of the PPG signals. The PPG data are processed with an ad hoc bio-inspired mathematical model that estimates systolic and diastolic pressure values through an innovative analysis of the collected physiological data. We compared our results with those measured using a classical cuff-based blood pressure measuring device with encouraging results of about 97% accuracy.
+Keywords: PPG; blood pressure; neural network
+
+1. Introduction
+Measurement of arterial Blood Pressure (BP) involves the computation of both Systolic (SBP) and Diastolic Blood Pressure (DBP), deÔ¨Åned as the highest and lowest pressure values during a cardiac cycle. The main medical approach to measure BP is the so-called auscultatory method, where a physician inÔ¨Çates a cuff around the arm, and by means of a stethoscope, the measure of SBP and DBP is detected. Recent methods exploit digital devices for detecting both SBP and DBP. However, these device systems require the use of a cuff, which is invasive, costly and does not allow continuous monitoring. In this work, we consider cuff-less, non-invasive BP estimation based on advanced mathematical analysis of the PPG signal of the patient sampled through a Silicon Photomultiplier sensor (SiPM), which can be installed in a commercial medical device or just in a common mobile smartphone.
+A PPG waveform comprises a pulsatile (‚ÄúAC‚Äù) physiological waveform attributed to cardiac synchronous changes in the blood volume with each heart beat, and it is superimposed on a slowly-varying (‚ÄúDC‚Äù) baseline containing lower frequency components attributed to respiration, thermoregulation, skin tissues, etc. For each cardiac cycle, the heart pumps blood to the periphery, and the pressure pulse reaches the skin, distending the arteries and arterioles in the subcutaneous
+
+Computation 2018, 6, 46; doi:10.3390/computation6030046
+
+www.mdpi.com/journal/computation
+
+Computation 2018, 6, 46
+
+2 of 17
+
+tissue. If a light reÔ¨Çex/transmit detector device is attached over the skin, a pressure pulse can be seen from the venous plexus, as a small secondary peak. The change in volume caused by the pressure pulse is detected by illuminating the skin with the light from a Light-Emitting Diode (LED), and the transmitted or reÔ¨Çected light is measured by a photodetector, such as a photo-diode. Thus, each cardiac cycle appears as a peak. Since the blood Ô¨Çow to the skin can be modulated by other physiological systems, the PPG can also be used to monitor breathing, hyperglycemia, circulatory conditions, and so on. Moreover, the shape of the PPG waveform differs from subject to subject and varies with the location and manner in which the detecting device is attached. Despite the extensive activity in the area of PPG signal detection and processing, improved solutions facilitating the calculation of blood pressure values (both diastolic and systolic) from PPG signals are desirable.
+In this work, we consider a cuff-less and non-invasive BP estimation based on advanced mathematical analysis of the PPG signal sampled through a SiPM that can be integrated in a common embedded device (medical or just in a mobile smartphone). The paper is organized as follows: an overview of the literature about non-invasive cuff-less BP estimation methods is presented in Section 2. A careful description of the system for PPG sampling is described in Section 3. Finally, the proposed algorithm and related results are presented in Sections 4 and 5, respectively.
+2. Related Works
+It is well known that blood pressure can be estimated by the analysis of the waves produced at the heart propagated over the arteries. The Moens‚ÄìKorteweg equation gives the pulse-wave velocity [1] as a function of vessel and Ô¨Çuid characteristics [2], as well as the arterial wall elasticity from which a measure of the average pressure may be obtained [3]. However, this approach (and similar ones based on analytic models) is inapplicable, as it requires the precise knowledge of some vessel physical parameters for each patient. In the literature, there are further approaches for non-invasive BP estimation comprising techniques based on PPG signals. In [4], the authors proposed an approach to non-invasive continuous blood pressure estimation based on ArtiÔ¨Åcial Neural Networks (ANN) trained with 21 ad hoc input parameters extracted from a set of ‚àº15.000 PPG signals. This approach extracts the different parameters of every pulse of the PPG signal and uses them as the input of the ANN. Then, the network is trained to provide the corresponding BP value at the output. The employed multilayer feed-forward ANN is composed of 21 input neurons (corresponding to the parameters extracted from PPG), two hidden layers and tree output neurons for the prediction of Systolic BP (SBP), Diastolic BP (DBP) and Mean Arterial Pressure (MAP)), respectively. In [5], a new PPG hand-crafted feature, Normalized Harmonic Area (NHA), was investigated with encouraging results. The NHA feature is obtained from the PPG signal in the frequency domain. In particular, the discrete period transform algorithm is exploited to obtain the spectrum of each beat in the frequency domain. The authors showed that the proposed feature had high correlation with blood pressure. The experiments, which involved 28 healthy volunteers aged between 24 and 30 years, showed that the NAH has more signiÔ¨Åcant correlation with BP and smaller error than both Pulse Transmit Time (PTT) and diastolic time [5]. However, the physiological mechanisms of the relation need to be explored. In [6], the authors proposed a new calibration method based on the dicrotic notch of the PPG waveform for SBP estimation using PTT. A new calibration parameter, the Relative Amplitude of the Secondary peak of PPG (RAS), was developed in [6]. It was deÔ¨Åned as the amplitude ratio of the main peak and the secondary peak. Experiments showed that RAS is a promising calibration parameter to provide more accurate PTT-SBP estimation. An interesting method was proposed in [7], in which an approach for BP monitoring and estimation based on the relationship between the velocity of the pulse wave [1] and the BP was described. The detection of the velocity of pulse wave was computed by the analysis of the mechanical movements of blood vessel‚Äôs walls, as well as by additional information retrieved from the PPG signal. In [8], an algorithm to estimate SBP and DBP using Pulse Arrival Time (PAT) computed from ECG and PPG signals was proposed. They showed good results even though a re-calibration was required. Indeed, after an initial training, the model parameters were re-calibrated at constant
+
+Computation 2018, 6, 46
+
+3 of 17
+
+intervals using a Recursive Least Squares (RLS) approach combined with smooth bias Ô¨Åxing [8]. They showed good results even though a re-calibration was required. By a careful analysis of the performed testing/validation, the authors of [8] conÔ¨Årmed that they were able to obtain an estimation mean error between ‚àí5 and 5 mmHg both for SBP and DBP and standard deviations of 7.77 mmHg and 4.96 mmHg, respectively, with recalibration every 1 h. We have discussed those results with physiologists, who conÔ¨Årmed that those blood pressure estimation accuracy values are acceptable from a medical point of view, even though these results need to be improved when we perform blood pressure monitoring for hypertensive patients.
+In [9,10], a detailed survey about the relationship between non-invasive blood pressure and PPG signal features was reported. An interesting approach was presented in [11], in which the authors used PTT with some other biometric parameters (e.g., weight, height, Body Mass Index (BMI), length of arm, circumference of arm, etc.) as input for an ANN aimed to learn BP dynamic. Therefore, in order to estimate BP from PPG, a system able to handle this physiological signal is needed. In [12‚Äì14], some possible software and hardware solutions for sampling the PPG signal were shown. Finally, some PPG-based cuff-less blood pressure estimation and monitoring algorithms were presented in [15‚Äì17] using interesting approaches. In particular, in [15], the authors proposed a method to extract a comprehensive set of features by combining PPG signal-based and Heart Rate Variability (HRV)-related features, using a single PPG sensor. These features were fed to a combinatorial neural network model. In particular, separate models for systolic and diastolic pressures were used for training. Three ArtiÔ¨Åcial Neural Network (ANN) regression models for each systolic and diastolic pressures were trained with the Levenberg‚ÄìMarquardt algorithm. Then, the weighted outputs of the three models were combined to produce the Ô¨Ånal output. The authors of [17] proposed a cuff-less portable PPG-BP device for continuous BP monitoring, able to detect in real time the temporal intravascular blood volume change based on the Photoplethysmograph (PPG). In [18], the authors proposed a system for the BP estimation using the PPG signal. In particular, this system consisted of two modules. First, the pre-processing module cleaned the PPG signal of most noise and then segmented it into PPG cycles, corresponding to a single heart beat. Then, the machine learning module extracted features describing the PPG signal on a per-cycle basis, selected a subset of relevant features and fed them into regression algorithms that built the prediction models. Considering that the correlation of PTT with the systolic and diastolic blood pressures was highly dependent on each individual physiological property, in [19], a calibration-free blood pressure estimation approach was proposed. Several physiological parameters from the PPG signal were extracted, then signal processing and machine learning algorithms were applied. In summary, the solutions above described presented one or more of the following features:
+‚Ä¢ classical analytic methods; ‚Ä¢ Pulse Transit Time (PTT)-based methods, involving both ElectroCardioGraphy (ECG) and
+PPG signals; ‚Ä¢ heuristic approaches based on key features of PPG standard waveforms; ‚Ä¢ (artiÔ¨Åcial) neural networks/machine learning algorithms; ‚Ä¢ mixed ECG-PPG approaches.
+However, as previously cited, the various solutions may suffer from certain limitations, such as:
+‚Ä¢ knowledge of specific physical parameters (arterial vessel elasticity, Moens‚ÄìKorteweg equation, etc.); ‚Ä¢ the related systems, both HW (Hardware) and SW (Software) (PPG/ECG) sensors, data extraction
+(PTT, PWV), etc., may turn out to be unduly complex; ‚Ä¢ a sensitivity/speciÔ¨Åcity ratio hardly compatible with the related (high) computational costs; ‚Ä¢ continuous ECG acquisition may be mandatory, with relates the difÔ¨Åculties of detection in certain
+contexts such as the automotive sector or smartphone systems; ‚Ä¢ those methods that are based on machine learning and (ArtiÔ¨Åcial) Neural Networks (ANNs) may
+involve high computational costs against a reduced accuracy and/or a high estimation capability limited to a reduced pressure range (80‚Äì90/110‚Äì130 mmHg);
+
+Computation 2018, 6, 46
+
+4 of 17
+
+The authors propose a robust and effective BP estimation and monitoring method based on such ad hoc and innovative analysis of the PPG signal.
+3. The Photoplethysmography System (BI-P2RS): A Brief Overview
+As already mentioned in Section 1, PPG is a non-invasive technique, which is becoming increasingly popular to provide information on the cardiovascular system, in particular for the monitoring of parameters like heart pulse rate, respiratory rate, tissue perfusion and some vascular and cardiac disorders. Parameters like heart pulse rate, respiratory rate, tissue perfusion and some vascular and cardiac disorders can be monitored via PPG. This signal has a great potential for assessing vascular disease, especially for the evaluation of vascular effects of aging, hypertension and atherosclerosis, providing also information on arterial stiffness and elasticity [20]. Use of PPG may be envisaged also in areas different from the medical Ô¨Åeld. For instance, PPG has been considered for use in the automotive Ô¨Åeld, e.g., in order to gain useful information on the behavior and/or the reaction of drivers and passengers in various situations that may occur in a motor vehicle [6,7]. A compliant standard PPG waveform comprises:
+‚Ä¢ a Systolic Peak (SP), ‚Ä¢ a Dicrotic Notch (DN), ‚Ä¢ a Diastolic Peak (DP) at a value y, ‚Ä¢ the Width (W) of the pulse waveform.
+Figure 1 shows a classic compliant standard PPG pattern. Unfortunately, the physiological sampling pipeline shows some noise or PPG signal artifacts (motion artifacts, electronic noises, signal distortion, sensors issue, random noises, etc.) even after a careful Ô¨Åltering of the raw signal. For this reason, a PPG-compliant waveform recognition mechanism is needed in order to improve the robustness of the medical indicators computed from source photoplethysmography data [21]. There are several systems for acquiring the PPG signal of a patient that have been proposed in literature [22,23]. In this context, the authors have proposed a system named BI-P2RS (Bio-Inspired PPG Pattern Recognition System) [24]. The PPG probes used in this paper for the measurements are shown in Figure 2. This is based on the use of a Silicon Photomultiplier (SiPM) photodetector coupled to OSRAM LT M673 LEDs in the SMD package emitting at 529 nm and based on InGaN technology used as optical light sources [25‚Äì27].
+
+Figure 1. A compliant standard PPG waveform. The different signal components are detailed: Systolic Peak (SP), Dicrotic Notch (DN) and Diastolic Peak (DP).
+
+Computation 2018, 6, 46
+
+5 of 17
+
+Figure 2. Silicon Photomultiplier (SiPM) detector Ô¨Ålter and PPG probe.
+The continuous component of the acquired waveforms is partially eliminated using a differential signal acquisition [24]. LabVIEW software was developed in order to acquire PPG signals. This software allows one to control the 24-bit ADC NI PXle-4303 NI (National instruments, Austin, TX, USA) acquisition system, and it has been completed with a Graphical User Interface (GUI) to display the filtered PPG signal together with its first and second derivatives. Moreover, it is possible to also compare two PPG signals acquired from probes arranged at different body sites and measure their temporal delay. During acquisitions, the working sampling frequency was set to 1 kHz. Finally, all data were stored in a log file that could be selected by the user and handled by the MATLAB-based algorithm for PPG signal pattern recognition. Output data were processed according to the logical scheme-flow reported in Figure 3. In the flow, the first block uses the above-mentioned BI-P2RS pattern recognition method to filter compliant PPG signals and make them robust for further processing, herein described.
+
+Figure 3. Detailed description of the whole PPG signal sampling system and pattern recognition pipeline. PTT, Pulse Transmit Time.
+4. The Proposed Blood Pressure Estimation System
+Figure 4 shows the proposed Blood Pressure Estimation pipeline. The pipeline comprises a mathematical analysis circuit, which receives the robust and compliant PPG signals from the system block BI-P2RS and provides signals corresponding to the results of mathematical analysis to two different ANN circuit blocks. These blocks gives SBP and DBP output signals indicative of the systolic
+
+Computation 2018, 6, 46
+
+6 of 17
+
+and diastolic blood pressure of the individual whose PPG signals were detected via the PPG probe. The output signals SBP, DBP can be provided to a ‚Äúconsumer‚Äù system such as a display screen, a printer, a recording device, etc., so that the signals SBP, DBP may be made available to support the diagnostic activity of a practitioner in medical and veterinary activities. Figure 4 shows the proposed blood pressure estimation pipeline.
+
+BI-P2RS
+Patent 102017000081018
+
+Features Fi=1..42
+Mathematical Analysis System
+
+0.015 0.01 0.005
+0 -0.005 -0.01 -0.015 -0.02
+0
+0.01 0.005
+0 -0.005 -0.01 -0.015 -0.02
+0
+
+Analyzed Source PPG Signal
+
+2000
+
+4000
+
+6000
+
+8000
+
+10000
+
+12000
+
+Time-sample
+
+ACCEPTED PPG TimeSerie
+
+1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+6000
+
+7000
+
+8000
+
+Time Sample
+
+Neural System 2 Neural System 1
+
+Systolic Blood Pressure(SBP)
+Diastolic Blood Pressure(DBP)
+
+Figure 4. Detailed description of the proposed blood pressure estimation algorithm. BI-P2RS, Bio-Inspired PPG Pattern Recognition System.
+
+More speciÔ¨Åcally, the mathematical analysis system block comprises a processor block (e.g., a DSP, or GPU, or similar processor circuit) conÔ¨Ågured in a manner to generate hand-crafted features to support further processing in the artiÔ¨Åcial neural network blocks for BP estimation. As a Ô¨Årst act, the mathematical analysis system calculates a Ô¨Årst set of features of the (Ô¨Åltered) PPG waveform and related Ô¨Årst and second (time) derivatives. Figure 5 shows the deÔ¨Ånitions of such variables used for computing the following described hand-crafted features.
+
+c
+
+Ì†µÌ±∑Ì†µÌ±∑Ì†µÌ±ÆÌ†µÌ≤ã
+
+b
+
+d
+
+0.015 0.01 0.005
+0 -0.005 -0.01 -0.015 -0.02
+0
+0.01 0.005
+0 -0.005 -0.01 -0.015 -0.02
+0
+
+Analyzed Source PPG Signal
+
+2000
+
+4000
+
+6000
+
+8000
+
+10000
+
+12000
+
+Time-sample
+
+ACCEPTED PPG TimeSerie
+
+1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+6000
+
+7000
+
+8000
+
+Time Sample
+
+a
+
+e
+
+b1
+
+Ì†µÌΩèÌ†µÌ±∑Ì†µÌ±∑Ì†µÌ±ÆÌ†µÌ≤ã Ì†µÌΩèÌ†µÌ≤ï
+
+a1
+
+c1 d1
+
+e1
+
+a2
+
+Ì†µÌΩèÌ†µÌøêÌ†µÌ±∑Ì†µÌ±∑Ì†µÌ±ÆÌ†µÌ≤ã e2
+
+Ì†µÌΩèÌ†µÌ≤ïÌ†µÌøê
+
+b2
+
+d2
+
+c2
+
+Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±ëÌ†µÌ±ñÌ†µÌ±é = Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ(d, e) Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±†Ì†µÌ±¶Ì†µÌ±† = Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ(a, c) Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±ëÌ†µÌ±ñÌ†µÌ±ê = Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ(c, d)
+
+Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±ëÌ†µÌ±ñÌ†µÌ±é
+
+Ì†µÌºïÌ†µÌ±ÉÌ†µÌ±ÉÌ†µÌ∞∫ ( Ì†µÌºïÌ†µÌ±° )
+
+=
+
+Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ (d1,
+
+e1)
+
+Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±†Ì†µÌ±¶Ì†µÌ±†
+
+Ì†µÌºïÌ†µÌ±ÉÌ†µÌ±ÉÌ†µÌ∞∫ ( Ì†µÌºïÌ†µÌ±°
+
+)
+
+=
+
+Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ (a1,
+
+c1)
+
+Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±ëÌ†µÌ±ñÌ†µÌ±ê
+
+Ì†µÌºïÌ†µÌ±ÉÌ†µÌ±ÉÌ†µÌ∞∫ ( Ì†µÌºïÌ†µÌ±° )
+
+=
+
+Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ (c1,
+
+d1)
+
+Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±ëÌ†µÌ±ñÌ†µÌ±é
+
+Ì†µÌºï (
+
+2Ì†µÌ±ÉÌ†µÌ±ÉÌ†µÌ∞∫ Ì†µÌºïÌ†µÌ±°2 )
+
+=
+
+Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ (d2,
+
+e2)
+
+Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±†Ì†µÌ±¶Ì†µÌ±†(Ì†µÌºï
+
+2Ì†µÌ±ÉÌ†µÌ±ÉÌ†µÌ∞∫ Ì†µÌºïÌ†µÌ±°2 )
+
+=
+
+Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ (a2,
+
+c2)
+
+Ì†µÌ∞øÌ†µÌ†µÌ±ñÌ±ëÌ†µÌ±ñÌ†µÌ±ê
+
+Ì†µÌºï2Ì†µÌ±ÉÌ†µÌ±ÉÌ†µÌ∞∫ ( Ì†µÌºïÌ†µÌ±°2 )
+
+=
+
+Ì†µÌ±ìÌ†µÌ±ÜÌ†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±†Ì†µÌ±úÌ†µÌ±õ (c2,
+
+d2)
+
+Figure 5. Detailed description of the key-points of PPG, Ô¨Årst and second derivative.
+
+Computation 2018, 6, 46
+
+7 of 17
+
+The equations in Table 1 are exemplary of how such a Ô¨Årst act of processing can be performed in the proposed approach.
+
+F1 = ln
+
+1 NPPG
+
+NPPG
+‚àë Lisys
+i=1
+
+F7 = ln
+
+F4 = œÉLsys
+
+1 NPPG
+
+NPPG
+‚àë Lidia
+i=1
+
+F13 = ln
+
+F10 = œÉLdia
+
+1 NPPG
+
+NPPG
+‚àë Lidic
+i=1
+
+F16 = œÉLdic
+
+Table 1. Features from F1‚ÄìF18.
+
+F2 = ln F8 = ln F14 = ln
+
+1 NPPG
+
+‚àë NPPG
+i=1
+
+Lisys (
+
+‚àÇPPG ‚àÇt
+
+)
+
+F5
+
+=
+
+œÉLsys (
+
+‚àÇPPG ‚àÇt
+
+)
+
+1 NPPG
+
+‚àë NPPG
+i=1
+
+Lidia (
+
+‚àÇPPG ‚àÇt
+
+)
+
+F11
+
+=
+
+œÉLdia
+
+(
+
+‚àÇ
+
+PP ‚àÇt
+
+G
+
+)
+
+1 NPPG
+
+‚àë NPPG
+i=1
+
+Lidic (
+
+‚àÇPPG ‚àÇt
+
+)
+
+F17
+
+=
+
+œÉLdic
+
+(
+
+‚àÇPPG ‚àÇt
+
+)
+
+F3 = ln F9 = ln F15 = ln
+
+1 NPPG
+
+‚àë NPPG
+i=1
+
+Lisys (
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+F6
+
+=
+
+œÉLsys
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+1 NPPG
+
+‚àë NPPG
+i=1
+
+Lidia (
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+F12
+
+=
+
+œÉLdia
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+1 NPPG
+
+‚àë NPPG
+i=1
+
+Lidic (
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+F18
+
+=
+
+œÉLdic
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+In the equations detailed in Table 1:
+‚Ä¢ ln denotes the (natural) logarithm; ‚Ä¢ NPPG: the number of compliant PPG waveforms over a period of the analyzed PPG signal; ‚Ä¢ the sufÔ¨Åxes sys, dia and dic denote the systolic, diastolic and dicrotic phases of the PPG signal
+(see, e.g., Figure 1), which may be identiÔ¨Åed as the portions a‚Äìb, a1‚Äìb1, a2‚Äìb2 (systolic), b‚Äìd, b1‚Äìd1, b2‚Äìd2 (dicrotic), c‚Äìe, c1-e1 and c2‚Äìe2 (diastolic) in the diagrams (PPG and its Ô¨Årst derivative and second derivative) of Figure 5; ‚Ä¢ Lix indicates the length of the sub-curve of the PPG waveform, for the systolic, diastolic and dicrotic phases sys, dia and dic, respectively, and with i = 1, NPPG; in the same way, Lix (‚àÇPPG/ ‚àÇt) represents the length of the sub-curve of the Ô¨Årst derivative of the PPG signal, and Lix (‚àÇ2PPG/ ‚àÇt2) represents the length of the sub-curve of the second derivative of the PPG signal, again for sys, dia and dic, respectively. For the Ô¨Årst derivative and second derivative of PPG signal, the Simpson rule can be adopted for computing the length of the curve [28]; ‚Ä¢ œÉx the denotes standard deviation for variable Lix.
+The aim of the proposed work is to deÔ¨Åne a cuff-less non-invasive method for blood pressure estimation. Thus, we Ô¨Årst addressed this problem by means of the deÔ¨Ånition of ad hoc mathematical features suitable to characterize the blood pressure dynamics. With this aim, we have studied the correlation between the acquired PPG signal and blood pressure. In order to have a robust and careful analysis of that correlation, our study has been supported by physiologists and cardiologists. In the literature, it is well known that there is a correlation between the PPG signal (or other blood Ô¨Çow-based signals) and blood pressure, as described in some mathematical models such as the Moens‚ÄìKorteweg equation previously mentioned [1]. However, by taking into account the information retrieved from physiologists and cardiologists, as well as considering preliminary results obtained by the same authors in their previous work (BI-P2RS) in [24], the authors supposed that blood pressure (both SDB and DBP) is correlated with blood Ô¨Çow and its velocity and acceleration in the human arteries, as both measures are related to the cardiac activity. Therefore, we supposed a correlation between blood pressure (both SDP and DBP) and the PPG signal and its Ô¨Årst and second derivative dynamics, which are measures of velocity and acceleration, respectively. For this reason, the authors studied ad hoc features to be extracted from the PPG signal and its Ô¨Årst and second derivatives. As previously described, the compliant PPG waveform contains information about cardiac cycles (i.e., systolic and diastolic phases), as well as information about the dicrotic notch (correlated with the elasticity of coronary arteries). Thus, we have deÔ¨Åned custom hand-crafted features suitable to characterize each cardiac cycle. SpeciÔ¨Åcally, we deÔ¨Åned the features F1‚ÄìF3 to characterize the dynamic of systolic phase. Likewise, the features F7‚ÄìF9 and F13‚ÄìF15 are suitable to characterize diastolic and dicrotic dynamics,
+
+Computation 2018, 6, 46
+
+8 of 17
+
+respectively. For each set of features, we added classic statistical information such as the standard deviation as reported in features F16‚ÄìF18. In order to have a robust correlation model between blood pressure and the PPG signal (i.e., cardiac cycles), we introduced further features suitable to model the ‚Äúdynamic ratio‚Äù between each of the cardiac cycles mathematically, since those ratios are correlated with blood pressure, as conÔ¨Årmed by physiologists. Therefore, we have deÔ¨Åned features from F19‚ÄìF36 to characterize the dynamic ratio between cardiac cycles dynamics as their changes are strongly affected by proportional blood pressure variations. Finally, the features from F37‚ÄìF42 were introduced to better characterize the stability of cardiac cycles, as we analyzed the dynamic of each cycle between two compliant PPG waveforms. We noted that a blood pressure variation showed a proportional change in the dynamics of the cardiac cycles between compliant PPG waveforms, so that representative features of that correlation have been added in order to improve the robustness and efÔ¨Åciency of the proposed approach. Each group of features (i.e., [F1‚ÄìF18], [F19‚ÄìF36] and [F37‚ÄìF42]) are useful to improve the accuracy of the blood pressure estimation. Indeed, if we remove any of those, the performances of the proposed approach decrease signiÔ¨Åcantly.
+Essentially, equations F1‚ÄìF3 , F7‚ÄìF9 and F12‚ÄìF15 provide an indication of the ‚Äúlength‚Äù of the signal curve or path of the PPG signal (and the Ô¨Årst and second derivatives thereof) in the systolic, diastolic and dicrotic phases (that is to say, ‚Äúhow long‚Äù each of these signals remains in each phase). By observing Figure 5, it can be noted that, while extending over the same time duration, the PPG signal (Part a in the Ô¨Ågure), the Ô¨Årst derivative signal (Part b in the Ô¨Ågure) and the second derivative signal (Part c) in the Ô¨Ågure) have paths of different lengths provided by the Simpson rule [28]. In the same line, Equations F4‚ÄìF6 , F10‚ÄìF12 and F16‚ÄìF18 provide a reÔ¨Åned indication of the average (standard deviation) of the path lengths of the PPG signal and the Ô¨Årst and second time derivatives thereof in the systolic, diastolic and dicrotic phases.
+As a second act as exempliÔ¨Åed, the mathematical system block calculates a second set of features F19‚ÄìF36 of the (Ô¨Åltered) PPG, ‚àÇPPG/ ‚àÇt and ‚àÇ2PPG/ ‚àÇt2 signals, which are indicative of the shape factors of these signals, e.g., relative measures of the systolic, diastolic and dicrotic phases. These relative measures are mathematical representations of how fast/slow the transitions between the systolic, diastolic and dicrotic phases may occur. The equations from F19‚ÄìF36 detailed in Table 2 are exemplary of how such a second act of processing can be performed in the proposed approach. In the equations, the entities indicated have the same meaning already discussed in connection with equations F1‚ÄìF18 for the systolic, diastolic and dicrotic phases sys, dia and dic, respectively. Figure 6 employes distances between peaks/valleys in subsequent PPG waveforms (generally denoted as i and i + 1).
+
+Table 2. Features from F19‚ÄìF36.
+
+‚àë F19
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lisys Lidia
+
+F22
+
+=
+
+œÉ(
+
+Lsys Ldia
+
+( ‚àÇPPG ‚àÇt
+
+))
+
+‚àë F25
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lisys Lidic
+
+F28
+
+=
+
+œÉ(
+
+Lsys Ldic
+
+( ‚àÇPPG ‚àÇt
+
+))
+
+‚àë F31
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lidia Lidic
+
+F34
+
+=
+
+œÉ(
+
+Ldia Ldic
+
+( ‚àÇPPG )) ‚àÇt
+
+F20
+
+=
+
+œÉ(
+
+Lsys Ldia
+
+)
+
+‚àë F23
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lisys Lidia
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+F26
+
+=
+
+œÉ(
+
+LSys Ldic
+
+)
+
+‚àë F29
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lisys Lidic
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+F32
+
+=
+
+œÉ(
+
+Ldia Ldic
+
+)
+
+‚àë F35
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lidia Lidic
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+)
+
+‚àë F21
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lisys Lidia
+
+(
+
+‚àÇPPG ‚àÇt
+
+)
+
+F24
+
+=
+
+œÉ(
+
+Lsys Ldia
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+))
+
+‚àë F27
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lisys Lidic
+
+(
+
+‚àÇPPG ‚àÇt
+
+)
+
+F30
+
+=
+
+œÉ(
+
+LSys Ldic
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+))
+
+‚àë F33
+
+=
+
+1 NPPG
+
+NPPG i=1
+
+Lidia Lidic
+
+(
+
+‚àÇPPG ‚àÇt
+
+)
+
+F36
+
+=
+
+œÉ(
+
+Ldia Ldic
+
+(
+
+‚àÇ2 PPG ‚àÇt2
+
+))
+
+Computation 2018, 6, 46
+
+PPG Va l ue
+
+PPG filtered waveform
+
+F39,F39 F37, F38
+F41, F42
+
+PPG filtered waveform
+
+9 of 17
+
+Time sample
+
+Time sample
+
+Figure 6. Detailed description of the variables used for hand-crafted features F37‚ÄìF42.
+
+Finally, Table 3 reports the remaining hand-crafted feature equations (F37‚ÄìF42) we used in our system, where the entities already discussed in connection with equations F1‚ÄìF36 retain the same meaning and:
+‚Ä¢ max denotes the point (abscissa) where the PPG waveform has its maximum value (systolic peak SP);
+‚Ä¢ min denotes the point (abscissa) where the PPG waveform has its minimum value; ‚Ä¢ pi denotes the dicrotic point (abscissa); ‚Ä¢ i and (i + 1) generally denote two subsequent PPG waveforms.
+
+Table 3. Features from F37‚ÄìF42.
+
+‚àë F37
+
+=
+
+ln(
+
+1 NPPG
+
+NPPG ‚àí1
+(minid+ia1‚àíPPG
+i=1
+
+‚àí minidia‚àíPPG))
+
+‚àë F39
+
+=
+
+ln( 1 NPPG
+
+NPPG ‚àí1
+(maxis+ys1‚àíPPG
+i=1
+
+‚àí maxisys‚àíPPG))
+
+‚àë F41
+
+=
+
+ln(
+
+1 NPPG
+
+NPPG ‚àí1
+( pid+ic1‚àíPPG
+i=1
+
+‚àí
+
+pidic‚àíPPG ))
+
+F38 = ln(œÉ(minid+ia1‚àíPPG ‚àí minidia‚àíPPG)) F40 = ln(œÉ(maxis+ys1‚àíPPG ‚àí maxisys‚àíPPG))
+F42 = ln(œÉ(pid+ic1‚àíPPG ‚àí pidic‚àíPPG))
+
+The entities (e.g., F1‚ÄìF42 as exempliÔ¨Åed in the foregoing) calculated in the mathematical system block will be fed as input to the ANN blocks to perform therein processing intended to correlate the PPG signal with pressure measurements (both diastolic and systolic) available for training the neural network blocks to produce blood pressure signals SBPrec (systolic) and DBPrec (diastolic) reconstructed starting from the PPG signals. Training values, e.g., SBP(t + 1) (systolic) and DBP(t + 1) (diastolic), have been derived from a set of measurements performed on a sample of 32 patients for which blood pressure is measured (e.g., by conventional means such as a sphygmomanometer) concurrently with detecting a PPG signal. These values can be used for training both neural networks represented in the system architecture reported in Figure 4.
+The Ô¨Årst used ANN (Neural System 1 as per Figure 4) is a Multi-Layer Perceptron (MLP) with a modiÔ¨Åed Polak‚ÄìRibiere back-propagation learning algorithm [29,30], which was found to be an adequate tool for use in learning a correlation between PPG-based features as discussed previously (e.g., F1‚ÄìF42) with blood pressure measurements. During the design/validation of the proposed approach, we performed several tests on the type of neural network to be used in order to get the best trade-off between approximation performance and convergence timing. As described in the classic literature of machine learning, it is well known that basic Back Propagation (BP) algorithm adjusts
+
+Computation 2018, 6, 46
+
+10 of 17
+
+the weights in the steepest descent direction. With this method, the loss function is decreasing most rapidly, but it does not mean that this approach produces the fastest convergence, as the method is very slow and often Ô¨Ånds only the local minima of the function. Some authors suggested the usage of Newton‚Äôs method, which has high performances, but it requires calculating the inverse of the Hessian matrix, such that it shows high computational costs. For those reasons, we decided to check the conjugate gradient BP algorithm as we heuristically supposed to model the problem as quadratic. In the conjugate gradient method, the weights‚Äô updating is performed along conjugate directions, which produces generally faster convergence than steepest descent directions and allows avoiding the high computational cost of Newton‚Äôs method. For this learning approach, there are more solutions for the searching algorithm, as in our tests, we observed that the Polak‚ÄìRibiere achieved the best results, so we decided to use the MLP trained with the BP algorithm modiÔ¨Åed as per the Polak‚ÄìRibiere approach. This artiÔ¨Åcial neural network will thus be able to perform preliminary reconstruction of the blood pressure of a subject both for systolic (SBP) and diastolic (DBP) values, providing an estimation denoted as f1(*) and f2(*) for SBP and DBP, respectively. The second used artiÔ¨Åcial neural network (Neural System 2 as per Figure 4) is an advanced modiÔ¨Åed version of the Self-Organizing Map (SOM) motor map [31]. This ANN, as per Figure 4, will thus be able to complete such a reconstruction of the blood pressure both for systolic (SBP) and diastolic (DBP) values by detecting a second estimation or component K1(*) and K2(*) for both systolic and diastolic pressures, respectively.
+In fact, Ô¨Ånal reconstructed blood pressure values, SBPrec (systolic) and DBPrec (diastolic), were found to be reliably and accurately estimated as a combination (e.g., as a sum) of non-linear plus linear components in the the following form:
+
+SBPrec = f1 (Polak ‚àí Ribiere NN) + K1(wSBP,out [SOM1 ‚àí Motor Map])
+
+(1)
+
+DBPrec = f2 (Polak ‚àí Ribiere NN) + K2(wDBP,out [SOM2 ‚àí Motor Map])
+
+(2)
+
+where f1(*) and f2(*) represent the output from a functional mapping modeled by f1(*) (systolic) and f2(*) (diastolic) as produced by the Ô¨Årst neural network (e.g., with Polak‚ÄìRibiere learning), which performs non-linear function approximation. The terms K1(*) (systolic) and K2(*) (diastolic) represent the output from the second neural network (e.g., ‚Äúextended SOM‚Äù), which performs a pseudo-linear function approximation. Consequently, the pressure values SBPrec/DBPrec comprise a non-linear portion ( f1/ f2) and a linear portion (K1/K2).
+An extended SOM as schematically exempliÔ¨Åed in Figure 7 (where only the Input Layer (IL) and the Output Layer (OL) are visible) was found to be suited for use in the proposed approach, e.g., due to the presence of an OL that was able to produce the linear correction needed to improve SBP/DBP estimation made by the previous neural Network stage. We organized, for each type of Blood Pressure Estimation system (SBP and DBP) a lattice structure of 8 √ó 8 neurons having 42 input weights (for each neuron) and one output weight. Both weights matrices are random initialized.
+
+Computation 2018, 6, 46
+
+11 of 17
+
+Figure 7. Self-Organizing Map (SOM) motor map proposed pipeline. IL, Input Layer; OL, Output Layer.
+
+The following equations describe the typical ‚Äúwinner take all‚Äù algorithm [32,33] for proper clustering of input hand-crafted signal features vector Fi:
+wiSBP,in (xmin, ymin, t + 1) = wiSBP,in (xmin, ymin, t) + Œ± ¬∑ Œ≤(x, y, t) ¬∑ (Fi ‚àí wiSBP,in (xmin, ymin, t + 1)) (3)
+wiDBP,in (xmin, ymin, t + 1) = wiDBP,in (xmin, ymin, t) + Œ± ¬∑ Œ≤(x, y, t) ¬∑ (Fi ‚àí wiDBP,in (xmin, ymin, t + 1)) (4)
+where (xmin,ymin) represents the coordinates of the neurons, which minimize the Euclidean distance between the input weights and the related hand-crafted input vector, while ‚ÄúŒ±‚Äù and ‚ÄúŒ≤(x, y, t)‚Äù represent the learning rate and neighborhood function (Gaussian) of the WTA algorithm. This winner neuron produces the related output per the following equation:
+
+wSBP,out (xmin, ymin, t + 1) = = wSBP,out (xmin, ymin, t) + Œ± ¬∑ ‚àë Œ≤(x, y, t) ¬∑ ([SBP ‚àí f1 (Polak ‚àí Ribiere NN)] ‚àíwSBP,out (xmin, ymin, t))
+
+(5)
+
+wDBP,out (xmin, ymin, t + 1) = = wDBP,out (xmin, ymin, t) + Œ± ¬∑ ‚àë Œ≤(x, y, t) ¬∑ ([DBP ‚àí f2 (Polak ‚àí Ribiere NN)] ‚àíwDBP,out (xmin, ymin, t) )
+
+(6)
+
+We compute the following learning errors:
+
+EDBP(t
+
++
+
+1)
+
+=
+
+1 2
+
+(DBP
+
+(t
+
++
+
+1)
+
+‚àí
+
+DBPrec
+
+(t
+
++
+
+1))2
+
+(7)
+
+ESBP(t
+
++ 1)
+
+=
+
+1 2
+
+(SBP
+
+(t
+
++ 1)
+
+‚àí SBPrec
+
+(t + 1))2
+
+(8)
+
+If the above error functions are progressive decreasing, i.e.,
+
+EDBP (t + 1) < EDBP (t)
+
+(9)
+
+ESBP (t + 1) < ESBP (t)
+
+(10)
+
+the related weights‚Äô updating will be conÔ¨Årmed, and then:
+
+wSBP,out (xmin, ymin, t + 1) = K1(wSBP,out)
+
+(11)
+
+Computation 2018, 6, 46
+
+12 of 17
+
+wDBP,out (xmin, ymin, t + 1) = K2(wSBP,out)
+
+(12)
+
+Otherwise, both input and output weight updates will be discarded. The system as exempliÔ¨Åed herein was found to be able to provide a blood pressure estimation (both systolic and diastolic) in a few seconds, with (only) 4‚Äì5 s of PPG sampling found to facilitate accurate and reliable reconstruction of a blood pressure signal. Figure 8 shows the performance of the above neural networks during the learning process, whereas the distribution of the winner neurons of the SOM motor map input layer during the learning process is shown in Figure 9.
+
+Figure 8. Performance diagrams of the Polak‚ÄìRibiere neural network over nine epochs (blue: learning/ green: validation).
+
+Figure 9. SOM motor map input layer winner neuron distribution (red neurons) during the learning process.
+5. Testing and Future Works The proposed approach has been extensively tested and validated. We used MATLAB as the
+software framework, running on a PC i5 quad-core. The PPG signal has been acquired with the hardware and software setup described in [24] as reported in Figure 2. This study was conducted in
+
+Computation 2018, 6, 46
+
+13 of 17
+
+accordance with the Helsinki Declaration of 1975. All patients provided written informed consent before enrollment. The study was approved by the Ethical Committee Catania 1 (Authorization No. 113/2018/PO). Then, we proceeded to collect 42 patients having different genders (male and female), ages (between 20 and 70 years old) and pathologies (we collected healthy subjects and sick ones with different issues such as cardiac problems, hypertension, diabetes, etc.). In order to have a real and robust blood pressure estimation as a reference, for each patient, we measured the SBP and DBP by a classical sphygmomanometer device. Then, we started the PPG acquisition (for about two minutes). Finally, the proposed pipeline was applied to the acquired raw PPG signal in order to have an estimation of the SBP and DBP (we computed an averaging of the SBPs and DBP obtained by applying the proposed algorithm to the PPG acquired waveforms time series). The reference SBP and DBP measurements (acquired by the sphygmomanometer device) were compared with respect to the SBP and DBP values estimated by the proposed pipeline. For each patient, we performed several testing sessions (in different conditions: in the early morning, before eating, after eating, in the afternoon, etc.), in order to have a robust and efÔ¨Åcient comparison of the proposed approach. The accuracy of SBP and DBP estimation was evaluated. For each patient, we compared the classic measurements of blood pressure (by sphygmomanometer device) with the same ones obtained by the proposed approach applied to the PPG signal acquired immediately after the referenced classic measure. All the classic measurements were acquired by physiologists who collaborated in the experiments in order to have a robust and reliable blood pressure estimation. The training/testing ratio was 60/40, as 60% of the data had been used for training the proposed system and the residual 40% for testing the proposed pipeline.
+The diagrams in Figures 10 and 11 show the good results we obtained in the validation set (32 residual subjects).
+
+Figure 10. SBP estimation performance diagram.
+
+Computation 2018, 6, 46
+
+14 of 17
+
+Figure 11. DBP estimation performance diagram.
+The average error for both estimation (SBP and DBP) was ‚àº2 mmHg, which is an acceptable result from a medical point of view and with respect to prior word mentioned above as the error estimation was about 10/15% of the real measure. The diagrams in Figures 12 and 13 show the errors for such estimated pressures (both SBP and DBP).
+Figure 12. SBP estimation error diagram.
+
+Computation 2018, 6, 46
+
+15 of 17
+
+Figure 13. DBP estimation error diagram.
+We proposed a non-invasive cuff-less blood pressure system that can be easily embedded in different kinds of devices such as mobile phones to portable medical devices to a general embedded system. Actually, the PPG probe and the computing system can be easily integrated in portable devices (such as mobile phones, embedded devices, PCs, etc.) to reproduce the described system in order to have in a few seconds of PPG sampling an accurate estimation of blood pressure without any other hardware or medical knowledge as needed for instance for the sphygmomanometer-based approach. The proposed approach seems more accurate with respect to classical commercial digital devices as it shows (in the tested training set) a good accuracy ratio.
+Future works will aim to improve a better estimation, increasing the training set number and the type of neural system we used. We are performing such simulations by using the recent LSTM (Long-Short-Term Memory) neural network with such a regression layer, as it seems more accurate with respect to the neural networks used in the proposed approach.
+Author Contributions: Investigation, F.R.; Validation S.C.; Writing-Review & Editing, A.O. and S.B.
+Funding: This research received no external funding.
+ConÔ¨Çicts of Interest: The authors declare no conÔ¨Çict of interest.
+References
+1. McCombie, D.B.; Andrew, T.R.; Asada, H.H. Adaptive blood pressure estimation from wearable PPG sensors using peripheral artery pulse wave velocity measurements and multi-channel blind identiÔ¨Åcation of local arterial dynamics. In Proceedings of the 28th Annual International Conference of the IEEE Engineering in Medicine and Biology Society, New York, NY, USA, 30 August‚Äì3 Septenber 2006; pp. 3521‚Äì3524.
+2. Nichols, W.; O‚ÄôRourke, M.F. McDonald‚Äôs Blood Flow in Arteries: Theoretical, Experimental and Clinical Principles, 4th ed.; CRC Press: London, UK, 1998.
+3. Tijsseling, A.S.; Anderson, A.A. Isebree Moens and D.J. Korteweg: On the speed of propagation of waves in elastic tubes. BHR Group. In Proceedings of the 11th International Conference on Pressure Surges, Lisbon, Portugal, 24‚Äì26 October 2012; Anderson, S., Ed.; pp. 227‚Äì245, ISBN 978-1-85598-133-1.
+4. Kurylyak, Y.; Lamonaca, F.; Grimaldi, D. A Neural Network-based method for continuous blood pressure estimation from a PPG signal. In Proceedings of the IEEE International Instrumentation and Measurement Technology Conference (I2MTC), Torino, Italy, 22‚Äì25 May 2013; pp. 280‚Äì283.
+
+Computation 2018, 6, 46
+
+16 of 17
+
+5. Yan, Y.S.; Zhang, Y.T. Noninvasive estimation of blood pressure using photoplethysmographic signals in the period domain. In Proceedings of the 27th Annual International Conference of the Engineering in Medicine and Biology Society (IEEE-EMBS 2005), Shanghai, China, 1‚Äì4 September 2005; pp. 3583‚Äì3584.
+6. Gu, W.B.; Poon, C.C.Y.; Zhang, Y.T. A novel parameter from PPG dicrotic notch for estimation of systolic blood pressure using pulse transit time. In Proceedings of the 5th International Summer School and Symposium on Medical Devices and Biosensors (ISSS-MDBS 2008), Hong Kong, China, 1‚Äì3 June 2008; pp. 86‚Äì88.
+7. Meigas, K.; Kattai, R.; Lass, J. Continuous blood pressure monitoring using pulse wave delay. In Proceedings of the 23rd Annual International Conference of the IEEE Engineering in Medicine and Biology Society, Istanbul, Turkey, 25‚Äì28 October 2001; pp. 3171‚Äì3174.
+8. Cattivelli, F.S.; Garudadri, H. Noninvasive cufÔ¨Çess estimation of blood pressure from pulse arrival time and heart rate with adaptive calibration. In Proceedings of the Sixth International Workshop on Wearable and Implantable Body Sensor Networks (BSN 2009), Berkeley, CA, USA, 3‚Äì5 June 2009; pp. 114‚Äì119.
+9. Teng, X.F.; Zhang, Y.T. Continuous and noninvasive estimation of arterial blood pressure using a photoplethysmographic approach. In Proceedings of the 25th Annual International Conference of the IEEE Engineering in Medicine and Biology Society, Cancun, Mexico, 17‚Äì21 September 2003; pp. 3153‚Äì3156.
+10. Fortino, G.; Giamp√†, V. PPG-based methods for non invasive and continuous BP measurement: an overview and development issues in body sensor networks. In Proceedings of the IEEE International Workshop on Medical Measurements and Applications (MeMeA‚Äô2010), Ottawa, ON, Canada, 30 April‚Äì1 May 2010; pp. 10‚Äì13.
+11. Kim, J.Y.; Cho, B.H.; Im, S.M.; Jeon, M.J.; Kim, I.Y.; Kim, S.I. Comparative study on artiÔ¨Åcial neural network with multiple regressions for continuous estimation of blood pressure. In Proceedings of the 27th Annual International Conference of the IEEE Engineering in Medicine and Biology Society, Shanghai, China, 1‚Äì4 September 2005; pp. 6942‚Äì6945.
+12. Goldberger, A.L.; Amaral, L.A.; Glass, L.; Hausdorff, J.M.; Ivanov, P.C.; Mark, R.G.; Mietus, J.E.; Moody, G.B.; Peng, C.K.; Stanley, H.E. PhysioBank, PhysioToolkit, and PhysioNet: Components of a New Research Resource for Complex Physiologic Signals. Circulation 2000, 101, 215‚Äì220. [CrossRef]
+13. Kurylyak, Y.; Lamonaca, F.; Grimaldi, D. Smartphone-Based Photoplethysmogram Measurement. In Digital Image and Signal Processing for Measurement Systems; Duro, R.J., L√≥pez-Pe√±a, F., Eds.; River Publisher: River City, Denmark, 2012; pp. 135‚Äì164.
+14. Lamonaca, F.; Kurylyak, Y.; Grimaldi, D.; Spagnuolo, V. Reliable pulse rate evaluation by smartphone. In Proceedings of the IEEE International Symposium on Medical Measurements and Applications Proceedings (MeMeA 2012), Budapest, Hungary, 18‚Äì19 May 2012; pp. 234‚Äì237.
+15. Gaurav, A.; Maheedhar, M.; Tiwari, V.N.; Narayanan, R. Cuff-less PPG based continuous blood pressure monitoring‚ÄîA smartphone based approach. In Proceedings of the 38th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), Orlando, FL, USA, 16‚Äì20 August 2016; pp. 607‚Äì610.
+16. Datta, S.; Banerjee, R.; Choudhury, A.D.; Sinha, A.; Pal, A. Blood pressure estimation from photoplethysmogram using latent parameters. In Proceedings of the 2016 IEEE International Conference on Communications (ICC), Kuala Lumpur, Malaysia, 22‚Äì27 May 2016; pp. 1‚Äì7.
+17. Kao, Y.H.; Paul, C.-P.C.; Wey, C.-L. A PPG sensor for continuous cufÔ¨Çess blood pressure monitoring with self-adaptive signal processing. In Proceedings of the 2017 International Conference on Applied System Innovation (ICASI), Sapporo, Japan, 13‚Äì17 May 2017; pp. 357‚Äì360.
+18. SlapnicÀòar, G.; LusÀòtrek, M.; Marinko, M. Continuous Blood Pressure Estimation from PPG Signal. Informatica 2018, 42, 33‚Äì42.
+19. Kachuee, M.; Kiani, M.M.; Mohammadzade, H.; Shabany, M. Cuff-less high-accuracy calibration-free blood pressure estimation using pulse transit time. In Proceedings of the 2015 IEEE International Symposium on Circuits and Systems (ISCAS), Lisbon, Portugal, 24‚Äì27 May 2015; pp. 1006‚Äì1009.
+20. Oreggia, D.; Guarino, S.; Parisi, A.; Pernice, R.; Adamo, G.; Mistretta, L.; Di Buono, P.; Fallica, G.; Cino, C.A.; Busacca, A.C. Physiological parameters measurements in a cardiac cycle via a combo PPG-ECG system. In Proceedings of the AEIT International Annual Conference, Naples, Italy, 14‚Äì16 October 2015; pp. 1‚Äì6.
+
+Computation 2018, 6, 46
+
+17 of 17
+
+21. Vinciguerra, V.; Ambra, E.; Maddiona, L.; Oliveri, S.; Romeo, M.F.; Mazzillo, M.; Rundo, F.; Fallica, G. Progresses towards a Processing Pipeline in Photoplethysmogram (PPG) based on SiPMs. In Proceedings of the 23 European Conference on Circuit Theory and Design, Catania, Italy, 4‚Äì6 September 2017.
+22. Tang, S.K.D.; Goh, S.; Wong, M.L.D.; Lew, Y.E. PPG signal reconstruction using a combination of discrete wavelet transform and empirical mode decomposition. In Proceedings of the 6th International Conference on Intelligent and Advanced Systems (ICIAS), Kuala Lumpur, Malaysia, 15‚Äì17 August 2016; pp. 1‚Äì4.
+23. Yadhuraj, S.R.; Sudarshan, B.G. GUI creation for removal of motion artifact in PPG signals. In Proceedings of the 3rd International Conference on Advanced Computing and Communication Systems (ICACCS), Coimbatore, India, 22‚Äì23 January 2016; pp. 1‚Äì5.
+24. Rundo, F.; Conoci, S.; Ortis, A.; Battiato, S. An Advanced Bio-Inspired PhotoPlethysmoGraphy (PPG) and ECG Pattern Recognition System for Medical Assessment. Sensors 2018, 18, 405. [CrossRef] [PubMed]
+25. Mazzillo, M.; Maddiona, L.; Rundo, F.; Sciuto, A.; Libertino, S.; Lombardo, S.; Fallica, G. Characterization of sipms with nir long-pass interferential and plastic Ô¨Ålters. IEEE Photonics J. 2018, 10, 1‚Äì12. [CrossRef]
+26. Mazzillo, M.; Nagy, F.; SanÔ¨Ålippo, D.; Valvo, G.; Carbone, B.; Piana, A.; Fallica, G. Silicon photomultiplier technology for low-light intensity detection. Sensors 2013, 13, 1‚Äì4. [CrossRef]
+27. Mazzillo, M.; Mello, D.; Barbarino, P.P.; Romeo, M.F.; Musienko, Y.; Sciuto, A.; Libertino, S.; Lombardo, S.A.; Fallica, G. Electro-Optical Characterization of SiPMs With Green Bandpass Dichroic Filters. IEEE Sens. J. 2017, 17, 4075‚Äì4082. [CrossRef]
+28. Matthews, J.H. Simpson‚Äôs 3/8 Rule for Numerical Integration. Numerical Analysis-Numerical Methods Project. California State University, Fullerton. Archived from the original on 4 December 2008. Retrieved 11 November 2008. Available online: http://mathfaculty.fullerton.edu/mathews/N340/Math340.htm (accessed on 28 August 2018).
+29. Fletcher, R.; Reeves, C.M. Function minimizazion by conjugate gradients. Comput. J. 1964, 7, 149‚Äì154. [CrossRef]
+30. Hagan, M.T.; Demuth, H.B.; Beale, M.H.; De Jes√∫s, O. Neural Network Design; PWS Publishing: Boston, MA, USA, 1996; pp. 9-15‚Äì9-22.
+31. Arena, P.; Bucolo, M.; Fortuna, L.; Frasca, M. Motor map for nonlinear control. In Proceedings of the 6th Experimental Chaos Conference, Potsdam, Germany, 22‚Äì26 July 2001.
+32. Battiato, S.; Rundo, F.; Stanco, F. An Improved Image Re-Indexing Technique by Self Organizing Motor Maps. In International Workshop on Computational Color Imaging; Springer: Berlin/Heidelberg, Germany, 2009.
+33. Battiato, S.; Rundo, F.; Stanco, F. Self organizing motor maps for color-mapped image re-indexing. IEEE Trans. Image Process. 2007, 16, 2905‚Äì2915. [CrossRef] [PubMed]
+c 2018 by the authors. Licensee MDPI, Basel, Switzerland. This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (http://creativecommons.org/licenses/by/4.0/).
+

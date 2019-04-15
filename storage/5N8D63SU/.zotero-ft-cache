@@ -1,0 +1,465 @@
+测 控 技 术 与 仪 器 仪 表 Measurement Control Technology and Instruments
+
+基于 RNN 的脉搏波血压计的研究与实现*
+
+刘艳萍，李 杰，金 菲
+（ 河 北 工 业 大 学 电 子 信 息 工 程 学 院 ， 天 津 300401 ）
+
+摘 要： 针对于传统袖带血压计的不便捷性和不连续性，设计了一种便携式的脉搏波血压计。 该血压计通过光电传
+
+感器采集指端的脉搏波信号； 在微控制器中对脉搏波信号进行预处理及血压的计算， 其中通过训练优化好的循环
+
+神 经 网 络 预 测 模 型 来 预 测 计 算 血 压 值 ； 将 预 测 出 来 的 血 压 值 显 示 到 OLED 显 示 屏 ， 最 终 实 现 实 时 连 续 血 压 的 监 测 。
+
+经 测 试 ， 该 便 携 式 脉 搏 波 血 压 计 的 血 压 预 测 误 差 在 ±5 mmHg 之 内 ， 符 合 国 际 血 压 计 测 量 的 误 差 范 围 。 所 设 计 的 便 携
+
+式 基 于 RNN 的 脉 搏 波 血 压 计 为 智 能 穿 戴 健 康 监 护 设 备 的 开 发 和 设 计 提 供 了 较 高 的 参 考 价 值 。
+
+关键词： 便携式；脉搏波；血压计；循环神经网络
+
+中 图 分 类 号 ： TH776
+
+文献标识码： A
+
+DOI ：10.16157/j.issn.0258-7998.175084
+
+中 文 引 用 格 式 ： 刘 艳 萍 ， 李 杰 ， 金 菲 . 基 于 RNN 的 脉 搏 波 血 压 计 的 研 究 与 实 现 [J ]. 电 子 技 术 应 用 ， 2018 ， 44 ( 6 ) ： 76 -79 ， 84 . 英 文 引 用 格 式 ： Liu Yanping ， Li Jie ， Jin Fei. Research and design of pulse wave sphygmomanometer based on RNN [J]. Application of Electronic Technique ， 2018 ， 44(6) ： 76-79 ， 84.
+
+Research and design of pulse wave sphygmomanometer based on RNN
+
+Liu Yanping ，Li Jie ，Jin Fei
+(College of Electrical and Information Engineering ， Hebei University of Technology ， Tianjin 300401 ， China)
+Abstract ： Aiming at the inconvenience and discontinuity of traditional cuff sphygmomanometer, a portable pulse wave sphygmo manometer is designed. The sphygmomanometer collects the pulse wave signal of the finger end through the photoelectric sensor ， preprocesses the pulse wave signal and the blood pressure in a micro controller, and predicts and calculates the blood pressure value by training and optimizing a circulating neural network prediction model. Blood pressure values will be displayed on the OLED dis play, ultimately realizing real -time continuous blood pressure monitoring . After tested, portable pulse wave sphygmomanometer blood pressure prediction error is within plus or minus 5 mmHg , in line with international sphygmomanometer measurement error range . The portable RNN -based pulse wave sphygmomanometer designed in this paper provides a high reference value for the development and design of intelligent wear health monitoring equipment. Key words ： portable ； pulse wave ； sphygmomanometer ； recurrent neural network
+
+0 引言
+便携式可穿戴医疗电子产品可以随时随地监控人 们自身的健康状况。 但是目前常用的充气式血压计不方 便携带，同时其袖带测量会让人产生束缚感，所以设计 一款便携式无束缚的血压计是目前急需解决的问题。
+本文采用光电容积描记法采集人体的脉搏波信号。 利用光电技术检测血液容积的变化，通过分析容积变化 的脉动性，进行血压的计算。 光电法采集到的脉搏波数 据具有较强的随机性和复杂性，是一种非线性、非稳定 的时间序列，对其很难用一种简单的非线性模型来完整 描 述 并 准 确 预 测 血 压 。 文 献 [1] 采 用 LSTM 神 经 网 络 模 型，通过脉搏波传导时间来预测血压，需要采用心电和 脉搏波两路信号共同计算出脉搏波传导时间，对心电和
+* 基 金 项 目 ： 河 北 省 自 然 科 学 基 金 ( E2016202341 )
+76 欢迎网上投稿 www.ChinaAET.com
+
+脉搏波数据进行特征点的提取，同时训练的年龄段比较 集 中 。 文 献 [2] 采 用 410 个 人 的 脉 搏 波 （PPG ） 信 号 进 行 机 器学习模型的训练，得到预测血压的预测模型，输入的 训练参数较少，容易降低训练模型的普遍适应性。
+本文基于循环神经网络，设计了一个 3 层的循环神 经网络血压预测模型，根据容积脉搏血流量信息与人体 血压的关系预测人体的收缩压和舒张压。 循环神经网络 能够在当前时刻训练时添加上一时刻的特征参数，体 现 出 脉 搏 波 信 号 时 序 的 连 续 性 ； RNN （ Recurrent Neuron Network ） 单 元 层 会 自 动 提 取 需 要 的 特 征 信 息 。 所 以 建 立 的脉搏波血压预测模型的预测效果会大大提高。 1 基本原理
+血压是血管内血液对血管壁的压力。 人们通常说的 血压指的是动脉血压， 是推动血液在血管内流动的动 力，心脏在周期收缩和舒张的同时，血管里的血液体积
+《 电 子 技 术 应 用 》 2018 年 第 44 卷 第 6 期
+
+测 控 技 术 与 仪 器 仪 表 Measurement Control Technology and Instruments
+
+会 发 生 脉 动 性 变 化[3]。
+
+1.1 血压跟脉搏波关系
+
+根 据 Lambert- Beer 定 律 和 光 的 散 射 理 论 ， 由 于 指 端
+
+组织对光源的吸收程度不一样，心脏收缩射血前后光学
+
+传 感 器 接 收 到 的 透 射 光 的 光 强 存 在 一 定 的 变 化 量 △I ，
+
+其中忽略了毛细血管的形状对光强吸收的影响。 心脏收
+
+缩向血管内射血，动脉血管内半径为 d，血管内血液量
+
+增 加 后 血 管 的 内 半 径 增 加 △d ， 血 管 内 的 血 量 发 生 变 化
+
+会 导 致 动 脉 血 压 也 随 之 发 生 变 化[4]。 血 管 内 血 液 容 积 的
+
+变化量和压力的变化量之间的关系如下：
+
+△P
+
+=
+
+1 K
+
+△V
+
+(1)
+
+式 中 ，△P 为 血 压 的 变 化 量 ，K 为 血 管 顺 应 的 特 征 参 数 ，
+
+△V 为 血 液 容 积 的 变 化 量 。
+
+通 过 计 算 ， 可 以 将 血 压 的 变 化 量 △P 和 血 管 内 半 径
+
+变 化 量 △d 线 性 表 示 为 ：
+
+△P = θ2△d
+
+(2)
+
+其 中 ， θ2
+
+表
+
+示
+
+为
+
+1 K
+
+与血管半径的关系式。
+
+心脏搏动前后透射光的强度变化可以表示为：
+
+△I = θ△d
+
+(3)
+
+其中，θ 反映的是非动脉组织和动脉组织中物质的吸光
+
+系数和浓度的系数。
+
+由 式(1)～式(3)变 换 后 可 以 得 到 人 体 血 压 变 化 量 和
+
+透射光强度变化量之间的关系：
+
+△P= θ △I
+
+(4)
+
+θ2
+
+由 式 (4) 可 见 ， 血 压 变 化 量 △P 和 透 射 光 的 光 强 变 化
+
+量 △I 之 间 存 在 一 定 的 关 系 。 因 此 可 以 采 用 透 射 光 照 射
+
+手指指端血管， 由光接收器接收到透过血管的光强度，
+
+将此光强度变化信号转换成电信号，便可获得容积脉搏
+
+波的变化， 脉动的脉搏波电信号能够表征血压的变化，
+
+能够通过脉搏波波形变化来预测血压。
+
+1.2 循环神经网络的基本原理
+
+RNN 是 一 种 对 序 列 数 据 建 模 的 神 经 网 络 ， 即 一 个 序
+
+列 当 前 的 输 出 与 前 面 的 输 出 也 有 关[5]。 具 体 的 表 现 形 式
+
+为，网络会对前面的信息进行记忆并应用于当前输出的
+
+计算中， 即隐藏层之间的节点不再是无连接而是有连
+
+接，并且隐藏层的输入不仅包含输入层的输出还包括上
+
+一 时 刻 隐 藏 层 的 输 出 ， 图 1 为 RNN 模 型 的 示 例 图 。
+
+O
+
+Ot - 1
+
+Ot
+
+Ot + 1
+
+幅度
+
+图 1 中 xt 是 t 时 刻 的 输 入 ， St 是 t 时 刻 的 隐 状 态 ( memory ) ， 基 于 上 一 时 刻 的 隐 状 态 和 当 前 输 入 得 到 ： St= f ( Uxt + WSt -1) ， 其 中 f 一 般 是 非 线 性 的 激 活 函 数 ， 在 计 算 S0 时 ， 即 第 一 个 血 压 值 的 隐 藏 层 状 态 ， 需 要 用 到 St -1， 但 是 并 不 存 在 ， 在 现 实 中 一 般 置 为 0 。 Ot 表 示 t 时 刻 的 输 出 ， 表 达 式 为 Ot= softmax ( VSt) 。 在 传 统 神 经 网 络 中 ， 每 个 网 络 层 的 参 数 是 不 能 共 享 的 ； 而 在 RNN 模 型 中 ， 所 有 层 次 均 共 享 同 样 的 参 数 。 说 明 RNN 中 的 每 一 步 都 在 做 相 同的事，只是输入不同，大大降低了网络的参数。 2 循环神经网络预测算法的实现 2.1 循环神经网络模型的建立 2.1.1 数据的准备
+通过本文设计的血压计采集模块，在医院、学校等 场所对采集对象进行脉搏波数据的采集，同时用欧姆龙 血压仪对血压测量标定。 采集过程中要求被采集者静 坐，保证采集到的脉搏波数据和血压值的准确性。
+每 个 采 集 对 象 的 采 集 时 间 是 30 s ， 因 为 采 集 模 块 的 采 样 频 率 是 100 Hz ， 每 10 ms 采 集 一 个 脉 搏 波 数 据 ， 所 以 每 个 对 象 采 集 的 数 据 是 3 000 个 点 ， 也 就 是 每 组 数 据 包 含 3 000 个 点 。 在 采 集 数 据 的 同 时 用 欧 姆 龙 血 压 仪 测 量人体的收缩压和舒张压。 2.1.2 数据的预处理
+脉搏波信号频率比较低，采集到的原始的脉搏波会 存在很多噪声，所以在计算血压之前要先进行脉搏波数 据的预处理。 脉搏波原始数据中存在的主要噪声有工频 噪声、呼吸产生的噪声、采集过程中抖动产生的噪声以 及外界光干扰产生的噪声等。 针对外界光干扰和采集过 程中抖动产生的噪声， 硬件系统设计添加了滤波器，同 时外壳也做了遮光，减少外界光的干扰。
+脉搏波信号是人体的生理信号，频率较低，主要集 中 在 0.1 ~10 Hz ， 针 对 脉 搏 波 信 号 10 Hz 以 上 的 都 是 要 滤 除 的 高 频 噪 声 ， 本 文 采 用 椭 圆 低 通 滤 波 器 [6]对 脉 搏 波 信号进行高频噪声的去除。 原始脉搏波数据经过椭圆低 通滤波前后对比图如图 2 所示，可以看出高频毛刺已经
+
+SW
+
+V
+
+V
+
+V
+
+W
+
+St - 1
+
+W
+
+St
+
+St + 1
+
+W
+
+W
+
+U
+
+U
+
+U
+
+x
+
+xt - 1
+
+xt
+
+xt + 1
+
+图 1 RNN 模 型 结 构 示 意 图
+
+《 电 子 技 术 应 用 》 2018 年 第 44 卷 第 6 期
+
+时 间 / ms 图 2 椭圆低通滤波前后对比图
+77
+
+测 控 技 术 与 仪 器 仪 表 Measurement Control Technology and Instruments
+
+被滤除，波形比较光滑，同时保留了原始脉搏波的波形 特征。 2.1.3 模型的建立
+由 于 人 体 心 率 的 正 常 范 围 为 60 ~100 次 /min ，128 个 点就基本包含了一个心率周期，本文从一组脉搏波数据 中 挑 选 完 整 脉 搏 波 数 据 的 128 个 点 用 作 预 测 模 型 的 输 入 。 每 一 组 输 入 的 数 据 包 含 红 光 的 128 个 预 处 理 后 的 脉 搏 波 数 据 ，输 出 数 据 包 含 二 维 特 征 ( 收 缩 压 和 舒 张 压 )，如 表 1 所示。
+
+输入特征 脉搏波数据
+/
+
+表 1 输入输出特征
+
+单位
+
+输出特征
+
+128 个 离 散 点 收 缩 压 （ SBP ）
+
+/
+
+舒 张 压 （ DBP ）
+
+单位 mmHg mmHg
+
+本文设计了一个含有 3 个网络层的循环神经网络
+
+模 型 ， 输 入 特 征 点 的 个 数 选 择 128 个 点 。 为 了 防 止 因 为
+
+样本数据有限出现严重的过拟合的现象，在训练模型隐
+
+藏层没有选择更深的网络。 本文循环神经网络模型包含
+
+1 个 输 入 层 、3 个 RNN 单 元 层 和 1 个 输 出 层 。 输 入 层 用
+
+于 输 入 与 血 压 有 相 关 性 的 脉 搏 波 数 据 ；3 个 RNN 单 元 层
+
+用于信息特征的提取；1 个输出层采用均方差损失函数
+
+作 为 输 出 ，均 方 差 的 表 达 式 如 (5) 所 示 ， 输 出 层 用 于 最 后
+
+对收缩压和舒张压数值的预测。
+
+n
+
+Σ(pred( i)-y(i))2
+
+f(i)= i=1
+
+(5)
+
+n
+
+式 中 ，n 表 示 测 试 样 本 的 数 目 ，pred ( i) 表 示 当 前 第 i 测 试
+
+样本输出的概率，y(i)表示真实样本的概率分布值。
+
+2.2 循环神经网络的训练及测试结果分析
+
+网 络 训 练 时 ， 设 初 始 学 习 率 lr 为 0.01 ， 动 量 项 系 数
+
+为 0.9 ， 即 每 训 练 2 000 次 学 习 率 降 低 10 倍 ； 由 于 数 据
+
+量 并 不 大 而 3 层 网 络 较 深 ， 故 加 入 Dropout 来 防 止 训 练
+
+时 出 现 过 拟 合 的 现 象 [7]， 值 设 为 0.7； 训 练 的 迭 代 次 数 选
+
+择 10 000 次 。 对 于 每 一 组 数 据 训 练 损 失 曲 线 在 训 练 次 数
+
+达 到 2 000 次 时 ， 损 失 曲 线 就 基 本 不 变 ， 损 失 也 不 会 下
+
+降，预测模型基本稳定。
+
+对 采 集 模 块 采 集 到 的 脉 搏 波 数 据 ， 分 别 用 6 000 组 、
+
+7 000 组 和 8 000 组 进 行 训 练 ，2 000 组 进 行 预 测 验 证 。 不
+
+同 训 练 集 预 测 误 差 均 值 和 RMSE 如 表 2 所 示 。 经 实 验 证
+
+明 采 用 8 000 组 数 据 时 ， 网 络 能 够 得 到 充 分 训 练 。
+
+其 中 用 8 000 组 数 据 进 行 训 练 得 到 的 预 测 误 差 分 布
+
+柱 状 图 如 图 3 所 示 。 SBP 的 预 测 误 差 均 值 为 3.45 mmHg ，
+
+表 2 不同训练集预测误差的对比分析
+
+训练数据 个数 6 000 7 000 8 000
+
+SBP / mmHg
+
+误 差 均 值 RMSE
+
+7.6
+
+8 . 23
+
+5 . 45
+
+7 . 71
+
+3 . 45
+
+2 . 51
+
+DBP / mmHg
+
+误 差 均 值 RMSE
+
+5 . 83
+
+4 . 81
+
+4 . 95
+
+4.6
+
+2 . 73
+
+3 . 68
+
+78 欢迎网上投稿 www.ChinaAET.com
+
+1 500 SBP
+1 000 DBP
+500
+
+个数
+
+0 0～5
+
+5 ～ 10 10 ～ 15 15 以 上 误 差 / mmHg
+
+图 3 预测误差分布统计柱状图
+
+RMSE 为 2.51 mmHg ；DBP 的预测误差均值 为 2.73 mmHg ， RMSE 为 3.68 mmHg 。 文 献 [ 8] 采 用 循 环 神 经 网 络 预 测 血 压值，通过脉搏波传导时间和一些脉搏波特征参数预测 血 压 ，SBP 的 预 测 误 差 均 值 为 4.13 mmHg ，DBP 的 预 测 误 差 均 值 为 2.8 mmHg 。 通 过 对 比 分 析 发 现 ， 本 研 究 采 用 脉 搏波数据进行血压的预测，预测效果有明显的提升。 3 系统设计 3.1 硬件系统设计
+硬件系统主要包括光电采集模块、主控模块、显示 模块 3 部分。 其中光电采集模块完成信号的采集及前端 信号预处理； 主控模块完成信号滤波及算法的实现，并 将 结 果 送 显 示 模 块 的 OLED 进 行 实 时 显 示 。 3.1.1 光电采集模块
+信号采集模块框图如图 4 所示，本系统采集部位在手 指指端，采用透射式测量法。 信号采集模块由光电采集和 模 拟 前 端 处 理 两 部 分 组 成 。 光 电 采 集 包 含 LED 光 源 及 光 电 传 感 器 ，模 拟 前 端 处 理 由 TI 公 司 的 AFE4400 芯 片 实 现 。
+
+图 4 信号采集模块的框图
+模 拟 前 端 AFE4400 集 成 了 LED 驱 动 电 路 、 放 大 电 路 、 数 字 转 换 器 和 数 字 滤 波 器 。 AFE4400 的 LED 驱 动 电 路 驱 动 LED 红 光 光 源 闪 烁 ， 并 且 控 制 LED 的 闪 烁 周 期 [9-10] 。 光 电 传 感 器 将 光 信 号 转 换 成 电 信 号 ， 经 AFE4400 的 放 大 转换及滤波处理后，得到有效稳定的脉搏波信号。 3.1.2 主控模块
+本 血 压 检 测 系 统 芯 片 选 择 超 小 型 、超 低 功 耗 MSP430[11] 单 片 机 。 本 文 通 过 SPI 总 线 将 光 电 采 集 模 块 输 出 的 数 字 脉 搏 波 信 号 传 递 给 微 处 理 器 MSP430 进 行 血 压 的 计 算 。 3.1.3 显示模块
+本 系 统 使 用 中 景 园 0.96 英 寸 的 OLED 显 示 屏 ， OLED 显 示 屏 的 接 口 电 路 如 图 5 所 示 ， 单 片 机 通 过 I2C 接
+《 电 子 技 术 应 用 》 2018 年 第 44 卷 第 6 期
+
+测 控 技 术 与 仪 器 仪 表 Measurement Control Technology and Instruments
+
+口 将 血 压 值 传 给 OLED 显 示 屏 ，SCLK 为 I2C 通 信 时 钟 管 脚 ，SDIC 为 I2C 通 信 数 据 接 口 。
+
+图 5 OLED 显 示 屏 的 接 口 电 路
+
+3.2 系统软件设计
+
+本系统的软件部分完成系统信号的采集、处理和显
+
+示。
+
+数 据 采 集 流 程 图 如 图 6 所 示 。 先 对 AFE4400 进 行 初
+
+始 化 ， 然 后 驱 动 LED 红 外
+
+光闪烁，当采集到的数据个
+
+数 到 达 128 时 ， 停 止 循 环 完
+
+成一个数据包的采集。将一
+
+个 包 的 脉 搏 波 数 据 经 SPI
+
+传给主控制模块，进行数据
+
+的预处理以及血压的计算，
+
+最 后 传 给 OLED 显 示 屏 。
+
+数据处理和显示模块
+
+对主控制模块接收的一个
+
+包的脉搏波数据采用椭圆
+
+低通滤波器进行预处理，然
+
+后将预处理后的脉搏波数
+
+据输入到循环神经网络模
+
+型中进行血压的计算，并将
+
+计算出来的收缩压和舒张
+
+压 发 送 给 OLED 显 示 屏 进
+
+行显示。
+
+4 测试结果
+
+图 6 采集模块流程图
+
+为验证设计的合理性，
+
+挑 选 年 龄 不 同 的 50 人 作 为 测 试 样 本 ， 并 将 其 与 符 合 国 家
+
+标准的欧姆龙血压计进行对比。
+
+本 研 究 采 用 Bland -Altman 法 对 基 于 RNN 的 脉 搏 波
+
+血压计测得的血压值和欧姆龙电子血压仪测得的血压
+
+值进行一致性分析。 在所有测试样本的对比中挑选其中
+
+代 表 样 本 15 组 ， 两 种 测 量 方 法 所 测 血 压 的 一 致 性 分 析
+
+图如图 7 所示。
+
+采用欧姆龙电子血压仪的测试结果与本系统测
+
+量 结 果 进 行 分 析 ， 本 系 统 测 量 血 压 的 SBP 误 差 均 值 为
+
+2.73 mmHg，RMSE 为 3.39 mmHg，DBP 误差均值为 3 mmHg， RMSE 为 3.46 mmHg 。 测 试 的 血 压 值 均 在 一 致 性 界 限 以
+内，可知本文设计的便携式 脉搏波血压计和欧姆龙电 子血压仪所测得的血压值 有较高的一致性，能保证血 压监测的精准度。
+5 结论 基 于 RNN 的 脉 搏 波 血
+压计采用光电描记法采集 人体的脉搏波信号，根据脉 搏波信号与血压的关系，建 立循环神经网络的预测模 型，将脉搏波数据输入预测 模 型 计 算 出 血 压 值 ，OLED 显示屏上进行实时的显示。 本文研究设计的血压计体积 小巧、方便携带、操作简单、功耗和成本比较低、预测血 压的精准度高、稳定性好，能够实现血压的实时监测，减 少因为病情发现不及时而延误病情的现象。
+图 7 两种测量方法所测血压的一致性分析图 参考文献 [1] LO P W ， LI X T ， WANG J ， et al. Continuous systolic and
+diastolic blood pressure estimation utilizing long short-term memory network[C]. International Conference of the IEEE
+( 下 转 第 84 页 )
+
+《 电 子 技 术 应 用 》 2018 年 第 44 卷 第 6 期
+
+79
+
+通信与网络 Communication and Network
+参考文献 [ 1 ] 冯 大 权 . D2D 通 信 无 线 资 源 分 配 研 究 [ D ] . 成 都 ： 电 子 科 技
+大 学 ， 2015 . [2] KLAUS D ， MIKA R ， CARL W ， et al.Device-to-device
+communication as an underlay to LTE-Advanced networks[J]. IEEE Communications Magazine ， 2009 ， 47(12) ： 42-49. [ 3 ] 钱 志 鸿 ， 王 雪 . 面 向 5G 通 信 网 的 D2D 技 术 综 述 [ J ] . 通 信 学 报 ， 2017 ， 37 （ 7 ） ： 1- 12. [4] QIAO J ， SHEN X S ， JON W M ， et al.Enabling device-todevice communications in millimeter-wave 5G cellular networks[J].IEEE Communications Magazine ， 2015 ， 53(1) ： 209 - 215 . [5] FENG D Q ， LU L ， YI Y W ， et al.Device-to-device communications in cellular networks[J].IEEE Communications Magazine ， 2014 ， 52(4) ： 49-55. [6] ZHANG Z ， SHI J ， CHEN H H ， et al.A cooperation strategy based on Nash bargaining solution in cooperative relay networks[J].IEEE Transactions on Vehicular Technology ， 2008 ， 57(4) ： 2570-2577. [7] ZHANG C ， ZHAO H L.A novel fair cooperation strategy based on Kalai-Smorodinsky bargaining solution for selfish cooperative relay networks[C].Proceedings of IEEE 17th International Conference on Intelligent Transportation Systems.Qingdao ： IEEE ， 2014 ： 2107-2112. [8] ZHANG G ， ZHANG H ， ZHAO L ， et al.Fair resource sharing for cooperative relay networks using Nash bargaining solutions[J].IEEE Communication Letters ， 2009 ， 13(6) ： 381383 .
+
+[9] JANZAMIN M ， PAKRAVAN M ， SEDGHI H.A gametheoretic approach for power allocation in bidirectional cooperative communication[C].Proceedings of IEEE Wireless Communications and Networking Conference.Sydney ： IEEE ， 2010 ： 1-6.
+[10] ZHANG G ， YANG K ， LIU P ， et al.Joint channel bandwidth and power allocation game for selfish cooperative relaying networks[J].IEEE Transactions on Vehicular Technology ， 2012 ， 61(9) ： 4142-4156.
+[11] KRIKIDIS I ， THOMPSON J ， MCLAUGHLIN S ， et al. Amplify-and-forward with partial relay selection[J].IEEE Communications Letters ， 2008 ， 12(4) ： 235-238.
+[12] SARAYDAR C U ， MANDAYAM N B ， GOODMAN D J. Pricing and power control in a multicell wireless data network[J].IEEE Journal on Selected Areas in Communications ， 2001 ， 19(10) ： 1883-1892.
+[13] GOLDSMITH A.Wireless communication[M].London ： Cambridge University Press ， 2005.
+[14] NASH J.The bargaining problem[J].Econometrica ， 1950 ， 28 (2) ： 155-162. （ 收 稿 日 期 ： 2017 - 09 - 19 ）
+作者简介： 张 闯 （ 1986 - ） ， 男 ， 博 士 研 究 生 ， 工 程 师 ， 主 要 研 究 方
+向：无线通信、电力电子。 邵 坦 （ 1986 - ） ， 男 ， 本 科 ， 工 程 师 ， 主 要 研 究 方 向 ： 电 力
+电子、仪器仪表。 王 慧 武 （ 1968 - ） ， 男 ， 硕 士 研 究 生 ， 高 级 工 程 师 ， 主 要 研
+究方向：电能质量测试分析、电能计量。
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+( 上 接 第 79 页 )
+Engineering in Medicine and Biology Society.IEEE ， 2017 ： 1853 - 1856 . [2] MONTE-MORENO E.Non-invasive estimate of blood glucose and blood pressure from a photoplethysmograph by means of machine learning techniques[J].Artificial Intelligence In Medicine ， 2011 ， 53(2) ： 127-128. [3] RUIZ-RODR魱GUEZ J C ，RUIZ-SANMART魱N A，RIBAS V， et al.Innovativecontinuous non-invasive cufflessblood pressure monitoring based on photoplethysmography technology[J]. Intensive Care Medicine ， 2013 ， 39(9) ： 1618-1625. [4] 殷广亮.用红外脉搏传感器实现连续血压测量的研究[D]. 上 海 ： 东 华 大 学 ， 2016 . [ 5 ] 范 竣 翔 ， 李 琦 ， 朱 亚 杰 ， 等 . 基 于 RNN 的 空 气 污 染 时 空 预 报 模 型 研 究 [ J ] . 测 绘 科 学 ， 2017 ， 42( 7) ： 76- 83 ， 120 . [6] 刘文远，张静远，蒋贤芬.一种新型椭圆低通滤波器的设 计 与 实 现 [J ] . 电 子 器 件 ， 2008( 4) ： 1265- 1267 ， 1272. [7] ZOLNA K，ARPIT D，SUHUBDY D，et al.Fraternal dropout[J].
+84 欢迎网上投稿 www.ChinaAET.com
+
+arXiv Preprint arXiv ： 1711.00066 ， 2017. [8] SU P ， DING X ， ZHANG Y ， et al.Learning to predict blood
+pressure with deep bidirectional LSTM Network[J].arXiv Preprint arXiv ： 1705.04524 ， 2017. [ 9 ] 石 龙 飞 ， 赵 珂 ， 李 烨 ， 等 . 基 于 AFE4400 的 无 创 血 氧 饱 和 度 测 量 系 统 设 计 [ J ] . 集 成 技 术 ， 2015 ， 4( 2 ) ： 75 - 85 . [ 10 ] 黎 圣 峰 ， 庞 宇 ， 高 小 鹏 ， 等 . 便 携 式 血 氧 信 号 检 测 装 置 设
+计 [ J ] . 传 感 器 与 微 系 统 ， 2017 ， 36( 3) ： 110- 112. [ 11 ] 闫 庆 广 ， 尹 军 ， 何 庆 华 ， 等 . 基 于 MSP430 单 片 机 的 无 线
+光 电 容 积 脉 搏 波 检 测 模 块 [J]. 半 导 体 光 电 ，2012 ，33(2) ： 299 - 302 .
+（ 收 稿 日 期 ： 2017 - 12 - 20 ） 作者简介：
+刘 艳 萍 ( 1966 - ) ， 女 ， 博 士 ， 教 授 ， 主 要 研 究 方 向 ： 通 信 及 测控技术和信息智能处理。
+李 杰 ( 1993 - ) ， 女 ， 硕 士 研 究 生 ， 主 要 研 究 方 向 ： 信 号 处 理、智能信息处理。
+金 菲 ( 1991 - ) ， 女 ， 硕 士 研 究 生 ， 主 要 研 究 方 向 ： 电 子 信 息技术与工程。
+《 电 子 技 术 应 用 》 2018 年 第 44 卷 第 6 期
+

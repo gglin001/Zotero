@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients no-cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths" style=""><!--<![endif]--><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Practical Bayesian Optimization of Machine Learning Algorithms</title>
+        
+    <meta name="citation_title" content="Practical Bayesian Optimization of Machine Learning Algorithms">
+
+    
+    <meta name="citation_author" content="Jasper Snoek">
+    
+    <meta name="citation_author" content="Hugo Larochelle">
+    
+    <meta name="citation_author" content="Ryan P. Adams">
+    
+
+    <meta name="citation_publication_date" content="2012">
+    <meta name="citation_conference_title" content="Advances in Neural Information Processing Systems">
+
+    
+    <meta name="citation_firstpage" content="2951">
+    
+    
+    <meta name="citation_lastpage" content="2959">
+    
+
+    
+    <meta name="citation_pdf_url" content="http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machine-learning-algorithms.pdf">
+    
+
+    
+        <meta name="description" content="Electronic Proceedings of Neural Information Processing Systems">
+        <meta name="viewport" content="width=device-width">
+        
+
+
+        
+        <link rel="stylesheet" href="normalize.css">
+        <link rel="stylesheet" href="main.css">
+        
+
+        
+        <script async="" src="analytics"></script><script src="modernizr-2.js"></script>
+        
+    <style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; color: #666666}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_Menu_Close {position: absolute; width: 31px; height: 31px; top: -15px; left: -15px}
+</style></head>
+    <body><div id="MathJax_Message" style="">Loading [MathJax]/extensions/MathMenu.js</div>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div class="header-container">
+            <header class="wrapper clearfix">
+                
+                    <h1 class="sitename"><a href="http://papers.nips.cc/">NIPS Proceedings</a><sup>β</sup></h1>
+                
+                
+                <form action="/search/" class="search">
+                    <input name="q" class="search" placeholder="search">
+                </form>
+                
+                <nav>
+                    <ul>
+                      
+    
+                        <li><a href="http://papers.nips.cc/">Books</a></li>
+                      
+    <li><a href="http://papers.nips.cc/book/advances-in-neural-information-processing-systems-25-2012">2012</a></li>
+
+                    </ul>
+                </nav>
+            </header>
+        </div>
+
+        <div class="main-container">
+            <div class="main wrapper clearfix">
+            
+<h2 class="subtitle">Practical Bayesian Optimization of Machine Learning Algorithms</h2>
+
+            
+    
+
+<p>Part of: <a href="http://papers.nips.cc/book/advances-in-neural-information-processing-systems-25-2012">Advances in Neural Information Processing Systems 25 (NIPS 2012)</a></p>
+
+
+
+
+    <a href="http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machine-learning-algorithms.pdf">[PDF]</a>
+
+
+
+    <a href="http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machine-learning-algorithms/bibtex">[BibTeX]</a>
+
+
+
+
+
+    <a href="http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machine-learning-algorithms-supplemental.zip">[Supplemental]</a>
+
+
+
+
+<h3>Authors</h3>
+
+<ul class="authors">
+    
+    <li class="author"><a href="http://papers.nips.cc/author/jasper-snoek-5274">Jasper Snoek</a></li>
+    
+    <li class="author"><a href="http://papers.nips.cc/author/hugo-larochelle-3213">Hugo Larochelle</a></li>
+    
+    <li class="author"><a href="http://papers.nips.cc/author/ryan-p-adams-3862">Ryan P. Adams</a></li>
+    
+</ul>
+
+
+
+
+
+<h3>Abstract</h3>
+<p class="abstract">The use of machine learning algorithms frequently 
+involves careful tuning of learning parameters and model 
+hyperparameters. Unfortunately, this tuning is often a “black art” 
+requiring expert experience, rules of thumb, or sometimes brute-force 
+search. There is therefore great appeal for automatic approaches that 
+can optimize the performance of any given learning algorithm to the 
+problem at hand. In this work, we consider this problem through the 
+framework of Bayesian optimization, in which a learning algorithm’s 
+generalization performance is modeled as a sample from a Gaussian 
+process (GP). We show that certain choices for the nature of the GP, 
+such as the type of kernel and the treatment of its hyperparameters, can
+ play a crucial role in obtaining a good optimizer that can achieve 
+expert-level performance. We describe new algorithms that take into 
+account the variable cost (duration) of learning algorithm experiments 
+and that can leverage the presence of multiple cores for parallel 
+experimentation. We show that these proposed algorithms improve on 
+previous automatic procedures and can reach or surpass human 
+expert-level optimization for many algorithms including Latent Dirichlet
+ Allocation, Structured SVMs and convolutional neural networks.</p>
+
+
+            
+                <aside>
+                    <h3>Neural Information Processing Systems (NIPS)</h3>
+                    <p>Papers published at the Neural Information Processing Systems Conference.</p>
+                </aside>
+            
+            </div> <!-- #main -->
+        </div> <!-- #main-container -->
+
+        <div class="footer-container">
+            <footer class="wrapper">
+            
+                <h3>© 1987 – 2019 Neural Information Processing Systems Foundation, Inc.</h3>
+            
+            </footer>
+        </div>
+
+        
+    
+        <script src="jquery-1.js"></script>
+        <script src="main.js"></script>
+        
+
+<script type="text/javascript">
+
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+function sameOrigin(url) {
+    // test that a given url is a same-origin URL
+    // url could be relative or scheme relative or absolute
+    var host = document.location.host; // host + port
+    var protocol = document.location.protocol;
+    var sr_origin = '//' + host;
+    var origin = protocol + sr_origin;
+    // Allow absolute or scheme relative URLs to same origin
+    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+        // or any other URL that isn't scheme relative or absolute i.e relative.
+        !(/^(\/\/|http:|https:).*/.test(url));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+            // Send the token to same-origin, relative URLs only.
+            // Send the token only if the method warrants CSRF protection
+            // Using the CSRFToken value acquired earlier
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+
+</script>
+
+
+<script type="text/javascript" src="autocomplete.js"></script>
+<script type="text/javascript" src="widget.js"></script>
+<script type="text/javascript" src="addanother.js"></script>
+<script type="text/javascript" src="text_widget.js"></script>
+<script type="text/javascript" src="remote.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+
+
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'UA-2097757-2', 'nips.cc');
+          ga('send', 'pageview');
+
+        </script>
+        
+        
+    <script type="text/javascript" src="MathJax.js"></script>
+
+    
+
+</body></html>
+<!-- Do not remove: This comment is monitored to verify that the site is working properly -->

@@ -1,0 +1,287 @@
+diagnostics
+Article
+Hypertension Assessment via ECG and PPG Signals: An Evaluation Using MIMIC Database
+Yongbo Liang 1, Zhencheng Chen 1, Rabab Ward 2 and Mohamed Elgendi 2,3,4,* 1 School of Electrical Engineering, Guilin University of Electronic Technology, Guilin 541004, China; liangyongbo001@gmail.com (Y.L.); chenzhcheng@163.com (Z.C.) 2 School of Electrical and Computer Engineering, University of British Columbia, Vancouver, BC V6T 1Z4, Canada; rababw@ece.ubc.ca 3 Department of Obstetrics & Gynecology, University of British Columbia, Vancouver, BC V6Z 2K8, Canada 4 BC Children s & Women s Hospital, Vancouver, BC V6H 3N1, Canada * Correspondence: melgendi@bcchr.ca; Tel.: +1-604-600-4139
+Received: 15 August 2018; Accepted: 7 September 2018; Published: 10 September 2018
+Abstract: Cardiovascular diseases (CVDs) have become the biggest threat to human health, and they are accelerated by hypertension. The best way to avoid the many complications of CVDs is to manage and prevent hypertension at an early stage. However, there are no symptoms at all for most types of hypertension, especially for prehypertension. The awareness and control rates of hypertension are extremely low. In this study, a novel hypertension management method based on arterial wave propagation theory and photoplethysmography (PPG) morphological theory was researched to explore the physiological changes in different blood pressure (BP) levels. Pulse Arrival Time (PAT) and photoplethysmogram (PPG) features were extracted from electrocardiogram (ECG) and PPG signals to represent the arterial wave propagation theory and PPG morphological theory, respectively. Three feature sets, one containing PAT only, one containing PPG features only, and one containing both PAT and PPG features, were used to classify the different BP categories, deﬁned as normotension, prehypertension, and hypertension. PPG features were shown to classify BP categories more accurately than PAT. Furthermore, PAT and PPG combined features improved the BP classiﬁcation performance. The F1 scores to classify normotension versus prehypertension reached 84.34%, the scores for normotension versus hypertension reached 94.84%, and the scores for normotension plus prehypertension versus hypertension reached 88.49%. This indicates that the simultaneous collection of ECG and PPG signals could detect hypertension.
+Keywords: pulse oximeter; blood pressure monitoring; pulse arrival time; global health; digital medicine; wearable devices
+
+1. Introduction
+Hypertension is a major factor of many cardiovascular diseases (CVDs), which are a group of disorders of the heart and blood vessels, including coronary heart disease, cerebrovascular disease, peripheral arterial disease, rheumatic heart disease, etc. [1]. Although sometimes there are symptoms of headache, lack of breath, chest pain, and so on, for most people with hypertension, there are no symptoms at all. Therefore, it is also known as the “silent killer”, and 13% of global death is attributed to it [1]. With each heartbeat, blood is pumped via the contraction of the heart and ﬂows through the whole body following the arterial system. Blood pressure is formed by the main propulsion of the heart’s pumped blood and blockage of the microcirculatory system. Therefore, the higher is the blood pressure, the more difﬁcult it is for the heart to pump. This undoubtedly increases the burden of the heart and, in the long term, will lead to a series of CVDs and damage to the heart, blood vessels, brain, kidneys, and so on.
+
+Diagnostics 2018, 8, 65; doi:10.3390/diagnostics8030065
+
+www.mdpi.com/journal/diagnostics
+
+Diagnostics 2018, 8, 65
+
+2 of 10
+
+Fortunately, blood pressure is the most important preventable factor of CVDs. Early prevention and management of hypertension are the major and most effective means of improving people’s health levels worldwide. Healthy lifestyles (healthy diet, non-alcohol consumption, non-tobacco use, and physical activity), early detection, evaluation of blood pressure levels, proper diagnosis, and treatment with low-cost medication are beneﬁcial in the prevention and control of hypertension [2]. The seventh report of the Joint National Committee on Prevention, Detection, Evaluation, and Treatment of High Blood Pressure (JNC7) [3], which is funded and published by the US National Institutes of Health, is widely adopted. According to this report, different BP levels are divided into different hypertension categories, including normotension, prehypertension, stage 1 hypertension, and stage 2 hypertension. Due to the number of research participants, this study adopted the three BP categories of normotension, prehypertension, and hypertension, labeled according to the BP ranges of the JNC7 report [3].
+Clearly, earlier attention and treatment are more effective in preventing hypertension and other CVDs. However, as we know, most hypertension patients have no symptoms in the stage of elevated blood pressure and even in hypertension. Thus, many people miss the best time for treatment and experience some complications. However, some physiological signals change based on blood pressure level [4,5], such as electrocardiogram (ECG) and photoplethysmography (PPG). The morphological changes in physiological signals mainly reﬂect the change of function status of the heart and vascular system. Therefore, the morphological information of PPG could be used to assess hypertension [6]. For this purpose, the Medical Information Mart for Intensive Care (MIMIC) database [7,8] was used to collect the dataset for this study, which involves arterial blood pressure (ABP), ECG and PPG signals.
+Many researchers have used the MIMIC database assuming that all simultaneously collected signals were synchronized [9–13]. However, the creators of the MIMIC database have reported errors in the data matching and alignment in some recordings, as mentioned by Clifford et al. [14], conﬁrming that not all signals were synchronized. This contradiction motivated our study, and we thought it would be useful to test the synchronicity-dependent features (features that rely on the time interval between ECG and PPG events) and asynchronicity-dependent features (features that rely only on features extracted from PPG events) to gain insights about the usability of the MIMIC database for evaluating hypertension either by using ECG and PPG signals or by using PPG alone.
+The rest of this paper is organized as follows: Section 2 explains the methods used in this study, including data collection, signal process, and feature extraction. Section 3 shows the comparison results of the different classiﬁcation models and different feature sets. Finally, Sections 4 and 5 discuss the results and conclusions on the differences and optimizations of arterial wave propagation theory and PPG morphological theory, respectively.
+2. Methods
+2.1. Database
+In this study, the data were collected from the MIMIC database, which is a free-to-use database that contains tens of thousands of Intensive Care Unit (ICU) patients [7,8]. The recordings with arterial blood pressure (ABP, measured using a catheter in the radial artery), electrocardiograph (ECG) and photoplethysmography (PPG) were collected and archived for this study. During data collection, there were some abnormal and noisy recordings, for example, missing peak, pulsus bisferiens, no signal (sensor-off), and so on. These recordings were excluded in this study. Meanwhile, to explore and model the relationship between ABP, ECG, and PPG signals, 120 one-second-length signals with stable, complete ECG, ABP, and PPG signals without heart disease except for hypertension were cut from raw recordings for each subject. In the end, 121 subjects’ records, each 120 s in length, were collected in this research.
+
+Diagnostics 2018, 8, 65
+
+3 of 10
+
+2.2. PAT Feature
+The deﬁnition of PAT in the literature is highly inconsistent [15]. On many occasions, PAT is used to refer to Pulse Transit Time (PTT), and in other publications, PTT referred to as PAT [15]. Moreover, the calculation of PAT is not consistent in the literature, but some general convention exists. It is worthy to note that the R-wave of an ECG and the foot of the PPG waveform is perhaps the most commonly used in the literature. In 2013, Choi et al. [16] tested three different measurement points for PAT, including the peak (PATRS), middle (PATRb-2 or PATW-1), and end (PATRO) of the PPG waveform. Their study recommended the use of PAT-middle as it is highly correlated with BP, and therefore, in our study we used the PATRb-2 to represent the PAT feature.
+2.3. PPG Features
+As the referenced blood pressure source of this study, the original ABP signal did not undergo any preprocessing. Systolic blood pressure (SBP) and blood pressure categories were extracted and labeled directly from the original ABP waveform signal [17]. A 0.5–10 Hz 4th Chebyshev II bandpass ﬁlter was adopted to remove the noise of raw PPG signals and improve the signal quality index (SQI) [18], and a 0.5–40 Hz 4th Butterworth bandpass ﬁlter was used to ﬁlter the noise of raw ECG signals [19]. Additionally, a normalization process was conducted for ﬁltered ECG and PPG signals to divide the pulsating part of blood volume (the AC part) by the non-pulsating part (the DC part). Further, two forward differential processes were implemented to acquire the velocity waveform of PPG signals (VPG) and the acceleration waveform of PPG signals (APG). Note, the ﬁrst order differential to the original PPG signal to obtain the VPG signal, and the second order differential to the original PPG signal to obtain the acceleration of PPG waveform signals. To visualize main events within these signals, the TERMA framework [20] and Eventogram [21] can be used. Finally, ECG, PPG, VPG, and APG were together regarded as the feature extraction signal resources.
+In this study, the feature points were extracted beat by beat, and the heart-beat pair was divided by the R wave of the ECG, which was identiﬁed by a reliable detector [22–24]. In one beat period, some feature points of PPG and its derivatives were deﬁned [25], and the detailed waveforms and names are clearly marked in Figure 1. Several types of features were deﬁned based on ECG, PPG, VPG, and APG signals. They are the pulse arrival time (PAT) extracted from ECG and PPG signals; PPG morphology features (135 features) extracted from PPG, VPG, and APG signals, including time spans (23 features); PPG amplitudes (14 features); features of VPG and APG (20 features); waveform area (4 features); power area (15 features); ratio (43 features); and slope (16 features). The detailed features are deﬁned as follows:
+Time Span (23): The time span features are expressed as their letters with a dash on top (e.g., SD). Features of PPG Amplitude (14): The S, N, D, w-1, a-2, b-2, c-2, etc. features were deﬁned in PPG waveform. They represent the amplitude of the corresponding waveform from the PPG baseline. Features of VPG and APG (20): The a, b, c, d, and e features were deﬁned in the APG waveform, and the w, x, y, and z features were deﬁned in the VPG waveform. They represent the amplitude of the corresponding waveform from the APG baseline and VPG baseline. Other features based on these features were also deﬁned, such as b/a, c/a, d/a, e/a, (b-c-d-e)/a, (b-c-d)/a, and so on. Waveform Area (4): The waveform AC component area features are expressed as their letters with a polyline on top (e.g., OˆS).
+Power Area (15): The power area features are expressed as their letters with a brace on top (e.g., OS ).
+For example, the OS feature represents the quadratic sum of the curve point from the onset point O to the systolic peak S. Ratio (43): The ratio features are expressed directly as their ratio formulae (e.g., OS/OO, OˆS/OˆO).
+Slope (16): The slope features are expressed as their letters with a tilde on top (e.g., OS).
+
+Diagnostics 2018, 8, 65 Diagnostics 2018, 8, x FOR PEER REVIEW
+
+4 of 10 4 of 10
+
+FFiigguurree 11.. ThTehechcahraarcatcetreisrtisictsicsofof aratretreirailal bblolooodd pprreessssuurree ((AABBPP)),, eelleeccttrrooccaarrddiiooggrraamm ((EECCGG)),, pphhoottoopplleetthhyyssmmooggrraamm ((PPPPGG)),, vveelloocciittyy pphhoottoopplleetthhyyssmmooggrraamm ((VVPPGG)),, aanndd aacccceelleerraattiioonn pphhoottoopplleetthhyyssmmooggrraamm ((AAPPGG))wwaavveefoformrms.s.ThTehdeefdineiﬁtinointioonf foefatfueraetuproeinptosincatsn cbaenfobuenfdouinndouirn poausrt rpeassetarrechsea[r2c5h]. [2T5h]e. TPhPeGPaPmGpalmitupdlietuidseriesprreepsernesteedntebdy btyhethfeeafetuatruerenanmame eananddththee aammpplliittuuddeess iiss rreepprreesseenntteedd bbyy tthhee hheeiigghhtt ffrroomm PPPPGG bbaasseelliinnee ttoo ffeeaattuurreeppooiinnttssssuucchhaassaa,,aa-1-1,, aa--22,, eettcc.. TThhee sshhaaddeedd aarreeaa ccoonnttaaiinnss ffeeaattuurreess aassssoocciiaatteedd wwiitthh hhyyppeerrtteennssiioonn..
+
+22..44.. CCllaassssiifﬁiccaattiioonn MMooddeellss
+SSeevveerraall ccllaassssiifﬁieerrss aarree ddiissccuusssseedd iinn tthheelliitteerraattuurree;;hhoowweevveerr,, wweesseelleecctteeddffoouurrddiissttiinnccttiivveeccllaassssiifﬁieerrss:: LLooggiissttiicc RReeggrreessssiioonn,, AAddaaBBoooosstt TTrreeee,, BBaaggggeedd TTrreeee,, aanndd KK NNeeaarreesstt NNeeiigghhbboorrss ((KKNNNN)).. TThheessee ccllaassssiifﬁieerrss rreepprreesseenntt ddififfefererennt tclcalsassiﬁsicfaictaiotniotnhetohreioesriseuscshuacshreagsrersesgiorens,sdioecni,sidoenctirseioe,ncltursetee,r,calundstebra,gagnedd dbeacgisgieodn dtreecei.sFiornomtreteh.eFrreosmulttsh, ewreescuanltss,ewe ethcaatnKsNeeNthacaht iKevNeNs baecthteiervcelassbsieﬁttcearticolnaspseifrifcoartmioannpceertfhoarnmtahnecoetthhearns. tAhsewotehkenrso.wA,sKwNeNknisoawv, eKrNy Ncomisma ovnercylacsosmiﬁmerotnhactlacsasnifibeer uthsaetdciannmbaenuyseadppinlicmatainoynsaapnpdliccaatniobneseaansdy ctoanrebaeliezaes. y to realize.
+IInn tthhiiss ssttuuddyy,, tthhee ddaattaasseett wwaass ddiivviiddeedd iinnttoo aa ttrraaiinniinngg sseett ((7700%%)) aanndd aa tteessttiinngg sseett ((3300%%)).. IInn tthhee ttrraaiinniinngg pphhaassee,, tthhee ttrraaiinniinngg aaddoopptteedd 1100--ffoolldd ccrroossss vvaalliiddaattiioonn ttoo vvaalliiddaattee tthhee ggeenneerraalliizzaattiioonn aabbiilliittyy ooff tthhee ttrraaiinneedd mmooddeell.. TThhee ttrraaiinneedd mmooddeell wwaass tthheenn uusseedd ttoo pprreeddiicctt ffoorr tthhee tteessttiinngg sseett.. TThhee FF11 ssccoorree wwaass ccaallccuullaatteedd aass aann eevvaalluuaattiioonn mmeeaassuurree,, aass ffoolllloowwss::
+
+F1Fs1csocroere =22 × RReeccaallll × PPrerecicsiisoionn//(ReRceaclall+l PrePcriescioisnio)n
+
+(1()1)
+
+where Precision = TP/(TP + FP) and Recall = TP/(TP + FN). TP stands for true positives, FP stands for fwahlseerepoPsrietciviseios,na=ndTPF/N(TsPta+ndFsP)foarndfaRlseecnalelg=atTivPe/s(.TTPo+cFoNm)p. rTePhesntasnivdeslyfoervtraulueapteostihtievetrsa, iFnPedstamnoddseflosr, vfaalrsieoupsoseivtiavleusa,taionndiFnNdesxteasndwsefroerufsaelsde, ninecglautdivinegs. sTeonsciotimviptyre(hSeEn)s,isvpeelyciefivcaitlyua(SteP)t,haentdratinheedFm1 socdoerles,, wvahriicohusisevthaeluhaatiromnoinnidcemxeesawn eorfepurseecdis,ioinnclaunddinsgensesintsivitiitvyi.tyIn(StEh)is, ssptuecdiyﬁ,ciatlyl (tShPe)s, iagnndalthperoFc1essscionrge,, mwhodicehlinisgt,haendhaervmalounaitcinmg ewaenreofcaprrreiecdisioount avniadMseAnTsiLtiAvBitys.ofItnwtahreis(Rst2u0d1y7,bavllerthsieonsi)g, ndaelveplroopceedssainngd, rmeloedaeselidngb,yaMndatehvWalouraktisn(gNwateicrek,cMarArie, dUSoAut) vcoiamMpAanTyL.AB software (R2017b version), developed and released by MathWorks (Natick, MA, USA) company.
+
+3. Results
+
+In our past research [18,25,26], we conducted a BP management study based on a clinical dataset collected in China by a PPG device designed for that study. In that study, 10 PPG features were evaluated and selected for BP category classification. Based on that study, the same 10 PPG features
+
+Diagnostics 2018, 8, 65
+
+5 of 10
+
+3. Results
+In our past research [18,25,26], we conducted a BP management study based on a clinical dataset collected in China by a PPG device designed for that study. In that study, 10 PPG features were evaluated and selected for BP category classiﬁcation. Based on that study, the same 10 PPG features and new extracted PAT features were adopted here to classify the different BP categories to optimize the arterial wave propagation theory and PPG morphological theory. The 10 PPG features are shown in Table 1. We can see that the features are mainly in the bd segment.
+
+Table 1. Photoplethysmogram (PPG) morphological features. ANOVA stands for analysis of variance.
+
+Feature #
+1
+2 3 4 5 6 7 8 9 10
+
+PPG Features
+S+1c−1 / O+1O+1 b−2 d−2 Sc−2 c- 2 /S Sd−2 (b-c-d)/a d c-1/w d/a
+Sc−2
+
+Normotension Prehypertension Hypertension
+
+0.52 ± 0.45
+−2.94 ± 7.66
+0.06 ± 0.05 0.79 ± 0.17 0.09 ± 0.06 −0.53 ± 0.64 −0.52 ± 0.61 −0.25 ± 0.27 −0.21 ± 0.26 −6.79 ± 6.03
+
+0.52 ± 0.42
+−3.35 ± 7.11
+0.06 ± 0.04 0.78 ± 0.16 0.09 ± 0.04 −0.61 ± 0.59 −0.41 ± 0.57 −0.26 ± 0.26 −0.17 ± 0.25 −7.34 ± 5.71
+
+0.38 ± 0.45
+−0.93 ± 8.65
+0.04 ± 0.05 0.83 ± 0.19 0.09 ± 0.06 −0.48 ± 0.61 −0.69 ± 0.63 −0.14 ± 0.28 −0.27 ± 0.25 −5.31 ± 7.01
+
+ANOVA p-Value
+<0.01
+<0.01 <0.01 <0.01 <0.01 <0.01 <0.01 <0.01 <0.01 <0.01
+
+The 10 PPG features and PAT feature were used to classify the different BP categories, which include normotension (46 subjects), prehypertension (41 subjects), and hypertension (34 subjects). Meanwhile, four different classiﬁers were trained and tested. Table 2 shows the classiﬁcation performances of the different trials and feature sets. In general, the KNNs achieved the best classiﬁcation performance compared to the other classiﬁers. Our ﬁndings were that the PPG features were more beneﬁcial in classifying BP categories than the single PAT feature. Further, the combination of PAT feature and PPG features greatly improved the classiﬁcation performance of using only PPG features.
+A comparison was also carried out with our past research. Because of the difference in the PPG datasets of this study (MIMIC database) and the past one (collected by a designed device [26]), the 10 PPG features were also used to classify the BP categories to compare with the past research, and, further, an optimization using the PAT feature and 10 PPG features was compared. To our knowledge, no study has previously investigated this research question on the same database.
+
+Diagnostics 2018, 8, 65
+
+6 of 10
+
+Table 2. Classiﬁcation performance of PAT and PPG features. In this table, SE, SP, and F1 represent the sensitivity, speciﬁcity, and F1 score, respectively. Normal, Prehyp. and Hyp. represent normotension, prehypertension, and hypertension, respectively. The results of this table were achieved based on the test set.
+
+Trial
+
+Feature Set
+
+Normal (46) vs.
+Prehyp. (41)
+Normal (46) vs.
+Hyp. (34)
+(Norm + Prehyp.) (87) vs.
+Hyp. (34)
+
+PAT feature 10 PPG features (PAT + 10 PPG) features
+PAT feature 10 PPG features (PAT + 10 PPG) features
+PAT feature 10 PPG features (PAT + 10 PPG) features
+
+AdaBoost Tree
+
+SE (%) SP (%) F1 (%)
+
+67.42 90.13 75.67
+
+65.46 41.81 72.72
+
+66.88 72.76 74.67
+
+63.48 75.65 87.57
+
+80.56 88.81 94.33
+
+68.10 80.11 90.15
+
+40.44 53.16 74.22
+
+95.37 94.63 95.23
+
+53.19 63.79 79.71
+
+Logistic Regression
+
+SE (%) SP (%) F1 (%)
+
+56.91 71.65 67.35
+
+56.27 46.01 56.20
+
+56.85 63.66 63.92
+
+63.04 62.09 78.87
+
+80.71 82.47 82.62
+
+67.85 67.94 79.11
+
+45.51 35.02 55.20
+
+88.76 94.55 91.20
+
+52.38 47.10 62.26
+
+K-Nearest Neighbors
+
+SE (%) SP (%) F1 (%)
+
+46.69 79.48 83.92
+
+73.29 77.07 84.76
+
+53.93 78.62 84.34
+
+40.09 84.78 94.26
+
+93.08 91.31 96.17
+
+54.08 86.94 94.84
+
+40.27 74.40 87.47
+
+95.37 93.92 95.93
+
+53.01 78.44 88.49
+
+Bagged Tree
+
+SE (%) SP (%) F1 (%)
+
+67.63 79.20 83.50
+
+65.24 77.14 84.26
+
+66.95 78.48 83.88
+
+63.48 81.65 92.70
+
+80.56 91.09 96.39
+
+68.10 84.98 94.13
+
+40.44 68.09 85.87
+
+95.37 94.94 96.50
+
+53.19 75.32 88.22
+
+Diagnostics 2018, 8, 65
+
+7 of 10
+
+4. Discussion
+PPG signal is affected by heart activity, vascular wall function, and peripheral arterial status [27]. Therefore, it is a very complex physiological signal with abundant information [28,29]. The morphological information of PPG signals plays an important role in the analysis of cardiovascular activity. In past research, many PPG morphological features [29,30] have been proposed, including the Crest Time, Delta T, Augmentation Index, Large Artery Stiffness Index [31], PPG intensity ratio [32], etc. Some novel features showed excellent performance in BP prediction or hypertension management. However, most of the research was conducted based on a small quantity of healthy participants [33]. A more comprehensive and systematic study needs to be implemented to improve and validate the arterial wave propagation and PPG morphological theories.
+Several issues have been studied in our past research, such as optimal SQI [34], optimal ﬁlter for PPG signal [18], detection of PPG morphological characteristics [35–38], generating diagnostic PPG features for abnormality evaluation [25], compressing PPG signals [39], and so on. To continue in our previous research direction, we aimed in this study to: (1) identify special signatures in both PAT feature and PPG features for hypertensive and prehypertensive subjects and to differentiate them from normotensive subjects; and (2) use such features to monitor management of BP level and to check treatment compliance using the MIMIC database.
+PAT and PPG features reﬂect different physiological information: PAT can indicate the transmission of the arterial wave in the blood vessel, while PPG features can indicate the status change of vascular tissue and blood volume. Therefore, three experimental analyses were implemented to determine the feature differences in the different BP level classiﬁcations (normotension versus prehypertension, normotension versus hypertension, and normotension plus prehypertension versus prehypertension). Based on our past research, 10 PPG features were used in this study for these experimental classiﬁcations. Table 2 shows the 10 PPG features that were evaluated in our past research. To determine the characteristics of features to classify, four different type classiﬁers were adopted: the AdaBoost Tree, Logistic Regression, K-Nearest Neighbors (KNN), and Bagged Tree. The KNN classiﬁer showed the best performance compared with the other models.
+PAT has some limitations as it cannot classify these three categories of blood pressure levels; PPG features showed better performance in classifying hypertension from normotension than the other experiments. Furthermore, the feature set of PAT feature and 10 PPG features obviously improved the classiﬁcation performance for all three experiments. This indicates that the combination of arterial wave propagation theory and PPG morphological theory can be beneﬁcial in modeling and quantizing the BP formation, which is comprehensive and complex. Various inﬂuencing factors work together to determine and affect blood pressure, such as a heart s cyclical activity, vasomotion, total blood volume, cardiac output, vascular elasticity, peripheral resistance, and so on. Therefore, the blood pressure level is the physiological response of the cardiovascular system, and cardiac function, total blood volume, and vascular elasticity play decisive roles in the formation of blood pressure. Hence, it is feasible to use arterial wave propagation theory to explain blood transmission and to use PPG morphological theory to explain the changes of vascular aging, stiffness, and compliance that generally occur at different BP levels.
+In our past research, the PPG signal was collected as 1000 Hz sample frequency and 12 bits ADC, and the blood pressure was collected by a commercial BP device: the Omron 7201 BP device [26]. Comparing the results of this study to the past study, we saw that using the PPG feature set scored similar results but was lower in accuracy than the past research. The MIMIC database used in this study contains a wealth of physiological and pathological information and waveform records to study and explore physiological models and algorithms. However, more attention should be paid to this database. MIMIC data were collected from ICU wards, which means that many of the participants may have received medication or other medical treatment that may lead to BP abnormalities. In addition, it is very likely that the age of most of the participants is generally high. As we know, PPG signal is a
+
+Diagnostics 2018, 8, 65
+
+8 of 10
+
+complex physiological signal; therefore, the low quality of raw PPG signals makes it challenging to extract physiological characteristics correctly.
+The accurate identiﬁcation of feature points is very important, especially based on the PPG morphology method, and the PPG signal quality is the key. Because the sampling frequency is only 125 Hz in the MIMIC database, this could lead to the identiﬁcation error of each characteristic point. Therefore, this actually limits the database from being extended to blood pressure research, especially based on PPG morphology, to achieve the dynamic monitoring of blood pressure. Moreover, many recordings have ECG, ABP (invasive, from one of the radial arteries), and PPG (named “PLETH”) in the MIMIC database. However, collecting satisfactory recordings with ECG, ABP, and PPG simultaneously [33] is not easy for many reasons, such as various heart diseases and abnormal or missing signals.
+In addition, the ABP signal is a continuous invasive blood pressure signal collected using a catheter. Thus, there is a little difference between the dataset in this study and our past research, which collected the blood pressure using an Omron 7201 cuff BP device [26]. Even so, the result of this study is similar to but just a bit lower than the past. This indicates that it is feasible to use the PPG morphological features to manage BP levels. Fortunately, the feature set with PAT feature and PPG features signiﬁcantly improved the BP classiﬁcation performance. This emphasizes the importance of arterial wave propagation theory in BP formation.
+Note, it is assumed that the linear relationship between BP and PAT calculated from the MIMIC database are inconsistent from subject to subject. If all signals were synchronized, perhaps the correlation would be more salient. However, there is an overall trend of correlation between BP and PAT in the recordings used from the MIMIC database.
+The proposed method could play a signiﬁcant role in the early detection of hypertension in lowand middle-income countries (LMICs). Note that an estimated 1.04 billion people had hypertension in LMICs in 2010 [40]. Having a non-invasive method that relies on ECG and PPG signals, which follows the framework recommended in Ref. [41] for tackling noncommunicable diseases by achieving simplicity and reliability, may decrease morbidity and mortality rates, especially for those living in LMICs.
+5. Conclusions
+PPG morphological features were shown to achieve better classiﬁcation performance than PAT using the MIMIC database. PPG signals contain sufﬁcient physiological information about the activity of the heart and arteries. Although they are easily affected by many factors, the 10 evaluated PPG features achieved an acceptable classiﬁcation performance. This indicates that the PPG signal, which is the status response of the heart and arteries, varies according to the BP levels, such as normotension, prehypertension, and hypertension. Interestingly, adding the PAT feature to the PPG feature set improved the overall classiﬁcation performance, even though not all ECG and PPG signals in the MIMIC database were synchronized. Our results show that the PAT feature and PPG features have great potential to manage BP levels.
+Author Contributions: Y.L. and M.E. performed the statistical analysis. Y.L., Z.C., R.W., and M.E. conceived the study and drafted the manuscript. M.E. designed the study and led the investigation. All authors approved the ﬁnal manuscript.
+Funding: This work was partly supported by the development project of major scientiﬁc research instruments of the National Natural Science Foundation of China (grant No. 61627807), and Guangxi Postgraduate Education Innovation Program and the Innovation Project of GUET Graduate Education (grant No. 2016YJCXB01).
+Conﬂicts of Interest: The authors declare no conﬂict of interest.
+
+Diagnostics 2018, 8, 65
+
+9 of 10
+
+References
+1. Mendis, S.; Puska, P.; Norrving, B. Global Atlas on Cardiovascular Disease Prevention and Control; World Health Organization: Geneva, Switzerland, 2011.
+2. Moore, R.D. The High Blood Pressure Solution: A Scientiﬁcally Proven Program for Preventing Strokes and Heart Diseases; Simon and Schuster: New York, NY, USA, 2001.
+3. Chobanian, A.V.; Bakris, G.L.; Black, H.R.; Cushman, W.C.; Green, L.A.; Izzo, J.L., Jr.; Jones, D.W.; Materson, B.J.; Oparil, S.; Wright, J.T., Jr.; et al. The seventh report of the joint national committee on prevention, detection, evaluation, and treatment of high blood pressure. Hypertension 2003, 42, 1206–1252. [CrossRef] [PubMed]
+4. Pielmus¸, A.-G.; Osterland, D.; Klum, M.; Tigges, T.; Feldheiser, A.; Hunsicker, O.; Orglmeister, R. Correlation of arterial blood pressure to synchronous piezo, impedance and photoplethysmographic signal features. Curr. Dir. Biomed. Eng. 2017, 3, 749–753. [CrossRef]
+5. Bruno, R.M.; Duranti, E.; Ippolito, C.; Segnani, C.; Bernardini, N.; Di Candio, G.; Chiarugi, M.; Taddei, S.; Virdis, A. Different impact of essential hypertension on structural and functional age-related vascular changes. Hypertension 2017, 69, 71–78. [CrossRef] [PubMed]
+6. Mukkamala, R.; Hahn, J.O.; Inan, O.T.; Mestha, L.K.; Kim, C.S.; Toreyin, H.; Kyal, S. Toward ubiquitous blood pressure monitoring via pulse transit time: Theory and practice. IEEE Trans. Biomed. Eng. 2015, 62, 1879–1901. [CrossRef] [PubMed]
+7. Johnson, A.E.; Pollard, T.J.; Shen, L.; Lehman, L.W.; Feng, M.; Ghassemi, M.; Moody, B.; Szolovits, P.; Celi, L.A.; Mark, R.G. MIMIC-II, a freely accessible critical care database. Sci. Data 2016, 3, 160035. [CrossRef] [PubMed]
+8. Goldberger, A.L.; Amaral, A.L.; Glass, L.; Hausdorff, J.M.; Ivanov, P.C.; Mark, R.G.; Mietus, J.E.; Moody, G.B.; Peng, C.K.; Stanley, H.E. Physiobank, physiotoolkit, and physionet: Components of a new research resource for complex physiologic signals. Circulation 2000, 101, e215–e220. [CrossRef] [PubMed]
+9. Forouzanfar, M.; Ahmad, S.; Batkin, I.; Dajani, H.R.; Groza, V.Z.; Bolic, M. Coefﬁcient-free blood pressure estimation based on pulse transit time–cuff pressure dependence. IEEE Trans. Biomed. Eng. 2013, 60, 1814–1824. [CrossRef] [PubMed]
+10. Wang, R.; Jia, W.; Mao, Z.-H.; Sclabassi, R.J.; Sun, M. Cuff-free blood pressure estimation using pulse transit time and heart rate. In Proceedings of the 12th International Conference on Signal Processing, Hangzhou, China, 19–23 October 2014.
+11. Zhang, Q.; Chen, X.; Fang, Z.; Xue, Y.; Zhan, Q.; Yang, T.; Xia, S. Cuff-less blood pressure measurement using pulse arrival time and a kalman ﬁlter. J. Micromech. Microeng. 2017, 27, 024002. [CrossRef]
+12. Pﬂugradt, M.; Geissdoerfer, K.; Goernig, M.; Orglmeister, R. A fast multimodal ectopic beat detection method applied for blood pressure estimation based on pulse wave velocity measurements in wearable sensors. Sensors 2017, 17, 158. [CrossRef] [PubMed]
+13. Feng, J.; Huang, Z.; Zhou, C.; Ye, X. Study of continuous blood pressure estimation based on pulse transit time, heart rate and photoplethysmography-derived hemodynamic covariates. Aust. Phys. Eng. Sci. Med. 2018, 41, 403–413. [CrossRef] [PubMed]
+14. Clifford, G.D.; Scott, D.J.; Villarroel, M. User Guide and Documentation for the Mimic ii Database. MIMIC-II Database Version 2009, Version 2.6. Available online: https://physionet.org/mimic2/UserGuide/UserGuide. pdf (accessed on 7 September 2011).
+15. Elgendi, M.; Fletcher, R.; Liang, Y.; Howard, N.; Abbott, D.; Lim, K.; Ward, R. Blood pressure estimation using the pulse oximeter and other physiological signals. NPJ Digit. Med. 2018. accepted.
+16. Choi, Y.; Zhang, Q.; Ko, S. Noninvasive cufﬂess blood pressure estimation using pulse transit time and hilbert-huang transform. Comput. Electr. Eng. 2013, 39, 103–111. [CrossRef]
+17. Li, B.N.; Dong, M.C.; Vai, M.I. On an automatic delineator for arterial blood pressure waveforms. Biomed. Signal Process. Control 2010, 5, 76–81. [CrossRef]
+18. Liang, Y.; Elgendi, M.; Chen, Z.; Ward, R. An optimal ﬁlter for short photoplethysmogram signals. Sci. Data 2018, 5, 180076. [CrossRef] [PubMed]
+19. Shin, W.; Cha, Y.D.; Yoon, G. ECG/PPG integer signal processing for a ubiquitous health monitoring system. J. Med. Syst. 2010, 34, 891–898. [CrossRef] [PubMed]
+
+Diagnostics 2018, 8, 65
+
+10 of 10
+
+20. Elgendi, M. TERMA framework for biomedical signal analysis: An economic-inspired approach. Biosensors 2016, 6, 55. [CrossRef] [PubMed]
+21. Elgendi, M. Eventogram: A visual representation of main events in biomedical signals. Bioengineering 2016, 3, 22. [CrossRef] [PubMed]
+22. Elgendi, M.; Liang, Y.; Ward, R. Toward generating more diagnostic features from photoplethysmogram waveforms. Diseases 2018, 6, 20. [CrossRef] [PubMed]
+23. Elgendi, M. Fast QRS detection with an optimized knowledge-based method evaluation on 11 standard ECG databases. PLoS ONE 2013, 8, e73557. [CrossRef] [PubMed]
+24. Elgendi, M.; Al-Ali, A.; Mohamed, A.; Ward, R. Improving remote health monitoring: A low-complexity ECG compression approach. Diagnostics 2018, 8, 10. [CrossRef] [PubMed]
+25. Elgendi, M.; Mohamed, A.; Ward, R. Efﬁcient ECG compression and QRS detection for e-health applications. Sci. Rep. 2017, 7, 459. [CrossRef] [PubMed]
+26. Liang, Y.; Chen, Z.; Liu, G.; Elgendi, M. A new, short-recorded photoplethysmogram dataset for blood pressure monitoring in china. Sci. Data 2018, 5, 180020. [CrossRef] [PubMed]
+27. Messas, E.; Pernot, M.; Couade, M. Arterial wall elasticity: State of the art and future prospects. Diagn. Interv. Imaging 2013, 94, 561–569. [CrossRef] [PubMed]
+28. Allen, J. Photoplethysmography and its application in clinical physiological measurement. Physiol. Meas. 2007, 28, R1–R39. [CrossRef] [PubMed]
+29. Elgendi, M. On the analysis of ﬁngertip photoplethysmogram signals. Curr. Cardiol. Rev. 2012, 8, 14–25. [CrossRef] [PubMed]
+30. Shin, H.; Min, S.D. Feasibility study for the non-invasive blood pressure estimation based on ppg morphology: Normotensive subject study. Biomed. Eng. Online 2017, 16, 10. [CrossRef] [PubMed]
+31. Kachuee, M.; Kiani, M.M.; Mohammadzade, H.; Shabany, M. Cufﬂess blood pressure estimation algorithms for continuous health-care monitoring. IEEE Trans. Biomed. Eng. 2017, 64, 859–869. [CrossRef] [PubMed]
+32. Ding, X.; Yan, B.P.; Zhang, Y.T.; Liu, J.; Zhao, N.; Tsang, H.K. Pulse transit time based continuous cufﬂess blood pressure estimation: A new extension and a comprehensive evaluation. Sci. Rep. 2017, 7, 11554. [CrossRef] [PubMed]
+33. Xing, X.; Sun, M. Optical blood pressure estimation with photoplethysmography and fft-based neural networks. Biomed. Opt. Express 2016, 7, 3007–3020. [CrossRef] [PubMed]
+34. Elgendi, M. Optimal signal quality index for photoplethysmogram signals. Bioengineering 2016, 3, 21. [CrossRef] [PubMed]
+35. Elgendi, M.; Norton, I.; Brearley, M.; Abbott, D.; Schuurmans, D. Systolic peak detection in acceleration photoplethysmograms measured from emergency responders in tropical conditions. PLoS ONE 2013, 8, e76585. [CrossRef] [PubMed]
+36. Elgendi, M. Detection of c, d, and e waves in the acceleration photoplethysmogram. Comput. Methods Programs Biomed. 2014, 117, 125–136. [CrossRef] [PubMed]
+37. Elgendi, M.; Norton, I.; Brearley, M.; Abbott, D.; Schuurmans, D. Detection of a and b waves in the acceleration photoplethysmogram. Biomed. Eng. Online 2014, 13, 139. [CrossRef] [PubMed]
+38. Elgendi, M. Merging digital medicine and economics: Two moving averages unlock biosignals for better health. Diseases 2018, 6, 6. [CrossRef] [PubMed]
+39. Elgendi, M. Less is more in biosignal analysis: Compressed data could open the door to faster and better diagnosis. Diseases 2018, 6, 18. [CrossRef] [PubMed]
+40. Mills, K.T.; Bundy, J.D.; Kelly, T.N.; Reed, J.E.; Kearney, P.M.; Reynolds, K.; Chen, J.; He, J. Global disparities of hypertension prevalence and controlclinical perspective: A systematic analysis of population-based studies from 90 countries. Circulation 2016, 134, 441–450. [CrossRef] [PubMed]
+41. Elgendi, M.; Howard, N.; Lovell, N.; Cichocki, A.; Brearley, M.; Abbott, D.; Adatia, I. A six-step framework on biomedical signal analysis for tackling noncommunicable diseases: Current and future perspectives. JMIR Biomed. Eng. 2016, 1, e1. [CrossRef]
+© 2018 by the authors. Licensee MDPI, Basel, Switzerland. This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (http://creativecommons.org/licenses/by/4.0/).
+

@@ -1,0 +1,632 @@
+多元线性回归
+张伟平 zwp@ustc.edu.cn Office: 东区管理科研楼 1006 Phone: 63600565 课件 http://staff.ustc.edu.cn/~zwp/ 论坛 http://fisher.stat.ustc.edu.cn
+
+简介
+1.1 多重线性回归模型 . . . . . . . . . . . . . . . 1 1.2 多元线性回归模型 . . . . . . . . . . . . . . . 9
+1.2.1 最小二乘估计的性质 . . . . . . . . . . 16 1.2.2 最小二乘估计的几何解释 . . . . . . . 22 1.2.3 有线性约束的线性模型 . . . . . . . . . 23 1.2.4 预测 . . . . . . . . . . . . . . . . . . . 26
+
+Previous Next First Last Back Forward
+
+1
+
+1.1 多重线性回归模型
+• 回归分析是一类基于预测变量 (predictor variables)(a.k.a 解 释变量, 自变量 (independent variables), 回归量 (regressors)) 来预测一个或多个响应变量 (response variable)(a.k.a 因变量 (dependent variable), 被解释变量 (explained variable), 回归 应变量 (regressand) ) 的统计方法
+• 回归分析也可以用来评价解释变量对响应变量的作用, 常为解 释变量的线性函数对响应变量的作用
+• 解释变量可以为连续的或者离散的, 或者两者混合的
+• 首先我们回顾一下用于一元响应变量的多重回归方法, 然后推 广到响应变量是多维的.
+
+Previous Next First Last Back Forward
+
+1
+
+Multiple Regression Analysis • 假设解释变量为 x1, x2, . . . , xp−1, 这些变量认为是和响应变量
+y 有关联
+• 多重线性总体回归模型假设
+
+y = β0 + β1x1 + β2x2 + · · · + βp−1xp−1 + e
+– β = (β0, β1, . . . , βp−1)′ 为 (固定的) 未知的参数向量 – x1, . . . , xp−1 称为解释变量, 其可以为固定的 (设计的), 或
+者随机的. – e 称为随机误差项, 一般假设 e ∼ (0, σ2), 且 E(exi) =
+0, i = 1, . . . , p − 1.
+• 当我们对总体进行随机抽样时候, 假设有 n 个个体, 每个个体 有模型
+
+yi = β0 + β1xi1 + β2xi2 + · · · + βp−1xi(p−1) + ei
+
+Previous Next First Last Back Forward
+
+2
+
+表示成矩阵形式后有
+
+ 
+
+
+
+y1
+y2 ...
+
+ = 
+
+1
+1 ...
+
+x11
+x21 ...
+
+···
+··· ...
+
+yn
+
+1 xn1 · · ·
+
+⇐⇒ Yn×1 = Xn×pβ + ϵ
+
+ 
+
+x1(p−1)
+x2(p−1) ...
+
+ β + 
+
+e1
+e2 ...
+
+
+
+xn(p−1)
+
+en
+
+其中 yi, xi1, . . . , xi(p−1) 表示对总体变量 y, x1, . . . , xp−1 的独 立重复观测. 按照总体模型假设和抽样方式, 一般假设误差有 下述性质:
+
+– Eei = 0 – V ar(ei) = σ2(常数) – Cov(ei, ej) = 0, i ̸= j
+
+Previous Next First Last Back Forward
+
+3
+
+多重线性回归模型(Multiple linear regression) Yn×1 = Xn×pβ + ϵ
+以及假设 Eϵ = 0, V ar(ϵ) = σ2In.
+例将下述单因素方差分析模型表示成回归模型的形式: yij = µ + τi + eij , j = 1, . . . , ni, i = 1, 2, 3
+此时有三个总体, 因此引入哑变量 (dummy variable) 来处理, 令 xij = 1, 如果 i = j; 否则为 0. 从而一元方差分析模型可以表示成回 归分析的形式
+yij = µ + τ1xi1 + τ2xi2 + τ3xi3 + eij
+
+Previous Next First Last Back Forward
+
+4
+
+回归模型的推断 对多重回归模型, 一般关心的任务有: • 参数及其函数的估计问题 (可估性, 最小二乘估计) • 参数估计量的性质 • 模型诊断方面
+– 参数的检验问题 (正态性假设, 似然比检验) – 变量选择问题 – 残差分析 (模型假设的检查, 数据清洁) • 模型的预测功能
+
+Previous Next First Last Back Forward
+
+5
+
+最小二乘估计
+
+• 对 β 的估计方法之一是选择使得残差平方和达到最小:
+
+βˆ =
+
+arg min ∥Y β∈Rp
+
+− Xβ∥2
+
+=
+
+∑n (
+
+arg min β∈Rp
+
+yi
+
+∑ p−1
+
+)2
+
+− βkxik
+
+i=1
+
+k=0
+
+其中 xi0 ≡ 1.
+
+• 当 X 为满秩时候 (p < n), 上述最小化残差平方和的 β 可以得 出 βˆ = (X′X)−1X′Y
+
+– 此时称 βˆ 为 β 的最小二乘估计. – 此时响应变量的拟合值为 Yˆ = Xβˆ = X(X′X)−1X′Y =
+HY , H 称为帽子 (Hat) 矩阵. – 残差为 ϵˆ = Y − Yˆ = (I − H)Y
+
+Previous Next First Last Back Forward
+
+6
+
+– 残差满足 ϵˆ′X = 0, ϵˆ′Yˆ = 0.
+
+平方和分解 由于 ϵˆ′Yˆ = 0, 因此总的响应变量平方和 Y ′Y 可以分解为
+
+Y ′Y = (Yˆ + Y − Yˆ )′(Yˆ + Y − Yˆ ) = Yˆ ′Yˆ + ϵˆ′ϵˆ
+
+由于 X 的第一列为 1, 因此 X′ϵˆ = 0 表明 1′ϵˆ = 0 =⇒ 1′Y = 1′Yˆ . 从而两边同时减去 1′Y 和 1′Yˆ 得到
+
+Y ′Y − 1′Y = Yˆ ′Yˆ − 1′Yˆ + ϵˆ′ϵˆ
+
+∑n
+
+∑n
+
+∑n
+
+⇐⇒ (yi − y¯)2 = (yˆj − y¯)2 + ϵˆ2i
+
+i=1
+
+i=1
+
+i=1
+
+SST = SSreg + SSe
+
+总平方和 = 回归平方和 + 残差平方和
+
+总波动性 = 回归能解释的波动性 + 误差的波动性
+
+Previous Next First Last Back Forward
+
+7
+
+由此分解, 模型拟合程度的一个度量标准为 R2 = 1 − SSe = SSreg SST SST
+称为判定系数 (coefficient of determination). R 即为总体多重相关 系数的估计 (参看第四讲条件分布部分).
+最小二乘估计的性质
+• Eβˆ = β, cov(βˆ) = σ2(X′X)−1
+• cov(βˆ, ϵˆ) = 0
+• c′β 的最佳线性估计估计为 c′βˆ.(Gauss-Markov 定理)
+
+Previous Next First Last Back Forward
+
+8
+
+1.2 多元线性回归模型
+当响应变量为多元时候, 不妨设 m 个响应变量, Y1, . . . , Ym, 解释 变量为 x1, . . . , xp−1, 考虑解释变量与响应变量之间的关系, 假设有如 下总体回归模型:
+Y1 = β01 + β11x1 + · · · + β(p−1)1xp−1 + e1 Y2 = β02 + β12x1 + · · · + β(p−1)2xp−1 + e2
+... Ym = β0m + β1mx1 + · · · + β(p−1)mxp−1 + em
+
+也就是假设每个指标 Yi 和解释变量之间存在线性关系. 误差项 e = [e1, e2, . . . , em]′ 满足假设
+Ee = 0, Cov(e) = Σ = (σij)
+
+Previous Next First Last Back Forward
+
+9
+
+当对总体中 n 个个体观测时候, 记第 j 次观测样本的解释变量
+
+为 xj1, xj2, . . . , xj(p−1), 而响应变量记为 yj = [yj1, yj2, . . . , yjm]′, j = 1, . . . , n. 使用矩阵表达, 则
+
+
+
+
+
+Yn×m = 
+
+y11
+y21 ...
+
+y12 y22
+
+··· ···
+
+y1m y2m
+
+ = [y(1), y(2), · · · , y(m)]
+
+yn1 yn2 · · · ynm
+
+
+
+
+
+Xn×p = 
+
+x10
+x20 ...
+
+x11 x21
+
+··· ···
+
+x1(p−1) x2(p−1)
+
+
+
+xn0 xn1 · · · xn(p−1)
+
+其中 xi0 ≡ 1, i = 1, . . . , n.
+
+Previous Next First Last Back Forward
+
+10
+
+参数矩阵和随机测量误差记为
+
+
+
+Bp×m = 
+
+β01
+β11 ...
+
+
+
+β02 β12
+
+··· ···
+
+β0m β1m
+
+ = [β(1), β(2), · · · , β(m)]
+
+β(p−1)1 β(p−1)2 · · · β(p−1)m
+
+
+
+
+
+
+
+ϵn×m = 
+
+ϵ11
+ϵ21 ...
+
+ϵ12 ϵ22
+
+··· ···
+
+ϵ1m ϵ2m
+
+ = [ϵ(1), ϵ(2), · · · , ϵ(m)] = 
+
+ϵ′1
+ϵ′2 ...
+
+
+
+ϵn1 ϵn2 · · · ϵnm
+
+ϵ′n
+
+从而, 多元线性回归模型(Multivariate linear model) 的矩阵表达:
+
+Yn×m = Xn×pBp×m + ϵn×m = [Xβ(1), · · · , Xβ(m)] + [ϵ(1), ϵ(2), · · · , ϵ(m)]
+
+Previous Next First Last Back Forward
+
+11
+
+其中 Eϵ(i) = 0, Cov(ϵ(i), ϵ(j)) = σij In, i, j = 1, 2, . . . , m. 虽然对第 k 个观测的测量误差 ϵk 有协方差矩阵 Σ, 但对不同个体的观测值不相 关.
+从上面的模型中可以看出对第 i 个响应 y(i), 其服从线性回归模 型
+y(i) = Xβ(i) + ϵ(i) 其中 Eϵ(i) = 0, Cov(ϵ(i)) = σiiIn, i = 1, . . . , m.
+• 对第 i 个响应变量来说, n 次观测之间不相关
+• 不同响应变量的观测之间存在相关
+基于第 i 个响应变量 y(i) 的回归模型可得 β(i) 的最小二乘估计
+βˆ(i) = (X′X)−1X′y(i)
+
+Previous Next First Last Back Forward
+
+12
+
+将这些估计量放在一起组成矩阵, 我们有 Bˆ = [βˆ(1), βˆ(2), . . . , βˆ(m)] = (X′X)−1X′[y(1), y(2), · · · , y(m)] = (X′X)−1X′Y
+最小二乘估计 定理 1. 设 X 为满秩的, 则 Bˆ 为 B 的最小二乘估计. 证明. 利用拉直运算表达, 多元回归模型可以表示为
+vec(Y′) = (X ⊗ Im)vec(B′) + vec(ϵ′) 其中 Cov(ϵ′) = In ⊗ Σ.
+由上述拉直向量化模型表示, 根据最小二乘方法, 若记 Q(vec(B′)) = ∥vec(Y ′) − (X ⊗ Im)vec(B′)∥2
+
+Previous Next First Last Back Forward
+
+13
+
+则 vec(B′) 的最小二乘估计为
+
+vec(B′) = [((X ⊗ Im))′(X ⊗ Im)]−1(X ⊗ Im)′vec(Y′) = [(X′X)−1X′ ⊗ Im]vec(Y′)
+
+于是, 将估计重新表示成矩阵形式即证.
+
+定理 2. 设 Bˆ 为 B 的最小二乘估计, 则
+
+1. Bˆ 为 B 的无偏估计.
+
+2. Cov(βˆ(i), βˆ(k)) = σik(X′X)−1, i, k = 1, . . . , p.
+
+3. Σ 的无偏估计为
+
+Σˆ = 1 Y′P Y. n−p
+
+其中 P = In − X(X′X)−1X′ = In − H.
+
+Previous Next First Last Back Forward
+
+14
+
+证明. (1) 显然. 对 (2),
+
+Cov(βˆ(i), βˆ(k)) = (X′X)−1X′Cov(ϵ(i), ϵ(k))X(X′X)−1 = σi2k(X′X)−1.
+下证 (3). 注意到 P X = X′P = 0, 从而
+
+Y′P Y = (Y − XB)′P (Y − XB)
+
+因此
+
+(EY′P Y)ij = (E[(Y − XB)′P (Y − XB)])ij = E[(y(i) − Xβ(i))′P (y(j) − Xβ(j))] = tr{P E[ϵ(j)ϵ′(i)]} = tr{P (σjiIn)} = (n − p)σij .
+从而得证.
+
+Previous Next First Last Back Forward
+
+15
+
+1.2.1 最小二乘估计的性质
+• 使用 B 的最小二乘估计, 我们可以得到
+Yˆ = XBˆ = X(X′X)−1X′Y ˆϵ = Y − Yˆ = [I − X(X′X)−1X′]Y = P Y
+
+• 使用平方和与交叉积分解有 Y′Y = Yˆ ′Yˆ + ˆϵ′ˆϵ
+totalSSCP RegSSCP ErrorSSCP
+
+• 估计的残差 ϵˆ(i) 满足
+
+Eϵˆ(i) = 0,
+
+Eϵˆ′(i)ϵˆ(j) = (n − p)σij
+
+从而
+
+Eˆϵ = 0, Eˆϵ′ˆϵ = (n − p)Σ
+
+Previous Next First Last Back Forward
+
+16
+
+• Bˆ 和 ˆϵ 不相关
+
+若假定 ϵ ∼ Nn×m(0, In ⊗ Σ), Σm×m > 0
+则 Y ∼ Nn×m(XB, In ⊗ Σ)
+从而导出 B 和 Σ 的最大似然估计.
+
+定理 3. 设 Y ∼ Nn×m(XB, In ⊗ Σ), 其中 X 满秩, B ∈ Rp×m 和 Σ > 0, 则 B 和 Σ 的最大似然估计为
+
+Bˆ∗ = (X′X)−1X′Y Σˆ ∗ = 1 Y′P Y
+n 证明. 由矩阵多元正态分布的定义, 知对数似然函数
+
+l(B, Σ)
+
+=
+
+1 − nln|2πΣ|
+
+−
+
+1 tr[(Y
+
+−
+
+X B )Σ−1 (Y
+
+−
+
+X B )′ ]
+
+2
+
+2
+
+Previous Next First Last Back Forward
+
+17
+
+从而
+
+tr[(Y − XB)Σ−1(Y − XB)′] = tr[Σ−1(Y − XBˆ)′(Y − XBˆ)] + tr[Σ−1(Bˆ − B)′X′X(Bˆ − B)] ≥ tr[Σ−1(Y − XBˆ)′(Y − XBˆ)] = tr[Σ−1Y′P Y] = tr[Σ−1Σˆ ∗]
+
+等号成立当且仅当 B = Bˆ, 于是
+
+max l(B, Σ) = max l(Bˆ, Σ) = max{− 1 nlog|Σ| − 1 ntr[Σ−1Σˆ ∗]}
+
+Σ>0,B
+
+Σ>0
+
+Σ>0 2
+
+2
+
+最后一步容易得到最大值在 Σ = Σˆ ∗ 处达到. 从而得证.
+
+注 B 的最大似然估计与最小二乘估计相同, 即 Bˆ∗ = Bˆ; Σ 的最 大似然估计不是无偏估计.
+
+定理 4. 对多元线性回归模型, 若 ϵ ∼ Nn×m(0, In ⊗ Σ), 最小二乘估 计 Bˆ 和无偏估计 Σˆ 由前给出, 则
+
+Previous Next First Last Back Forward
+
+18
+
+(1) Bˆ ∼ Np×m(B, (X′X)−1 ⊗ Σ); (2) Bˆ 和 Σˆ 相互独立; (3) (n − p)Σˆ ∼ Wm(n − p, Σ).
+证明. (1) 由假设知 Y ∼ Nn×m(XB, In ⊗ Σ), 从而由矩阵正态分布 的性质知 Bˆ = (X′X)−1X′Y ∼ Np×m(B, (X′X)−1 ⊗ Σ).
+(2) 由多元正态的性质 (第四讲定理 9), 注意到
+vec(Bˆ) = [I ⊗ (X′X)−1X′]vec(Y) vec(P Y) = [I ⊗ P ]vec(Y)
+从而 Bˆ 和 P Y 相互独立 ⇔ vec(Bˆ) 和 vec(P Y) 相互独立 ⇔ [I ⊗ (X′X)−1X′][I ⊗ P ]′ = I ⊗ (X′X)−1X′P ′ = 0.
+(3) 因为 Y ∼ Nn×m(XBˆ, I ⊗Σ), 以及 Rank(P ) = n−p, 所以由 Wishart 分布的性质 (第五讲 Cochran 定理) 知 (n − 1)Σˆ = Y′P Y ∼ Wm(n − p, Σ).
+
+Previous Next First Last Back Forward
+
+19
+
+定理
+ϕ= Yˆ =
+
+5 (Gauss-Markov 定理).
+
+∑m
+j=1
+
+c′j
+
+θ(j),
+
+这里
+
+c1, . . . ,
+
+XBˆ = [yˆ(1), . . . , yˆ(m)], ϕˆ
+
+记 Θ = XB = [θ(1), . . . , θ(m)], 令 c=m∑是m j=任1 意c′j yˆm(j),个则nϕˆ维为常ϕ数的向最量佳, 线记
+
+性无偏估计.
+
+证明. 首先我们来证明 ϕˆ 的线性无偏性. 无偏性显然, 另外注意到 Yˆ = HY = [Hy(1), . . . , Hy(m)], 其中 H = X(X′X)−X′. 因此
+
+∑ m
+
+ϕˆ =
+
+c′j H y(j)
+
+j=1
+
+即 ϕˆ 为 Y 的列向量的线性函数.
+
+下面我们讨论 ϕˆ 在所有线性无偏估计里方差最小.
+
+∑m
+j=1
+
+d′j
+
+y(j)
+
+为
+
+ϕ
+
+的任意线性无偏估计,
+
+则
+
+假设 ϕ∗ =
+
+∑ m
+
+∑ m
+
+Eϕ∗ =
+
+d′j θ(j) = ϕ =
+
+c′j θ(j)
+
+j=1
+
+j=1
+
+Previous Next First Last Back Forward
+
+20
+
+因此 从而 这等价于
+
+∑ m (dj − cj )′θ(j) = 0, 对任意 θ(j) ∈ L(X)
+j=1
+(dj − cj )′θ(j) = 0, 对任意 θ(j) ∈ L(X)
+
+H(dj − cj) = 0 ⇔ Hdj = Hcj, j = 1, . . . , m
+
+于是由 cov(y(j), y(k)) = σjkIn 有
+
+∑ m ∑ m
+
+V ar(ϕ∗) − V ar(ϕˆ) =
+
+d′j (In − H)dkσjk
+
+j=1 k=1
+
+= tr[D′(In − H)DΣ] ≥ 0
+
+其中 D = [d1, . . . , dm], 等号成立当且仅当 D(In − H) = 0, 即 dj = Hdj = Hcj, j = 1, . . . , m. 这时, ϕˆ∗ = ϕˆ.
+
+Previous Next First Last Back Forward
+
+21
+
+1.2.2 最小二乘估计的几何解释
+• 对一元多重线性回归模型
+yn×1 = Xn×pβp×1 + en×1
+我们知道, y 向 X 的列向量所张成的线性子空间 L(X) 的投影 为 yˆ = Xβˆ = Hy. 而 y − Hy = (I − H)y = eˆ 为残差, 其中 H = X(X′X)−1X. 如下图所示
+
+Previous Next First Last Back Forward
+
+22
+
+• 由前面最小二乘估计的构造知, 将 Y 的每一列 y(i) 向空间 L(X) 上投影, 得到
+Yˆ = XBˆ, Y − Yˆ = (In − P )Y = ˆϵ
+
+1.2.3 有线性约束的线性模型
+考虑带有线性约束条件的多元回归模型:
+
+Y = XB + ϵ, Rank(X) = p AB = C, As×p, Cs×m, Rank(A) = s < m ϵn×m ∼ (0, In ⊗ Σ) 为在此约束条件下求 B 的最小二乘估计, • 记 BˆH 为此线性约束条件下 B 的最小二乘估计. • Bˆ = (X′X)−1X′Y 为没有线性约束时候 B 的最小二乘估计.
+
+Previous Next First Last Back Forward
+
+23
+
+• 可以使用 Lagrange 乘子法和最小二乘方法进行直接求解. 但 习惯上常常将约束条件解出来, 代入原线性模型中, 这样将带约 束的回归模型转换为不带约束的回归模型.
+显然约束条件方程 AB = C 的通解可以表示为
+B = A−C + (I − A−A)z, z为任意向量
+其中 A− 为任意固定的广义逆, 特别, 取 A− = (X′X)−1A′(A(X′X)−1A′)−1. 代入到回归模型中有
+Y − XA−C = X(I − A−A)z + ϵ
+因此 z 的最小二乘估计为
+zˆ = [(I − A−A)′X′X(I − A−A)]−1(I − A−A)′X′(Y − XA−C)
+
+Previous Next First Last Back Forward
+
+24
+
+从而 B 的最小二乘估计为
+
+BˆH = A−C + (I − A−A)[(I − A−A)′X′X(I − A−A)]−1 · (I − A−A)′X′(Y − XA−C)
+= Bˆ − (X′X)−1A′(A(X′X)−1A′)−1(ABˆ − C)
+
+此时, Σ 的无偏估计为
+
+Σˆ H
+
+=
+
+n
+
+1 −p
+
++
+
+(Y s
+
+−
+
+XBˆH )′(Y
+
+−
+
+XBˆH )
+
+证明. 证明作为补充作业.
+
+Previous Next First Last Back Forward
+
+25
+
+1.2.4 预测
+• 给定一组协变量值 x′0 = [1, x01, . . . , x0(p−1)], 则 x′0B 的预测值 为 Yˆ0′ = x′0Bˆ, 其中 Bˆ 为 B 的最小二乘估计.
+• Yˆ0′ 为 x′0B 的无偏估计, 即 EYˆ0′ = x′0EBˆ = x′0B. • 估计误差 x′0Bˆ − x′0B 第 i 个和第 k 个分量的协方差为
+E[x′0(βˆ(i) − β(i))(βˆ(i) − β(i))′x0] = σikx′0(X′X)−1x0.
+• 预报误差 Y0′ − Yˆ0′ 的第 i 个和第 k 个分量的协方差为 E(Y0i − x′0βˆ(i))(Yˆ0k − x′0βˆ(k)) = E(ϵ0i − x′0(βˆ(i) − β(i)))(ϵ0k − x′0(βˆ(k) − β(k))) = E(ϵ0iϵ0k + x′0E(βˆ(i) − β(i))(βˆ(k) − β(k))′x0 = σik(1 + x′0(X′X)−1x0)
+
+Previous Next First Last Back Forward
+
+26
+
