@@ -1,0 +1,312 @@
+Photoplethysmography-Based System for Atrial Fibrillation Detection During Hemodialysis
+Dainius Stankevičius1, Andrius Petrėnas1, Andrius Sološenko1, Mantas Grigutis2, Tomas Januškevičius2, Laurynas Rimševičius2, and Vaidotas Marozas1
+1 Biomedical Engineering Institute, Kaunas University of Technology, Kaunas, Lithuania 2 Center of Nephrology, Vilnius University Hospital Santariškių Klinikos, Vilnius, Lithuania
+
+Abstract— Renal replacement therapy, such as hemodialysis, is the only effective treatment for the end-stage renal disease. Hemodialysis is directly associated with significantly increased risk of developing atrial fibrillation (AF). Since physicians must stop the procedure of hemodialysis when AF occurs, timely detection of AF is crucial. Electrocardiography could provide a reliable way for AF monitoring, but due to a routine of the procedure, it is not convenient enough for hemodialysis patients. Furthermore, electrocardiography increases the costs due to increased workload of medical staff. Therefore, as an alternative, we present a concept of unobtrusive AF monitoring during hemodialysis. The proposed system covers both hardware and software: a wearable device, capable of recording photoplethysmogram (PPG), and an online low complexity AF detection algorithm, applied for decision making. We tested this system on a pre-recorded PPG, containing both AF and normal rhythm episodes. Results show that the low power unobtrusive PPG wearable device has a potential to be applied for real-time AF detection using solely the PPG.
+Keywords— Arrhythmia, embedded signal processing, wearable system, wrist sensor.
+
+Although electrocardiography is a reliable way to detect AF, this technique is not convenient enough for hemodialysis patients. Most of the patients in hemodialysis are chronically sick and unwilling to encumber their routine procedure. In addition, attachment of electrodes for electrocardiography is time-consuming and requires additional material resources. Considering these points, a more convenient way to detect AF is highly desirable.
+To overcome this problem, we propose a less obtrusive approach, based on photoplethysmography. While electrocardiography has been used for AF detection for many years, the intersection of photoplethysmography and AF is quite new. To the best of our knowledge, there has been only one research dedicated to the unobtrusive AF detection using PPG, by Lee et al. [7]. However, the latter method, involving an iPhone’s camera, is suitable only for intermittent monitoring.
+In this paper, we propose a concept of the wearable system to record photoplethysmogram (PPG), and the embedded signal processing algorithm for real-time AF detection.
+
+I. INTRODUCTION
+End-stage renal disease is considered as an important public health problem. The only effective treatment is a renal replacement therapy, such as hemodialysis or kidney transplantation. The hemodialysis causes an overload on the cardiovascular system. This overload is related to changes in fluid and electrolyte balance, resulting in arrhythmias, such as atrial fibrillation (AF). AF is the most common arrhythmia in clinical practice, affecting more than 33 million people around the world [1]. AF is also associated with serious comorbidities, such as stroke or heart failure [2]. Hemodialysis can cause large fluctuations in intracellular potassium, hypokalemia, and other adverse effects [3, 4], therefore it is closely linked to a significantly increased risk of developing AF [5]. Enlargement of heart chambers is considered as one of the most important contributing factors to the development of AF during hemodialysis [6]. Given that the procedure of hemodialysis must be stopped if AF occurs, timely detection of this arrhythmia is vitally important.
+
+II. MATERIALS AND METHODS
+A. Materials We propose that AF monitoring and detection could be
+accomplished by using a wearable PPG device developed in Biomedical Engineering Institute at Kaunas University of Technology [8]. The wearable PPG device (see Fig. 1) is capable of recording physiological data as well as processing it.
+Fig. 1 Photos of the developed PPG wearable sensor: front (left) and back
+(right)
+
+© Springer International Publishing Switzerland 2016
+
+79
+
+E. Kyriacou et al. (eds.), XIV Mediterranean Conference on Medical and Biological Engineering and Computing 2016,
+
+IFMBE Proceedings 57,
+
+DOI: 10.1007/978-3-319-32703-7_17
+
+80
+
+D. Stankevičius et al.
+
+PPG
+
+ECG
+
+The hardware of the device is based on an ARM Cortex-M0 microcontroller, running at 16 MHz with 16 kB of SRAM.
+Figure 2 shows an example of synchronously recorded electrocardiogram (ECG) and PPG during AF and its transition to sinus rhythm (the signals are taken from the Physionet MIMIC database [9, 10]). Since heart rhythm irregularity during AF is common in both ECG and PPG (see Fig. 2), we assume that PPG can serve as a replacement for ECG.
+Fig. 2 Example of synchronously recorded ECG and PPG during AF (the
+first 10 seconds) and normal sinus rhythm (the remaining 10 seconds)
+B. Methods The main building block of the proposed system is the low
+complexity AF detector, developed by Petrenas et al. [11]. The detector was originally used for the analysis of RR intervals (time intervals between the consecutive contractions of
+
+the ventricles) obtained from the ECG. Here, we adapted this algorithm to analyze hearth rhythm series, extracted from the PPG.
+Figure 3 shows the block diagram of the proposed algorithm, while all adjustable parameters required for implementation are provided in Table 1. In the preprocessing stage, we use a low-pass filter with 18 Hz cut-off frequency to suppress high frequency noise. Then, we apply an adaptive least mean squares (LMS) filter, similar to that proposed by Laguna et al. [12], to remove baseline wander from the PPG. This filter is characterized by the adaptive notch, therefore, it tracks baseline wander more effectively than the conventional digital filter with a fixed cut-off frequency. Although the filter proposed by Laguna et al. might distort signal morphology, in this particular application, morphology is not crucial. Therefore, the filter is well suitable for preprocessing PPG. To make adaption faster, we
+empirically set the number of coefficients to 10 (ω1 … ω10), rather than 1, as it was originally suggested in [12].
+The resulting PPG signal without the baseline wander (ppga(n)) is further passed to the peak detection block, which refers to the work of Jang et al. [13]. A slope sum function with a window size of N samples is the key property of this peak detector. The ppga(n) is transformed into a series of pulses. Each of these pulses have only a single maximum, thus are well suited for threshold-based peak detection. The threshold T is updated after each peak is found. We set the threshold to a 30% of the median value of the last five peaks. Finally, the peak-to-peak (Pk-Pk) interval is calculated for each ppg(n) peak. The low complexity AF detector is tuned on the basis of the three main parameters used to determine the shortest detectable AF episode
+(α), the threshold for bigeminy suppression (δ), and the threshold for producing a binary output (t) [11].
+We implemented the algorithm from Figure 3 in the em-
+bedded wearable system, in C programming language, by
+using fixed-point integer arithmetic.
+
+ppg(n)
+
+Low pass filter ppgl(n) fc
+
+x(n) = 1
+
+LMS
+
+ω1 ... ω10
+
+μ
+
+y(n) - +
+
+T median{p(m),...,p(m-4)}
+
+p(m)
+
+SSF s(n) Thresholding st(n)
+
+max{s(n)}
+
+N
+
+T, Tk
+
+arg[max{s(n)}]
+
+ppga(n)
+
+i(m) i(m)-i(m-1)
+
+Δi(m)
+
+Low complexity
+AF detector O(m) α
+δ t
+
+Fig. 3 Structure of the proposed PPG analysis based AF detection algorithm (here SSF stands for slope sum function)
+
+IFMBE Proceedings Vol. 57
+
+Photoplethysmography-Based System for Atrial Fibrillation Detection during Hemodialysis
+
+81
+
+Table 1 Parameter values used in the developed AF detector
+
+Parameter
+fc
+μ N Tk
+α δ t
+
+Value
+18 0,0008 32 30 0,05 0,0002 0,725
+
+Units
+Hz Samples % -
+
+C. Performance Evaluation
+For testing purposes, we saved an unprocessed prerecorded PPG with two AF episodes to a file in a micro-SD memory card. These signals were pre-recorded by using another device at an emergency room in one of the city hospitals in Kaunas, Lithuania [14]. Nevertheless, all AF detection related computations were performed by the PPG wearable device itself, and the AF detection results were saved to the same memory card. The only difference from the real world
+
+situation is that the samples from the pre-recorded file were taken instead of using the on-board sensors.
+III. RESULTS
+PPG-based AF detection results are presented in Figure 4. The first row from the top displays ECG together with the annotations, where the high level denotes an AF episode, and the low level denotes sinus rhythm. The second row displays unprocessed PPG. The third row displays RR interval series, extracted from the ECG. The last two rows show the outputs of the algorithm implemented in Matlab and PPG wearable device, respectively. The output signals are aligned to the input PPG with respect to the sinus rhythm episode.
+The results show that the transition between AF and sinus rhythm was successfully detected by the AF detection algorithm. While the continuous output computed in Matlab is similar to that computed by the PPG wearable device, the difference appear after the threshold-based detection is performed. This outcome may occur due to the transformation of AF detector, which was originally developed to analyze ECG RR intervals. Accordingly, the threshold for real-time PPG processing should preferably be re-adjusted.
+
+2 1 0 -1
+0 400 300 200 100
+0 2 1 0
+0
+1
+0 0
+
+50
+
+100
+
+150
+
+200
+
+50
+
+100
+
+150
+
+200
+
+50
+
+100
+
+150
+
+200
+
+Outa
+
+Outb
+
+Threshold
+
+50
+
+100
+
+150
+
+200
+
+5000
+
+0
+
+0
+
+50
+
+100
+
+150
+
+200
+
+Time, s
+
+Fig. 4 Example of AF detection, from the top: the first row – ECG with annotated AF; the second row – unprocessed PPG; the third row – RR intervals
+obtained from the ECG; the fourth row – the output of the algorithm implemented in Matlab (Outa is a continuous output, Outb is a discrete output); the fifth row – the output of the algorithm implemented in the PPG wearable sensor. Note, that AF detection delay is compensated
+
+IFMBE Proceedings Vol. 57
+
+82
+
+D. Stankevičius et al.
+
+IV. DISCUSSION
+Assuming that RR intervals obtained from the ECG are equivalent to the Pk-Pk intervals of the PPG, any RR interval analysis based algorithm can be employed for decision making. On the other hand, it is crucial to detect PPG peaks correctly. Otherwise, peak misdetection may lead to false alarms. In this study we used a peak detector by Jang et al. [13]. However, this algorithm might be not the best choice for peak detection during AF, since the adjacent peaks of the sum slope function may highly differ in amplitude compared to those observed during sinus rhythm.
+Preliminary tests of the implemented AF detector were conducted with a single PPG with no movement artefacts. It is obvious that such artefacts may result in a much worse performance due to peak misdetection. Therefore, a signal quality metric should be included to mark noisy episodes. This problem can be solved using an additional data source. For example, an accelerometer could provide sufficient information while consuming relatively small amount of energy.
+In addition, the proposed system relies solely on heart rhythm properties, but morphology-based features could possibly be included as well.
+V. CONCLUSIONS
+The proposed low power PPG wearable device has a potential to be applied for an unobtrusive real-time AF detection by using solely the PPG.
+ACKNOWLEDGMENT
+This work was supported by CARRE (No.611140) project, funded by the European Commission Framework Program 7.
+CONFLICT OF INTEREST
+The authors declare that they have no conflict of interest.
+REFERENCES
+1. Chugh SS, Havmoeller R, Narayanan K et al. (2014) Worldwide epidemiology of atrial fibrillation: A global burden of disease 2010 study. Circulation 129:837–847 DOI 10.1161/CIRCULATIONAHA.113.005119
+
+2. January, CT, Wann, L. S., Alpert JS. (2014) AHA/ACC/HRS guide-
+
+line for the management of patients with atrial fibrillation a report of
+
+the American College of Cardiology/American Heart Association
+
+Task Force on Practice Guidelines and the Heart Rhythm Society.
+
+Journal of the American College of Cardiology 64(21):e1-e76 DOI
+
+10.1016/j.jacc.2014.03.022
+
+3. Zebe H (2000) Atrial fibrillation in dialysis patients. Nephrology
+
+Dialysis Transplantation 15(6):765-768 DOI 10.1093/ndt/15.6.765
+
+4. Gussak I et al. (2007) Sudden cardiac death in nephrology: focus on
+
+acquired long QT syndrome. Nephrology Dialysis Transplantation,
+
+22(1):12-14 DOI 10.1093/ndt/gfl587
+
+5. Abbott KC, Trespalacios FC, Taylor AJ, Agodoa LY (2003) Atrial fi-
+
+brillation in chronic dialysis patients in the United States: risk factors for
+
+hospitalization and mortality. BMC Nephrol. 4:1 DOI 10.1186/1471-
+
+2369-4-1
+
+6. Foley RN, Parfrey PS, Kent GM, Harnett JD, Murray DC, Barre PE
+
+(1998) Long-term evolution of cardiomyopathy in dialysis patients.
+
+Kidney Int. 54(5):1720-1725.
+
+7. Lee J, Reyes B, McManus D, Mathias O, Chon K (2013) Atrial fibril-
+
+lation detection using an iphone 4S. IEEE Transactions of Biomedical
+
+Engineering 60(1):203-206 DOI 10.1109/TBME.2012.2208112.
+
+8. Stankevičius D, Marozas V (2014) Multisensory Wristwatch System
+
+for Unobtrusive Physiological and Kinematical Signals Recording,
+
+Biomedical Engineering 2014, proceedings of international confer-
+
+ence vol. 18, Kaunas, Lithuania, 2014, pp 162-167.
+
+9. Moody GB, Mark RG (1996) A Database to Support Development
+
+and Evaluation of Intelligent Intensive Care Monitoring. Computers in
+
+Cardiology 23:657–660 DOI 10.1109/CIC.1996.542622
+
+10. Goldberger AL, Amaral LAN, Glass L et al. (2000) PhysioBank,
+
+PhysioToolkit, and PhysioNet: Components of a New Research Re-
+
+source for Complex Physiologic Signals. Circulation 101(23):e215-
+
+e220 DOI 10.1161/01.CIR.101.23.e215
+
+11. Petrėnas A, Marozas V, and Sörnmo L (2015) Low-complexity detection
+
+of atrial fibrillation in continuous long-term monitoring. Computers in
+
+biology
+
+and
+
+medicine,
+
+65:184-191
+
+DOI
+
+10.1016/j.compbiomed.2015.01.019
+
+12. Laguna P, Jane R, and Caminal P (1992) Adaptive filtering of ECG
+
+baseline wander, Engineering in Medicine and Biology Society, 14th
+
+Annual International Conference of the IEEE. vol. 2., pp 508-509 DOI
+
+10.1109/IEMBS.1992.5761083
+
+13. Jang DG et al (2014) A Real-Time Pulse Peak Detection Algorithm
+
+for the Photoplethysmogram. International Journal of Electronics and
+
+Electrical Engineering 2(1):45-49 DOI 10.12720/ijeee.2.1.45-49
+
+14. Gargasas L, Jurkonis V, Bikulciene L, Zvironiene A, Daukantas S
+
+(2012) Functional state evaluation system with distributed intellect for
+
+elderly and disabled persons. Technologies of Computer Control
+
+13:57–52.
+
+Author: Institute: Street: City: Country: Email:
+
+Dainius Stankevičius Kaunas University of Technology K. Baršausko str. 59 – A458 Kaunas Lithuania dainius.stankevicius@ktu.lt
+
+IFMBE Proceedings Vol. 57
+

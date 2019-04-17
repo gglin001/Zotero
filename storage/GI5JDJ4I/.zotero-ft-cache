@@ -1,0 +1,732 @@
+Biometric Authentication Using Photoplethysmography Signals
+
+Abhijit Sarkar 1,2
+asarkar1@vt.edu
+
+A. Lynn Abbott 1
+abbott@vt.edu
+
+Zachary Doerzaph 2
+ZDoerzaph@vtti.vt.edu
+
+1Bradley Department of Electrical and Computer Engineering, Virginia Tech 2Virginia Tech Transportation Institute Blacksburg, Virginia, USA
+
+Abstract
+This paper considers signals from the cardiovascular system for possible use in biometric authentication. The signals of particular interest here derive from photoplethysmography (PPG), which refers to the use of illumination-based sensors that are sensitive to volumetric changes as blood travels through the body. Photoplethysmography sensors have been developed for the fingertip and the ear lobe, and they provide a convenient, noninvasive means of measuring heart rate and heart-rate variability. We demonstrate in this paper that PPG-based signals also have the potential to be used for biometric authentication, even though PPG signals appear to convey much less information than their electromagnetic counterparts, electrocardiograms (ECG). Through a novel decomposition into a sum-of-Gaussians representation, we present experimental results that indicate rank-1 accuracies of 90% and 95% with 2 seconds and 8 seconds of PPG test signal data, respectively. To our knowledge, this paper is the first to demonstrate robust PPG-based authentication for subjects with different emotional states.
+1. Introduction
+The human heart has been considered as a source of biometric information by an increasing number of researchers in recent years. It is well documented that the shape and physiology of the heart differ from one person to the next [1], and the same is true for the vascular system. Because of these differences, signals from the cardiovascular system hold strong potential for biometric recognition and authentication. In addition, these signals have inherent merits regarding liveness detection and spoofing when compared to other biometric modalities. A further advantage of heart-related biometrics is the recent availability of low-cost, noninvasive, wearable sensors, which broaden the scope of potential real-time applications.
+Sensing of the cardiovascular and cardiopulmonary systems has led to investigations involving different cardiac signal types. Electrocardiogram (ECG) signals are the most common, and represent the electromagnetic polarization and depolarization of heart muscles.
+
+1
+
+Subject 1
+
+Subject 2
+
+0.8
+
+Subject 3
+
+Normalized amplitude
+
+0.6
+
+0.4
+
+0.2
+
+0
+
+0
+
+π/2
+
+π
+
+3π/2
+
+2π
+
+Angular position
+
+Figure 1. Photoplethysmography signals from three different subjects, obtained using a fingertip pulse oximeter. Different individuals can exhibit significant differences in PPG signal morphology, and these differences can be exploited for biometric authentication.
+
+Researchers have attempted several fiducial and non-fiducial methods for biometric identification using conventionally collected ECG signals (e.g., [2-4]). Apart from conventional measurement efforts using Einthoven's triangle, researchers have used radar [5] and laser Doppler vibrometry (LDV)[6] to collect cardiac data for biometric authentication.
+This paper is concerned with another cardiac sensing modality known as photoplethysmography (PPG). PPG refers to illumination-based sensing of volumetric changes of blood in the microvascular bed of tissues with every sinus cycle. Measurements can be obtained from the fingertip, toe or ear using commercially available pulse oximeters. Unlike ECG, which measures the electrical activity of the heart, PPG more closely represents the mechanical functioning of the cardiovascular system. A comprehensive analysis of PPG measurement procedures and their possible variations has been presented by Allen [7].
+The premise of our work is that it should be possible to distinguish different individuals based on observed PPG signals because of the physiological variations in the cardiovascular system. Figure 1 shows examples of PPG
+
+signals from three subjects. Because the PPG signals are distinctive from one individual to the next, biometric authentication is possible. The work presented here is motivated in part by the work of Sarkar et al. [8], which applied a dynamical-systems model to the problem of biometric authentication from ECG signals. After mapping a temporal ECG signal onto to a limit cycle, that system approximated the ECG signal by a sum-of-Gaussians representation. This approach provided a low dimensional feature vector that could be used to distinguish the ECG signals of different individuals. Similarly, in the work presented here, we have approximated each PPG signal as a sum of Gaussians, and we have used the parameters in a discriminant analysis framework to distinguish individuals. We have tested our algorithm using the publicly available DEAP dataset[9], which provides PPG signals from individuals in different emotional states under controlled experimental conditions. This work is the first to discuss robustness of identification accuracy under different conditions of emotional excitation.
+The next section of this paper describes PPG signal morphology, and outlines previous approaches in PPG-based biometrics. Section 3 presents the dynamical model and the feature extraction method that have been used in the novel system being presented here. Section 4 discusses experimental results, with an analysis of robustness. Finally, concluding remarks are given in Section 5.
+2. Photoplethysmography Signals
+PPG refers to the measurement of change of volume using an optical sensor, generally used for blood volume pulse (BVP) measurement. These signals are often obtained using a pulse oximeter attached to the skin. Although different parts of the body including fingertip, toe tip and ears are accessible sources for PPG, it has been shown that fingertip and ear PPG signals are more prominent and reliable than the toe tip measurements.
+As the heart propels blood through the body, fluid dynamics cause small expansions and contractions of the vasculature, which in turn give rise to a pulsating PPG signal. Figure 2 shows an example of the signal morphology for a single beat. It comprises two main phases: the anacrotic phase and the catacrotic phase. The anacrotic phase signifies the rising of the systolic pressure and the rising edge of the signal. The catacrotic phase, on the other hand, reflects the diastole and the wave reflection from the periphery. As indicated in the figure, the diastolic peak and the dicrotic notch appear in this phase. The foot of the pulse beat shows the lowest point in the diastole and starting point of the systole. Elgendi [10] has given a comprehensive analysis of the morphology of fingertip PPG and explained reasons for their diversity and variation.
+In most of the previous work, researchers have used
+
+Systolic Dicrotic Diastolic peak notch peak
+
+Foot 0
+0
+
+PPG signal
+θ 2π 1st derivative
+θ
+2nd derivative θ
+3rd derivative θ
+2π
+
+Figure 2. Morphology of the PPG signal. The primary fiducial points of the PPG signal are indicated: the foot, the systolic peak, the dicrotic notch, and the diastolic peak. The 1st, 2nd and 3rd temporal derivatives are also shown. Derivatives have been used for time-domain analysis by other researchers. This paper has used them for initial parameter estimation.
+different time-domain features as biometric descriptors. For example, Gu et al. [11] have used upward and downward slopes, and peak time as features. Yao et al. [12] have used zero crossings of the first and second derivatives of the PPG signal to identify interest points. For most researchers, the major concentration has been on the use of peak locations, relative amplitudes, derivative-based slopes, and time intervals between the interests points[13-16]. For example, Kavsaoğlu et al. [15] have used 40 such features and they applied a feature ranking algorithm with k-means clustering. Alternatively, Spachos et al. [17] used an eigenspace decomposition of the time-domain signal to obtain a template for identification.
+To the best of our knowledge, all of the previous efforts have relied heavily on time-domain analysis of individual PPG pulses. A problem with such an emphasis is that the duration of a complete pulse depends on the instantaneous pulse rate, which is governed by the autonomic nervous system. Therefore, alignment and matching is inherently difficult for any two pulses, even from the same individual, with different instantaneous pulse rates (e.g., before and after exercise). Figure 3(a) presents an illustration of this phenomenon, in which the subject shows large variations in pulse rate. As a result, the duration of each pulse varies enough to introduce large variances into the positions of the dicrotic notch and the diastolic peak. This problem is alleviated when we use a limit cycle and angle-based alignment as described in Section 3.2 and demonstrated in Figure 3(b). It is our conjecture that any PPG-based biometric system must demonstrate an ability to accommodate a wide range of instantaneous pulse rates. To validate this, we have experimented with a dataset that contains PPG signals of individuals who have experienced
+
+1
+
+1
+
+0.5
+
+0.5
+
+0 0
+
+0.5
+
+0
+
+1
+
+0 π/2 π 3π/2 2π
+
+Time (s)
+
+Angular position
+
+(a)
+
+(b)
+
+Figure 3. Alignment of PPG signals for a single individual (a) in the time domain and (b) and using our approach with a limit cycle. Time-domain alignment shows large variances in the positions of the fiducial points. Alignment with the help of the limit cycle reduces that problem substantially.
+
+different emotional stimuli. These results will be presented in Section 4.
+We have introduced an analytical model that considers instantaneous heart rate while aligning multiple PPG beats. The technique transforms the signal from time domain to angular domain, where each beat starts at angle = 0 and ends at = 2 . Figure 3(b) shows an example of PPG beats that have been aligned in the transformed, angular domain. Clearly, the proposed alignment strategy shows better agreement for different pulse beats, and it reduces intra-class variation. Somewhat related to this paper is work related to gait biometrics, which also involves the detection and matching of quasiperiodic cycles from time-series data [18]. Limit-cycle analysis has also been used more generally to model walking behavior[19].
+
+3. Feature Extraction
+
+3.1. Preprocessing
+PPG signals are often corrupted with sensor noise and measurement artifacts. Low-frequency noise may be introduced into the measurement data by movements of the measuring site (e.g., a finger), by actions such as coughing, laughter or even deep breaths. In some cases, the noise may affect the shape of the PPG signal. Therefore we have first used a moving-average low-pass filter with a 2-second window. High-frequency sensor noise is eliminated using a 4th-order Butterworth filter.
+The next step after noise filtering is to apply a peak detection algorithm to detect the feet of the PPG signals, to identify the starting and ending point of each pulse. We have used a custom peak detection algorithm than scans every 0.4 seconds for a possible peak. This duration varies with different sampling frequencies. We then use the dynamic model to map each pulse onto a limit cycle. This step maps each pulse from the time domain to the angular domain. A single pulse beat of the PPG signal (one sinus cycle) is considered to traverse a full cycle of the limit
+
+cycle. Therefore it starts at 0 and ends at 2 . Finally we normalize each beat to the magnitude range [0, 1].
+
+3.2. Dynamical Model
+
+McSharry et al. [20] introduced a dynamical model to aid in the modeling and analysis of ECG signals. We have generalized this model to represent any cardiac signal including ECG, ballistocardiography (BCG), and PPG:
+
+=−
+
+=+
+
+=
+
+−
+
+∆
+
+exp
+
+−
+
+∆ 2
+
+−( − )
+
+(1)
+
+∈ℱ
+
+The variables ( , ) represent the plane which traces the
+
+limit cycle with angular velocity , for every instantaneous
+
+angular position = tan ( ⁄ ), with = 1 −
+
++ . The axis represents the dynamics of the
+cardiac signal for the set of different fiducial points, ℱ, with ∆ = ( − )mod 2π . is the position of the fiducial point, and and are other constant model
+parameters. The value represents instantaneous heart rate. The analytical solution of (1) is possible if we eliminate the baseline component , which is redundant in the current work because we analyze each pulse beat individually:
+
+( )=
+
+exp
+
+−(
+
+− 2
+
+)
+
+(2)
+
+∈ℱ
+
+The analytical solution reduces ( ) to ( ), as a direct
+
+function of angular position, = , instantaneous heart
+
+rate with the model parameters, , , . It is worth
+
+noting that the analytical solution is basically a sum of
+
+Gaussian functions with means of each Gaussian at ,
+
+which are the fiducial point locations such as systolic and
+
+diastolic peaks.
+
+3.3. Parameter Estimation
+We quantize the angular position (0 → 2 ) in equal parts, and formulate an optimization problem that minimizes the squared error between each observation ( ) and model output ( ) at instantaneous angular position :
+
+, , = argmin
+,,
+
+−( )
+
+(3)
+
+The Levenberg-Marquardt algorithm was used to solve the non-linear least-squares optimization problem.
+We have used two different models in our experiments. The models differ based on the number of Gaussian functions, and on the choice of fiducial points in the PPG signal. The first model (referred as 2G hereafter) uses only 2 Gaussians to model two fiducial points at the systolic and diastolic peaks. The other model (referred as 5G hereafter)
+
+1
+
+Actual
+
+1
+
+Estimated
+
+Gaussian 1
+
+0.8
+
+Gaussian 2
+
+0.8
+
+0.6
+
+0.6
+
+1
+
+Actual
+
+1
+
+0.8
+
+Estimated Gaussian 1
+
+Gaussian 2
+
+0.6
+
+Gaussian 3
+
+0.5
+
+Gaussian 4
+
+0.4
+
+Gaussian 5
+
+0.2
+
+0.4
+
+0.4
+
+0
+
+0
+
+0.2
+
+0.2
+
+-0.2
+
+0 0
+
+0
+
+-0.4
+
+π/2
+
+π
+
+3π/2
+
+2π
+
+0
+
+π/2
+
+π
+
+3π/2
+
+2π
+
+0
+
+(a)
+
+(b)
+
+π/2
+
+π
+
+(c)
+
+-0.5
+
+3π/2
+
+2π
+
+0
+
+π/2
+
+π
+
+3π/2
+
+2π
+
+(d)
+
+Figure 4. Parameter estimation for the 2G and 5G models. (a) Two Gaussians, centered at the systolic and diastolic peaks, have been used to estimate a single PPG signal. (c) Five Gaussian functions have been used to model the signal foot, systolic peak, dicrotic notch, diastolic peak, and knee point for a single PPG signal. The final estimated signal (red) has been plotted on top of the actual signal (blue). (b,d) Locations and amplitudes of the estimated Gaussian functions for 1921 PPG beats for a single individual.
+
+uses 5 Gaussians, and takes three additional fiducial points: the starting foot, the dicrotic notch, and the negative slope in the catacrotic phase. For the optimization process, initial parameter values are selected from the zero crossing points of the 1st, 2nd and 3rd derivatives ( ( ), ′( ), ( )) of the PPG signal with respect to the angular position (Figure 2).
+Figure 4(a) and Figure 4(c) show the original signal, the estimated signals and estimated Gaussian functions at each fiducial point for 2G and 5G respectively. Figure 4(b) and Figure 4(d) show the locations and amplitudes of the Gaussians for a set of PPG signals (total 1662 beats) from the same individual. The parameters from the Gaussians create the feature vector ∈ ℝ( ) for each pulse beat, where is 2 or 5 depending on the model we choose. In case of 2G, the residual error from the estimated signal is higher than that for the 5G case. Only two Gaussians located at the systolic and diastolic peak often cannot reasonably reconstruct the actual PPG signal. Figure 4(a) shows the mismatch between the blue and the reconstructed red line. On the other hand, when we use five Gaussians in the case of 5G model, the PPG signal was properly estimated as shown in Figure 4(c). In both models, the estimated parameters are seen to be clustered in close proximity for a particular individual. This low intra-class variance is important for subsequent classification.
+4. Experimental Results
+4.1. Dataset
+In this paper, we have used a publicly available PPG dataset, DEAP [9], for our experiments. The dataset contains physiological signals from 32 individuals with varying age and different gender. Unfortunately, for some users, the PPG data is not available, and therefore, only data from 23 individuals containing PPG recording was used for analysis. Data from each subject is available for 40 sessions, each session with duration of one minute. In each of the 40 sessions, a video based visual stimulus has been used to elicit different emotions including sadness,
+
+amusement, fear, anger, frustration and surprise. The emotional stimuli are well distributed in the arousal-valence map. Therefore it is expected that the acquired PPG signal covers a diverse excitation signal from the autonomic nervous system to generate pulse beats. Sessions for a particular subject were recorded on the same day, with breaks and baseline emotional stimuli between every session. To the best of our knowledge, no other publicly available dataset contains such a large and diverse range of high quality PPG signals. The number of available pulse beats for each participant after noise elimination varies from 1500 to 2200.
+
+4.2. Biometric Identification
+
+After estimating the parameter vectors for each pulse
+
+beat, we have applied two discriminant classifiers using
+
+linear discriminant analysis (LDA) and quadratic
+
+discriminant analysis (QDA) to train for each subject.
+
+Discriminant analysis is a simple and effective
+
+classification method that has been widely used by
+
+biometric researchers over the years.
+
+4.2.1 Identification with a Single Pulse
+
+We randomly choose
+
+pulse beats for each subject
+
+and train the classifier, which learns a multivariate
+
+Gaussian function for each subject from the knowledge
+
+of the feature vector ∈ ℝ( ) estimated from Section 3:
+
+( | )=
+
+(2
+
+1 exp |Σ |)
+
+−
+
+1 2
+
+(
+
+−
+
+)Σ ( −
+
+)
+
+(4)
+
+The terms and Σ are the learnt multivariate mean
+
+vector and multivariate co-variance matrix for subject class
+
+. Then we compute the posterior probability ( | ),
+
+for each testing beat , which quantifies the belief that the
+
+pulse beat comes from . Figure 5 shows results for LDA
+
+and QDA based classification, for 2G and 5G models when
+
+we vary the number of training samples
+
+. The graphs
+
+show average classification accuracy of each single beat.
+
+We have run 40 trials with different combinations of
+
+training and testing samples, and we reported the mean
+
+n =20
+train
+
+n =30
+train
+
+n =50
+train
+
+n =75
+train
+
+n =100
+train
+
+n =200
+train
+
+1
+
+1
+
+1
+
+1
+
+0.9
+
+0.9
+
+0.9
+
+0.9
+
+0.8
+
+0.8
+
+0.8
+
+0.8
+
+η
+B
+
+η
+B
+
+ηB
+
+B
+
+η
+
+0.7
+
+0.7
+
+0.7
+
+0.7
+
+0.6
+
+0.6
+
+0.6
+
+0.6
+
+0.5
+
+0.5
+
+0.5
+
+0.5
+
+12345
+
+12345
+
+12345
+
+12345
+
+Rank
+
+Rank
+
+Rank
+
+Rank
+
+(a)
+
+(b)
+
+(c)
+
+(d)
+
+Figure 5. Average identification accuracies of individual pulse beats for with different training sample sizes, indicated by for (a) 2G model with LDA, (b) 2G model with QDA, (c) 5G model with LDA, and (d) 5G model with QDA.
+
+. Results
+
+n=1
+
+n=3
+
+n=5
+
+n=10
+
+n=15
+
+n=20
+
+1
+
+1
+
+1
+
+1
+
+0.95
+
+0.95
+
+0.95
+
+0.95
+
+0.9
+
+0.9
+
+0.9
+
+0.9
+
+ηB
+
+ηB
+
+η
+B
+
+B
+
+η
+
+0.85
+
+0.85
+
+0.85
+
+0.85
+
+0.8
+
+0.8
+
+0.8
+
+0.8
+
+0.75
+
+0.75
+
+0.75
+
+0.75
+
+1
+
+2
+
+3
+
+4
+
+5
+
+1
+
+2
+
+3
+
+4
+
+5
+
+1
+
+2
+
+3
+
+4
+
+5
+
+1
+
+2
+
+3
+
+4
+
+5
+
+Rank
+
+Rank
+
+Rank
+
+Rank
+
+(a)
+
+(b)
+
+(c)
+
+(d)
+
+Figure 6. Average identification accuracies of pulse beat sequences, when we fix the training sample size at 100 pulse signals and test with consecutive full cycles of PPG pulse signal. Results are shown for (a) 2G model with LDA, (b) 2G model with QDA, (c) 5G model with LDA, and (d) 5G model with QDA.
+
+value. The average size of test sample is 1552. The detection accuracy increases as the number of training samples increases, but saturates after about 200 training samples. The training size does not influence the LDA classification, as compared to its QDA counterpart. With larger training size, the QDA outperforms LDA, but it is interesting to notice that with small training size (20 pulse cycles), LDA performs better.
+
+4.2.2 Identification with a Larger Template Next, we evaluate our algorithm with test sequences of
+consecutive pulse beats, and determine their joint probability. We calculate the posterior probability for each beat similar to the previous section. Then we select n
+consecutive pulses (constituting a composite template ) and compute their joint probability:
+
+(ψ | ) =
+
+ψ| , ∈
+
+(5)
+
+Figure 6(a) - (d) shows results for the 2G and 5G models, where we keep the training size fixed at 100 pulses (80 seconds) and change the number of consecutive beats. The accuracy increases as we increase the number of test
+
+samples in the template. The results indicate that our algorithm can achieve 95% rank-1 accuracy after training with 100 pulse beats and testing with only 10 pulse beats. (The 10 pulse beats represent about 8 seconds of testing waveform, considering that the average heart rate of a person is 75 beats per minute.) We can achieve a commendable rank-1 accuracy of 92.5% when using only 5 pulses or 4 seconds of data.
+Table 1 and Table 2 compare accuracy values from the 2G models and the 5G models respectively, for two different training sample sizes. The sizes are 100 beats (1.3 minute duration, corresponding to Figure 6) and 75 beats (1 minute duration). In general, the QDA model performs better than LDA in most of the scenarios, except that the results are very close when working with the 2G model. When we consider training with 75 beats, the 2G model can achieve a rank-1 accuracy of 90% and rank-2 accuracy of 97% while only considering 4 seconds of PPG data. This is in comparison to the 5G model, for which we observed 93% rank-1 accuracy and 98.5% rank-2 accuracy.
+Table 3 compares our results with previous state-of-the-art methods. Our 5G approach outperforms the work of Gu et al. [11] and of Kavsaoğlu et al. [15] by 6%
+
+and 2%, respectively. It is interesting that the feature ranking method proposed by Kavsaoğlu et al. uses a 40 dimensional feature space, as compared to 15 dimensions for our 5G approach.
+As a further comparison, Odinaka et al. [6] report 92% rank-1 accuracy while using ECG and LDV together. The remaining ECG biometrics literature reports rank-1 accuracy in the range of 94% - 99% [2, 3, 8, 21]. However, those studies were based on a single session for each subject, who was at rest with no external stimuli. Another consideration is that the acquisition of an ECG signal is more invasive than for a PPG signal. Therefore, our result proves the viability of using PPG as a biometric modality.
+4.3. Robustness against Emotional Excitation
+Finally, this section reports our results for cross-session authentication. It is well known that the behavior and shape of the physiological signal may change with various intrinsic and extrinsic factors [10, 22]. One of the major components that often influences the PPG morphology is the sympathetic activation from the autonomic nervous system. In the DEAP dataset, each person was exposed to 40 different emotional stimuli which altered their sympathetic and parasympathetic balance. The stimuli covered a large spectrum of the arousal-valance map, and resulted in significant differences in heart rate variability.
+To investigate the robustness of our system, we took PPG data from only one session (say, session 1 for each participant) and trained our classifier. Then we took a test data sample from a different session, and checked the resulting accuracy. For each training case, we tested signals from the rest of the 39 sessions. We repeated this 40 times, so that in each case the classifier (QDA) was trained with data from session , ∈ 1,40 , for all participants and tested with the remaining 39 sessions. Our results (Table 4) show that our technique using the 5G model achieved an average accuracy of 90% while testing with 20 consecutive beats. For this session-based analysis, each session comprised a different number of training samples (sometimes as low as 45 beats on average) due to variations of pulse rate and motion artifacts. We believe that these results will improve further with larger training instances from each session.
+5. Conclusion
+This paper has introduced a new technique for biometric authentication that utilizes PPG signals. The approach is based on a dynamical model that maps each cardiac cycle to a limit cycle, transforming the time-domain PPG signal into an angular domain. This representation aids in the registration of successive PPG pulses. To the best of our knowledge, this work is the first instance where instantaneous heart rate has been considered as a latent variable to model the shape of the PPG signal.
+
+Table 1. A comparison of LDA and QDA approaches for the 2G model. The values in the table represent classification accuracy (%). The results stay almost the same for both classifiers.
+
+1
+
+3
+
+5
+
+10 15 20
+
+75 75.29 82.63 85.95 89.66 91.32 92.31 LDA
+100 76.67 84.31 87.39 90.93 92.47 93.3
+75 77.11 83.96 86.95 90.53 92.12 93.32 QDA
+100 79.93 86.81 89.59 92.68 93.97 94.85
+Table 2. A comparison of LDA and QDA accuracies for the 5G model. QDA shows almost 10% higher accuracy when compared with LDA for small test-sample sizes.
+
+1
+
+3
+
+5
+
+10 15 20
+
+LDA 75 100
+QDA 75 100
+
+70.22 78.33 81.95 85.67 87.67 88.9 71.62 79.55 82.57 86.51 88.43 89.64 79.69 87.50 90.49 93.22 93.91 94.18 81.97 89.68 92.45 94.75 95.42 95.67
+
+Table 3. Comparison with previous PPG based biometric systems.
+
+Study
+Gu et al. [11] Kavsaoğlu et al. [15]
+Ours (2G) Ours (5G)
+
+No. of subjects
+17 30 23 23
+
+No. of features
+4 40 6 15
+
+90%
+94%
+95% %
+
+Table 4. Authentication accuracy for cross-session analysis.
+
+1
+
+3
+
+5
+
+10
+
+15
+
+20
+
+73.12 82.77 84.29 87.64 89.08 90.53
+
+The limit-cycle approach facilitates the decomposition of the PPG signal to a sum of Gaussian functions. We have considered cases of two Gaussians and five Gaussians separately. Both cases may be considered to be fiducial approaches, as the resulting Gaussians are aligned with distinctive interest points of the PPG pulse (including the systolic peak, the diastolic peak, the dicrotic notch, and the pulse foot). The resulting Gaussian parameters serve as a biometric feature template that can be used for recognition or authentication. Using 2 different classifiers (based on LDA and QDA), experimental results have demonstrated rank-1 accuracies of 90% with 2 seconds of PPG test signal data, and 95% using 8 seconds of test signal data.
+Only a few researchers have previously considered biometrics modalities based on activity of the cardiovascular system. The work presented here shows good results while using a test signal as small as 4 seconds, and compares favorably with previous work in terms of accuracy and feature dimensionality. We have further
+
+shown that our algorithm is robust under different emotional excitations. This is particularly important because emotional stimuli often change physiological signaling behavior, and practical biometrics systems must accommodate those changes. The proposed technique is fast, robust, and holds potential for use with a variety of wearable sensors, with capability for continuous, noninvasive biometric authentication.
+References
+[1] R. Hoekema, G. J. Uijen, and A. van Oosterom, "Geometrical aspects of the interindividual variability of multilead ECG recordings," Biomedical Engineering, IEEE Transactions on, vol. 48, pp. 551-559, 2001.
+[2] J. M. Irvine, S. A. Israel, W. T. Scruggs, and W. J. Worek, "eigenPulse: Robust human identification from cardiovascular function," Pattern Recognition, vol. 41, pp. 3427-3435, 2008.
+[3] L. Biel, O. Pettersson, L. Philipson, and P. Wide, "ECG analysis: a new approach in human identification," Instrumentation and Measurement, IEEE Transactions on, vol. 50, pp. 808-812, 2001.
+[4] I. Odinaka, P.-H. Lai, A. D. Kaplan, J. A. O'Sullivan, E. J. Sirevaag, and J. W. Rohrbaugh, "ECG biometric recognition: A comparative analysis," Information Forensics and Security, IEEE Transactions on, vol. 7, pp. 1812-1824, 2012.
+[5] D. Rissacher and D. Galy, S. Schuckers, W. Zhang, M. Southcott, L. Rumbaugh, and W. Jemison, "Cardiac radar for biometric identification using nearest neighbour of continuous wavelet transform peaks," in Identity, Security and Behavior Analysis (ISBA), IEEE International Conference on, pp. 1-6, 2015.
+[6] I. Odinaka, J. A. O'Sullivan, E. J. Sirevaag, and J. W. Rohrbaugh, "Cardiovascular biometrics: combining mechanical and electrical signals," Information Forensics and Security, IEEE Transactions on, vol. 10, pp. 16-27, 2015.
+[7] J. Allen, "Photoplethysmography and its application in clinical physiological measurement," Physiological Measurement, vol. 28, p. R1-R39, 2007.
+[8] A. Sarkar, A. L. Abbott, and Z. Doerzaph, "ECG biometric authentication using a dynamical model," Biometrics Theory, Applications and Systems (BTAS 2015), pp. 1-6, Sept 2015.
+[9] S. Koelstra, C. Mühl, M. Soleymani, J.-S. Lee, A. Yazdani, T. Ebrahimi, T. Pun, A. Nijholt, and L. Patras, "DEAP: A database for emotion analysis; using physiological signals," Affective Computing, IEEE Transactions on, vol. 3, pp. 18-31, 2012.
+[10] M. Elgendi, "On the analysis of fingertip photoplethysmogram signals," Current Cardiology Reviews, vol. 8, pp. 14-25, 2012.
+[11] Y. Gu, Y. Zhang, and Y. Zhang, "A novel biometric approach in human verification by photoplethysmographic signals," in Information Technology Applications in Biomedicine, 4th International IEEE EMBS Special Topic Conference on, pp. 13-14, 2003.
+[12] J. Yao, X. Sun, and Y. Wan, "A pilot study on using derivatives of photoplethysmographic signals as a biometric
+
+identifier," in Engineering in Medicine and Biology Society, (EMBS), 29th Annual International Conference of the IEEE, pp. 4576-4579, 2007. [13] A. Bonissi, R. D. Labati, L. Perico, R. Sassi, F. Scotti, and L. Sparagino, "A preliminary study on continuous authentication methods for photoplethysmographic biometrics," in Proceedings of the IEEE Workshop on Biometric Measurements and Systems for Security and Medical Applications (BioMS), pp. 28-33, 2013. [14] A. Lee and Y. Kim, "Photoplethysmography as a form of biometric authentication," in Proceedings of SENSORS, IEEE, pp. 1-2, 2015. [15] A. R. Kavsaoğlu, K. Polat, and M. R. Bozkurt, "A novel feature ranking algorithm for biometric recognition with PPG signals," Computers in Biology and Medicine, vol. 49, pp. 1-14, 2014. [16] Y. Wan, X. Sun, and J. Yao, "Design of a photoplethysmographic sensor for biometric identification," in Control, Automation and Systems (ICCAS). International Conference on, pp. 1897-1900, 2007. [17] P. Spachos, J. Gao, and D. Hatzinakos, "Feasibility study of photoplethysmographic signals for biometric identification," in Digital Signal Processing (DSP), 2011 17th International Conference on, 2011, pp. 1-5. [18] M. S. Nixon, T. Tan, and R. Chellappa, Human Identification Based on Gait vol. 4, Springer Science & Business Media, 2010. [19] J. Laszlo, M. van de Panne, and E. Fiume, "Limit cycle control and its application to the animation of balancing and walking," in Proceedings of the 23rd Annual Conference on Computer Graphics and Interactive Techniques, pp. 155-162, 1996. [20] P. E. McSharry, G. D. Clifford, L. Tarassenko, and L. A. Smith, "A dynamical model for generating synthetic electrocardiogram signals," Biomedical Engineering, IEEE Transactions on, vol. 50, pp. 289-294, 2003. [21] I. Odinaka, P.-H. Lai, A. D. Kaplan, J. A. O'Sullivan, E. J. Sirevaag, S. D. Kristjansson, A. K. Sheffield, and J. W. Rohrbaugh, "ECG biometrics: A robust short-time frequency analysis," in Information Forensics and Security (WIFS), 2010 IEEE International Workshop on, 2010, pp. 1-6. [22] R. W. Picard, E. Vyzas, and J. Healey, "Toward machine emotional intelligence: Analysis of affective physiological state," Pattern Analysis and Machine Intelligence, IEEE Transactions on, vol. 23, pp. 1175-1191, 2001.
+

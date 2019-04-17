@@ -1,0 +1,439 @@
+Computers in Biology and Medicine ∎ (∎∎∎∎) ∎∎∎–∎∎∎
+Contents lists available at ScienceDirect
+Computers in Biology and Medicine
+journal homepage: www.elsevier.com/locate/cbm
+
+Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring
+Andrius Petrėnas a,n, Vaidotas Marozas a,b, Leif Sörnmo c
+a Biomedical Engineering Institute, Kaunas University of Technology, K. Barsausko st. 59, LT-51423 Kaunas, Lithuania b Faculty of Electrical and Electronics Engineering, Kaunas University of Technology, Kaunas, Lithuania c Department of Biomedical Engineering and Center of Integrative Electrocardiology, Lund University, Lund, Sweden
+
+article info
+Article history: Received 29 November 2014 Accepted 21 January 2015
+Keywords: Atrial ﬁbrillation RR-based detection Low-complexity detection Continuous ambulatory monitoring Brief episodes
+
+abstract
+This study describes an atrial ﬁbrillation (AF) detector whose structure is well-adapted both for detection of subclinical AF episodes and for implementation in a battery-powered device for use in continuous long-term monitoring applications. A key aspect for achieving these two properties is the use of an 8-beat sliding window, which thus is much shorter than the 128-beat window used in most existing AF detectors. The building blocks of the proposed detector include ectopic beat ﬁltering, bigeminal suppression, characterization of RR interval irregularity, and signal fusion. With one design parameter, the performance can be tuned to put more emphasis on avoiding false alarms due to non-AF arrhythmias or more emphasis on detecting brief AF episodes. Despite its very simple structure, the results show that the detector performs better on the MIT–BIH Atrial Fibrillation database than do existing detectors, with high sensitivity and speciﬁcity (97.1% and 98.3%, respectively). The detector can be implemented with just a few arithmetical operations and does not require a large memory buffer thanks to the short window.
+& 2015 Elsevier Ltd. All rights reserved.
+
+1. Introduction
+In recent years, atrial ﬁbrillation (AF) monitoring has been performed in connection with cryptogenic ischemic stroke [1], interventional ablation procedures [2], and pharmacological treatment [3], providing information for evaluating the efﬁcacy of different treatment strategies. Ultimately, continuous long-term monitoring, lasting from several weeks to months, should be performed so that all episodes of paroxysmal AF are detected, including the very brief ones, and, therefore, it is essential that detection techniques are developed subject to the constraint that the implementation can be made extremely energy efﬁcient.
+It has been shown that the success rate of catheter ablation is highly overestimated when determined from 24-h Holter recordings [2]. This issue can be addressed by considerably extending the monitoring period so that the likelihood of detecting AF episodes increases. However, existing techniques for continuous long-term monitoring reduce the patient's quality of life and often lead to premature termination of the data acquisition [4]. While patient comfort can be improved by shrinking the size of the monitoring device, using a smaller battery, large battery capacity is nonetheless
+n Corresponding author. Tel.: þ 370 37 30 05 28. E-mail address: andrius.petrenas@ktu.lt (A. Petrėnas).
+http://dx.doi.org/10.1016/j.compbiomed.2015.01.019 0010-4825/& 2015 Elsevier Ltd. All rights reserved.
+
+needed in this type of monitoring since battery replacement or recharging should be avoided.
+Many different approaches to AF detection have been proposed in recent years: the majority of the detectors take the RR interval series as the starting point [5–8], whereas a few detectors also involve information on P wave and f wave morphology [9–11]. However, the latter type of detector is associated with dramatically higher computational demands than are the RR-based detectors, making them unsuitable for implementation in a low power device. Somewhat surprisingly, it has been demonstrated that increased complexity through inclusion of morphologic analysis does not necessarily translate to performance better than that achieved by an RR-based AF detector [9,10].
+Crucial issues to be solved in RR-based AF detection are (1) improved detection rate of brief (“occult”) episodes of paroxysmal AF ( o 30 s) and (2) reduction of the false alarm rate due to ectopic beats and other irregular types of rhythm. While almost all AF detectors require at least a 30-s episode for correct detection, recent studies have suggested that episodes as short as 5 s are of interest to detect since they are associated with increased risk of stroke [12,1,13]. Therefore, reliable detection of brief episodes is essential so that an accurate evaluation of AF burden can be produced when studying thromboembolic risk.
+In this paper, we propose a novel RR-based AF detector with a low complexity structure that can be implemented with few
+
+Please cite this article as: A. Petrėnas, et al., Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring, Comput. Biol. Med. (2015), http://dx.doi.org/10.1016/j.compbiomed.2015.01.019i
+
+2
+
+A. Petrėnas et al. / Computers in Biology and Medicine ∎ (∎∎∎∎) ∎∎∎–∎∎∎
+
+Fig. 1. Block diagram of the proposed AF detector.
+
+arithmetical operations. The detector involves blocks for preprocessing, bigeminal suppression, characterization of RR irregularity, signal fusion, and threshold detection; both off- and online versions of the detector are presented (Section 2). Using annotated ECG databases as well as simulated signals, both described in Section 3, detector performance is investigated in Section 4 as a function of different design parameters as well as a function of AF episode length. The resulting performance is compared to that achieved by other AF detectors in the literature.
+
+2. Methods
+The proposed detector is based on the observation that AF episodes have increased RR irregularity and usually are associated with increased heart rate. A block diagram of the detector is shown in Fig. 1, where each of the processing blocks is described in the following.
+
+2.1. Preprocessing
+
+The occurrence of sporadic ectopic beats can be problematic when short time RR series are analyzed and, therefore, it is desirable to introduce techniques which can handle such situations. Preliminary tests showed that the simple 3-point median ﬁlter is useful for reducing the inﬂuence of ectopic beats in the RR series. This ﬁlter is deﬁned by
+
+rmðnÞ ¼ medianfrðn À1Þ; rðnÞ; rðn þ 1Þg;
+
+ð1Þ
+
+where r(n) denotes the length of the nth RR interval (whose unit is in seconds). Median ﬁltering is also useful for rejecting outlier RR intervals due to, e.g., missed QRS complexes. Higher-order median ﬁlters were found to be less useful since they smooth AF episodes to such a degree that episodes with low RR irregularity remain undetected.
+Since heart rate usually increases during AF episodes, an estimate of the mean RR interval has to be determined, and employed as a feature in the AF detector, cf. [7,14]. Here, the traditional ensemble averager is replaced by the exponential averager to better track the “trend” in the RR interval series. The exponential averager is deﬁned by [15]
+
+rt ðnÞ ¼ rtðn À 1Þ þ αðrðnÞ À rtðn À 1ÞÞ;
+
+ð2Þ
+
+where α (0o α o 1) determines the degree of smoothing, i.e., the
+lowpass cut-off frequency. Since the exponential averager in (2) has nonlinear phase, forward–backward ﬁltering is performed to achieve linear (null) phase.
+
+2.2. RR interval irregularity
+In a sliding detection window of length N, located at time n, the number of all pairwise RR interval combinations differing more
+than γ seconds is determined, and normalized with its maximum
+
+value NðN À 1Þ=2, i.e.,
+
+2 NXÀ 1 MðnÞ ¼ NðN À1Þ
+
+X N
+
+Hðj rðn À jÞ À rðn ÀkÞj ÀγÞ;
+
+ð3Þ
+
+j ¼ 0 k ¼ jþ1
+
+where HðÁÞ is the Heaviside step function and 0 r MðnÞ r 1. It is noted that M(n) is partially based on the same principle as is
+
+sample entropy estimation [7].
+
+The primary feature of RR irregularity is provided by the ratio
+
+between a smoothed version of M(n) and the RR interval trend
+
+rt(n) in (2),
+
+ItðnÞ ¼ MrttððnnÞÞ;
+
+ð4Þ
+
+where Mt(n) is obtained by exponential averaging of M(n). The division by rt(n) is motivated by the wish to emphasize RR irregularity at higher heart rates. It should be noted that It(n) is close to 0 for regular rhythms since the difference between pairs of
+RR intervals is usually smaller than a properly chosen γ, whereas
+It(n) approaches 1 during AF, see the examples in Fig. 2.
+
+2.3. Bigeminy suppression
+
+It is well-known that bigeminy can be incorrectly interpreted as
+
+AF when the detection is RR-based [14]. In order to address this
+
+issue, we introduce another measure of RR irregularity, comple-
+
+mentary to It(n) and with the property of being essentially indifferent to the presence of bigeminy. The measure is deﬁned by
+
+BðnÞ ¼
+
+PPNj Nj¼À¼À0101rrmðnðnÀÀjÞjÞ
+
+À
+
+!2 1
+
+;
+
+ð5Þ
+
+where N is an even-valued integer. Similar to rt(n) and Mt(n), Bt(n) results from exponential averaging of B(n). For bigeminy as well as for regular rhythms, the ratio in (5) is approximately 1 since rm(n) and r(n) are similar, and thus Bt(n) is approximately 0, see Fig. 2(b). On the other hand, for AF the variation in rm(n) is lower than that in r(n) because of the median ﬁltering, and thus Bt(n) will increase so that it indicates irregularity. The squaring operation in (5) improves the differentiation of AF from other rhythms.
+
+2.4. Signal fusion and detection
+
+Simple signal fusion is employed to produce the decision
+
+function OðnÞ : OðnÞ is identical to Bt(n), unless Bt(n) exceeds a
+
+ﬁxed threshold δ when, instead, it becomes identical to It(n), i.e.,
+
+(
+
+OðnÞ ¼
+
+It ðnÞ; Bt ðnÞ;
+
+BtðnÞ Z δ BtðnÞ o δ:
+
+ð6Þ
+
+Fig. 2 illustrates OðnÞ as well as rmðnÞ; rtðnÞ; ItðnÞ, and Bt(n) for an AF episode surrounded by ectopic beats and sinus rhythm with an episode of bigeminy. It is obvious from Fig. 2(a) that median ﬁltering removes the RR intervals related to ectopic beats so that the AF episode can be correctly detected and false alarms avoided.
+
+Please cite this article as: A. Petrėnas, et al., Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring, Comput. Biol. Med. (2015), http://dx.doi.org/10.1016/j.compbiomed.2015.01.019i
+
+A. Petrėnas et al. / Computers in Biology and Medicine ∎ (∎∎∎∎) ∎∎∎–∎∎∎
+
+3
+
+Fig. 2. The output of each building block of the proposed detector is illustrated for (a) an AF episode surrounded by ectopic beats and (b) bigeminy. Atrial ﬁbrillation is detected whenever OðnÞ exceeds the threshold η, then displayed by a thicker line.
+
+Another feature of the detector is illustrated in Fig. 2(b) where
+OðnÞ is shown to be unaffected by the occurrence of bigeminy and,
+consequently, not misclassiﬁed as AF. Although It(n) increases during bigeminy, OðnÞ remains small since Bt(n) remains below
+δ, cf. (6). Similarly, Bt(n) is close to 0 during sinus rhythm, and
+therefore OðnÞ is also close to 0. Atrial ﬁbrillation is detected
+whenever OðnÞ exceeds the ﬁxed threshold η.
+The detector requires just 8 multiplications, 2 divisions and 45
+addition/subtraction operations for processing a single RR interval.
+Of the 8 multiplications, 6 are required for implementation of the
+exponential averager due to multiplication with α. If needed, the α-related multiplications can be approximated by additions and a
+shift, see Discussion.
+
+2.5. Online atrial ﬁbrillation detection
+
+Since forward–backward ﬁltering requires that the timereversed signal is processed, this type of ﬁltering is best suited for ofﬂine processing. On the other hand, for online processing, forward–backward ﬁltering with the exponential averager in (2) is replaced by forward ﬁltering and a second-order exponential averager, deﬁned by
+
+rtðnÞ ¼ α2rðnÞ þ 2ð1 À αÞrt ðn À 1Þ À ð1 À αÞ2rtðn À 2Þ:
+
+ð7Þ
+
+To a minor extent, detector performance depends on the phase
+response of the selected exponential averager. Depending on the
+choice of α, the exponential averager in (7) produces a group delay that has to be taken into account. Accordingly, α is set to the same
+value for the respective exponential averagers associated with
+rt(n), It(n), and Bt(n) to ensure identical group delay.
+
+In the following, the AF detector is referred to as either ofﬂine or online, depending on whether ﬁltering is performed according to (2) or (7). These two versions have the same computational complexity.
+3. Datasets and performance evaluation
+3.1. Clinical signals
+The algorithm was developed on the Long Term Atrial Fibrillation (LTAF) database [16,17], composed of 84 ECG recordings from patients with paroxysmal or persistent AF, most recordings with a 24-h duration. The entire database consists of nearly 9 million beats of which 59% occur during AF.
+The MIT–BIH Atrial Fibrillation database [18,17] and the MIT– BIH Normal Sinus Rhythm (NSR) database [17] were used for performance evaluation. The MIT–BIH AF database includes 25 AF recordings of approximately 10-h duration, and contains in total more than 1 million beats, of which 43% occur during AF. Two subsets of the AF database were also analyzed in order to facilitate the comparison with published results, namely, by excluding records 00735 and 03665 since these only contain RR interval information [19,9], and by excluding records 04936 and 05091 since these contain incorrect annotations [5,20]. The resulting two subsets are labeled AFDB1 and AFDB2, respectively.
+The MIT–BIH NSR database contains 18 ECG recordings of approximately 24-h duration, with a total of almost 2 million beats. Since no signiﬁcant arrhythmias are present, it is well-suited for evaluation of detector speciﬁcity. To facilitate the comparison, the performance of the proposed detector has been evaluated on
+
+Please cite this article as: A. Petrėnas, et al., Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring, Comput. Biol. Med. (2015), http://dx.doi.org/10.1016/j.compbiomed.2015.01.019i
+
+4
+
+A. Petrėnas et al. / Computers in Biology and Medicine ∎ (∎∎∎∎) ∎∎∎–∎∎∎
+
+the commonly used combinations of the MIT–BIH AF and the MIT– BIH NSR databases.
+3.2. Test signals
+The emerging interest in the detection of brief episodes of paroxysmal AF [1,12] motivated us to investigate performance as a function of episode duration. Due to the lack of annotated databases with brief episodes, the recently proposed paroxysmal AF simulator in [11] has been applied. RR intervals during sinus rhythm are generated by the model in [21], whereas an atrioventricular node model is used to generate RR intervals during AF [22]. When combining these two models, different RR interval series can be generated with variable episode duration, mean heart rate, and heart rate variability as illustrated in Fig. 3.
+Detector performance was tested using different RR series with alternating episodes of SR and AF. The entire database with simulated signals consists of four datasets, each dataset deﬁned by the mean and standard deviation of the heart rate during sinus rhythm, namely, 607 1, 607 5, 100 71, and 100 75 bpm. Each dataset is, in turn, divided into nine subsets with ﬁxed AF episode lengths, ranging from 20 to 180 beats in steps of 20 beats. Thus, the database is composed of 36 subsets, each consisting of 5000 RR intervals for which 100 realizations were computed.
+
+3.3. Performance measures
+The performance was investigated in terms of the area under the curve (A) of the receiver operating characteristic (ROC), sensitivity (Se) and speciﬁcity (Sp). Sensitivity is deﬁned by the number of correctly detected AF beats divided by the total number of AF beats, whereas speciﬁcity is deﬁned by the number of correctly detected non-AF beats divided by the total number of non-AF beats. All other types of rhythm, including atrial ﬂutter, were labeled as non-AF.
+4. Results
+4.1. Parameter settings
+Fig. 4 displays A as a function of the exponential averaging
+parameter α for the LTAF database. For all investigated values of γ; N, and δ, the results show that A improves as α decreases. These results suggest that a small α should be chosen, however, since the LTAF contains mostly long AF episodes, such a choice means that α is not
+optimized for detection of shorter episodes, and thus the risk of missing brief episodes of paroxysmal AF increases. Therefore, it is important to complement the results in Fig. 4 with others that pinpoint detection performance as a function of episode length.
+Using simulated signals, Fig. 5 demonstrates that the detection
+of brief episodes improves as α increases. For example, for α¼0.1,
+an area under the curve of A ¼0.92 is obtained for 20-beat
+episodes, whereas, for α ¼ 0.02, the same value of A is obtained
+for 60-beat episodes. Hence, it can be concluded from the results
+in Figs. 4 and 5 that the choice of α should be a trade-off between
+avoiding false alarms due to non-AF arrhythmias (calling for a
+small α) and detecting brief AF episodes (calling for a large α).
+Based on the results in Figs. 4 and 5, the following parameter values were chosen as a trade-off between the above-mentioned
+performance aspects: γ¼ 0.03 s, N ¼ 8, δ ¼ 2 Â 10 À 4, and α ¼ 0.02.
+Unless otherwise stated, these values are used in the following.
+
+Fig. 3. Two examples of paroxysmal AF, each containing two AF episodes with 100 beats; note that the RR interval series are simulated. The mean and standard deviation of the heart rate during sinus rhythm is (a) 60 7 1 beats per minute (bpm) and (b) 60 75 bpm. The transition between the RR interval length rðnÞ and the heart rate is: RR interval length¼ 60/heart rate.
+
+4.2. Detection threshold
+Fig. 6 displays the distribution of the detector output OðnÞ for AF and non-AF beats in the LTAF database. Based on the properties
+of these two distributions, the detection threshold η was chosen as
+that particular value where sensitivity and speciﬁcity are identical,
+i.e., η ¼0.725.
+
+Fig. 4. The inﬂuence of different parameters on detection performance in terms of A: (a) α and γ for N ¼ 8 and δ ¼ 2 Â 10 À 4, (b) α and N for γ ¼0.03 and δ ¼ 2 Â 10 À 4, and (c) α and δ for γ¼ 0.03 and N ¼ 8. These results are based on the LTAF database.
+Please cite this article as: A. Petrėnas, et al., Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring, Comput. Biol. Med. (2015), http://dx.doi.org/10.1016/j.compbiomed.2015.01.019i
+
+A. Petrėnas et al. / Computers in Biology and Medicine ∎ (∎∎∎∎) ∎∎∎–∎∎∎
+
+5
+
+Fig. 5. Detection performance A as a function of AF episode length for (a) α ¼ 0.01, (b) α ¼0.02, (c) α¼ 0.05, and (d) α ¼ 0.1. These results are based on simulated signals which do not contain any arrhythmias except AF. Note that better performance is obtained in situations with low heart rate and low variability (i.e., 60 7 1 bpm) than in situations with high heart rate and high variability (i.e., 1007 5 bpm).
+
+Table 1 The briefest possible episode detected for different values of α and the corresponding detection delay. In this particular test, an episode was considered as detected whenever the annotation and the detector output overlapped with at least 50%.
+
+α
+
+Episode length, beats
+
+Delay, beats
+
+0.005
+
+300
+
+318
+
+0.01
+
+120
+
+158
+
+0.02
+
+60
+
+78
+
+0.05
+
+15
+
+30
+
+0.1
+
+8
+
+14
+
+Fig. 6. Distribution of the output OðnÞ during AF and non-ﬁbrillatory rhythms (non-AF). The large bin close to 0 for non-AF beats is due to the bigeminy suppression block. These results are based on the LTAF database.
+4.3. Episode length
+The briefest possible AF episode that can be detected was determined by means of simulated RR intervals with one, single AF episode. Starting with an episode length of ﬁve beats, the length was, in this particular test, incremented by one beat at a time until the episode was detected. The episode length is presented
+in Table 1 for different values of α—a parameter which is
+particularly inﬂuential on detection performance—together with
+the corresponding detection delay. For α ¼0.02, the shortest episode detected contained 60 beats, whereas for α ¼0.05, epi-
+sodes as short as 15 beats could be detected
+4.4. Detection on ECG databases
+Detection performance was studied for various combinations of the MIT–BIH AF and MIT–BIH NSR databases, see Table 2. Using the
+
+Table 2 Sensitivity and speciﬁcity of the proposed detector, evaluated for various combinations of the MIT–BIH Atrial Fibrillation (AFDB) and MIT–BIH Normal Sinus Rhythm (NSRDB) databases. Records 00735 and 03665 are excluded in AFDB1, and records 04936 and 05091 in AFDB2.
+
+Database
+
+α ¼ 0:02
+
+α ¼ 0:05
+
+Ofﬂine
+
+Online
+
+Ofﬂine
+
+Online
+
+Se, % Sp, % Se, % Sp, % Se, % Sp, % Se, % Sp, %
+
+AFDB AFDB1 AFDB2 AFDB and NSRDB AFDB1 and NSRDB AFDB2 and NSRDB NSRDB
+
+97.1 97.1 98.0 97.1 96.8 97.3 NA
+
+98.3 98.1 98.2 98.5 98.2 98.2 98.6
+
+96.9 96.8 97.7 96.9 96.5 97.0 NA
+
+98.2 98.0 98.1 98.5 98.1 98.2 98.6
+
+96.7 96.6 97.5 96.7 96.4 96.8 NA
+
+97.9 97.7 97.8 98.4 97.7 97.8 98.6
+
+96.5 96.5 97.3 96.5 96.2 96.7 NA
+
+97.9 97.8 97.8 98.4 97.8 97.8 98.6
+
+ofﬂine detector with α ¼0.02, the sensitivity/speciﬁcity was found
+to be 97.1/98.3% on the MIT–BIH AF database, whereas the online version performed marginally worse with 96.9/98.2%. When
+
+Please cite this article as: A. Petrėnas, et al., Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring, Comput. Biol. Med. (2015), http://dx.doi.org/10.1016/j.compbiomed.2015.01.019i
+
+6
+
+A. Petrėnas et al. / Computers in Biology and Medicine ∎ (∎∎∎∎) ∎∎∎–∎∎∎
+
+omitting the two records with incorrect annotations, i.e., when analyzing AFDB2, the sensitivity increased from 97.1% to 98.0% for the ofﬂine version. When evaluating performance on the MIT–BIH NSR database, a speciﬁcity of 98.6% was achieved for both the offand online detectors (sensitivity was not evaluated since no AF episodes were present).
+Tuning the detector for ﬁnding briefer episodes, e.g., by using
+α¼ 0.05, Table 2 shows that such tuning comes at the expense of
+slightly reduced performance since the sensitivity/speciﬁcity drops from 97.1/98.3% to 96.7/97.9% on AFDB for the ofﬂine detector.
+4.5. Off- and online detection
+The slight difference in performance between the off- and online versions is due to the different ﬁlters used for trend estimation, deﬁned by (2) and (7). The inﬂuence of a nonlinear phase on the RR interval trend rt(n) is illustrated in Fig. 7. Although
+the phase distortion is negligible when α is large, i.e., 0.1, a slight
+exponential reaction during rhythm transitions can be noted for
+α ¼0.02 or smaller, leading to slower reaction when heart rate
+changes occur and higher phase disturbances.
+5. Discussion
+A recent study has shown that AF is often overlooked after interventional therapies when the standard strategy for treatment evaluation is used, i.e., at least two 24-h Holter recordings [23]. This ﬁnding suggests that continuous AF monitoring performed during much longer time spans should be recommended so that the success rate is not overestimated. However, current technology does not allow continuous monitoring since most AF detectors require a substantial amount of computations which render efﬁcient implementations difﬁcult, especially for detectors which involve morphologic ECG features. A ﬁrst step towards efﬁcient implementation was recently taken in [24] where the RR-based detector in [5] was implemented in application speciﬁc integrated circuit (ASIC). The results suggest that the energy required for long-term operation, i.e., for several years, is well within the battery capacity of an existing implantable device.
+The present detector is compared to the best-performing detectors in the literature with respect to sensitivity and speciﬁcity, using the MIT–BIH AF database, see Table 3. Like in most other studies, performance is presented with one decimal. It is evident that the detector by Zhou et al. [8] performs almost as good as the present detector, although the difference in performance increases
+Fig. 7. RR interval trend estimation using forward–backward and unidirectional ﬁltering techniques. Note that the delay of the unidirectional ﬁlter has been compensated for.
+
+Table 3 Detector performance evaluated on the MIT–BIH Atrial Fibrillation database (AFDB).
+
+Method
+
+Year
+
+Database
+
+Se, %
+
+Sp, %
+
+Proposed detector Zhou et al. [8] Carvalho et al. [10] Huang et al. [6] Lake et al. [7] Lian et al. [25] Dash et al. [5] Tateno and Glass [26]
+
+2014 2014 2012 2011 2011 2011 2009 2001
+
+AFDB AFDB AFDB1 AFDB AFDB AFDB AFDB2 AFDB
+
+97.1 96.9 93.8 96.1
+91 95.8 94.4 94.4
+
+98.3 98.3 96.1 98.1
+94 96.4 95.1 97.2
+
+slightly when the results are reported with two decimals: sensitivity/speciﬁcity is 97.12/98.28% and 96.89/98.25%, respectively.
+When evaluating detector performance, it is important, for the reasons mentioned earlier, to also consider the ability to detect brief AF episodes. Of the detectors in Table 3 which employ a window length of 128 beats, i.e., [26,5,6,25], it was only Lian et al. [25] who also reported on performance for shorter windows. Comparing their results obtained for a length of 32 (i.e., the shortest window studied) with the results of the present detector
+obtained for α ¼0.05, the sensitivity is 94.4% vs. 96.7% and the
+speciﬁcity 92.6% vs. 97.9%, and thus the present detector offers a considerable improvement in performance.
+Atrial ﬁbrillatory episodes should have a duration of at least 30 s to be considered clinically signiﬁcant [27], implying that detectors with a 128-beat window tend to miss brief clinical episodes. With the growing interest in detection of occult AF episodes [28,1,12,13,29], with durations from 5 to 30 s, there are even stronger reasons to develop AF detectors which can operate with window lengths much shorter than 128. Such a goal may not be easily achieved, however, when the detection process involves the estimation of probabilities, e.g., used for computing the sample entropy, since a shorter window implies increased statistical uncertainty.
+Thanks to the ﬂexibility introduced by α, the present detector can
+be tuned to detect brief episodes, although, just as with any detector, improved detection of brief episodes comes at the expense of lower speciﬁcity. Since the detector was developed on the LTAF database, mostly containing very long AF episodes, it is not surprising that better
+performance was obtained for a small α (r 0:01), cf. Fig. 4. However,
+since the detection delay becomes unacceptably large for such small
+values, α¼0.02 was used as a suitable trade-off. For the online detector, a smaller α leads to increased phase distortion and, therefore,
+it may be motivated to consider more sophisticated approaches to trend estimation [30,31].
+A speciﬁcity of 98.6% was achieved on the MIT–BIH Normal Sinus Rhythm database, see Table 2, indicating that the detector produces few false alarms in the presence of respiratory sinus arrhythmia. This result is slightly better than those reported in [6,8] where the speciﬁcity was found to be 98.2% and 98.3%, respectively.
+When more complex arrhythmias are encountered, reduced performance is expected. This reduction can be estimated by analyzing the MIT–BIH Arrhythmia database [18,17] which contains a variety of more complex arrhythmias. The resulting sensitivity/speciﬁcity was found to be 97.8/86.4%, indicating that most AF episodes could be reliably detected, while certain arrhythmias are misdetected as AF. Zhou et al. [8], being one of the very few authors who have reported on the performance of this database, achieved sensitivity/speciﬁcity of 97.3/90.8%, where speciﬁcity is notably better than that of the present detector. This difference in performance may be explained by the much longer detection window used by Zhou et al. which produces better speciﬁcity when long AF episodes are encountered (as is the case in this database).
+
+Please cite this article as: A. Petrėnas, et al., Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring, Comput. Biol. Med. (2015), http://dx.doi.org/10.1016/j.compbiomed.2015.01.019i
+
+A. Petrėnas et al. / Computers in Biology and Medicine ∎ (∎∎∎∎) ∎∎∎–∎∎∎
+
+7
+
+Fig. 8. Examples of detector performance for various arrhythmia episodes of the MIT–BIH Arrhythmia database. The top row displays cases free of false alarms during (a) multiple ventricular premature beats (VPBs), (b) 2nd degree atrioventricular block (21B) and (c) sinus bradycardia. The bottom row displays cases with false alarms due to (d) atrial ﬂutter (AFL) with irregular ventricular rhythm, (e) ventricular ﬂutter (VFL), and (f) an episode of combined arrhythmias including AF, AFL, atrial bigeminy, supraventricular tachycardia, atrioventricular junctional rhythm, and atrial premature beats.
+
+The examples in Fig. 8 shed additional light on the pros and cons of AF detection when performed in the presence of various arrhythmias, none of them being AF. In the ﬁrst three examples, the detector demonstrates excellent performance when encountering frequent ectopic beats (Fig. 8(a)), episodes of 2nd degree atrioventricular block (Fig. 8(b)), and sinus bradycardia (Fig. 8(c)). On the other hand, the performance degrades when atrial ﬂutter (Fig. 8(d)) or ventricular ﬂutter (Fig. 8(e)) is encountered since both these types of ﬂutter are difﬁcult to distinguish from AF when conﬁning the analysis to RR intervals. Fig. 8(f) displays an episode of a complex supraventricular arrhythmia which causes the detector to produce a false alarm.
+It is likely that these false alarms in Fig. 8(d)–(f) can be avoided by the introduction of a two-stage detection scheme. With its high sensitivity, the present detector can be employed in a ﬁrst stage to ﬁnd possible AF episodes. In a second stage, a more advanced AF detector is employed which involves morphologic information, like the detector described in [11], to determine in further detail whether the detected episodes are correct or not. Since morphologic analysis is computationally much more costly, the second-stage detector should preferably be implemented in a server or a smartphone.
+While implementational aspects of the detector are outside the scope of this study, e.g., whether ASIC or a ﬁeld programmable gate array (FPGA) should be used, a few observations on detector complexity can nonetheless be made. The present detector requires a window of only 8 RR intervals which, as already pointed out, is highly desirable from the viewpoint of detecting brief episodes. Moreover, such a short window implies very modest memory requirements which is desirable from the viewpoint of energy consumption. With its extremely simple structure, the detector requires just a few arithmetical operations and no table lookups and, consequently, the implementation can be made very battery-conserving. It is noted that further complexity reduction can be achieved by replacing the multiplications in (2), (3), and (7) by additions and shifts which are less costly, reducing the number of multiplications from 8 to 2. For example, the choice
+α¼0.02 can be closely approximated with 5=256 % 0:01953 which
+is implemented by 5 additions and an 8-bit shift. Zhou et al. [8] reported on the computation time needed to analyze
+different public databases, but did not provide any information on the
+
+required number of arithmetic operations per RR interval. Since that detector makes use of high-order ﬁlters, in addition to the buffer required for the 128-beat window, much more memory is required than for the present detector.
+The low complexity of the present detector is partly achieved by avoiding rather involved steps for handling of ectopic beats such as those in [5,10]. Instead, simple ﬁltering and ﬂagging techniques, i.e., (1) and (5), are employed for the purpose of reducing the number of false alarms due to bigeminy—an approach which seems to perform well according to the results in Table 3.
+A limitation of the present study is that the proposed detector was not evaluated on real ECG data with occult paroxysmal AF since no such database has yet been annotated. Instead, an approach involving test signals has been pursued which still can provide valuable insight on detection performance.
+6. Conclusions
+The present study shows that the proposed AF detector, despite its extreme simplicity, offers better performance than do the detectors described in the literature. An important feature of the detector is its use of a short window, only 8 beats, facilitating the detection of brief, subclinical AF episodes. The detector is particularly well-suited for implementation in a battery-powered device, e.g., an external or implantable event recorder, thanks to the very few arithmetical operations required for each RR interval.
+Conﬂict of interest
+None declared.
+Acknowledgment
+This work was partially supported by CARRE (No. 611140) project, funded by the European Commission Framework Programme 7.
+
+Please cite this article as: A. Petrėnas, et al., Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring, Comput. Biol. Med. (2015), http://dx.doi.org/10.1016/j.compbiomed.2015.01.019i
+
+8
+
+A. Petrėnas et al. / Computers in Biology and Medicine ∎ (∎∎∎∎) ∎∎∎–∎∎∎
+
+References
+[1] A.C. Flint, N.M. Banki, X. Ren, V.A. Rao, A.S. Go, Detection of paroxysmal atrial ﬁbrillation by 30-day event monitoring in cryptogenic ischemic stroke: the stroke and monitoring for PAF in real time (SMART) registry, Stroke 43 (10) (2012) 2788–2790.
+[2] T. Hanke, E.I. Charitos, U. Stierle, A. Karluss, E. Kraatz, B. Graf, A. Hagemann, M. Misfeld, H.H. Sievers, Twenty-four-hour Holter monitor follow-up does not provide accurate heart rhythm status after surgical atrial ﬁbrillation ablation therapy: up to 12 months experience with a novel permanently implantable heart rhythm monitor device, Circulation 120 (11 Suppl 1) (2009) S177–S184.
+[3] P. Zimetbaum, Antiarrhythmic drug therapy for atrial ﬁbrillation, Circulation 125 (2) (2012) 381–389.
+[4] HRS/EHRA/ECAS Expert Consensus Statement on Catheter and Surgical Ablation of Atrial Fibrillation, Recommendations for personnel, policy, procedures and follow-up: a report of the heart rhythm society (hrs) task force on catheter and surgical ablation of atrial ﬁbrillation, Europace 9 (6) (2007) 335–379.
+[5] S. Dash, K. Chon, S. Lu, E. Raeder, Automatic real time detection of atrial ﬁbrillation, Ann. Biomed. Eng. 37 (2009) 1701–1709.
+[6] C. Huang, S. Ye, H. Chen, D. Li, F. He, Y. Tu, A novel method for detection of the transition between atrial ﬁbrillation and sinus rhythm, IEEE Trans. Biomed. Eng. 58 (4) (2011) 1113–1119.
+[7] D.E. Lake, J.R. Moorman, Accurate estimation of entropy in very short physiological time series: the problem of atrial ﬁbrillation detection in implanted ventricular devices, Am. J. Physiol. (Heart Circ. Physiol.) 300 (1) (2011) H319–H325.
+[8] X. Zhou, H. Ding, B. Ung, E. Pickwell-MacPherson, Y. Zhang, Automatic online detection of atrial ﬁbrillation based on symbolic dynamics and Shannon entropy, BioMed. Eng. OnLine 13 (18) (2014).
+[9] S. Babaeizadeh, R.E. Gregg, E.D. Helfenbein, J.M. Lindauer, S.H. Zhou, Improvements in atrial ﬁbrillation detection for real-time monitoring, J. Electrocardiol. 42 (6) (2009) 522–526.
+[10] P. Carvalho, J. Henriques, R. Couceiro, M. Harris, M. Antunes, J. Habetha, Modelbased atrial ﬁbrillation detection, in: A. Gacek, W. Pedrycz (Eds.), ECG Signal Processing, Classiﬁcation and Interpretation, Springer, London, 2012, pp. 99–133.
+[11] A. Petrėnas, L. Sörnmo, A. Lukoševičius, V. Marozas, Detection of occult paroxysmal atrial ﬁbrillation, Med. Biol. Eng. Comput., http://dx.doi.org/10. 1007/s11517-014-1234-y, in press.
+[12] R.C.S. Seet, P.A. Friedman, A.A. Rabinstein, Prolonged rhythm monitoring for the detection of occult paroxysmal atrial ﬁbrillation in ischemic stroke of unknown cause, Circulation 124 (2011) 477–486.
+[13] A.A. Rabinstein, J.E. Fugate, J. Mandrekar, J.D. Burns, R.C. Seet, S.A. Dupont, T.J. Kauffman, S.J. Asirvatham, P.A. Friedman, Paroxysmal atrial ﬁbrillation in cryptogenic stroke: a case control study, J. Stroke Cerebrovasc. Dis. 22 (8) (2013) 1405–1411.
+[14] P. Langley, M. Dewhurst, L.D. Marco, P. Adams, F. Dewhurst, J. Mwita, R. Walker, A. Murray, Accuracy of algorithms for detection of atrial ﬁbrillation from short duration beat interval recordings, Med. Eng. Phys. 34 (10) (2012) 1441–1447.
+[15] L. Sörnmo, P. Laguna, Bioelectrical Signal Processing in Cardiac and Neurological Applications, Elsevier (Academic Press), Amsterdam, 2005.
+[16] S. Petrutiu, A.V. Sahakian, S. Swiryn, Abrupt changes in ﬁbrillatory wave characteristics at the termination of paroxysmal atrial ﬁbrillation in humans, Europace 9 (2007) 466–470.
+[17] A.L. Goldberger, L.A. Amaral, L. Glass, J.M. Hausdorff, P.C. Ivanov, R.G. Mark, J.E. Mietus, G.B. Moody, C.K. Peng, H.E. Stanley, PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals, Circulation 101 (2000) E215–E220.
+[18] G. Moody, R. Mark, A new method for detecting atrial ﬁbrillation using R-R intervals, Proc. Comput. Cardiol., 10 (1983) 227–230.
+[19] R. Couceiro, P. Carvalho, J. Henriques, M. Antunes, M. Harris, J. Habertha, Detection of atrial ﬁbrillation using model-based ECG analysis, in: Proceedings of International Conference on Pattern Recognition (ICPR), vol. 19, 2008, pp. 1–5.
+[20] J. Lee, B. Reyes, D. McManus, O. Mathias, K. Chon, Atrial ﬁbrillation detection using an iPhone 4S, IEEE Trans. Biomed. Eng. 60 (1) (2013) 203–206.
+[21] P. McSharry, G. Clifford, L. Tarassenko, L. Smith, A dynamical model for generating synthetic electrocardiogram signals, IEEE Trans. Biomed. Eng. 50 (3) (2003) 289–294.
+[22] V.D.A. Corino, F. Sandberg, L.T. Mainardi, L. Sörnmo, An atrioventricular node model for analysis of the ventricular response during atrial ﬁbrillation, IEEE Trans. Biomed. Eng. 58 (12) (2011) 3386–3395.
+[23] E.I. Charitos, U. Stierle, P.D. Ziegler, M. Baldewig, D.R. Robinson, H. Sievers, T. Hanke, A comprehensive evaluation of rhythm monitoring strategies for the detection of atrial ﬁbrillation recurrence: insights from 647 continuously
+
+monitored patients and implications for monitoring after therapeutic interventions, Circulation 126 (7) (2012) 806–814. [24] O. Andersson, K.H. Chon, L. Sörnmo, J. Neves Rodrigues, A 290 mV sub-V-T ASIC for real-time atrial ﬁbrillation detection, IEEE Trans. Biomed. Circ. Syst., http://dx.doi.org/10.1109/TBCAS.2014.2354054, in press. [25] J. Lian, L. Wang, D. Muessig, A simple method to detect atrial ﬁbrillation using RR intervals, Am. J. Cardiol. 107 (2011) 1494–1497. [26] K. Tateno, L. Glass, Automatic detection of atrial ﬁbrillation using the coefﬁcient of variation and density histograms of RR and deltaRR intervals, Med. Biol. Eng. Comput. 39 (2001) 664–671. [27] The Task Force for the Management of Atrial Fibrillation of the European Society of Cardiology (ESC), Guidelines for the management of atrial ﬁbrillation, Eur. Heart J. 31 (19) (2010) 2369–2429. [28] A.H. Tayal, M. Tian, K.M. Kelly, S.C. Jones, D.G. Wright, D. Singh, J. Jarouse, J. Brillman, S. Murali, R. Gupta, Atrial ﬁbrillation detected by mobile cardiac outpatient telemetry in cryptogenic TIA or stroke, Neurology 71 (2008) 1696–1701. [29] A. Kishore, A. Vail, A. Majid, J. Dawson, K.R. Lees, P.J. Tyrrell, C.J. Smith, Detection of atrial ﬁbrillation after ischemic stroke or transient ischemic attack: a systematic review and meta-analysis, Stroke 45 (2) (2014) 520–526. [30] M. Bianchi, M. Boyle, D. Hollingsworth, A comparison of methods for trend estimation, Appl. Econ. Lett. 6 (2) (1999) 103–109. [31] S. Kim, K. Koh, S. Boyd, D. Gorinevsky, ℓ1 trend ﬁltering, SIAM Rev. 51 (2) (2009) 339–360.
+Andrius Petrėnas received the B.Sc. degree in electronics engineering and the M. Sc. degree in biomedical engineering from Kaunas University of Technology, Kaunas, Lithuania, in 2009 and 2011, respectively. He is currently with the Biomedical Engineering Institute at Kaunas University of Technology where he is working toward the Ph.D. degree.
+His research interests are mainly concentrated on signal processing algorithms for long-term monitoring of paroxysmal atrial ﬁbrillation, with particular interest in detection of occult arrhythmia episodes.
+Vaidotas Marozas received the B.Sc., M.Sc., and Ph.D. degrees in electrical engineering from Kaunas University of Technology (KTU), Kaunas, Lithuania, in 1993, 1995, and 2000, respectively. He was a visiting Ph.D. student for several time periods during 1998–2000 in the Signal Processing Group, Department of Electroscience, Lund University, Lund, Sweden. Since 2001, he has been with the Department of Signal Processing, Faculty of Telecommunications and Electronics, KTU, where he is currently an Associate Professor. He is also afﬁliated with the Biomedical Engineering Institute, KTU, where he is a Research Scientist. His research interests include the area of signal processing and embedded systems for biomedical applications:
+detection and characterization of atrial ﬁbrillation in ECG signals, application of electroconductive textiles for physiological signals monitoring, and real-time signal processing algorithms for embedded systems.
+Leif Sörnmo (S80–M85–SM02) received the M.Sc. and Ph.D. degrees in electrical engineering from Lund University, Lund, Sweden, in 1978 and 1984, respectively. He was awarded the degree of Doctor Honoris Causa from Zaragoza University, Spain, in 2014. From 1983 to 1995,
+Dr. Sörnmo was a Research Fellow at the Department of Clinical Physiology, Lund University, where he was involved with research on ECG signal processing. Since 1990, he has been with the Signal Processing Group, Department of Biomedical Engineering, Lund University, where he is currently a Professor of biomedical signal processing and responsible for the BME program. He is the author of Bioelectrical Signal Processing in Cardiac and Neurological Applications (Elsevier, 2005).
+His research interests include statistical signal processing, modeling of biomedical signals, methods for analysis of atrial ﬁbrillation, multimodal signal processing in hemodialysis, and power-efﬁcient signal processing in implantable devices. Dr. Sörnmo is an elected Fellow of International Academy of Medical and Biological Engineering.
+He is an Associate Editor of IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, Journal of Electrocardiology, and Medical and Biological Engineering & Computing; he is on the editorial board of Journal of Biomedical Engineering. He was an Associate Editor of Computers in Biomedical Research (1997–2000).
+
+Please cite this article as: A. Petrėnas, et al., Low-complexity detection of atrial ﬁbrillation in continuous long-term monitoring, Comput. Biol. Med. (2015), http://dx.doi.org/10.1016/j.compbiomed.2015.01.019i
+

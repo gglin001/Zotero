@@ -1,0 +1,561 @@
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TCE.2018.2844736, IEEE Transactions on Consumer Electronics
+
+IEEE TRANSACTIONS ON CONSUMER ELECTRONICS, VOL. 14, NO. 8, MAY 2018
+
+1
+
+Emotion Based Music Recommendation System Using Wearable Physiological Sensors
+Deg˘er Ayata, Yusuf Yaslan and Mustafa E.Kamasak
+
+Abstract—Most of the existing music recommendation systems use collaborative or content based recommendation engines. However, the music choice of a user is not only dependent to the historical preferences or music contents. But also dependent to the mood of that user. This paper proposes an emotion based music recommendation framework that learns the emotion of a user from the signals obtained via wearable physiological sensors. In particular, the emotion of a user is classiﬁed by a wearable computing device which is integrated with a galvanic skin response (GSR) and photo plethysmography (PPG) physiological sensors. This emotion information is feed to any collaborative or content based recommendation engine as a supplementary data. Thus, existing recommendation engine performances can be increased using these data. Therefore, in this paper emotion recognition problem is considered as arousal and valence prediction from multi-channel physiological signals. Experimental results are obtained on 32 subjects’ GSR and PPG signal data with/out feature fusion using decision tree, random forest, support vector machine and k-nearest neighbors algorithms. The results of comprehensive experiments on real data conﬁrm the accuracy of the proposed emotion classiﬁcation system that can be integrated to any recommendation engine.
+Index Terms—Emotion Aware Recommendation Engine, Emotion Recognition, Galvanic Skin Response, Machine Learning, Physiological Signals, Photo Plethysmography.
+
+should consider the emotions of their human conversation partners. Speech analytics and facial expressions [4], [5] have been used for emotion detection. However, in case of human beings prefer to camouﬂage their expressions, using only speech signals or facial expression signals may not be enough to detect emotions reliably. Compared with facial expressions, using physiological signals is a more reliable method to track and recognize emotions and internal cognitive processes of people.
+Our motivation in this work is to use emotion recognition techniques with wearable computing devices to generate additional inputs for music recommender system’s algorithm, and to enhance the accuracy of the resulting music recommendations. In our previous works, we have studied emotion recognition from only GSR signals. In this study we are enriching signals with PPG and propose a data fusion based emotion recognition method for music recommendation engines [6]. The proposed wearable attached music recommendation framework utilizes not only the user’s demographics but also his/her emotion state at the time of recommendation. Using GSR and PPG signals we have obtained promising results for emotion prediction.
+
+I. INTRODUCTION
+W EARABLE computing is the study or practice of inventing, designing, building or using body-worn computational and sensory devices that leverages a new type of human-computer interaction with a body-attached component that is always up and running. As the number of wearable computing device users are growing every year, their areas of utilization are also rapidly increasing. They have inﬂuenced medical care, ﬁtness, aging, disabilities, education, transportation, ﬁnance, gaming, and music industries [1], [2] .
+Recommendation engines are algorithms which aim to provide the most relevant items to the user by ﬁltering useful information from a huge pool of data. Recommendation engines may discover data patterns in the data set by learning user’s choices and produce the outcomes that co-relates to their needs and interests [3]. Most of the recommender systems do not consider human emotions or expressions. However, emotions have noticeable inﬂuence on daily life of people. For a rich set of applications including human-robot interaction, computer aided tutoring, emotion aware interactive games, neuro marketing, socially intelligent software apps, computers
+Manuscript received March 31, 2018; revised May 26, 2018. The authors are with Department of Computer Engineering, Faculty of Computer and Informatics, Istanbul Technical University, Istanbul, Turkey (email:{ayatadeger, yyaslan, kamasak}@itu.edu.tr).
+
+II. RELATED WORKS
+Ekman et al. have stated that facial expressions can be categorized into seven main categories including angry, disgust, happy, fearful, surprise, sad and neutral [7] . In other words, these facial expressions were globally same for all races, social strata and age brackets and were recognized same among distinct cultures. However, in case of human beings prefer to camouﬂage their expressions, using only facial expression signals may not be enough to detect emotions reliably. Compared with facial expressions, using physiological signals is a more reliable method to track and recognize emotions and internal cognitive processes of people. Physiological signals, including respiration, heart rate, galvanic skin resistance / conductivity etc have been used [5], [8]–[10] to overcome this disadvantage in emotion recognition and tracking tasks.
+Traditional recommendation engines use content – based or collaborative ﬁltering methods and do not consider user emotion state [11], [12]. However, using human emotion state with recommendation engines may increase recommendation engines performance. Shin et al., presented an automatic stress-relieving music recommendation system [8]. System used wireless and portable ﬁnger-type PPG sensor. Nirjon et al., proposed a context-aware, biosensor – based, music recommender system for mobile phones [9]. Liu et al., presented a music recommendation system which is aware of
+
+0098-3063 (c) 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TCE.2018.2844736, IEEE Transactions on Consumer Electronics
+
+IEEE TRANSACTIONS ON CONSUMER ELECTRONICS, VOL. 14, NO. 8, MAY 2018
+
+2
+
+Data Collection and Processing
+(1)
+
+Recommender Model
+(2)
+
+Fig. 1. Recommender system components and data ﬂow.
+
+Recommendation Post-processing
+(3)
+
+Feedback (4)
+
+User Interface
+(5)
+
+Fig. 2. Collaborative and Content-based ﬁltering methods(A and B scenarios).
+
+user heartbeat and preference [10]. Yoon et al. implemented personalized music recommendation system using selected features, context information and listening history [13]. Rosa et al. presented a music recommendation system based on a sentiment intensity metric, named enhanced Sentiment Metric (eSM) that is the association of a lexicon-based sentiment metric with a correction factor based on the user’s proﬁle. The users’ sentiments are extracted from sentences posted on social networks and the music recommendation system is performed through a framework of low complexity for mobile devices, which suggests songs based on the current user’s sentiment intensity [14]. We propose a music recommendation system which considers user’s emotional state in its recommendations. System’s recommendations are mostly based on two factors: user’s past preferences, and the possible effects of recommended songs’ on the user emotion. The system detects user emotion and evaluates the emotional effect’s feedback before and after a song is recommended. The framework uses GSR and PPG to continuously track user’s emotional state changes. Before current work, we have proposed an emotion recognition system based on only GSR signals [6] . In this study we are enriching signals with PPG and propose a data fusion base emotion recognition method for music recommendation engines. Our proposed framework aims to enhance music
+
+recommendation engines performance by considering users emotion states.
+III. TRADITIONAL RECOMMENDATION ENGINES AND PROPOSED APPROACH
+A. Traditional Recommendation
+A recommender systems main task is to propose right products or items to a cluster of users that might be accepted by them. The design of such recommendation engines depends on the domain and the particular characteristics of the data available [11]. Figure 1 describes recommender system components, working order and data ﬂow in recommendation engine. Data collection and processing unit (DCPU, Figure 1, step 1), provides a suitable tool for data collection which involves users and items. DCPU sends data to Recommender Model (step 2) where recommendation algorithms are executed. Recommendation Post Processing unit (step 3), makes the recommendations ready to be shown to users after ﬁltering out and ranking. Feedback module (step 4) used to track usage and the user interface (step 5) component deﬁnes what users see and how they can interact with the recommender [15]. Traditional recommendation engines use a number of different technologies to generate recommendations. Collaborative
+
+0098-3063 (c) 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TCE.2018.2844736, IEEE Transactions on Consumer Electronics
+
+IEEE TRANSACTIONS ON CONSUMER ELECTRONICS, VOL. 14, NO. 8, MAY 2018
+
+3
+
+past physiological effects are our proposed input elements to increase the accuracy of recommendations and enhance the recommendation system. Our general system ﬂow is summarized in Algorithm 1.
+
+Fig. 3. System architecture.
+
+Algorithm 1: Flow of the proposed algorithm.
+Input: First Source Data Signal Photo plethysmography SPPG
+Input: Second Source Data Signal Galvanic Skin Response SGSR
+Output: Predicted Target emotion labels LE based on Arousal and Valence values
+Output: Recommended Song RS 1 Get signal data from Photo plethsymograhpy SPPG and
+Galvanic Skin Response sensors SGSR 2 Sample and Extract features from SPPG and SGSR
+(described in section IV) 3 Predict Target emotion labels LE based on Arousal and
+Valence values in Machine Learning Pipeline (described in Section IV) 4 Feed LE to enrich Recommendation Engine Decision Algorithm 5 Combine LE with User Proﬁle, Item Proﬁle and feed Recommendation Engine 6 Get RS and send it to player
+
+ﬁltering (Figure 2A) is an approach to making recommendations by ﬁnding similarity and relation among users of a recommendation system. It presents an approach to ﬁnd items of potential interest, which are not seen by the current user but have been rated by other users, and to predict the rating that the current users would give to an item. Collaborative ﬁltering systems recommend items based on similarity between users and their history. The items that are preferred by similar users are recommended to current user. Content-based ﬁltering methods (Figure 2B) make recommendations by analyzing the properties and tags of the items that have been rated by the user and the description of items to be recommended.
+B. Proposed Approach
+Proposed framework involves using GSR and PPG to capture physiological signals from the user via a wearable computing device, and using these signals to enhance the accuracy of the recommendations made by the recommender system by tracking the user’s emotional state through these signals. Emotional effects of the past recommendations on the user are stored in the system’s database and used in future recommendations, as the same musical track’s effects can be varied between different users. System architecture of this framework is given in Figure 3. In Figure 3, the green colored input elements named context, collaborative data, item proﬁle, and user proﬁle are traditional inputs for a music recommender system, and the blue colored input elements named plethysmography, galvanic skin response and
+
+IV. MATERIALS AND METHODS
+A. Emotion Recognition Using Physiological Signals
+Biosensors can monitor physiological attributes of the human body that are controlled directly by autonomous nervous system. These sensors can collect signals including skin conductance, blood volume, temperature, heart rate. In this study, we have used GSR and PPG signals.
+1) GSR Signals: GSR, which is also known as electro dermal activity (EDA) is a resistance / conductance based, easily captured, low cost physiological signal technique. In GSR, hand or foot attached sensors are used to measure the electrical conductance of the skin. Experiencing emotions like stress or surprise causes changes in skin resistance. GSR is used to capture physiological reactions that generate excitement. When people get excited, body sweats, the amount of salt on the skin and skin’s electrical conductance changes.
+2) Photo Plethysmography Signals: Plethysmography is a measurement technique that can be used to measure the volume changes in different parts of the body. In our study, change in blood volume has been measured via PPG sensor that is attached to participant’s thumb. Heart rate variability (HRV) and inter-beat periods measurements also can be done using PPG sensors. Since emotions like stress may increase blood pressure, emotions have correlation with HRV and blood pressure. PPG sensors detect optical blood volume variations in the tissues’ micro-vascular bed. PPG system consists a detector and red/infrared light-emitting diodes used as the light source to monitor tissue light intensity variations through transmission or from reﬂection [12], [16].
+
+0098-3063 (c) 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TCE.2018.2844736, IEEE Transactions on Consumer Electronics
+
+IEEE TRANSACTIONS ON CONSUMER ELECTRONICS, VOL. 14, NO. 8, MAY 2018
+
+4
+
+AROUSAL
+Alarmed Excited
+
+Stressed
+
+Delighted
+
+Upset
+
+Active
+
+Intense
+
+Happy
+
+Frustrated Sad
+
+Unpleasant Negative
+
+Pleasant Positive
+
+Pleased
+VALENCE
+Serene
+
+Depressed
+
+Passive
+
+Mil d
+
+Calm
+
+Feature set (FS-10)
+(FS-14) (FS-18)
+(FS-22)
+
+TABLE I FEATURE SETS AND ATTRIBUTES.
+Attributes
+Minimum, maximum, average, standard deviation, variance, skewness, kurtosis, median, zero crossings, mean energy Feature 10 set, 3rd, 4th, 5th, 6th moments Feature 14 set, mean absolute value, maximum scatter difference root mean square, mean absolute deviation Feature 18 set, 1st degree difference, 2nd degree difference 1st degree difference divided by standard deviation, 2nd degree difference divided by standard deviation
+
+Bored
+
+Tired Sleepy
+
+Releaxed
+
+Fig. 4. Valence - Arousal Model.
+B. Emotion Representation
+Two models are common among proposed models for emotion representation by psychologists: the dimensional model and the categorical (discrete) model. According to the dimensional model, people emotions can be represented with a limited number of independent affective dimensions. Two important dimensions are Arousal, pointing out intensity of an emotion and Valence, marking the polarity of an emotion as either negative or positive [17]–[21].
+The emotion valence-arousal dimensional model (EVADM) is depicted in Figure 4. The pleasure (valence) - displeasure scale measures pleasantness degree of an human as an reaction to an external stimuli [18], [21] and basically it reﬂects the degree of attraction of a person toward an object, event or stimuli. Emotion intensity is shown via arousal - nonarousal scale. Arousal range changes from active to passive and deﬁned as psychological or physiological state of being awaken or passive reaction to a external stimuli.
+C. Feature extraction
+Feature extraction process is crucial in a machine learning pipeline and it is related to representing signals to machine learning algorithms via vectors. In order to represent physiological signals, each signal has been divided to various length moving windows and features have been extracted in the time domain and based on statistics. After capturing GSR and PPG sensor signal data, each signal has been divided into subsignals to capture local signal information. Sub-signal length has been changed and tested between one and 60 seconds to have the right resolution. Features from signals have been extracted in the time domain and based on statistics. At ﬁst step, features have been extracted from each sub-signal, and then all sub-signal extracted features have been concatenated
+
+for each subject. This process is repeated for all subjects and for every individual video.
+Various attributes have been selected as feature set and relationship between arousal and valence has been studied. Table I shows studied feature sets and their attributes. We have worked with four different feature sets FS-10, FS-14, FS-18, and FS-22. FS-14 contains FS-10 features with additional four features, FS-18 contains FS-14 features with additional four features, and FS- 22 is the richest feature set and contains FS-18 features with additional four features. Table II shows extracted feature list and their formulas. Arithmetic mean, maximum, minimum, variance, standard deviation, kurtosis coefﬁcient, skewness coefﬁcient, moments, median, mean energy, number of zero crossings, change in signal values have been considered as features as depicted in Table I.
+D. Data Fusion
+Lahat et al. deﬁnes data fusion as the analysis of several datasets such that different datasets can interact and inform each other [22] . Fusing various sensor data together facilitates detailed, reliable and efﬁcient information representation.
+Data fusion is classiﬁed as decision level and feature level. The main purpose of decision level approach is to use a set of independent classiﬁers to achieve higher accuracy and robustness by combining each individual classiﬁers results. Decision level fusion consists of fusion of classiﬁers or processing the classiﬁcation results of prior classiﬁcation stages. In feature level fusion (FLF), the feature extraction is done for each sensor data independently and then features are concatenated together. The fused feature vector is used in learning process. FLF approach facilitates to take advantage of mutual information from common sensor data [23]. We have used FLF in our study. In FLF process, we have obtained the feature vectors from both modalities (PPG and GSR).
+Then classiﬁcation proceeds the same as for the single modalities as depicted in Figure 5. GSR and PPG sensors are used to collect physiological signals (2, 3) from the user (1). Signals are normalized (4,5) to make it possible to fuse them together in later steps. Feature extraction methods are applied to both GSR and PPG signal data (6, 7), and results are two different feature vector sets. Then, two different feature sets are fused together to form a single feature (8). Classiﬁer takes
+
+0098-3063 (c) 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TCE.2018.2844736, IEEE Transactions on Consumer Electronics
+
+IEEE TRANSACTIONS ON CONSUMER ELECTRONICS, VOL. 14, NO. 8, MAY 2018
+
+5
+
+Attribute
+Min
+Max Arithmetic mean (µ) Mean Absolute Root Mean Square
+Standard Deviation (SD)
+
+TABLE II BASIC FEATURES AND FORMULAS USED.
+
+Formula min{Xn} max{Xn}
+
+1 N
+
+∑Nn=1
+
+Xn
+
+1 N
+
+∑Nn=1
+
+|Xn|
+
+1 N
+
+∑Nn=1
+
+Xn2
+
+1 N
+
+∑Nn=1 (Xn
+
+−
+
+AM)2
+
+Attribute Skewness
+Kurtosis
+Median
+Moment (kth order) First Degree Difference Second Degree Difference
+
+Formula
+
+∑Nn=1
+
+(Xn
+
+−
+
+AM)
+
+(N
+
+3 −1)SD3
+
+∑Nn=1
+
+(Xn
+
+−
+
+AM)
+
+(N
+
+4 −1)SD4
+
+(
+
+N 2
+
+)th
+
++(
+
+N 2
+
++1)th
+
+2
+
+or
+
+(
+
+N
+
++1 2
+
+)th
+
+1 N
+
+∑Nn=1
+
+Xnk
+
+1 N−1
+
+∑Nn=1
+
+|Xn+1
+
+−
+
+Xn|
+
+1 N−2
+
+∑Nn=1
+
+|Xn+2
+
+−
+
+Xn|
+
+Galvanic Skin Response Signal Generation (2)
+
+Signal Normalization (4)
+
+GSR Feature Extraction (6)
+
+User
+
+(1)
+
+Feature Fusion (8)
+
+Classifer (9)
+
+Emotion (10)
+
+Photoplethysmograph Signal Generation (3)
+
+Signal Normalization (5)
+
+PPG Feature Extraction (7)
+
+Fig. 5. Emotion recognition framework with GSR and PPG.
+
+Accuracy % Accuracy %
+
+Galvanic Skin Response 73 72 71 70 69 68 67 66 65
+1 3 5 8 10 12 15 30 60 Window Duration Size
+Fig. 6. Window Duration and Convolution effect for GSR and PPG.
+
+Photoplethysmography 73
+
+Arousal non conv
+
+72
+
+Arousal conv
+
+Valence non conv
+
+71
+
+Valence conv
+
+70
+
+69
+
+68
+
+67
+
+66
+
+65 1 3 5 8 10 12 15 30 60
+Window Duration Size
+
+0098-3063 (c) 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TCE.2018.2844736, IEEE Transactions on Consumer Electronics
+
+IEEE TRANSACTIONS ON CONSUMER ELECTRONICS, VOL. 14, NO. 8, MAY 2018
+
+6
+
+this single feature vector as input (9) and made a prediction about the emotional state of the user (10) by estimating arousal and valence values.
+E. Classiﬁcation
+Subjects enter valence and arousal values which is between 1 and 9 during learning phase. These records are used during training and model creation phase. Since we have labeled data our study turns to supervised classiﬁcation problem. For each subject and for each watched video we assign class value based on each videos rating value (low: 4.5, high: 4.5). Signal data captured from 32 subjects have been used for training and test steps. In order to ﬁnd the appropriate classiﬁer three classiﬁcation algorithms including random forest, kNN and decision tree have been used after feature extraction phase. Random forests algorithm is ensemble based approach using decision tree forests [24] . Random forests may achieve high accuracy in a variety of problems, making them versatile choice for many applications. Since only a subset of the features used, random forests capable of handling high dimensional data. In addition, a trained model can be used to determine the pairwise proximity between samples.
+V. EXPERIMENTS AND RESULTS.
+A. Dataset
+Experiments have been performed on the multimodal DEAP emotion database which consists PPG, GSR and electroencephalogram (EEG) signals of 32 participants during video watching. Each participant watches 40 one-minute length videos and label an arousal and valence value at the end of video between 1 and 9. The dataset was ﬁrst presented by Kolestra et al. [25] . The data was down sampled to 128Hz, EOG artefacts were removed, a band pass frequency ﬁlter from 4.0 - 45.0Hz was applied.
+B. System Conﬁguration Parameters Selection
+In this section, we have evaluated the effect of three important system parameters ( window duration size, feature set size, convolution / non-convolution) and classiﬁers on emotion prediction accuracy rate. We ﬁrst tried various duration of window sizes to evaluate their on accuracy.
+Each physiological signal has been divided into windows with different window duration W ∈ 1, 3, 5, 8, 10, 12, 15, 30, 60 seconds. Afterwards features extracted from signals have been studied and various feature set size F ∈ 10, 14, 18, 22 have been tested. We have also evaluated the effect of convolution. Hyperparameter tests have been conducted with 10 - fold cross validation.
+1) Effects of Window Duration Size and Convolution: Window duration affects accuracy rate. Various window size duration between 1 seconds and 60 seconds have been selected. Tests with 3 seconds window duration performed better than other window duration sized for GSR and 8 seconds duration sizes performed better than the rest for PPG. Windows were slided by collapse (convolution) or not collapse (nonconvolution) manner. Overlapped and one second slide duration performed better compared to non-overlapping window
+
+sliding. Figure 6 conﬁrms that convolution is a better approach to increase accuracy rate (see Figure 6 ).
+2) Feature Set Tests: Feature extraction also affects system accuracy. Various feature sets (FS) have been selected. Tests with FS 10, FS 14, FS 18 and FS 22 were conducted. For GSR FS 14, and for PPG FS-10 set performed better than the other feature sets . Results are depicted in Figure 7.
+C. Data Fusion Based Test Results
+We fused GSR and PPG feature vectors. Tests have been done with 10-fold cross validation (10F-CV) by using various classiﬁers C ∈ DecisionTree(J48), Random Forests (RF), k Nearest Neighbor(kNN), Support Vector Machine (SVM) and feature set size F ∈ 10, 14, 18, 22 conﬁgurations.
+For the arousal, best accuracy rate was obtained with Feature Set-22 and Classiﬁer – RF 72.06%. SVM and FS18 also gave very close results for arousal as shown in Figure 8.
+For the valence, best accuracy rate was obtained with Feature Set-22 and Classiﬁer – RF with 71.05% (see Figure 8).
+VI. DISCUSSION
+In this section, test case results and potential consumer use cases are discussed. Generally, recognizing arousal and valence values directly from bio sensors individually is a challenge task. We have showed that there is relationship between GSR, PPG signals and arousal and valence.
+A. Test Results Discussion
+Results encourage us to use these signals in emotion recognition pipeline. There is high correlation between GSR, PPG signals and emotion. Results also revealed that multi modality may help to increase accuracy rate slightly compared to single modality as depicted in Figure 9. For GSR only, we obtained 71.53% and 71.04% accuracy rate for arousal and valence prediction respectively. For PPG we have obtained 70.92% and 70.76% accuracy rate for arousal and valence prediction respectively. Fusing GSR and PPG signals we have obtained slightly better results especially for arousal. Feature fusion of multi modalities slightly increased in the accuracy rate. To the best of our knowledge, Galvanic Skin Response and Photo Plethysmography signals have never been fused as we proposed in this work for the used dataset. Using more than one sensor in proposed fusion manner has potential to increase accuracy performance and robustness.
+B. Use Cases Discussion
+Music recommender systems are recently seeing a sharp increase in popularity due to many new commercial music streaming services. Most systems, however, do not decently take their listeners into account when recommending music items. We have proposed a framework using machine-learning scheme in conjunction with wearable sensors for translating end-consumer’s subjective experience of music into arousal and valence scores that can be used in popular on-demand
+
+0098-3063 (c) 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TCE.2018.2844736, IEEE Transactions on Consumer Electronics
+
+IEEE TRANSACTIONS ON CONSUMER ELECTRONICS, VOL. 14, NO. 8, MAY 2018
+
+7
+
+Accuracy %
+
+Galvanic Skin Response 73
+
+72
+
+71
+
+70
+
+69
+
+68
+
+67 FS-10
+
+FS-14
+
+FS-18
+
+Feature Set
+
+FS-22
+
+Accuracy %
+
+Photoplethysmography 73
+
+Arousal non conv
+
+Arousal conv
+
+72
+
+Valence non conv
+
+Valence conv
+
+71
+
+70
+
+69
+
+68
+
+67 FS-10
+
+FS-14
+
+FS-18
+
+Feature Set
+
+FS-22
+
+Fig. 7. Feature Set and Convolution effect for GSR and PPG .
+
+Fusion of GSR and PPG signals 75
+
+Arousal FS-10
+
+Arousal FS-14
+
+Arousal FS-18
+
+Arousal FS-22
+
+70
+
+Valence FS-10
+
+Valence FS-14
+
+Valence FS-18
+
+Valence FS-22
+
+65
+
+Accuracy %
+
+60
+
+55 Decision Tree
+Fig. 8. Fusion of GSR and PPG signals.
+
+Random Forest Classifiers
+
+SVM
+
+kNN
+
+Accuracy %
+
+Single Modality versus Multi Modality 75
+
+74
+
+Arousal Valence
+
+73
+
+72
+
+71
+
+70
+
+69
+
+68
+
+67
+
+66
+
+65 GSR
+
+PPG Modality
+
+GSR and PPG Fused
+
+Fig. 9. Comparison of Accuracy for Single and Multi Modality Approaches.
+
+music streaming services. Proposed framework can be used by a mobile device for music recommendation to the consumer of the mobile device. Streaming service and/or mobile device can use framework for automatic play list generation and next best song offer based on demographics as well as physiological signals.
+
+VII. CONCLUSION
+In this study, a framework for enhancing music recommendation engines performance via physiological signals has been introduced. Emotion recognition from multi-channel physiological signals was performed, data fusion techniques were applied to combine data from GSR and PPG sensors and FLF has been implemented. Considering emotion state of the listener improves the performance of recommendations. Recognizing arousal and valence values directly from only GSR and PPG signals is a challenging task. We have showed that there is relationship between GSR and PPG signals and emotional arousal and valence dimensions. For GSR only signal, we have obtained 71.53% and 71.04% accuracy rate for arousal and valence prediction respectively. For photoplehysmography only signal, we have obtained 70.93% and 70.76% accuracy rate for arousal and valence prediction respectively. Fusing GSR and PPG signals we have obtained the results, 72.06% and 71.05% accuracy rate for arousal and valence prediction respectively. Although there is only slight improvement using fusion in emotion recognition accuracy, the proposed framework is promising for music recommendation engines in terms of adding multi modal emotion phenomenon into
+
+0098-3063 (c) 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TCE.2018.2844736, IEEE Transactions on Consumer Electronics
+
+IEEE TRANSACTIONS ON CONSUMER ELECTRONICS, VOL. 14, NO. 8, MAY 2018
+
+8
+
+music recommendation logic. Performance can be improved
+with the advancement of wearable sensor technologies and
+using different type of sensors. Using more than one sensor
+may also help for failure management. As future work, we
+will consider different combination of sensors that handle
+the failures of wearable sensors and additional sensors usage
+to increase performance. The results of this study can be
+used to increase user experience of multimedia tools and
+music recommendation engines. Since there is high correlation
+between physiological GSR and PPG data and affective state
+and cognitive state of a person multimedia recommendation
+engines can beneﬁt from physiological computing systems.
+REFERENCES
+[1] S. Jhajharia, S. Pal, and S. Verma, “Wearable computing and its application,” Int. J. Comp. Sci. and Inf. Tech., vol. 5, no. 4, pp. 5700– 5704, 2014.
+[2] K. Popat and P. Sharma, “Wearable computer applications: A feature perspective,” Int. J. Eng. and Innov. Tech., vol. 3, no. 1, 2013.
+[3] P. Melville and V. Sindhwani, “Recommender systems,” in Encyc. of mach. learn. Springer, 2011, pp. 829–838.
+[4] N. Sebe, I. Cohen, T. S. Huang et al., “Multimodal emotion recognition,” Handbook of Pattern Recognition and Computer Vision, vol. 4, pp. 387– 419, 2005.
+[5] R. W. Picard, E. Vyzas, and J. Healey, “Toward machine emotional intelligence: Analysis of affective physiological state,” IEEE Trans. Pattern Anal. Mach. Intell., vol. 23, no. 10, pp. 1175–1191, 2001.
+[6] D. Ayata, Y. Yaslan, and M. Kamasak, “Emotion recognition via galvanic skin response: Comparison of machine learning algorithms and feature extraction methods,” IU J. of Elect. & Elect. Eng., vol. 17, no. 1, pp. 3129–3136, 2017.
+[7] P. Ekman, R. W. Levenson, and W. V. Friesen, “Autonomic nervous system activity distinguishes among emotions.” Am. Assoc. for Adv. of Sci., 1983.
+[8] I.-h. Shin, J. Cha, G. W. Cheon, C. Lee, S. Y. Lee, H.-J. Yoon, and H. C. Kim, “Automatic stress-relieving music recommendation system based on photoplethysmography-derived heart rate variability analysis,” in IEEE Int. Conf. on Eng. in Med. and Bio. Soc. IEEE, 2014, pp. 6402–6405.
+[9] S. Nirjon, R. F. Dickerson, Q. Li, P. Asare, J. A. Stankovic, D. Hong, B. Zhang, X. Jiang, G. Shen, and F. Zhao, “Musicalheart: A hearty way of listening to music,” in Proc. of ACM Conf. on Emb. Netw. Sens. Sys. ACM, 2012, pp. 43–56.
+[10] H. Liu, J. Hu, and M. Rauterberg, “Music playlist recommendation based on user heartbeat and music preference,” in Int. Conf. on Comp. Tech. and Dev., vol. 1. IEEE, 2009, pp. 545–549.
+[11] F. Isinkaye, Y. Folajimi, and B. Ojokoh, “Recommendation systems: Principles, methods and evaluation,” Egypt. Inf. J., vol. 16, no. 3, pp. 261–273, 2015.
+[12] A. Nakasone, H. Prendinger, and M. Ishizuka, “Emotion recognition from electromyography and skin conductance,” in Proc. of Int. Work. on Biosignal Interp., 2005, pp. 219–222.
+[13] K. Yoon, J. Lee, and M. U. Kim, “Music recommendation system using emotion triggering low-level features,” IEEE Trans. Consum. Electron, vol. 58, no. 2, pp. 612–618, May 2012.
+[14] R. L. Rosa, D. Z. Rodriguez, and G. Bressan, “Music recommendation system based on user’s sentiments extracted from social networks,” IEEE Trans. Consum. Electron, vol. 61, no. 3, pp. 359–367, Aug 2015.
+[15] J. B. Schafer, “Dynamiclens: A dynamic user-interface for a metarecommendation system,” in Work. on Bey. Pers., 2005, pp. 72–76.
+[16] N. Nourbakhsh, Y. Wang, F. Chen, and R. A. Calvo, “Using galvanic skin response for cognitive load measurement in arithmetic and reading tasks,” in Proc. of Aust. Comp. Hum. Inter. ACM, 2012, pp. 420–423.
+[17] J. A. Russell, “A circumplex model of affect.” J. of pers. and soc. psyc., vol. 39, no. 6, p. 1161, 1980.
+[18] A. Mehrabian, Basic Dimensions for a General Psychological Theory Implications for Personality, Social, Environmental, and Developmental Studies. Oelgeschlager, Gunn & Hain, 1980.
+
+[19] P. J. Lang, “International affective picture system (iaps): Affective ratings of pictures and instruction manual,” Technical report, 2005.
+[20] A. Mehrabian, “Communication without words,” Psychology Today,, pp. 53–56, 1968.
+[21] J. A. Russell, “Core affect and the psychological construction of emotion.” Psychological review, vol. 110, no. 1, p. 145, 2003.
+[22] D. Lahat, T. Adali, and C. Jutten, “Multimodal data fusion: an overview of methods, challenges, and prospects,” Proc. of the IEEE, vol. 103, no. 9, pp. 1449–1477, 2015.
+[23] S. Planet and I. Iriondo, “Comparison between decision-level and feature-level fusion of acoustic and linguistic features for spontaneous emotion recognition,” in Iberian Conf. on Inf. Sys. and Tech. IEEE, 2012, pp. 1–6.
+[24] T. K. Ho, “Random decision forests,” in Proc. of Int. Conf. on Doc. Analy. and Recog., vol. 1. IEEE, 1995, pp. 278–282.
+[25] S. Koelstra, C. Muhl, M. Soleymani, J.-S. Lee, A. Yazdani, T. Ebrahimi, T. Pun, A. Nijholt, and I. Patras, “Deap: A database for emotion analysis; using physiological signals,” IEEE Trans. on Aff. Comp., vol. 3, no. 1, pp. 18–31, 2012.
+Deger Ayata is PhDc at Computer Engineering Department, Istanbul Technical University. He got his B.Sc. degree in Electronics & Telecommunication Engineering, M.Sc. degree in Computer & Control Engineering from Istanbul Technical University and MBA from Bogazici University, Istanbul, Turkey. As a R&D and Technology Director he managed projects including Big Data & Analytics, Data Science, Artiﬁcial Intelligence, Machine Learning, IoT and large scale software integration programs. His research interests are machine learning, pattern recognition, signal processing, computer vision, natural language processing and artiﬁcial intelligence theory and applications.
+Yusuf Yaslan is an Assistant Professor at Computer Engineering Department, Istanbul Technical University. He got his B.Sc. degree in Computer Science Engineering from Istanbul University, Turkey, in 2001. In 2002, he joined the Multimedia Signal Processing and Pattern Recognition laboratory at Istanbul Technical University (ITU). He got his M.Sc. degree in Telecommunication Engineering and his Ph.D. in Computer Engineering from ITU, in 2004 and 2011 respectively. During 2001 and 2002, he was an intern at the FGAN-FOM Research Institute, in Germany. He was a visiting researcher at Statistical Machine Learning and Bioinformatics Group, Aalto University in Finland during 2007 and 2008. His research interests are watermarking, machine learning theory and applications, especially in semi supervised learning, social networks, music recognition/recommendation and data mining applications on IoT data and smart cities.
+Mustafa E. Kamasak received the B.S.E.E. and M.S.E.E. degrees from Bogazici University, Istanbul, Turkey, in 1997 and 1999, respectively, and the Ph.D. degree from Purdue University, West Lafayette, IN, in 2005. He is currently a Professor with the Department of Computer Engineering, Istanbul Technical University, Istanbul, Turkey. His research interests include medical informatics, medical imaging, and image processing.
+
+0098-3063 (c) 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+

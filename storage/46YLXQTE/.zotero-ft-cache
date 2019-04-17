@@ -1,0 +1,968 @@
+Journal of
+Clinical Medicine
+Article
+Can Photoplethysmography Replace Arterial Blood Pressure in the Assessment of Blood Pressure?
+Gloria Martínez 1,2, Newton Howard 3 , Derek Abbott 4,5 , Kenneth Lim 6,7, Rabab Ward 1 and Mohamed Elgendi 1,6,7,*
+1 School of Electrical and Computer Engineering, University of British Columbia, Vancouver, BC V6T 1Z4, Canada; ketherelohim@gmail.com (G.M.); rababw@ece.ubc.ca (R.W.)
+2 Center for Research and Advanced Studies (Cinvestav), Monterrey’s Unit, Apodaca N. L. 66600, México 3 Nufﬁeld Department of Surgical Sciences, University of Oxford, Oxford 450456, UK;
+newton.howard@nds.ox.ac.uk 4 School of Electrical and Electronic Engineering, The University of Adelaide, Adelaide, SA 5005, Australia;
+derek.abbott@adelaide.edu.au 5 Centre for Biomedical Engineering, The University of Adelaide, Adelaide, SA 5005, Australia 6 Faculty of Medicine, University of British Columbia, Vancouver, BC V1Y 1T3, Canada; klim@cw.bc.ca 7 BC Children’s & Women’s Hospital, Vancouver, BC V6H 3N1, Canada * Correspondence: moe.elgendi@gmail.com or melgendi@bcchr.ubc.ca
+Received: 28 August 2018; Accepted: 28 September 2018; Published: 30 September 2018
+Abstract: Arterial Blood Pressure (ABP) and photoplethysmography (PPG) are both useful techniques to monitor cardiovascular status. Though ABP monitoring is more widely employed, this procedure of signal acquisition whether done invasively or non-invasively may cause inconvenience and discomfort to the patients. PPG, however, is simple, noninvasive, and can be used for continuous measurement. This paper focuses on analyzing the similarities in time and frequency domains between ABP and PPG signals for normotensive, prehypertensive and hypertensive subjects and the feasibility of the classiﬁcation of subjects considering the results of the analysis performed. From a database with 120 records of ABP and PPG, each 120 s in length, the records where separated into epochs taking into account 10 heartbeats, and the following statistical measures were performed: Correlation (r), Coherence (COH), Partial Coherence (pCOH), Partial Directed Coherence (PDC), Directed Transfer Function (DTF), Full Frequency Directed Transfer Function (ffDTF) and Direct Directed Transfer Function (dDTF). The correlation coefﬁcient was r > 0.9 on average for all groups, indicating a strong morphology similarity. For COH and pCOH, coherence (linear correlation in frequency domain) was found with signiﬁcance (p < 0.01) in differentiating between normotensive and hypertensive subjects using PPG signals. For the dataset at hand, only two synchrony measures are able to convincingly distinguish hypertensive subjects from normotensive control subjects, i.e., ffDTF and dDTF. From PDC, DTF, ffDTF, and dDTF, a consistent, a strong signiﬁcant causality from ABP→PPG was found. When all synchrony measures were combined, an 87.5% accuracy was achieved to detect hypertension using a Neural Network classiﬁer, suggesting that PPG holds most informative features that exist in ABP.
+Keywords: pulse morphology; pulse oximeter; blood pressure monitoring; pulse arrival time; global health; digital medicine; wearable devices
+
+1. Introduction
+For decades, cardiovascular diseases (CVD) have been a major cause of mortality and morbidity around the world. Moreover, the number of patients suffering from CVD increases year by year. One of the major risk factors for the development of of CVD is chronic hypertension which is characterized
+
+J. Clin. Med. 2018, 7, 316; doi:10.3390/jcm7100316
+
+www.mdpi.com/journal/jcm
+
+J. Clin. Med. 2018, 7, 316
+
+2 of 13
+
+by elevated baseline blood pressure over long periods of time. Chronic hypertension also increases the risk of cerebral vascular accidents and renal failure [1,2]. Therefore, the early detection of this hypertension is very important for its prevention and timely treatment. The blood pressure (BP) waveform is related to the transmission of arterial pulse waves, and is signiﬁcant in the study of circulatory diseases.
+There are two types of methodologies for BP monitoring: invasive and noninvasive. Depending on the clinical situation, either continuous or intermittent blood pressure monitoring is employed. For continuous monitoring, invasive (intravascular) central monitoring is employed which has potential risks to patients such as infection, site bleeding, arterial obstruction and distal limb ischemic damage and vascular damage. There are also clinical situations where invasive arterial monitoring may be difﬁcult if not impossible to be performed safely. Therefore, a method of non-invasive continuous blood pressure monitoring may be valuable clinically.
+There are many methods that can be used to noninvasively assess arterial blood pressure (ABP) waveforms; however, they are not user-friendly in practical applications. The photoplethysmogram (PPG) produces an optic signal related to arterial volumetric blood pulsations and has wide potential in clinical applications due to its simplicity and noninvasiveness [3,4]. Recently, it has been outlined as a potential alternative to cuff-based BP monitors [5]. Small sensor size and simple operation lead to PPG being widely applicable for the detection of cardiovascular and peripheral micro-circulation diseases [6,7]. Many important hemodynamic parameters can be evaluated from the PPG signal, such as heart rate, blood pressure, or pulse velocity [8–10]. Since the ABP and PPG signals have the same source of excitation (heart), it is logical to expect a similarity between the signals in both time and frequency; however, to our knowledge, there is no study that reports this.
+Hypertension detection using cuff-based BP monitoring has been useful for the prevention of cardiovascular diseases for years. Some studies based on the measurement of PPG have reported suitable performance for the correct classiﬁcation of patients when taking into account the cardiac variability [11–13]. However, these studies, and a recent study [14] by our group, considered only the characteristics in the time domain of the signal neglecting the frequency domain. Moreover, having the ABP as a reference to examine the suitability of the PPG signal is more accurate than correlating PPG signals with blood pressure reading collected using cuff-based BP monitors [15].
+In the literature there are two approaches for determining BP using PPG signals: synchronicitydependent approach (i.e., another biosignal is measured simultaneously with PPG signal) and asynchronicity-dependent approach (i.e., PPG signal alone) [14]. However, we are here trying to look deeply inside the PPG waveform and examine how similar and coherent it is with the ABP waveform, rather than focusing on extracting synchronicity-dependent and asynchronicity-dependent features and correlating them with blood pressure readings.
+The main objective of this paper is to validate the potential use of PPG signals for BP evaluation. The proposed approach examines the similarity between PPG and ABP morphologies in time and frequency domains, as well as the changes that exist between normotensive, prehypertensive and hypertensive subjects. In order to establish the robustness of the PPG signal for BP monitoring with different types of patients and the feasibility of the classiﬁcation of subjects considering the results of the analyses performed, which we describe below.
+2. Methods
+Our database, which is publicly available [16], called the MIMIC III (Multiparameter Intelligent Monitoring in Intensive Care) Database, consists of 120 subjects. Each subject was simultaneously measured by ABP and PPG, each signal 120 s in length and recorded with a sampling frequency (Fs) of 125 Hz (an example of the acquisition of the signals is shown in Figure 1). First, a separation of the subjects was performed according to the systolic BP (mmHg) categories of the American Heart Association (AHA). Note, some ﬁles that we used in our analysis are missing demographic information and therefore we could not study the PPG morphology changes with age.
+
+J. Clin. Med. 2018, 7, 316
+
+ABP
+(Invasive)
+PPG
+(Non-invasive)
+
+3 of 13
+
+Figure 1. Simultaneously collected Arterial Blood Pressure (ABP) and Photoplethysmogram (PPG) signals. Note, ABP was measured invasively while PPG was measured non-invasively.
+For the purpose of this study, three groups were formed: Normal (less than 120 mmHg; n = 43), prehypertensive (120–139 mmHg; n = 40) and hypertensive (140 mmHg or higher; n = 37). All signals were ﬁltered with a bandpass ﬁlter in the 0.5–15 Hz range, normalized, and then separated into epochs that contain ten heartbeats. Subsequently, all epochs per subject were visually revised to discard those that had artifacts or in which signals were not well recorded. Finally, different analyses in time and frequency domain were performed with the ﬁltered signals, where the signal ABP was denoted as X(t) and the signal PPG as Y(t).
+2.1. Hypotheses
+In the literature, there are two approaches for determining BP using PPG signals: synchronicitydependent approach (i.e., another biosignal is measured simultaneously with PPG signal) and asynchronicity-dependent approach (i.e., PPG signal alone) [14]. However, we are here trying to look deeply inside the PPG waveform and examine how similar and coherent it is with the ABP waveform, rather than focusing on extracting synchronicity-dependent and asynchronicity-dependent features and correlating them with blood pressure readings. We have multiple hypotheses to address the questions raised in the title of the paper:
+• H1: If the PPG amplitude (Linear time domain analysis) is correlated with the ABP amplitude, then the PPG amplitude can replace ABP for measuring BP.
+• H2: If the PPG morphology (Linear time domain analysis) is correlated with the ABP morphology, then the PPG waveform morphology holds valuable information that can be used for evaluating BP.
+• H3: If the PPG waveform and the ABP have mutual information and coherence (Nonlinear dependency analysis), then the PPG waveform morphology holds valuable information that can be used for evaluating BP.
+Note that H1, and H3 are out-phase analyses (no shifting step applied to the signals) while H2 is an in-phase analysis (signals are shifted and aligned). The in-phase and out-phase analyses are described below.
+
+J. Clin. Med. 2018, 7, 316
+
+4 of 13
+
+2.2. In-Phase Analysis
+The in-phase analyses were carried out per epoch by aligning PPG and ABP waveforms. Pearson’s correlation coefﬁcient is used to determine how similar PPG and ABP are in terms of morphology. The correlation coefﬁcient r can be calculated by Equation (1). The value of r ranges from −1 to +1, where the value close to +1 or −1 means that signals have strong positive or negative similarity, respectively; otherwise, the value is close to zero. The correlation coefﬁcient is calculated as follows:
+
+r=
+
+n ∑ XY − ∑ X ∑ Y
+
+.
+
+(1)
+
+n ∑ X2 − (∑ X)2 − n ∑ Y2 − (∑ Y)2
+
+The results of the epochs were averaged per subject.
+
+2.3. Out-Phase Analysis
+The out-phase analyses were applied to the ABP and PPG signals without any adjustments in the time domain. Six analyses were performed: Coherence (COH), Partial Coherence (pCOH), Partial Directed Coherence (PDC), Directed Transfer Function (DTF), Full Frequency Directed Transfer Function (ffDTF) and Direct Directed Transfer Function (dDTF). These metrics aim to determine coupling, direct coupling, direct causality, directed connectivity, and direct and indirect connection as functions of frequency [17]. Their values range from 0 to 1, where 1 means total connectivity or causality, and zero means non-connectivity.
+For each epoch, an autoregressive (AR) model was estimated [18], where the dependence of the signals was given by
+
+p
+
+p
+
+X˜ (t) = ∑ a11(k)X˜ (t − k) + ∑ a12(k)Y˜ (t − k) + u1(t)
+
+(2)
+
+k=1
+
+k=1
+
+p
+
+p
+
+Y˜ (t) = ∑ a21(k)Y˜ (t − k) + ∑ a22(k)X˜ (t − k) + u2(t)
+
+(3)
+
+k=1
+
+k=1
+
+where aij(k) is the model coefﬁcients, u1(t) is the prediction error when X˜ (t) is predicted from its own past and the past of Y˜ (t) , and u2(t) is similar to u1(t). The optimal model order p was calculated with
+the Bayesian criterion and was ﬁxed the same for all the epochs per group. The AR model can be expressed in matrix form as ξ(t) = [X˜ (t), Y˜ (t)]T, η = [u1(t), u2(t)]T and A(k) = −(aij(k), i, j = 1, 2) as
+
+p
+
+ξ(t) = − ∑ A(k)ξ(t − k) + η(t).
+
+(4)
+
+k=1
+
+With the identity matrix A(0) = I, Equation (4) can be rewritten as ∑kp=0 A(k)ξ(t − k) = η(t). The spectral relationship of this equation can be written as A( f )ξ( f ) = η( f ), in which ξ( f ) = A−1( f )η( f ) = H( f )η( f ) and A( f ) = ∑kp=0 A(k)e(−ik2π f ).
+The power spectral matrix of signals is given by
+
+S( f ) = ξ∗( f )ξ( f ) = H( f )η( f )η∗( f )H∗( f ) = H( f ) ∑ H∗( f ),
+
+(5)
+
+where * stands for conjugate transpose, Σ = (Σij, i, j = 1, 2) is the covariance matrix of η(t), and the coherence is computed by
+
+COHXY( f ) =
+
+|SXY( f )| , SXX( f )SYY( f )
+
+(6)
+
+J. Clin. Med. 2018, 7, 316
+
+5 of 13
+
+deﬁning P( f ) = S( f )−1, the partial coherence is calculated as
+
+pCOHXY( f ) =
+
+|PXY( f )| . PXX( f )SYY( f )
+
+(7)
+
+The PDC is deﬁned by [19] in the following form
+
+PDCij( f ) =
+
+Aij( f ) , a∗j ( f )aj( f )
+
+(8)
+
+where Aij( f ) is an element of A(f) and aj( f ) is the jth column of A( f ) and the asterisk denotes the transpose and complex conjugate operation.
+The DTF was introduced in [20] and is determined as
+
+DTFj→i ( f ) =
+
+Hij( f )
+
+.
+
+∑km=1 |Him( f )|2
+
+(9)
+
+The ffDTF is a modiﬁcation of the DTF concerning the normalization of the function in such a way as to make the denominator independent of frequency and is given by
+
+ffDTFij( f ) =
+
+Hij( f )
+
+,
+
+∑ f ∑km=1 |Him( f )|2
+
+(10)
+
+while the dDTF is deﬁned as a multiplication of ffDTF by pCOH and shows direct propagation from channels j to i. It is calculated as
+
+dDTFij( f ) = ffDTFij( f ) pCOHij( f ).
+
+(11)
+
+These analyses were calculated by taking into account the maximum value in the frequency range of 1–10 Hz per epoch, and the results of epochs per subject were averaged.
+
+2.4. Statistical Analysis
+Two statistical nonparametric tests were performed with the results obtained from the analyses in the time and frequency domains to ﬁnd any differences between the groups of normotensive (NT), prehypertensive (PHT), and hypertensive (HT): Wilcoxon Rank Sum test (α = 0.1) and Kruskall–Wallis (K–W) test were used for the results of comparing two groups and three groups, respectively.
+
+2.5. Classiﬁcation Analysis
+A classiﬁcation analysis with two categories, NT and HT, was performed with the results of the analysis in the frequency domain. Twelve classiﬁers were evaluated with the cross validation technique (leave-one-out) with ﬁve Granger’s measures deﬁned as follows: COH, PDC, DTF, ffDTF, dDTF, and all ﬁve measures combined as one feature set.
+
+3. Results and Discussion
+We tested the H1 hypothesis, which is the out-phase analysis, to see if the PPG amplitude is correlated with the ABP amplitude. If correlated, then the PPG amplitude can replace ABP for measuring BP. We extracted the amplitude of each PPG waveform and the amplitude of its corresponding ABP waveform, and then scattered these amplitudes to examine correlation. As the MIMIC database was created and collected from different sources and used different clocks [21], we split the PPG data into two categories of the same electronic gain, 0.6–0.75 and 2.2–3, as shown in Figure 2a,b, respectively. The overall results, as shown in Figure 2, show that the amplitudes of PPG
+
+J. Clin. Med. 2018, 7, 316
+
+6 of 13
+
+waveforms and their corresponding ABP waveforms are not correlated. Therefore, the outcome of this analysis rejected the H1 hypothesis, and PPG amplitudes cannot replace ABP amplitudes.
+
+(a) (b)
+
+mmHg (ABP)
+
+mmHg (ABP)
+
+Normotensive
+
+Amplitud correlation ABP,PPG 120
+
+115
+
+r = -0.042826
+
+110
+
+105
+
+100
+
+95
+
+90 0.6
+
+0.65
+
+0.7
+
+[-] (PPG)
+
+0.75
+
+Amplitud correlation ABP,PPG 120
+r = -0.038063
+115
+
+110
+
+105
+
+100
+
+95
+
+90
+
+2.2
+
+2.4
+
+2.6
+
+2.8
+
+3
+
+[-] (PPG)
+
+mmHg (ABP)
+
+mmHg (ABP)
+
+Prehypertensive
+Amplitud correlation ABP,PPG 140
+r = 0.17591 135
+
+130
+
+125
+
+120 0.6
+
+0.65
+
+0.7
+
+[-] (PPG)
+
+0.75
+
+Amplitud correlation ABP,PPG 140
+r = 0.65668
+
+135
+
+130
+
+125
+
+120
+
+2.2
+
+2.4
+
+2.6
+
+2.8
+
+3
+
+[-] (PPG)
+
+mmHg (ABP)
+
+mmHg (ABP)
+
+Hypertensive
+
+Amplitud correlation ABP,PPG 170
+
+165
+
+r = -0.23481
+
+160
+
+155
+
+150
+
+145
+
+140 0.6
+
+0.65
+
+0.7
+
+[-] (PPG)
+
+0.75
+
+Amplitud correlation ABP,PPG 190
+r = -0.82367
+
+180
+
+170
+
+160
+
+150 2.8 2.82 2.84 2.86 2.88 2.9 2.92 [-] (PPG)
+
+Figure 2. Results of in-phase analysis: (a) Analysis results for the group with an amplitude range of 0.6–0.75 of the PPG signal; and (b) analysis results for the group with an amplitude range of 2.2–3 of the PPG signal. The groups are derived from the different gains of the equipment with which the signals were registered. r refers to the morphology correlation between photoplethysogram (PPG) and arterial blood pressure (ABP) waveforms.
+
+The rejection of the H1 hypothesis conﬁrms and validates testing the H2 and H3 hypothesis. The results of the H2 hypothesis, which is in-phase analyses, to determine the time-domain correlation between the ABP and PPG morphologies when aligned, are shown in Figure 3. Note that the peaks of the systolic waves in both ABP and PPG signals were adjusted to the same position to test the morphology correlation. As shown in Figure 3, the correlation coefﬁcients were signiﬁcant in hypertensive, normotensive and prehypertensive cases.
+
+Normotensive
+
+Prehypertensive
+
+Hypertensive
+
+r = 0.907
+SBP = 112 mmHg
+ABP PPG
+
+r = 0.956
+SBP = 130 mmHg
+ABP PPG
+
+r = 0.933
+SBP = 150 mmHg
+ABP PPG
+
+[-]
+
+[-]
+
+[-]
+
+2.8
+
+3
+
+3.2
+
+3.4
+
+3.6
+
+3.8
+
+4
+
+Time (s)
+
+3 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 Time (s)
+
+2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3 3.1 Time (s)
+
+Figure 3. Examples of in-phase analysis. Note, r refers to the morphology correlation between photoplethysogram (PPG) and arterial blood pressure (ABP) waveforms.
+
+On average, the correlation coefﬁcient r > 0.9 was obtained (see Table 1), and therefore this result suggest acceptance of H2 hypothesis. This implies that both signals had a high similarity in
+
+J. Clin. Med. 2018, 7, 316
+
+7 of 13
+
+their morphology; however, as the ABP increased, different phases between the signals appeared. This could be due to the decrease in the time it took for the blood to travel to the extremities with a high pressure, thus advancing the appearance of the PPG signal. A good correlation in time domain and frequency domain features of radial PPG and ABP was reported [22]. However, the change of this correlation has not been studied according to the BP increases. From the obtained results, it can be inferred that the use of the PPG signal is robust for monitoring BP and that there is a signiﬁcant change between N and H groups due to the reduction of the delay of the PPG signal.
+Table 1 is valuable for researchers who are interested in selecting recordings from the MIMIC database that contain PPG waveforms correlated with ABP waveforms. At least, based on objective measures such as correlation, inclusion and exclusion criteria, recording selection can be carried out regardless of the study aim. For example, researchers can include only recordings that have r > 0.9 in their analysis, rather than including recording based on subjective methods such as visual inspection.
+
+Table 1. In-phase correlation between photoplthysmogram (PPG) and arterial blood pressure (ABP) signals.
+
+Normotensive
+
+Subject ID r
+
+’11727_2’ ’12174_2’ ’17848_2’ ’19700_2’ ’2104_2’ ’2513_2’ ’27436_2’ ’27648_2’ ’27833_2’ ’27887_2’ ’28077_2’ ’28187_2’ ’28813_2’ ’28910_2’ ’29102_2’ ’29120_2’ ’3039_2’ ’44223_2’ ’44409_2’ ’44422_2’ ’44432_2’ ’44526_2’ ’44598_2’ ’44601_2’ ’44629_2’ ’44671_2’ ’44758_2’ ’44763_2’ ’44783_2’ ’44810_2’ ’45049_2’ ’45186_2’ ’45311_2’ ’45343_2’ ’45353_2’ ’45487_2’ ’45556_2’ ’45645_2’ ’46122_2’ ’46230_2’ ’46424_2’ ’5937_2’ ’946_2’
+
+0.9073 0.9142 0.9676 0.951 0.9459 0.9201 0.9806 0.9689 0.9354 0.802 0.9362 0.9633 0.9802 0.9699 0.9178 0.9382 0.9481 0.9533 0.9441 0.9672 0.956 0.8325 0.9419 0.9499 0.9757 0.9612 0.9754 0.9261 0.9333 0.8872 0.9529 0.9373 0.9615 0.9688 0.8794 0.9774 0.9586 0.9703 0.981 0.9661 0.9086 0.9206 0.9474
+
+Average 0.9414
+
+Prehypertensive
+
+Subject ID r
+
+’12531_2’ ’13600_2’ ’15218_2’ ’15716_2’ ’16129_2’ ’18970_2’ ’21730_2’ ’26897_2’ ’27241_2’ ’27337_2’ ’27434_2’ ’27845_2’ ’28758_2’ ’28882_2’ ’44088_2’ ’44104_2’ ’44201_2’ ’44233_2’ ’44458_2’ ’44496_2’ ’44590_2’ ’44623_2’ ’44640_2’ ’44647_2’ ’44902_2’ ’45181_2’ ’45384_2’ ’45426_2’ ’45533_2’ ’45572_2’ ’45636_2’ ’45641_2’ ’46138_2’ ’46297_2’ ’46416_2’ ’4679_2’ ’6581_2’ ’6692_2’ ’7614_2’ ’9124_2’
+
+0.8385 0.916 0.9797 0.9286 0.9557 0.9025 0.7777 0.9317 0.9359 0.9384 0.8639 0.9413 0.8939 0.9833 0.8657 0.9413 0.9773 0.9592 0.8442 0.9571 0.9745 0.945 0.9663 0.9771 0.9434 0.8832 0.9142 0.8659 0.9798 0.8721 0.9239 0.9278 0.9157 0.8783 0.7969 0.849 0.9256 0.9332 0.908 0.9677
+
+0.917
+
+Hypertensive
+
+Subject ID r
+
+’10464_2’ ’11187_2’ ’1501_2’ ’15902_2’ ’18642_2’ ’19578_2’ ’20726_2’ ’22335_2’ ’23201_2’ ’2458_2’ ’27446_2’ ’28499_2’ ’28510_2’ ’28775_2’ ’29127_2’ ’44118_2’ ’44171_2’ ’44173_2’ ’44347_2’ ’44572_2’ ’44615_2’ ’44616_2’ ’44626_2’ ’44704_2’ ’44839_2’ ’44981_2’ ’45098_2’ ’45140_2’ ’45212_2’ ’45227_2’ ’45550_2’ ’45627_2’ ’46216_2’ ’46303_2’ ’801_2’ ’8141_2’ ’8318_2’
+
+0.9327 0.906 0.9023 0.9696 0.9448 0.9492 0.9109 0.947 0.9558 0.9744 0.7908 0.9787 0.921 0.8816 0.978 0.9415 0.9377 0.969 0.8966 0.93 0.8795 0.9505 0.9526 0.9689 0.9742 0.9583 0.9663 0.9561 0.9223 0.8929 0.9355 0.902 0.8924 0.9499 0.9454 0.9484 0.871
+
+0.932
+
+J. Clin. Med. 2018, 7, 316
+
+8 of 13
+
+The results of the H3 hypothesis, which is an out-phase analyses for time and frequency domains, can be seen in Table 2. The p-value of the Wilcoxon test corresponds to where the difference was found in comparing NT vs. PHT and NT vs. HT, while Kruskall–Walllis test for comparing NT vs. PHT vs. HT. As can be seen in Table 2, the ﬁrst tested measure was the correlation coefﬁcient; however, we are expecting that there will be no correlation between ABP and PPG morphologies as it is out-phase analysis. Interestingly, COH and pCOH scored the exact p-values for all comparisons, with a signiﬁcant difference (p = 0.0069) in comparing NT vs. HT groups, this result suggest acceptance of the H3 hypothesis.
+
+Table 2. Out-phase statistical separability results. Abbreviations: NT, normotensive; PHT, Prehypertensive; HT, Hypertensive; r, Pearson’s correlation coefﬁcient; COH, Coherence; pCOH, Partial coherence; PDC, Partial directed coherence; DTF, Directed transfer function; dDTF, Direct directed transfer function; ffDTF, Full frequency directed transfer function; K-W test, Kruskal–Wallis test.
+
+Time Domain
+r Frequency domain
+COH & pCOH PPG → ABP
+PDC DTF ffDTF dDTF ABP → PPG PDC DTF ffDTF dDTF
+
+NT vs. PHT NT vs. HT PHT vs. HT
+
+p-value (Wilcoxon Test)
+
+0.4466
+
+0.4552
+
+0.9600
+
+p-value (Wilcoxon Test)
+
+0.2355
+
+0.0069
+
+0.1630
+
+p-value (Wilcoxon Test)
+
+0.6258 0.5324 0.2527 0.2681
+
+0.1861 0.2061 0.2928 0.2973
+
+0.4536 0.4475 0.9715 0.9552
+
+p-value (Wilcoxon Test)
+
+0.0264 0.1788 0.0762 0.0718
+
+0.0102 0.0479 0.0022 0.0020
+
+0.7250 0.5995 0.1128 0.1249
+
+p-Value (K–W Test) NT vs. PHT vs. HT
+0.6726 p-value (K–W test) NT vs. PHT vs. HT
+0.0281 p-value (K–W test) NT vs. PHT vs. HT
+0.4248 0.4219 0.4352 0.4506 p-value (K–W test) NT vs. PHT vs. HT 0.0188 0.1304 0.0064 0.0061
+
+The results, as shown in Table 2, suggest that, taking the median of these results into account, when ABP increases, the coupling of the signals increases as well. Studies in the frequency domain of these signals have focused mainly on the spectrum they handle and their relationship with the heart rate variability (HRV) [23]. The fact that the coupling of the signals improves as the ABP increases might be because the phase between the signals decreases, and it should be noted that N and H groups can be differentiated. For the rest of the analyses (PDC, DTF, ffDTF, and dDTF), two results were derived: PPG→ABP and ABP→PPG causalities.
+Moreover, we evaluated the range of frequencies in which the groups can be differentiated for COH, pCOH, PDC and DTF. The latter were analyzed only in the direction ABP→PPG, as is shown in Figure 4.
+These types of metrics are mainly used to determine the causality, connectivity, and synchronicity between brain signals [24,25] and changes in the brain during a speciﬁc activity [26]. The use of some of these has been reported in cardiovascular signals, where the principal purpose was to study the characteristics of the pulse transit time (PTT), and the ABP and BP waveforms in normotensive subjects [27]. The results of the analyses in the frequency domain were consistent, indicating that the
+
+J. Clin. Med. 2018, 7, 316
+
+9 of 13
+
+causality of connectivity between the signals goes ABP→PPG, which is in agreement physiologically with the measurement sites of both signals.
+
+p-value p-value p-value
+
+(a)
+
+COH/pCOH
+
+(ABP, PPG)
+0.1
+
+PDC
+
+PHT vs. HT
+
+0.09 PHT vs. HT
+0.08
+
+0.07
+
+0.06
+
+NT vs. HT
+
+0.05
+
+NT vs. HT
+
+0.04
+
+0.03
+
+NT vs. PHT
+
+0.02
+
+NT vs. PHT
+
+0.01
+
+0
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Frequency, Hz
+
+(b) (ABP → PPG)
+
+DTF
+PHT vs. HT NT vs. HT
+NT vs. PHT
+
+(c) (ABP → PPG)
+
+Figure 4. Frequency signiﬁcance in differentiation blood pressure groups: (a) COH and pCOH (b) PDC direction ABP→PPG; and (c) DTF direction ABP→PPG. Abbreviations: NT, normotensive; PHT, Prehypertensive; HT, Hypertensive; COH, Coherence; pCOH, Partial coherence; PDC, Partial directed coherence; DTF, Directed transfer function; dDTF, Direct directed transfer function; ffDTF, Full frequency directed transfer function.
+
+The different metrics of Granger’s causality allow us to see the directionality of the relationship of the signals, and not only the level of this relationship. The results obtained were expected due to the physiological measurement location of the ABP and PPG sensors. The ABP→PPG direction infers that the ABP signal is ﬁrst and it inﬂuences the PPG signal. Results mathematically show that changes in blood pressure cause changes in blood volume, not the other way around.
+The results of the classiﬁcation analysis are shown in Table 3. The highest classiﬁcation percentage (87.5%) was obtained with a two-layer feed forward Neural Network classiﬁer that uses all ﬁve Granger’s measures as a feature set. In Figure 5 can be see the confusion plots and the ROC curve plots of the best classiﬁcation.
+
+Table 3. Classiﬁcation accuracy results. Abbreviations: COH, Coherence; pCOH, Partial coherence; PDC, Partial directed coherence; DTF, Directed transfer function; dDTF, Direct directed transfer function; ffDTF, Full frequency directed transfer function.
+
+#
+
+Classiﬁer
+
+COH PDC DTF ffDTF dDTF All Features
+
+1.1
+
+Linear
+
+66.3% 51.3% 53.8% 65.0% 62.5%
+
+1.2
+
+Diaglinear
+
+66.3% 51.3% 53.8% 65.0% 62.5%
+
+1.3
+
+Quadratic
+
+60.0% 52.5% 50.0% 62.5% 62.5%
+
+1.4
+
+Diagquadratic
+
+60.0% 52.5% 50.0% 62.5% 62.5%
+
+1.5
+
+Mahalanobis
+
+70.0% 52.5% 48.8% 61.3% 61.3%
+
+1.6
+
+SVM
+
+66.3% 55.0% 53.7% 56.2% 56.2%
+
+1.7
+
+KNN
+
+63.8% 45.0% 56.2% 47.5% 47.5%
+
+1.8
+
+Tree
+
+71.3% 57.5% 65.0% 52.5% 57.5%
+
+1.9
+
+Naive Bayes
+
+62.5% 52.5% 50.0% 62.5% 62.5%
+
+1.10
+
+Ecoc
+
+53.7% 53.7% 53.7% 53.7% 53.7%
+
+1.11
+
+Esemble
+
+63.8% 51.2% 50.0% 53.7% 56.2%
+
+1.12 Two-layer feed forward Neural Network 77.5% 66.3% 63.7% 78.8% 67.5%
+
+70.0% 70.0% 58.8% 65.0% 65.0% 67.5% 71.3% 60.0% 65.0% 60.0% 62.5% 87.5%
+
+The results obtained in the frequency domain had a clear incremental trend parallel to the BP, and this implies that the two groups (NT and HT) can be differentiated even when the similarity-causality between the signals is high in all groups. Figure 6 shows an example of this, where a peak of the ABP signal (pink color) and its corresponding PPG (light blue) are shown for normotensive and hypertensive subjects and their corresponding results of each of the calculated measures.
+
+J. Clin. Med. 2018, 7, 316
+
+10 of 13
+
+Output Class 0 1
+
+Training Confusion Matrix
+
+0
+
+25 44.6%
+
+1 1.8%
+
+96.2% 3.8%
+
+Validation Confusion Matrix
+
+0
+
+8 66.7%
+
+1 8.3%
+
+88.9% 11.1%
+
+Output Class 0 1
+
+1
+
+5 8.9%
+
+25 44.6%
+
+83.3% 16.7%
+
+1
+
+0 0.0%
+
+3 25.0%
+
+100% 0.0%
+
+83.3% 16.7%
+
+96.2% 3.8%
+
+89.3% 10.7%
+
+100% 0.0%
+
+75.0% 25.0%
+
+91.7% 8.3%
+
+Target Class
+
+Test Confusion Matrix
+
+0
+
+4 33.3%
+
+2 16.7%
+
+66.7% 33.3%
+
+Target Class
+
+All Confusion Matrix
+
+0
+
+37 46.3%
+
+4 5.0%
+
+90.2% 9.8%
+
+Output Class 0 1
+
+1
+
+1 8.3%
+
+5 41.7%
+
+83.3% 16.7%
+
+1
+
+6 7.5%
+
+33 41.3%
+
+84.6% 15.4%
+
+80.0% 20.0%
+
+71.4% 28.6%
+
+75.0% 25.0%
+
+86.0% 14.0%
+
+89.2% 10.8%
+
+87.5% 12.5%
+
+Target Class
+(a)
+
+Target Class
+
+True Positive Rate
+
+True Positive Rate
+
+Training ROC 1
+
+Validation ROC 1
+
+True Positive Rate
+
+0.8
+
+0.8
+
+0.6
+
+0.6
+
+0.4
+
+0.4
+
+0.2
+
+0.2
+
+0 0 0.2 0.4 0.6 0.8 1
+False Positive Rate
+
+0 0 0.2 0.4 0.6 0.8 1
+False Positive Rate
+
+Test ROC 1
+
+All ROC 1
+
+True Positive Rate
+
+0.8
+
+0.8
+
+0.6
+
+0.6
+
+0.4
+
+0.4
+
+0.2
+
+0.2
+
+0 0 0.2 0.4 0.6 0.8 1
+False Positive Rate
+
+0 0 0.2 0.4 0.6 0.8 1
+False Positive Rate
+
+(b)
+
+Output Class 0 1
+
+Figure 5. Neural networks training, testing, and validation using all causality measures: (a) confusion plot; and (b) receiver operating characteristic (ROC) curve.
+
+SBP = 114 mmHg
+
+COH = 0.990 PDC = 0.995 DTF = 0.996 ffDTF = 0.630 dDTF = 0.629
+ABP PPG
+
+SBP = 110 mmHg
+
+COH = 0.995 PDC = 0.997 DTF = 0.999 ffDTF = 0.650 dDTF = 0.647
+ABP PPG
+
+Normotensive [-]
+
+[-] [-]
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Time (s)
+
+SBP = 140 mmHg
+
+COH = 0.978 PDC = 0.980 DTF = 0.981 ffDTF = 0.659 dDTF = 0.657
+ABP PPG
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Time (s)
+
+SBP = 154 mmHg
+
+COH = 0.998 PDC = 0.954 DTF = 0.975 ffDTF = 0.648 dDTF = 0.648
+
+ABP PPG
+
+Hypertensive [-]
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Time (s)
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Time (s)
+
+Figure 6. Examples of different causality measures for normotensive and hypertensive cases. Abbreviations: COH, Coherence; pCOH, Partial coherence; PDC, Partial directed coherence; DTF, Directed transfer function; dDTF, Direct directed transfer function; ffDTF, Full frequency directed transfer function.
+
+Based on the out-phase analysis shown Figure 6, the ABP and PPG morphologies in the frequency domain are coherent. Some measures are more sensitive than others; however, examining all measures conﬁrms the coherence and similarity between the ABP and PPG signals. Note that the results show a great morphological similarity between the signals of ABP and PPG regardless if age is confounding or not.
+
+J. Clin. Med. 2018, 7, 316
+
+11 of 13
+
+During the out-phase analysis, it was assumed that, since the ABP and PPG signals were simultaneously collected (i.e., all signals were collected at the same time with no delay), the signals were also synchronized. Many papers published results using the MIMIC database and assumed that all signals were collected at the same time and synchronized [28–32]. However, even if a delay (or error in the data matching and alignment) occurred in some recordings, as mentioned in [21], the analysis is still important as it sheds light on the overall synchronicity trend over all recordings.
+Several algorithms can be used to calculate the BP based on the PPG signal along with other biosignals [33,34]. While it is true that new technologies and methodologies are still being developed to make collection of multiple biosignals more portable and precise, there is still a lot of research and testing needed [35,36]. Our study focused on providing evidence that the PPG morphology is similar to (and as informative as) the ABP morphology in both the temporal and frequency domain, and thus the PPG could be used instead of ABP. Further research needs to be done on how PPG can be used in clinical and remote settings.
+4. Limitation of Study and Future Work
+Our main goal here was to examine the similarities between PPG and ABP waveforms. We did not focus on optimizing the classiﬁer or evaluating BP using PPG signals. One of our next steps is to estimate blood pressure from PPG waveform based on the ﬁndings of this paper.
+The main limitations of the ﬁles used in this paper were the lack of demographic and clinical data, as well as a lack of more detailed information on the equipment used and the relative calibrations for the records. We did the analysis without looking into any confounding factors. On the other hand, although many papers have published results using the MIMIC database and it is assumed that all the signals were collected at the same time and synchronized, this is not the case, which made it impossible to perform further frequency analyses. As future work, we would like to apply the methodologies proposed in other databases and even in data acquired by us to have precise control of the gains of the sensors, and propose a metric for the calculation of the SBP and DBP from the PPG signal that goes according to our analysis.
+5. Conclusions
+From the results of the analyses carried out, it can be concluded that there is a similarity between the PPG and ABP morphologies. This is reﬂected in the correlation coefﬁcient calculated in the time-domain in-phase analysis. From the frequency domain analysis, it can be concluded that, as the BP increases, the synchronicity of the signals also increases, in addition to the higher causality is given ABP → PPG, which already mentioned above has congruence for the physiological relevance of the registration of the signals. Finally, the results of the classiﬁcation analysis with the combination of the most two informative frequency measures suggest that PPG signal can be used to determine if a patient is normotensive or hypertensive similar to the ABP signal. The main conclusion of this work is that BP monitoring through PPG is a very promising for evaluating BP and it is a potentially feasible replacement for invasive ABP.
+Author Contributions: G.M., R.W., and M.E. performed the statistical analysis. G.M., N.H., D.A., R.W., K.L. and M.E. conceived the study and drafted the manuscript. M.E. designed the study and led this research topic. All authors approved the ﬁnal manuscript.
+Funding: This research was funded by BC Children’s & Women’s Hospital and The University of British Columbia, Canada.
+Acknowledgments: Mohamed Elgendi is grateful for the support from Mining for Miracles, BC Children’s Hospital Foundation and Women’s Health Research Centre of British Columbia, Vancouver, British Columbia, Canada.
+Conﬂicts of Interest: The authors declare no conﬂict of interest.
+
+J. Clin. Med. 2018, 7, 316
+
+12 of 13
+
+References
+1. Gabb, G.M.; Mangoni, A.A.; Anderson, C.S.; Cowley, D.; Dowden, J.S.; Golledge, J.; Hankey, G.J.; Howes, F.S.; Leckie, L.; Perkovic, V.; et al. Guideline for the diagnosis and management of hypertension in adults—2016. Mortality 2016, 205, 85–89.
+2. Kumar, V.; Abbas, A.; Fausto, N.; Aster, J. Robbins and Cotran Pathologic Basis of Disease, Professional; Elsevier: Amsterdam, The Netherlands, 2009.
+3. Allen, J. Photoplethysmography and its application in clinical physiological measurement. Physiol. Meas. 2007, 28, R1. [CrossRef]
+4. Xing, X.; Sun, M. Optical blood pressure estimation with photoplethysmography and FFT-based neural networks. Biomed. Opt. Express 2016, 7, 3007–3020.
+5. Nitzan, M.; Slotki, I.; Shavit, L. More accurate systolic blood pressure measurement is required for improved hypertension management: A perspective. Med. Devices 2017, 10, 157–163.
+6. Njoum, H.; Kyriacou, P.A. Photoplethysmography for the assessment of haemorheology. Sci. Rep. 2017, 7, 1406. [CrossRef]
+7. Sharkey, E.J.; Di Maria, C.; Klinge, A.; Murray, A.; Zheng, D.; O’Sullivan, J.; Allen, J. Innovative multi-site photoplethysmography measurement and analysis demonstrating increased arterial stiffness in paediatric heart transplant recipients. Physiol. Meas. 2018, 39. [CrossRef]
+8. Hsu, P.-C.; Wu, H.-T.; Sun, C.-K. Assessment of subtle changes in diabetes-associated arteriosclerosis using photoplethysmographic pulse wave from index finger. J. Med. Syst. 2018, 42, 43. [CrossRef]
+9. Rajala, S.; Lindholm, H.; Taipalus, T. Comparison of photoplethysmogram measured from wrist and finger and the effect of measurement location on pulse arrival time. Physiol. Meas. 2018, 39. [CrossRef]
+10. Elgendi, M.; Liang, Y.; Ward, R. Toward generating more diagnostic features from photoplethysmogram waveforms. Diseases 2018, 6, 20.
+11. Euliano, T.Y.; Michalopoulos, K.; Singh, S.; Gregg, A.R.; Del Rio, M.; Vasilopoulos, T.; Johnson, A.M.; Onkala, A.; Darmanjian, S.; Euliano, N.R.; et al. Photoplethysmography and heart rate variability for the diagnosis of preeclampsia. Anest. Anal. 2018, 126, 913–919.
+12. Lan, K.C.; Raknim, P.; Kao, W.F.; Huang, J.H. Toward Hypertension Prediction Based on PPG-Derived HRV Signals: A Feasibility Study. J. Med. Syst. 2018, 42, 103.
+13. Shariati, N.H.; Zahedi, E.; Jajai, H.M. Classiﬁcation of vascular function in upper limb using bilateral photoplethysmographic signals. Physiol. Meas. 2008, 29, 365–374.
+14. Liang, Y.; Chen, Z.; Ward, R.; Elgendi, M. Hypertension assessment via ECG and PPG signals: An evaluation using MIMIC database. Diagnostics 2018, 8, 65. [CrossRef]
+15. Picone, D.S.; Schultz, M.G.; Otahal, P.; Aakhus, S.; Al-Jumaily, A.M.; Black, J.A.; Bos, W.J.; Chambers, J.B.; Chen, C.H.; Cheng, H.M.; et al. Accuracy of cuff-measured blood pressure: Systematic reviews and meta-analyses. J. Am. Coll. Cardiol. 2017, 70, 572–586.
+16. Johnson, A.E.; Pollard, T.J.; Shen, L.; Lehman, L.H.; Feng, M.; Ghassemi, M.; Moody, B.; Szolovits, P.; Anthony Celi, L.; Mark, R.G. MIMIC-III, a freely accessible critical care database. Sci. Data 2016, 3, 160035. [CrossRef]
+17. Blinowska, K.J. Review of the methods of determination of directed connectivity from multichannel data. Med. Biol. Eng. Comput. 2011, 49, 521–529.
+18. Takalo, R.; Hytti, H.; Ihalainen, H. Tutorial on univariate autoregressive spectral analysis. J. Clin. Monit. Comput. 2005, 19, 401–410.
+19. Baccalá, L.A.; Sameshima, K. Partial directed coherence: a new concept in neural structure determination. Biol. Cybern. 2001, 84, 463–474.
+20. Kaminski, M.J.; Blinowska, K.J. A new method of the description of the information ﬂow in the brain structures. Biol. Cybern. 1991, 65, 203–210.
+21. Clifford, G.D.; Scott, D.J.; Villarroel, M. User Guide and Documentation for the MIMIC II Database, Version 2.6. Available online: https://mimic.mit.edu/archive/mimic-ii-guide.pdf (accessed on 8 February 2012).
+22. Hsiu, H.; Hsu, C.-L.; Wu, T.-L. A preliminary study on the correlation of frequency components between ﬁnger PPG and radial arterial BP waveforms. In Proceedings of the International Conference on Biomedical and Pharmaceutical Engineering, Singapore, 2–4 December 2009; pp. 1–4.
+23. Choi, A.; Shin, H. Photoplethysmography sampling frequency: Pilot assessment of how low can we go to analyze pulse rate variability with reliability? Physiol. Meas. 2017, 38, 2252.
+
+J. Clin. Med. 2018, 7, 316
+
+13 of 13
+
+24. Shaw, L.; Routray, A. Topographical assessment of neurocortical connectivity by using directed transfer function and partial directed coherence during meditation. Cogn. Process. 2018, 1–10. [CrossRef]
+25. Sezen, C.; Didier, G.; Olivier, R. Time, frequency, and time—varying granger—causality measures in neuroscience. Stat. Med. 2018, 37, 1910–1931.
+26. Aguilar, G.M.M.; Gutiérrez, D. Using cortico-muscular and cortico-cardiac coherence to study the role of the brain in the development of muscular fatigue. Biomed. Signal Process. Control 2018. In press
+27. Orini, M.; Citi, L.; Barbieri, R. Bivariate point process modeling and joint non-stationary analysis of pulse transit time and heart period. Conf. Proc. IEEE Eng. Med. Biol. Soc. 2012, 2012, 2831–2834.
+28. Forouzanfar, M.; Ahmad, S.; Batkin, I.; Dajani, H.R.; Groza, V.Z.; Bolic, M. Coefficient-free blood pressure estimation based on pulse transit time-cuff pressure dependence. IEEE Trans. Biomed. Eng. 2013, 60, 1814–1824. [CrossRef] [PubMed]
+29. Wang, R.; Jia, W.; Mao, Z.-H.; Sclabassi, R.J.; Sun, M. Cuff-free blood pressure estimation using pulse transit time and heart rate. Int. Conf. Signal Process. Proc. 2014, 2014, 115–118.
+30. Zhang, Q.; Chen, X.; Fang, Z.; Xue, Y.; Zhan, Q.; Yang, T.; Xia, S. Cuff-less blood pressure measurement using pulse arrival time and a kalman ﬁlter. J. Micromech. Microeng. 2017, 27, 024002. [CrossRef]
+31. Pﬂugradt, M.; Geissdoerfer, K.; Goernig, M.; Orglmeister, R. A fast multimodal ectopic beat detection method applied for blood pressure estimation based on pulse wave velocity measurements in wearable sensors. Sensors 2017, 17, 158.
+32. Feng, J.; Huang, Z.; Zhou, C.; Ye, X. Study of continuous blood pressure estimation based on pulse transit time, heart rate and photoplethysmography-derived hemodynamic covariates. Aust. Phys. Eng. Sci. Med. 2018, 41, 403–413.
+33. Gesche, H.; Grosskurth, D.; Küchler, G.; Patzak, A. Continuous blood pressure measurement by using the pulse transit time: comparison to a cuff-based method. Eur. J. Appl. Physiol. 2012, 112, 309–315.
+34. McCarthy, B.; Vaughan, C.; O’ﬂynn, B.; Mathewson, A.; Mathúna, C.Ó. An examination of calibration intervals required for accurately tracking blood pressure using pulse transit time algorithms. J. Hum. Hypertens. 2013, 27, 744.
+35. Plante, T.B.; Urrea, B.; MacFarlane, Z.T.; Blumenthal, R.S.; Miller, E.R.; Appel, L.J.; Martin, S.S. Validation of the instant blood pressure smartphone app. JAMA Int. Med. 2016, 176, 700–702.
+36. Raichle, C.J.; Eckstein, J.; Lapaire, O.; Leonardi, L.; Brasier, N.; Vischer, A.S.; Burkard, T. Performance of a blood pressure smartphone app in pregnant women: The iparr trial (iphone app compared with standard rr measurement. Hypertension 2018, 71, 1164–1169.
+c 2018 by the authors. Licensee MDPI, Basel, Switzerland. This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (http://creativecommons.org/licenses/by/4.0/).
+

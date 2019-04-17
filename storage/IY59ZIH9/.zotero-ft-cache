@@ -1,0 +1,228 @@
+Cuff-Less High-Accuracy Calibration-Free Blood Pressure Estimation Using Pulse Transit Time
+
+Mohamad Kachuee, Mohammad Mahdi Kiani, Hoda Mohammadzade, Mahdi Shabany Department of Electrical Engineering Sharif University of Technology Tehran, Iran
+Email: m.kachuee@gmail.com, mahdikiany@gmail.com, hoda@sharif.edu, mahdi@sharif.edu
+
+Abstract—Recently a few methods have been proposed in the literature for non-invasive cuff-less estimation of systolic and diastolic blood pressures. One of the most prominent methods is to use the Pulse Transit Time (PTT). Although it is proven that PTT has a strong correlation with the systolic and diastolic blood pressures, this relation is highly dependent to each individuals physiological properties. Therefore, it requires per person calibration for accurate and reliable blood pressure estimation from PTT, which is a big drawback. To alleviate this issue, in this paper, a novel method is proposed for accurate and reliable estimation of blood pressure that is calibration-free. This goal is accomplished by extraction of several physiological parameters from Photoplethysmography (PPG) signal as well as utilizing signal processing and machine learning algorithms. The results show that the accuracy of the proposed method achieves grade B for the estimation of the diastolic blood pressure and grade C for the estimation of the mean arterial pressure under the standard British Hypertension Society (BHS) protocol.
+I. INTRODUCTION
+World Health Organization (WHO) in 2014’s world health statistics reported that the hypertension causes 9.4 million people death annually [1]. According to 2008’s survey, 29.2 percent of men and 24.8 percent of women suffer from the high blood pressure problem. The hypertension has been recognized as the second factor of cardiovascular disease after diabetes. It is also called the silent killer, as many people are not aware of their hypertension and the way to control it.
+The Blood Pressure (BP) is a periodic signal with the heart rate frequency. The upper bound of the blood pressure is called the Systolic Pressure (SP) while its lower bound is called the Diastolic Pressure (DP). The mean arterial pressure (MAP) is deﬁned as the average of the blood pressure in a cardiac cycle. If SP is above 140 mmHg or DP is above 90 mmHg, it is called hypertension that can damage internal body organs. The normal range of MAP is between 70 mmHg and 110 mmHg. Patients with hypertension usually measure their blood pressure occasionally. However, their blood pressure varies over time due to many factors such as food taking, mental situations or stress. Therefore, a continues blood pressure monitoring seems necessary for accurate diagnosis and treatment of such patients. On the other hand, continuous records of BP also help doctors to prescribe appropriate diet and medicine for individual patients more accurately.
+The most accurate and common blood pressure measurement devices are sphygmomanometers, which must inﬂate a cuff around the arm so that BP can be measured with the
+
+height of a column of mercury [2]. This method requires inﬂatable cuff, which is inconvenient and prevents continues measurements due to physiological limitations. Recent researches suggest new cuff-less blood pressure estimation methods. Although, there have been some attempts on estimating SP and DP based on the Photoplethysmograph (PPG) signal shape, no clear relation between PPG and BP has been found yet [3]. Another cuff-less method is based on the wave propagation theory for ﬂuids, which is founded on the natural relationship between the ﬂuid pressure and wave propagation velocity. The theory implies that the blood pressure can be calculated from the heart beat wave velocity. There are a number of disadvantages associated with this method, such as the need for calibration for each person and the expiration of this calibration in short time intervals [5].
+In this paper, a novel method is proposed for calibrationfree and accurate estimation of the blood pressure. The proposed scheme is accomplished by the extraction of a number of physiological parameters from Electrocardiogram (ECG) and PPG signals along with machine learning theories. This paper is organized as follows. Section II explains the physical theory behind this work. Section III presents an overview on the database used in this paper, as well as the feature extraction and learning methods. Section IV demonstrates the results and ﬁnally Section V concludes the paper.
+
+II. BACKGROUND
+The main idea that motivate this work is that the velocity of the pressure pulse, which is initiated by the heart beat and propagates through arteries, is highly correlated with the elastic properties of arteries, similar to a pipe with elastic walls. The velocity of displaced ﬂuid in a pipe is a function of its tension and elasticity. The relation between the Pulse Wave Velocity (PWV), vessel parameters and blood properties can be represented as [6]:
+
+E.t
+
+PWV =
+
+,
+
+(1)
+
+2.R.ρ
+
+where R is the inner radius of vessels, ρ represents the blood density, t is the vessel thickness and E is Young’s modulus, which is related to the vessels elasticity. For an elastic vessel, the relation between the blood pressure and E is given by:
+
+E = E0.eα.(P −P0),
+
+(2)
+
+where E0 and P0 are some constants and P can be interpreted as the blood pressure in arteries. In fact (2) indicates that
+
+978-1-4799-8391-9/15/$31.00 ©2015 IEEE
+
+1006
+
+Fig. 1. Calculation of PTT from the time taken for the heart beat pulse to arrive in the ﬁnger PPG signal. a) ECG signal. b) PPG signal
+
+there exists an exponential relation between E and the blood pressure. The formulations in (1) and (2) show that there is a relation between the pulse wave velocity and BP [7].
+
+There are several methods for calculation of the pulse wave velocity, among which one of the most well-known methods is the Pulse Transit Time (PTT) [4]. PTT is deﬁned as the time it takes for the heart beat pulse to propagate from heart to the body peripherals. The pulse wave velocity can be estimated by dividing the distance from heart to a speciﬁc peripheral (dh,p) by the measured PTT through the following equation:
+
+P W V = dh,p .
+
+(3)
+
+PTT
+
+The calculation of the blood pressure from (3) incurs several challenges. One of them is that arterial properties differ from person to another and are highly dependent to an individual’s age. Moreover, according to (3), it is required to have the distance between the peripheral and the heart, which is related to the person’s height. PTT can be estimated as the time interval between the R peak of the ECG signal, which indicates the electrical activity of the heart, and certain points in the ﬁnger PPG waveform. (see Fig. 1)
+
+III. METHODOLOGY
+Fig. 2 shows the block diagram of the proposed cuff-less BP estimation method, which consists of the following steps. i) Database, collection of a database with adequate sample size ii) Preprocessing block to smooth and remove invalid signals iii) Feature extraction block to extract useful features from signals iv) Partitioning block to partition the samples in to three subsets i.e. train, validation and test v) Machine Learning block to train the regression models and ﬁnally vi) Model Evaluation block to evaluate the trained models’ performance. All these steps are discussed in detail in the sequel.
+
+A. Database
+Multi-parameter Intelligent Monitoring in Intensive Care (MIMIC) II online waveform database [9] provided by PhysioNet organization is used in this paper as the reference database. It consists of thousands signals recorded by patient
+
+Fig. 2. Cuff-less BP estimator block diagram.
+monitors at various hospitals between 2001 and 2008. Waveform signals were sampled at the frequency of 125 Hz with at least 8 bit accuracy. We extracted PPG, ECG and arterial blood pressure waveform signals from this database.
+B. Preprocessing
+A considerable number of signals from MIMIC database contain parts deteriorated due to different distortions and artifacts, which makes them useless. In order to make them ready for feature extraction, removing unreliable signals is a vital task. Preprocessing is performed by dividing samples into ﬁxed size signal blocks following which each signal block is processed as follows:
+Step I: Smoothing all signals with a simple averaging ﬁlter.
+Step II: Removing signal blocks with irregular and unacceptable human blood pressure values.
+Step III: Removing signal blocks with unacceptable heart rates.
+Step IV: Removing signal blocks with severe discontinuities, which was not resolved with the help of smoothing ﬁlter in step I.
+Step V: Calculation of PPG signal autocorrelation, which indicates the degree of similarity between successive pulses, and removing blocks with high alteration.
+After performing the above steps on all database samples, the processed database is clean enough to be used as an input to the feature extraction block.
+C. Feature extraction
+In this paper it is proposed that in addition to PTT features, some useful features of the PPG signal to be added to improve the BP estimation. The ﬁnal list of these features is as follows.
+1) PTT features: PTT features are obtained by calculating the time distance between the ECG R-peak and three points on the PPG signal, which are the PPG maximum peak (PTTp), the PPG minimum (PTTf) and the point at which the maximum slope of the PPG waveform occurs (PTTd). (See Fig. 1)
+
+1007
+
+Fig. 4. Histogram of the preprocessed database: a) diastolic blood pressure. b) systolic blood pressure.
+
+Fig. 3. Extraction of PPG signal features.
+
+2) Heart rate: The heart rate is obtained by calculation of the peak-to-peak time interval of the PPG or ECG signals.
+3) PPG features: As mentioned in Section I, the PPG features is proposed to be used in order to achieve a calibrationfree method. Among various PPG features, which are related to the blood pressure, the following features are selected:
+
+• Augmentation Index (AI): Augmentation is a measure of the wave reﬂection on the arteries [3], which is calculated as the ratio between the diastolic peak and the systolic peak as follows (see Fig. 3),
+
+x
+
+AI = .
+
+(4)
+
+y
+
+• Large Artery Stiffness Index (LASI): LASI is a measure of the arterial stiffness and it is related to the time interval between the systolic peak and the diastolic peak. (see Fig. 3)
+
+• Inﬂection Point Area ratio (IPA): IPA is deﬁned as a function of the areas under the PPG curve between selected points, denoted by S1, S2, S3 and S4 in Fig 3. The ratio of these areas , IPA, is an indicator of the total peripheral resistance [3]. However, in this paper, it is proposed to use S1, S2, S3 and S4 directly.
+
+D. Partitioning
+After processing of the database, 4254 records were obtained, whose BP distribution histograms are shown in Fig. 4. The new database is then randomly partitioned into three sets: 60% as training, 20% as validation and the remaining as test samples.
+E. Machine Learning
+As mentioned in Section II, there is an exponential relationship between the blood pressure and the PWV, which causes a huge non-linearity near the high blood pressure values [8]. Consequently, the estimation of the high BP values becomes erroneous using the selected features. To overcome this problem, two approaches are proposed in this paper. In the ﬁrst approach, polynomial terms of the extracted features are
+
+added as extra features and then the training is performed via the linear regression algorithm. In this approach, Regularized Linear Regression (RLR) with the Mean Squared Error (MSE) cost function used as a basic regression algorithm with a low computational cost and fast training. In RLR, regularization parameters are computed by means of the cross validation.
+As the second approach, non-linear regression algorithms are another alternative, which are proven to have a better capability to handle this non-linearity issue compared to the linear regression approach at the cost of an extra computational complexity. The Artiﬁcial Neural Networks (ANN) and the kernelized Support Vector Machines (SVM) are among these non-linear methods, described in the following:
+• ANN: Well-known Levenberg-Marquardt back propagation algorithm is used as the learning function and MSE is used as the cost function. The network topology, trained with this algorithm, consists of one input layer with the size of the feature vector, one hidden layer with sizes between 5 to 15 and one neuron in the output layer.
+• SVM: SVM is a large margin classiﬁer with a high noise tolerance. The Libsvm library [10] is used for training an “epsilon-SVR” with “RBF kernel” machine. learning parameters, which are the misclassiﬁcation penalty C, kernel parameter γ and the tolerance of termination criterion , are chosen through a grid search. For each of these parameters, the training is performed using the training set and parameters selected by evaluating on the validation set.
+F. Model Evaluation
+The Mean Absolute Error (MAE) and Standard Deviation (STD) of estimation errors are used for the model evaluation, which are calculated on the separated test set.
+IV. RESULTS
+The results from various regression approaches, described above are presented in Table I. For RLR, two results are reported, where the results in the ﬁrst row (RLRLF ) are obtained without adding extra non-linear features, while the ones in the second row (RLRP F ) are obtained by adding extra polynomial features. In fact, Table I indicates that the SVM
+
+1008
+
+TABLE I. PERFORMANCE OF DIFFERENT ALGORITHMS
+
+Algorithm
+RLRLF RLRP F
+AN N SV M
+
+DP
+
+MAE
+
+STD
+
+(mmHg) (mmHg)
+
+7.24
+
+9.23
+
+7.42
+
+10.02
+
+6.86
+
+8.96
+
+6.34
+
+8.45
+
+MAP
+
+MAE
+
+STD
+
+(mmHg) (mmHg)
+
+9.34
+
+11.79
+
+8.50
+
+10.91
+
+8.84
+
+11.24
+
+7.52
+
+9.54
+
+SP
+
+MAE
+
+STD
+
+(mmHg) (mmHg)
+
+14.73
+
+18.47
+
+14.46
+
+18.17
+
+13.78
+
+17.46
+
+12.38
+
+16.17
+
+TABLE II. COMPARISON WITH THE BHS STANDARD
+
+Our results BHS [11]
+
+Diastolic Mean Pressure Systolic grade A grade B grade C
+
+≥ 5mmHg 51.2% 44.7% 28.8% 60% 50% 40%
+
+≥ 10mmHg 78.9% 71.6% 51.5% 85% 75% 65%
+
+≥ 15mmHg 93.6% 86.7% 69.5% 95% 90% 85%
+
+C of BHS in the mean arterial pressure estimation.
+Other cuff-less BP estimation designs in literature suffer from serious drawbacks such as the need of per person calibration [5] or utilizing relatively small sample size database [8]. The proposed method in this work resolves all these issues while providing enough capability for a reliable and calibration-free, blood pressure estimation.
+It is worth mentioning that the MIMIC database [9], used in this paper and many other works, contains clinical data obtained from hospitals, where all samples are inﬂuenced by drugs. Another feature of this database is the lack of some valuable parameters such as the age and height. It is easy to see that addition of these valuable features to any database can help achieving more accurate results.
+V. CONCLUSION
+With respect to the effect of BP in cardiovascular disease, continuous BP monitoring is vital, which is unreachable through conventional cuff-based BP measurement devices. The proposed method in this paper, establishes a cuff-less BP estimation system, which makes this goal achievable. The proposed method employs physiological parameters, machine learning and signal processing algorithms to achieve this end. According to the BHS standard, the proposed system is consistent with the grade B in the DBP and the grade C in the MAP estimation.
+
+Fig. 5. DBP error histogram from the SVM regression algorithm.
+Fig. 6. SBP error histogram from the SVM regression algorithm.
+regression algorithm is more accurate compared to others. Fig. 5 and 6 show the histogram of the BP estimation error using the SVM regression, which is selected as the most accurate and reliable method in the model evaluation.
+Table II presents the results from the best learning method (SVM regression) compared to the British Hypertension Society (BHS) standard. In fact, the BHS standard grades BP measurement systems by cumulative percentage of errors under three different thresholds, i.e. 5, 10 and 15 mmHg. [11] According to Table II, the performance of the SVM method is consistent with the grade B of the BHS standard in the estimation of the diastolic blood pressure and with the grade
+
+REFERENCES
+[1] World Health Organization, “World Health Statistics 2014”, 2014.
+[2] G. Van Montfrans, “Oscillometric blood pressure measurement: progress and problems,” Blood pressure monitoring, vol. 6, no. 6, pp. 287–290, 2001.
+[3] M. Elgendi, “On the analysis of ﬁngertip photoplethysmogram signals,” Current cardiology reviews, vol. 8, no. 1, p. 14, 2012.
+[4] L. Peter, N. Noury and M. Cerny, “A review of methods for non-invasive and continuous blood pressure monitoring: Pulse transit time method is promising?,” IRBM, 2014.
+[5] M. Wong, C. Poon and Y. Zhang, “An evaluation of the cufﬂess blood pressure estimation based on pulse transit time technique: a half year study on normotensive subjects,” Cardiovascular Engineering, vol. 9, no. 1, pp. 32–38, 2009.
+[6] P. Obrist, K. Light, J. McCubbin, J. Hutcheson and J. Hoffer, “Pulse transit time: Relationship to blood pressure,” Behavior Research Methods and Instrumentation, vol. 10, no. 5, pp. 623–626, 1978.
+[7] D. J. Hughes, L. A. Geddes, C. F. Babbs, and J. D. Bourland, “Measurements of youngs modulus of the canine aorta in-vivo with10 mhz ultrasound,” in Proc. Ultrasonics Symposium, Sep 1978,pp. 326 326.
+[8] H. Gesche, D. Grosskurth, G. Kuchler and A. Patzak, “Continuous blood pressure measurement by using the pulse transit time: comparison to a cuff-based method,” European journal of applied physiology, vol. 112, no. 1, pp. 309–315, 2012.
+[9] A. Goldberger, L. Amaral, L. Glass, J. Hausdorff, P. Ivanov, R. Mark, J. Mietus, G. Moody, C. Peng and H. Stanley, “Physiobank, physiotoolkit, and physionet components of a new research resource for complex physiologic signals,” Circulation, vol. 101, no. 23, pp. 215–220, 2000.
+[10] C. Chang and C. Lin, “LIBSVM: a library for support vector machines,” ACM Transactions on Intelligent Systems and Technology (TIST), vol. 2, no. 3, p. 27, 2011.
+[11] E. O’Brien, B. Waeber, G. Parati, J. Staessen and M. Myers, “Blood pressure measuring devices: recommendations of the European Society of Hypertension,” Bmj, vol. 322, no. 7285, pp. 531–536, 2001.
+
+1009
+

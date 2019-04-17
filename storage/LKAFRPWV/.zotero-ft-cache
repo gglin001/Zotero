@@ -1,0 +1,155 @@
+arXiv:1811.07774v2 [physics.med-ph] 27 Nov 2018
+
+AMBULATORY ATRIAL FIBRILLATION MONITORING USING WEARABLE PHOTOPLETHYSMOGRAPHY WITH DEEP LEARNING
+Yichen Shen∗, Alireza Aliamiri Samsung Strategy and Innovation Center {yichen.shen,alireza.a}@samsung.com
+Maxime Voisin∗, Anand Avati, Awni Hannun, Andrew Ng Department of Computer Science Stanford University maximev@stanford.edu
+ABSTRACT
+We develop an algorithm that accurately detects Atrial Fibrillation (AF) episodes from photoplethysmograms (PPG) recorded in ambulatory free-living conditions. We collect and annotate a dataset containing more than 4000 hours of PPG recorded from a wrist-worn device. Using a 50-layer convolutional neural network, we achieve a test AUC of 95% and show robustness to motion artifacts inherent to PPG signals. Continuous and accurate detection of AF from PPG has the potential to transform consumer wearable devices into clinically useful medical monitoring tools.
+1 INTRODUCTION
+Atrial ﬁbrillation (AF) is the most common cardiac arrhythmia, affecting between 2.7 million and 6.1 million adults in the United States. This number is expected to double over the next 25 years (Go et al., 2013). AF is a risk factor for blood clots, cognitive impairment, heart failure and stroke (Kalantarian et al., 2013; January et al., 2014). The diagnosis is usually performed by observing the electrical activity of the heart in an electrocardiogram (ECG) typically measured with a cardiac event recorder, a Holter monitor or a chest patch. However, these ECG devices tend to be used in a reactive manner rather than proactively. Many occurrences of subclinical or silent AF are thus undetected, which results in a quarter of all ischemic strokes (Healey et al., 2012).
+Photoplethysmography (PPG) is an emerging technology that enables non-invasive heart rhythm measurement through optical sensing. A PPG sensor detects blood volume changes in the microvascular bed of tissue using a low intensity light. The optical mechanism PPG sensors use to measure blood volume change allows them to be placed in wearable devices like smartwatches.
+Using PPG sensors to detect AF has several advantages over ECG sensors. A PPG sensor can measure continuously and does not require active participation from the user, unlike ECG event recorders which must be activated by the user at the onset of any symptoms. Because of this, PPG can more accurately quantify AF burden, which is the percentage of time a subject’s heart rhythm is in AF. AF burden is a much more indicative risk factor for heart attacks than the binary presence or absence of AF (Chen et al., 2018; Go et al., 2018). Another advantage of PPG sensors is that they are already embedded in mainstream smartwatches which are deployed on mass scale. PPG-based monitoring via a smartwatch is seamless and can be activated over long periods of time with minimal discomfort compared to ECG-based monitors. Hence, continuous AF monitoring using PPG sensors in mainstream smartwatches has the opportunity to be a more convenient, cost-effective solution to systematic, proactive AF screening. This would help detect challenging AF cases such as paroxysmal and silent AF which are often not diagnosed by opportunistic, reactive ECG-based AF screening (Freedman et al., 2017).
+PPG-based AF detection has received traction over the past few years. Early attempts leveraged hand-crafted features about inter-beat intervals in PPGs (Tang et al.; Shan et al.; Lee et al.; Stankevicˇius et al.; Poh et al.; Chan et al.; Nemati et al.), while recent approaches trained deep neural networks on PPGs to detect AF (Shashikumar
+∗indicates equal contribution
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+Figure 1: Our trained convolutional neural network correctly detects Atrial Fibrillation (AF) from other rhythms (Non-AF) on this PPG recorded with a wrist-wearable device
+et al.; Aliamiri & Shen; Gotlibovych et al.). However, PPGs used in these studies were collected in controlled environments often inside a hospital, or were only a few minutes long. A few attempts were made to detect AF from PPG in ambulatory free-living conditions for prolonged periods of time. These approaches either obtained moderate performance (Tison et al., 2018), or deleted a signiﬁcant portion of PPG segments – e.g at least 33% of PPGs in (Bonomi et al., 2016). This is largely due to the presence of noise and motion artifacts which corrupt the PPG. As a result, previous attempts have not been able to accurately identify AF episodes in PPG collected in an ambulatory free-living setting for a prolonged period of time. In this work, we present the ﬁrst model to continuously and accurately detect AF episodes in PPG collected in an ambulatory free-living setting. The model achieves an AUC of 95% on the test set. Furthermore we do not discard any PPG segment and show robustness to motion artifacts. To achieve these results, we train a 50-layer convolutional neural network to detect AF on more than 4000 hours of PPG signals collected from 81 patients. Our work can be used for challenging downstream tasks like measuring AF burden in ambulatory conditions. We hope this work helps to pave the way toward transforming wearable devices into medical grade diagnostic tools.
+2 MODEL
+2.1 PROBLEM FORMULATION Our goal is to detect AF episodes in a continuous PPG signal collected from free-living subjects. We extract consecutive 30-second records from the full PPG recording. For each 30-second record x, our model outputs a binary score y ∈ {0, 1} indicating respectively the absence or presence of AF. We optimize the binary crossentropy objective function
+N
+L = − y(i) log p(y = 1 | x(i)) + (1 − y(i)) log p(y = 0 | x(i)),
+i=1
+where i is the index of the PPG record (there are N records in total) and p(y = l | x(i)) is the probability that the network assigns to label l given the input record x(i). 2.2 MODEL ARCHITECTURE AND TRAINING The AF prediction network is a 1D convolutional neural network (CNN). The input to the network is a 30-second PPG record sampled at 20 Hz. For each record we apply a Finite Impulse Response (FIR) low-pass ﬁlter with a
+2
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+Figure 2: The architecture of the network. The network consists of 49 layers of convolution followed by a global pooling layer, a fully-connected layer and a sigmoid.
+cutoff frequency of 5Hz. We also scale the input record to have a mean of zero and a unit variance. The output of the network is a binary label indicating the absence or presence of AF in the input record. The high-level architecture of the network is shown in Figure 2. The CNN consists of 49 layers of 1D convolutions. This is followed by a global average pooling layer, a dense layer and a sigmoid layer to produce an output between 0 and 1. The network consists of 16 ResNeXt bottleneck blocks (Xie et al., 2017) sharing the same topology. The blocks rely on grouped convolutions which yield higher representation power than other state-of-the-art convolutional networks with the same number of parameters. Each block consists of 3 convolutional layers. First, a 1x1 convolutional bottleneck layer reduces the number of feature maps. It is followed by a 3x3 grouped convolution which provides more expressive power in each block. Finally, a 1x1 convolutional layer restores the original number of feature maps. These 16 blocks are grouped into 4 stages containing 3,4,6 and 3 blocks respectively. The spatial map is downsampled at the 3x3 grouped convolution layer of the ﬁrst block of each stage. The ResNeXt architecture was initially designed for 2D data. We adapt it for our 1D data. To ensure that each block has roughly the same computational complexity in terms of FLOPs, we downsample the spatial map using stride-4 convolutions – rather than stride-2 convolutions in the 2D architecture – at the 3x3 grouped convolution layer of the ﬁrst block of each stage. We also remove the initial pooling layer to avoid downsampling the input record by too much. Finally, we ﬁne-tune the cardinality – number of groups in the 3x3 grouped convolution – and the bottleneck width of each block. Our best performing network has a cardinality of 32 and a bottleneck width of 4d, where d starts out as 1 and is incremented at each stage of the network. In order to make the optimization of such a network tractable, we employ shortcut connections in a similar manner to those found in ResNeXt architectures (Xie et al., 2017). The shortcut connections between neural network layers optimize training by allowing information to propagate well in very deep neural networks. Batch normalization (Ioffe & Szegedy, 2015) and a rectiﬁed linear activation are applied after each convolutional layer. We train the network from scratch, initializing the weights of the convolutional layers as in (He et al., 2015). We use the Adam optimizer (Kingma & Ba, 2014) with the default parameters and minibatches of size 16. We save the best model as evaluated on the validation set during the optimization process.
+2.3 BASELINE MODEL
+Inter-Beat Interval (IBI) is a feature commonly used for PPG-based AF detection. We implement the IBI algorithm described in (Lee et al., 2012). For each 30-second PPG record, we identify beats in the PPG signal and compute the IBIs. The feature-based baseline algorithm then predicts AF by putting a threshold on the IBI variation measured in terms of Root Mean Square Successive Differences (RMSSD).
+3 DATA
+We used two datasets to train the model: the clinician-annotated and the NSR datasets. The clinician-annotated dataset consists of 402 continuous PPG recordings collected from 29 free-living subjects. Each continuous PPG recording is 8 hours long on average. We simultaneously collected a reference ECG for rhythm annotation using an ECG patch. Out of the 29 subjects, 13 have persistent AF throughout their recordings, 2 have persistent normal sinus rhythm, and the remaining 14 display rhythms that change over time – including 8 arrhythmias other than AF and normal sinus rhythm. The NSR dataset consists of 341 continuous PPG recordings collected from 53 healthy free-living subjects who self-reported as not having any symptoms of an arrhythmia. Each continuous
+3
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+
+Dataset Clinician Annotated
+NSR
+
+# train+val subjects 19
+32
+
+# train+val records 238345
+76374
+
+# test subjects
+10
+20
+
+# test records 147968
+47879
+
+Table 1: Two datasets were collected from free-living ambulatory subjects. The PPG in the clinician-annotated dataset are fully annotated by clinicians using a reference ECG. The NSR dataset was collected from healthy subjects who report themselves as not having any arrhythmia. We give the total number of subjects and records for both the training and test sets.
+
+PPG recording is 3 hours long on average. In summary, the two datasets in aggregate contain 743 continuous PPG recordings, each having a time span of a few hours.
+All PPGs are recorded using a Samsung wrist-wearable device with a sampling frequency of 20 Hz. The device also records tri-axial acceleration, which is used in Section 4.2 to evaluate the model’s robustness to motion artifacts. In the clinician-annotated dataset, the reference ECG is collected from a single-lead, continuous monitoring patch with a sampling frequency of 500Hz. Each ECG is fully annotated by an ECG technician. The expert technician highlights segments of the continuous signal and marks them as corresponding to one of 10 rhythm classes: 8 heart arrhythmias, normal sinus rhythm and noise. All rhythms were labeled from their corresponding onset to offset, resulting in a full segmentation of the ECG. The noise label is assigned when it is impossible to identify the underlying rhythm from the ECG.
+We break down the 743 continuous PPG recordings into 510,566 PPG records of 30 seconds. Each 30-second PPG record has one binary label which indicates if the 10-class rhythm segmentation of the corresponding ECG record contains AF. The binary label serves as the ground truth for training and evaluating models. PPG records whose corresponding ECG record is labeled as noise are discarded, since the ground truth rhythm is not known. They represent 1% of the data.
+The PPG records are split into a training, validation and test set. We ensure that there is no subject overlap between these sets. We also ensure that each set has almost balanced AF and non-AF records and that the proportion of subjects with respectively persistent AF, persistent normal sinus rhythm and multiple rhythms is similar across each set. The training, validation and test set contain respectively 42, 10 and 30 subjects in total, representing 50%, 12% and 38% of the PPG records, as detailed in Table 1.
+The test set contains 147,968 records from the clinician-annotated dataset (10 test subjects) and 47,879 records from the NSR dataset (20 test subjects). Test subjects with persistent AF, persistent normal sinus rhythm and multiple rhythms represent respectively 45%, 33% and 22% of the test records. 50.2% of the test records are labeled AF.
+4 RESULTS
+Models are compared based on their AUC, area under the Receiver Operating Characteristic (ROC) curve, which is independent of the prevalence of AF in the data. Each point on the ROC curve represents a sensitivity-speciﬁcity pair corresponding to a particular decision threshold. A model with high AUC enables practitioners to choose the sensitivity-speciﬁcity trade-off that best suits their use case. Models are compared based on AUC computed on the test set.
+4.1 IMPACT OF MOTION ARTIFACTS
+In ambulatory free-living conditions, motion artifacts are expected to corrupt the PPG and degrade the accuracy of AF predictions. We evaluate the robustness of our model to such motion artifacts. To do so, a motion intensity score is assigned to each PPG record. This score is calculated as the standard deviation of the amplitude of the tri-axial acceleration. PPG records in the test set are ordered by increasing motion intensity. We then evaluate the model AUC on the subset of test records whose motion intensity is in the lowest c-th percentile. By sweeping c in {10, 20, ..100}, an AUC-coverage curve is created. Each point (c, p) indicates that the model has an AUC of p on the test records whose motion intensity is in the lowest c-th percentile. Note that the AUC reported for a coverage c = 100% is the AUC on the full test set. A model robust to motion artifacts is expected to exhibit a ﬂat AUC-coverage curve.
+4
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+Figure 3: The AUC-coverage curves (see Section 4.1) of our deep learning model and of a baseline featurebased model. The AUC of the deep learning model does not degrade as predictions are done on test records with increasingly high motion intensity. This suggests that our deep learning model is robust to motion artifacts inherent to the ambulatory free-living setting. The performance of the deep learning model is averaged over 3 random seeds.
+4.2 ANALYSIS The deep learning model obtains an AUC of 94.8% on the test set. The network largely outperforms the featurebased baseline. Interestingly, the performance of the deep learning model does not degrade when predicting on test records with higher motion intensity, unlike the baseline (see Figures 3 and 8). This suggests that our model is robust to motion artifacts typically encountered in free-living conditions. Often the errors made by the deep learning model are understandable. First, although the model generally shows robustness against motion artifacts, it is still misled when too much noise corrupts the PPG. Second, we note in Figure 3 that performance decreases on PPG records whose motion intensity is in the bottom 20-th percentile. This is explained by the fact that low motion intensity does not necessarily correspond to clear PPG signal. For example, records collected from improperly worn wearable devices may have low motion intensity while not containing any relevant PPG morphology to predict AF. Finally, the AUC drops to 85.5% on test patients with mixed AF and non-AF rhythms (partial AF). These records may be challenging to classify since they sometimes exhibit multiple arrhythmia other than AF as well as normal sinus rhythm. Also, only a handful of patients with partial AF are in the training set - so the model has relatively few such patients to learn from. These patients also have noisier labels than persistent patients since the boundaries between different rhythms are fuzzy.
+5 MODEL INTERPRETATION
+5.1 VISUALIZATION OF THE LEARNED LOW-LEVEL FEATURE MAPS To understand which discriminative features the model uses to predict AF, we randomly select a test PPG record and visualize the feature maps obtained at the end of the ﬁrst stage of the deep neural network. As shown in Figure 4, the model learns to remove the low-frequency baseline wander. Some feature maps, shown in (d), identify systolic and diastolic peaks in the PPG. Having irregular beats is a symptom of AF. Other feature maps, shown in (b) and (c), seem to approximate the ﬁrst and second order derivatives of the PPG signal. (Elgendi, 2012) suggest that ﬁrst and second order derivatives of a PPG signal contain information about the cardiovascular system such as hypertension and arterial stiffness, and (Cremer et al., 2015) suggests that the latter is an important predictor of AF in hypertensive patient. The features learned by our deep neural network therefore seem to be consistent with previous works in the medical ﬁeld.
+5
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+
+(a) 15-second excerpt from a 30-second input PPG record
+(b) Feature map learning the ﬁrst order derivative of the input signal
+(c) Feature map learning the second order derivative of the input signal
+(d) Feature map identifying systolic and diastolic peaks Figure 4: Examples of feature maps learned by the model at the end of the ﬁrst stage of the deep learning model, using (a) as input
+
+(a) Record with normal sinus rhythm. Predicted probability of AF = 0.0001
+
+(b) Record with AF. Predicted probability of AF = 0.993
+Figure 5: Saliency maps of 15-second excerpts from two 30-second PPG records. Colored regions indicate salient regions which impact the model predictions. The model seems to focus on systolic and diastolic peaks as well as slopes to the left of the systolic peaks.
+
+5.2 VISUALIZATION OF SALIENT REGIONS
+
+To further interpret the predictions of our deep learning model, we use the saliency mapping technique introduced by (Simonyan et al., 2013). Saliency maps indicate which time steps inﬂuence most the prediction by computing the gradient of the binary cross-entropy loss with respect to each input time step. Formally, each time step Ik in the input record I = [I0..IN ] has a saliency score Sk:
+
+∂L
+
+Sk
+
+=
+
+| ∂Ik
+
+|
+
+where L is the binary cross-entropy loss of the AF detection network for input record I.
+
+Figure 5 provides the saliency mapping of two PPG samples. Colored regions are those with high saliency scores. They contribute most to the prediction. The network seems to focus on speciﬁc substructures in the PPG morphology such as systolic and diastolic peaks as well as slopes to the left of the systolic peaks.
+
+5.3 VISUALIZATION OF HIGH-LEVEL FEATURE SPACE
+We visualize the high-level representations learned by the model from 8000 randomly selected test records, using the t-SNE method (Maaten & Hinton, 2008). The representations learned by the last convolutional layer of the
+
+6
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+(a)
+(b) Figure 6: (a) t-SNE plot with the label of each record and (b) t-SNE plot with the motion intensity of each record. AF and non-AF PPG records with low motion intensity are separable. PPG records with high motion intensity, mostly found in the bottom left quadrant, are more challenging to separate.
+network are mapped to a 2D space. The mapping is such that the joint probability of records close to each other in the high-dimensional representation space is similar to their joint probability in the 2D space. Figure 6 provides the t-SNE visualization of the learned representations. In (a), we color records based on their ground-truth label. We observe that the cluster of AF records is mostly separable from the cluster of non-AF records. In (b), we color the same records based on their motion intensity – records with higher motion intensity have darker colors. We observe a continuous progression of motion intensity in the learned feature space. Records with high motion intensities are clustered in the bottom left quadrant of (b), whereas records with low motion intensities are in the top right quadrant of (b). By comparing (a) and (b), it appears that the cluster of PPG records with highest motion intensity is the hardest one to predict AF on. This conﬁrms that motion artifacts are a major challenge in PPG-based AF prediction in the ambulatory free-living setup.
+CONCLUSION
+We develop a model which can accurately detect AF from continuous PPG records collected in the ambulatory free-living setting. Key to our approach is a large annotated dataset and a deep convolutional neural network. On the clinical side, future work should explore the possibility of predicting other types of arrhythmia and other forms of heart disease from PPG sensors available in wearable devices. With the prevalence of inexpensive wearable devices, high-accuracy continuous arrhythmia monitoring from PPG can not only lower the risk of undiagnosed AF in general but also save precious time and resources from expert clinicians and cardiologists in resource intensive tasks like measuring AF burden. Furthermore, we hope that this technology can eventually provide accurate diagnostic information in places with constrained access to cardiologists and other medical resources.
+7
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+REFERENCES
+Alireza Aliamiri and Yichen Shen. Deep learning based atrial ﬁbrillation detection using wearable photoplethysmography sensor. In Biomedical & Health Informatics (BHI), 2018 IEEE EMBS International Conference on, pp. 442–445. IEEE, 2018.
+Alberto G Bonomi, Fons Schipper, Linda M Eerika¨inen, Jenny Margarito, Ronald M Aarts, Saeed Babaeizadeh, Helma M de Morree, and Lukas Dekker. Atrial ﬁbrillation detection using photo-plethysmography and acceleration data at the wrist. In Computing in Cardiology Conference (CinC), 2016, pp. 277–280. IEEE, 2016.
+Pak-Hei Chan, Chun-Ka Wong, Yukkee C Poh, Louise Pun, Wangie Wan-Chiu Leung, Yu-Fai Wong, Michelle Man-Ying Wong, Ming-Zher Poh, Daniel Wai-Sing Chu, and Chung-Wah Siu. Diagnostic performance of a smartphone-based photoplethysmographic application for atrial ﬁbrillation screening in a primary care setting. Journal of the American Heart Association, 5(7):e003428, 2016.
+Lin Y Chen, Mina K Chung, Larry A Allen, Michael Ezekowitz, Karen L Furie, Pamela McCabe, Peter A Noseworthy, Marco V Perez, and Mintu P Turakhia. Atrial ﬁbrillation burden: moving beyond atrial ﬁbrillation as a binary entity: a scientiﬁc statement from the american heart association. Circulation, 137(20):e623–e644, 2018.
+Antoine Cremer, Marion Laine´, Georgios Papaioannou, Sunthareth Yeim, and Philippe Gosse. Increased arterial stiffness is an independent predictor of atrial ﬁbrillation in hypertensive patients. Journal of hypertension, 33 (10):2150–2155, 2015.
+Mohamed Elgendi. On the analysis of ﬁngertip photoplethysmogram signals. Current cardiology reviews, 8(1): 14–25, 2012.
+Ben Freedman, John Camm, Hugh Calkins, Jeffrey S Healey, Ma˚rten Rosenqvist, Jiguang Wang, Christine M Albert, Craig S Anderson, Sotiris Antoniou, Emelia J Benjamin, et al. Screening for atrial ﬁbrillation: a report of the af-screen international collaboration. Circulation, 135(19):1851–1867, 2017.
+Alan S Go, Dariush Mozaffarian, Ve´ronique L Roger, Emelia J Benjamin, Jarett D Berry, Michael J Blaha, Shifan Dai, Earl S Ford, Caroline S Fox, Sheila Franco, et al. Heart disease and stroke statistics2014 update: a report from the american heart association. Circulation, pp. 01–cir, 2013.
+Alan S Go, Kristi Reynolds, Jingrong Yang, Nigel Gupta, Judith Lenane, Sue Hee Sung, Teresa N Harrison, Taylor I Liu, and Matthew D Solomon. Association of burden of atrial ﬁbrillation with risk of ischemic stroke in adults with paroxysmal atrial ﬁbrillation: The kp-rhythm study. JAMA cardiology, 2018.
+Igor Gotlibovych, Stuart Crawford, Dileep Goyal, Jiaqi Liu, Yaniv Kerem, David Benaron, Defne Yilmaz, Gregory Marcus, and Yihan Li. End-to-end deep learning from raw sensor data: Atrial ﬁbrillation detection using wearables. arXiv preprint arXiv:1807.10707, 2018.
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Delving deep into rectiﬁers: Surpassing human-level performance on imagenet classiﬁcation. In Proceedings of the IEEE international conference on computer vision, pp. 1026–1034, 2015.
+Jeff S Healey, Stuart J Connolly, Michael R Gold, Carsten W Israel, Isabelle C Van Gelder, Alessandro Capucci, CP Lau, Eric Fain, Sean Yang, Christophe Bailleul, et al. Subclinical atrial ﬁbrillation and the risk of stroke. New England Journal of Medicine, 366(2):120–129, 2012.
+Sergey Ioffe and Christian Szegedy. Batch normalization: Accelerating deep network training by reducing internal covariate shift. arXiv preprint arXiv:1502.03167, 2015.
+Craig T January, L Samuel Wann, Joseph S Alpert, Hugh Calkins, Joaquin E Cigarroa, Jamie B Conti, Patrick T Ellinor, Michael D Ezekowitz, Michael E Field, Katherine T Murray, et al. 2014 aha/acc/hrs guideline for the management of patients with atrial ﬁbrillation: a report of the american college of cardiology/american heart association task force on practice guidelines and the heart rhythm society. Journal of the American College of Cardiology, 64(21):e1–e76, 2014.
+8
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+Shadi Kalantarian, Theodore A Stern, Moussa Mansour, and Jeremy N Ruskin. Cognitive impairment associated with atrial ﬁbrillation: a meta-analysis. Annals of internal medicine, 158(5 Part 1):338–346, 2013.
+Diederik P Kingma and Jimmy Ba. Adam: A method for stochastic optimization. arXiv preprint arXiv:1412.6980, 2014.
+Jinseok Lee, Bersain A Reyes, David D McManus, Oscar Mathias, and Ki H Chon. Atrial ﬁbrillation detection using a smart phone. In Engineering in Medicine and Biology Society (EMBC), 2012 Annual International Conference of the IEEE, pp. 1177–1180. IEEE, 2012.
+Laurens van der Maaten and Geoffrey Hinton. Visualizing data using t-sne. Journal of machine learning research, 9(Nov):2579–2605, 2008.
+Shamim Nemati, Mohammad M Ghassemi, Vaidehi Ambai, Nino Isakadze, Oleksiy Levantsevych, Amit Shah, and Gari D Clifford. Monitoring and detecting atrial ﬁbrillation using wearable technology. In Engineering in Medicine and Biology Society (EMBC), 2016 IEEE 38th Annual International Conference of the, pp. 3394–3397. IEEE, 2016.
+Ming-Zher Poh, Yukkee Cheung Poh, Pak-Hei Chan, Chun-Ka Wong, Louise Pun, Wangie Wan-Chiu Leung, YuFai Wong, Michelle Man-Ying Wong, Daniel Wai-Sing Chu, and Chung-Wah Siu. Diagnostic assessment of a deep learning system for detecting atrial ﬁbrillation in pulse waveforms. Heart, pp. heartjnl–2018, 2018.
+Shih-Ming Shan, Sung-Chun Tang, Pei-Wen Huang, Yu-Min Lin, Wei-Han Huang, Dar-Ming Lai, and AnYeu Andy Wu. Reliable ppg-based algorithm in atrial ﬁbrillation detection. In Biomedical Circuits and Systems Conference (BioCAS), 2016 IEEE, pp. 340–343. IEEE, 2016.
+Supreeth Prajwal Shashikumar, Amit J Shah, Qiao Li, Gari D Clifford, and Shamim Nemati. A deep learning approach to monitoring and detecting atrial ﬁbrillation using wearable technology. In Biomedical & Health Informatics (BHI), 2017 IEEE EMBS International Conference on, pp. 141–144. IEEE, 2017.
+Karen Simonyan, Andrea Vedaldi, and Andrew Zisserman. Deep inside convolutional networks: Visualising image classiﬁcation models and saliency maps. arXiv preprint arXiv:1312.6034, 2013.
+Dainius Stankevicˇius, Andrius Petre˙nas, Andrius Solosˇenko, Mantas Grigutis, Tomas Janusˇkevicˇius, Laurynas Rimsˇevicˇius, and Vaidotas Marozas. Photoplethysmography-based system for atrial ﬁbrillation detection during hemodialysis. In XIV Mediterranean Conference on Medical and Biological Engineering and Computing 2016, pp. 79–82. Springer, 2016.
+Sung-Chun Tang, Pei-Wen Huang, Chi-Sheng Hung, Shih-Ming Shan, Yen-Hung Lin, Jiann-Shing Shieh, DarMing Lai, An-Yeu Wu, and Jiann-Shing Jeng. Identiﬁcation of atrial ﬁbrillation by quantitative analyses of ﬁngertip photoplethysmogram. Scientiﬁc reports, 7:45644, 2017.
+Geoffrey H Tison, Jose´ M Sanchez, Brandon Ballinger, Avesh Singh, Jeffrey E Olgin, Mark J Pletcher, Eric Vittinghoff, Emily S Lee, Shannon M Fan, Rachel A Gladstone, et al. Passive detection of atrial ﬁbrillation using a commercially available smartwatch. JAMA cardiology, 3(5):409–416, 2018.
+Saining Xie, Ross Girshick, Piotr Dolla´r, Zhuowen Tu, and Kaiming He. Aggregated residual transformations for deep neural networks. In Computer Vision and Pattern Recognition (CVPR), 2017 IEEE Conference on, pp. 5987–5995. IEEE, 2017.
+9
+
+Ambulatory Atrial Fibrillation Monitoring Using Wearable PPG with Deep Learning
+6 APPENDIX
+Figure 7: Distribution of motion intensity scores of the 30-second PPG records. Motion intensity is calculated as the standard deviation of the amplitude of the tri-axial acceleration.
+Figure 8: ROC curves (speciﬁcity vs sensitivity) of the deep learning model and a baseline model deployed on the full test set.
+10
+

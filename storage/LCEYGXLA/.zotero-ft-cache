@@ -1,0 +1,150 @@
+Atrial Fibrillation Detection from Wrist Photoplethysmography Data Using Artificial Neural Networks
+Zeinab Rezaei Yousefi, Jakub Parak, Adrian Tarniceriu, Jarkko Harju, Arvi Yli-Hankala, Ilkka Korhonen, and Antti Vehkaoja
+
+Abstract Atrial ﬁbrillation (AF) can be detected by analysis of the rhythm of heartbeats. The development of photoplethysmography (PPG) technology has enabled comfortable and unobtrusive physiological monitoring of heart rate with a wrist-worn device. Therefore, it is important to examine the possibility of using PPG signal to detect AF episodes in real-world situations. The aim of this paper is to evaluate an AF detection method based on artiﬁcial neural networks (ANN) from PPG-derived beat-to-beat interval data used for primary screening or monitoring purposes. The proposed classiﬁer is able to distinguish between AF and sinus rhythms (SR). In total 30 patients (15 with AF, 15 with SR, mean age 71.5 years) with multiple comorbidities were monitored during routine postoperative treatment. The monitoring included standard ECG and a wrist-worn PPG monitor with green and infrared light sources. The input features of the ANN are based on the information obtained from inter-beat interval (IBI) sequences of 30 consecutive PPG pulses. One of the main concerns about the PPG signals is their susceptibility to be corrupted by noise and artifacts mostly caused by subject movement. Therefore, in the proposed method the IBI reliability is automatically evaluated beforehand. The amount of uncertainty due to unreliable beats was 15.42%. The achieved sensitivity and speciﬁcity of AF detection for 30 beats sequences were 99:20 Æ 1:3% and 99:54 Æ 0:64%, respectively. Based on these results, the
+Z. Rezaei Youseﬁ (&) Á J. Parak Á I. Korhonen Á A. Vehkaoja Faculty of Biomedical Sciences and Engineering, BioMediTech Institute, Tampere University of Technology, and PulseOn Ltd., Espoo, Finland e-mail: rezaeiyo@student.tut.ﬁ; zeinab.rezaeiyouseﬁ@pulseon.ﬁ
+A. Tarniceriu PulseOn SA, Neuchatel, Switzerland
+J. Harju Á A. Yli-Hankala Department of Anesthesia, Tampere University Hospital, Tampere, Finland
+
+ANN algorithm demonstrated excellent performance at recognizing AF from SR using wrist PPG data.
+Á Á Keywords
+Atrial ﬁbrillation Aartiﬁcial neural network Photoplethysmography Inter-beat-interval features
+1 Introduction
+Atrial ﬁbrillation (AF) is the most common cardiac arrhythmia in which electrical activity in the atria is rapid and disorganized. AF causes increased risk of heart failure and stroke. Therefore, early screening and diagnosis can reduce the AF impact. In healthy heart the electrical excitation for each beat starts at the sinus node and subsequently spreads over the atrium and ventricles and heart beats at a regular rhythm with approximately 60–80 beats per minute (normal sinus rhythm, SR). In contrast, during atrial ﬁbrillation the heart electrical signal does not begin in sinus node, but other parts of atrium muscle tissue are providing abnormal electrical signals to stimulate the atrium, which causes a chaotic heart rhythm and quasi constantly circulating excitation. Therefore, the time intervals between two heartbeats become irregular [1].
+Even if the AF mechanism is caused by electric disturbances in the heart, this pathology can also affect the photoplethysmography (PPG) signal, since it produces an irregular ﬂow in the blood vessels [1]. The advantage of the PPG signal is that it can be obtained unobtrusively and the recording time is not limited e.g. by skin irritation as with ECG. Moreover, the sensing device is easy-to-set up and economically efﬁcient.
+Recently, there has been a growing research interest in wearable sensing technologies that have enabled real-time and long-term health monitoring. Recent studies have shown that PPG is a promising technique and can be helpful for
+
+© Springer Nature Singapore Pte Ltd. 2019
+
+399
+
+L. Lhotska et al. (eds.), World Congress on Medical Physics and Biomedical Engineering 2018,
+
+IFMBE Proceedings 68/2, https://doi.org/10.1007/978-981-10-9038-7_75
+
+400
+
+Z. Rezaei Yousefi et al.
+
+continuous cardiac and respiratory event monitoring, early screening and diagnostic of various cardiac diseases [2, 3]. It should be noted that the reliability of information obtained from the PPG devices is highly important when using their data in clinical decision making. A fast and accurate quality estimation of the signal is needed to recognize corrupted data from valid data before any diagnosis and prediction.
+Automatic detection of atrial ﬁbrillation from ECG signals has been the base of research during many years and a large number of methods have been developed mostly employing time-frequency analysis techniques [4] and statistical tools [5–8]. However, AF detection from PPG signals has not been extensively studied. There are a few proposed algorithms designed to be used with smart-phone camera sensors that can capture PPG data from the ﬁnger tip of the patients [9–11]. Smart-phone sensor however, is an intermittent-type measurement solution and cannot be applied continuously in ambulatory applications. Methods for classifying arrhythmias from PPG signals obtained from wearable devices in longer time periods are less developed [12, 13].
+In the present study we built an ANN trained by features acquired from inter-beat-interval series for AF detection. The aim of our research is to develop a method for automatic classiﬁcation of each beat into two target classes: AF and SR. Since the PPG signal is often disturbed by movement artifacts, it is inevitable to discard a portion of the acquired data in long-term monitoring due to the low reliability of the estimation.
+2 Methodology
+The block diagram of the proposed algorithm is presented in Fig. 1. The explanation of each block is given in the following sections.
+
+2.1 Data Acquisition
+The wrist PPG signal together with a tri-axis accelerometer data was recorded using the PulseOn Optical Heart Rate monitor (PulseOn Technologies Ltd, Espoo, Finland, www. pulseon.ﬁ). The PulseOn device (shown in Fig. 2) is a wrist worn device that uses reﬂection mode PPG with utilizing two light wavelengths (green and infrared) to record the PPG signal. The reference ECG signal was recorded with GE Carescape B850 patient monitor. The data recordings were performed in the post-anesthesia care unit of Tampere University Hospital. In total 30 subjects having either SR or AF rhythm during the measurement participated to the study. All types of AF (paroxysmal, persistent and permanent) were present in the study population. It was visually veriﬁed that the cardiac rhythm of the patients assigned to the two groups was either SR or AF during the whole time of the recording. However, one of the AF patients was later excluded from the ﬁnal analysis because it was noticed that the cardiac rhythm of that patient was switching between SR and AF several times during the recording. The patient population consisted of adult patients who had undergone an elective surgery and whose cardiac rhythm was not controlled by any drug: 15 subjects (7 females, 67:5 Æ 10:7 years old) with normal SR and 14 subjects (8 females, 74:8 Æ 8:3 years old) with continuous AF. The average recording length was 1.5 h. The subjects were lying down in bed during the data collection, but their hands were free to move. Example waveforms for SR and AF subjects are depicted in Figs. 3 and 4, respectively.
+An ethical approval was obtained from the local ethical committee of Pirkanmaa Hospital District (ETL R17024), and the study was registered at clinicaltrials.gov (NCT03081793) before study initiation. The procedures followed in this study were in accordance with the ethical standards of the responsible committee on human experimentation (institutional and
+
+Fig. 1 Block diagram of AF detection algorithm
+
+Atrial Fibrillation Detection from Wrist Photoplethysmography …
+
+401
+quality estimation algorithm is applied in our method to classify the pulses into correct and artifact beats. This binary classiﬁcation is designed based on the morphology of the PPG signal and the amount of motion of the subject during each inter-beat time interval. Accuracy of estimated HR and inter-beat intervals (IBI) from PPG signals obtained from the PulseOn device have already been evaluated in [15, 16].
+
+2.3 Feature Extraction and Artificial Neural Network
+
+Fig. 2 PulseOn optical heart rate tracker
+national) and with the Helsinki Declaration of 1975, as revised in 2000 and 2008.
+2.2 IBI Extraction and Signal Quality Estimation
+A proprietary signal processing algorithm was applied to segment the PPG signal beat by beat and to identify the individual PPG pulses. RR intervals used as reference were obtained from the simultaneously recorded ECG signal using Kubios HRV software (www.kubios.com) [14]. Beat-to-beat detection accuracy of Kubios output was visually veriﬁed by an expert.
+The raw PPG signals can be heavily corrupted by motion and other sources of interferences. Therefore, a signal
+
+Atrial ﬁbrillation in the ECG can be diagnosed by analysis of the morphological properties of the electrocardiogram— usually the absence of the p-wave. However, there are no morphological properties in the PPG signal to enable us to detect abnormal atrial activity to distinguish between AF and SR. Therefore, other diagnostic metrics such as high disparity of the length of IBI’s can be helpful for automatic detection of AF. The method applied in this study is based on the analysis of the rhythm of the pulses and more precisely based on the analysis of the inter beat intervals. As it can be seen in Fig. 3, the SR IBIs in the area with low motion are almost constant. However, AF arrhythmia variations will lead to IBI with large amplitude variations (Fig. 4).
+In order to extract the features used in ANN based classiﬁcation, we divided the IBI time series into sliding windows of N = 30 consecutive IBIs. The length of the analyzed window has to be taken into consideration. Although, a longer window is more effective for AF detection, short segments are preferable due to less computational demands and faster detection of AF especially in case of short-lasting AF episodes. For each segment we calculated
+
+Fig. 3 Example of measured waveforms (ECG, ACC, PPG) and corresponding IBI and RRI for an SR patient
+
+402
+Fig. 4 Example of measured waveforms (ECG, ACC, PPG) and corresponding IBI and RRI for an AF patient
+
+Z. Rezaei Yousefi et al.
+
+the following features: the transition matrix containing the probabilities of successive IBI lengths (short, medium, or long) introduced in [17], the fraction of successive IBIs that differ by more than 50 ms (pNN50), the standard deviation (SD) of IBIs and the root mean square of successive difference (RMSSD) of IBIs as the input features for the ANN.
+Given the above features, we built a multilayer perceptron as a classiﬁer to discriminate between AF and SR. An ANN architecture including 12 input units (9 inputs for the transition matrix and 3 for the other features), 10 hidden layers and one output neuron is proposed in this work. Only reliable or correct beats obtained from the signal quality estimation algorithm were used in training the network. However, to test the network we imported IBIs of all beats (both correct and artifact beats) and based on the output of signal quality estimation we decided to reject those decision which are affected by artifacts so that within each window if more than the half of beats were artifact (unreliable), the output decision will be assigned as uncertain.
+2.4 Evaluation and Performance Metrics
+In order to assess the generalization performance of our AF detection algorithm, we applied k-fold cross-validation, that each time one of the 29 subsets were used as the test set and
+
+the remaining 28 subsets were put together to form a training set. By pooling the predicted probabilities of outcome from all test sets across all 29 folds, the ﬁnal sensitivity ðSe ¼ TPTþPFNÞ, speciﬁcity ðSp ¼ TNTþNFPÞ and area under curve (AUC) were calculated and used to evaluate the model. Here positive and negative are associated to AF and SR frames, respectively. The AUC represents the overall accuracy of a test and can be applied in comparative studies. Since this study utilizes simultaneously recorded ECG signal, we can take advantage of that to compare the results of RRI-analysis based features for AF detection against IBI-based features. The ECG signals are less affected by artifacts and noise normally present in ambulatory conditions.
+3 Results and Discussion
+In this algorithm, we tried to consider the minimum number of beats required to trigger an AF detection. The used window length is 30 beats. Table 1 summarizes the performance metrics of the RRI-based classiﬁer and of the IBI-based classiﬁer for both cases of “All IBI” (considering all beats, be it reliable or not) and “Proposed method” (considering the beat reliability). According to the signal quality estimator applied in this study 26.7% of the detected heartbeats were
+
+Table 1 AF/SR classiﬁcation results for all data sets
+
+RRI-based
+
+Se
+
+97:63 Æ 8:67
+
+Sp
+
+99:65 Æ 0:73
+
+AUC
+
+0.994
+
+All IBI 97:87 Æ 4:84 95:83 Æ 6:31 0.976
+
+Proposed method 93:64 Æ 21:6 99:16 Æ 1:8 0.996
+
+Atrial Fibrillation Detection from Wrist Photoplethysmography …
+
+Table 2 Results after excluding problematic dataset
+
+RRI-based
+
+Se
+
+99:8 Æ 0:51
+
+Sp
+
+99:8 Æ 0:52
+
+AUC
+
+0.999
+
+All IBI 98:04 Æ 1:94 95:58 Æ 6:54 0.984
+
+403
+Proposed method 99:2 Æ 1:3 99:54 Æ 0:64 0.997
+
+classiﬁed as unreliable or artifact beats. However, based on the proposed IBI-based algorithm approach, 84.58% of the data was classiﬁed as AF/SR and only 15.42% of the data was labeled as uncertain due to the low quality or too many unreliable beats. The reason for higher value of Sensitivity (the ability to detect true AF events) of the “All IBI” approach compare to the “Proposed method” is that the artifact beats (26.7% of the data) produce irregularity in IBI sequences and the algorithm recognizes these irregularities as AF events. In addition to that, further investigation revealed that the reason of low mean and very high standard deviation values of Sensitivity for the proposed method is related to one dataset acquired from a patient which were classiﬁed as AF since there were not any visible p-wave in the ECG signal. However, compared to the other AF patients there was more regularity in the IBI sequence of this patient that made it similar to the SR cases. The results after excluding this patient from the experiment are shown in Table 2.
+
+These results demonstrate that the wrist PPG technology is accurate enough to detect AF and has the ability to become an alternative for the ECG-based AF detection that is cumbersome and more expensive. The presented results are for patients with either continuous SR or continuous AF during the whole time of the recording. However, the method cab be equally applied for patients with paroxysmal AF episodes. The only restriction is that the AF episodes need to last for at least 30 beats. We have tested this on artiﬁcially concatenated data from both sets that is shown in Fig. 5. We have inserted two AF episodes in an SR data set at times 700–900 s and 2000–2500 s. It can be seen that the proposed algorithm is able to detect correctly AF episodes.
+4 Conclusion
+In this paper, an ANN-based algorithm for the detection of atrial ﬁbrillation on a beat-by-beat basis from PPG signals was proposed and evaluated. The algorithm provides very
+
+Fig. 5 ANN classiﬁcation results for an artiﬁcially mixed data set (artiﬁcial paroxysmal AF
+data)
+
+404
+
+Z. Rezaei Yousefi et al.
+
+satisfying detection accuracy/reliability in terms of sensitivity and speciﬁcity. It has been conﬁrmed that PPG-based monitoring technique is very promising in AF detection and has the potential to induce a dramatic change in medical screening and monitoring by wearable sensing technology. As the subject of our future work for AF detection, we plan to apply Recurrent Neural Networks (RNN) particularly those using Long Short-Term Memory (LSTM) which are popular models for learning from sequence data.
+Conﬂict of Interest Rezaei Youseﬁ Z, Parak J, Tarniceriu A and Vehkaoja A are employees of PulseOn Ltd.
+References
+1. Waktare, J.E.P.: Atrial Fibrillation. Circulation, Volume 106, Issue 1. July 2 (2002).
+2. Conroy, T., Guzman, J. H., Hall, B., Tsouri, G., Couderc, J. P.: Detection of atrial ﬁbrillation using an earlobe photoplethysmographic sensor. Physiological measurement 38, no.10, 1906 (2017).
+3. Gil, E., Vergara, J. M., Laguna, P.: Detection of decreases in the amplitude ﬂuctuation of pulse photoplethysmography signal as indication of obstructive sleep apnea syndrome in children. Biomedical Signal Processing and Control 3, no. 3, pp. 267–277 (2008).
+4. Couceiro, R., Carvalho, P., Henriques, J., Antunes, M., Harris, M., Habetha, J.: Detection of atrial ﬁbrillation using model-based ECG analysis. In: 19th International Conference on Pattern Recognition. pp. 1–5. IEEE Press (2008).
+5. Moody, G. B., Mark, R. G.: A new method for detecting atrial brillation using R-R intervals. Computers in Cardiology, pp. 227â €“230, (1983).
+6. Petrucci, E., Balian, V., Filippini, G., Mainardi, L. T.: Atrial ﬁbrillation detection algorithms for very long term ECG monitoring. In: Computers in Cardiology, pp. 623–626. IEEE, (2005).
+7. Ghodrati, A., Marinello, S.: Statistical analysis of RR interval irregularities for detection of atrial ﬁbrillation. In: Computers in Cardiology, pp. 1057–1060. IEEE, (2008).
+
+8. Smiley, A., Simon, D.: Evolutionary optimization of atrial ﬁbrillation diagnostic algorithms. International Journal of Swarm Intelligence 2, no. 2–4: pp. 117-133. (2016).
+9. Lee, J., Reyes, B. A., McManus, D. D., Maitas, O., Chon, K. H.: Atrial ﬁbrillation detection using an iPhone 4S. IEEE Transactions on Biomedical Engineering 60, no. 1. pp. 203–206. (2013).
+10. Chong, J. W., Esa, N., McManus, D. D., Chon, K. H.: Arrhythmia discrimination using a smart phone. IEEE journal of biomedical and health informatics, 19(3), pp. 815–824. (2015).
+11. Krivoshei, L., Weber, S., Burkard, T., Maseli, A., Brasier, N., Kühne, M., Conen, D., Huebner, T., Seeck, A., and Eckstein, J.: Smart detection of atrial ﬁbrillation. Europace 19, no. 5. pp. 753– 757. (2016).
+12. Nemati, S., Ghassemi, M. M., Ambai, V., Isakadze, N., Levantsevych, O., Shah, A., Clifford, G. D.: Monitoring and detecting atrial ﬁbrillation using wearable technology. In Engineering in Medicine and Biology Society (EMBC), 38th Annual International Conference of the IEEE, pp. 3394–3397. IEEE, (2016).
+13. Bonomi, A.G., Schipper, F., Eerikainen, L.M., Margarito, J., Aarts, R.M., Babaeizadeh, S., de Morree, H.M. and Dekker, L.: Atrial ﬁbrillation detection using photo-plethysmography and acceleration data at the wrist. In: Computing in Cardiology Conference (CinC). pp. 277–280. IEEE, (2016).
+14. Tarvainen, M. P., Niskanen, J. P., Lipponen, J. A., Ranta-Aho, P. O., Karjalainen, P. A.. Kubios HRV heart rate variability analysis software. Computer methods and programs in biomedicine, 113(1), pp. 210–220. (2014).
+15. Parak, J., Tarniceriu, A., Renevey, P., Bertschi, M., Delgado-Gonzalo, R., Korhonen, I.: Evaluation of the beat-to-beat detection accuracy of PulseOn wearable optical heart rate monitor. In Engineering in Medicine and Biology Society (EMBC), 37th Annual International Conference of the IEEE, pp. 8099–8102. IEEE, (2015).
+16. Pietila, J., Mehrang, S., Tolonen, J., Helander, E., Jimison, H., Pavel, M., Korhonen, I.: Evaluation of the accuracy and reliability for photoplethysmography based heart rate and beat-to-beat detection during daily activities. In EMBEC & NBC. pp. 145– 148. Springer, (2017).
+17. Artis, S. G., Mark, R. G., Moody, G. B.: Detection of atrial ﬁbrillation using artiﬁcial neural networks. In Computers in Cardiology, Proceedings, pp. 173–176. IEEE, (1991).
+

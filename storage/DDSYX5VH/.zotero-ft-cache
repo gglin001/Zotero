@@ -1,0 +1,201 @@
+HUMAN RECOGNITION FROM PHOTOPLETHYSMOGRAPHY (PPG) BASED ON NON-FIDUCIAL FEATURES
+Nima Karimian , Zimu Guo, Mark Tehranipoor, Domenic Forte
+University of Connecticut, Storrs, CT, 06269, USA University of Florida, Gainesville, FL, 32611, USA
+
+ABSTRACT
+Photoplethysmography (PPG) signals have unique identity properties for human recognition, and are becoming easier to capture by emerging IoT sensors. Existing research on PPG-based biometric systems rely on ﬁducial methods that extract landmarks from the PPG signal as features. This paper investigates non-ﬁducial methods that operating in a holistic manner that is less sensitive to noise in landmarks. We compare PPG-based human veriﬁcation of 42 subjects with ﬁducial and non-ﬁducial methods (speciﬁcally, discrete wavelet transform) and classiﬁcation using a neural network and support vector machine. The experimental results demonstrate higher test recognition rates for wavelet transform feature extraction. We further improve our results by selecting a subset of features via the genetic algorithm.
+Index Terms— Photoplethysmography, PPG, Biometric, Genetic algorithm, Feature extraction
+1. INTRODUCTION
+Password management is becoming more unwieldy as the number of digital services and systems we access every day continues to grow. Biometrics are a promising alternative to passwords because they are unique to each individual, do not need to be remembered, cannot be shared or stolen, etc. However, the more common biometrics, such as ﬁngerprint, iris, hand geometry, and face, are vulnerable to circumvention and have high implementation cost. For example, ﬁngerprints are very easy to obtain since they are involved in a lot of daily tasks such as touching keyboards, door knobs, and so forth. As a result, such biometrics require expensive acquisition and liveliness detection. Photoplethysmography (PPG) and electrocardiogram (ECG) are non-invasive techniques for cardiovascular diagnosis which have also recently been investigated as biometrics. PPG is a simple and low-cost optical technique that detects blood volume changes in the blood vessels through measurements at the skin surface. PPG sensors are included in many different wearable devices today. Unlike ECG, PPG measurements only need to be acquired from one side of the body, allowing it to be used in a larger number of human recognition scenarios.
+To the best of our knowledge, Gu et al.[1] was the ﬁrst
+
+group to investigate PPG for user authentication. They considered four feature parameters and achieved 94% accuracy. A fuzzy-logic based approach was also proposed to examine the feasibility of PPG signals as a new method in the identiﬁcation of humans [2]. In 2006 [3], derivatives of PPG signals were used to extract features for biometric recognition. In [4], linear discriminant analysis (LDA) was applied as a dimensionalty reduction method for PPG-based human identiﬁcation. More recently, Kavsaolu et al. [5] proposed a feature ranking algorithm based on 40 time domain features, acquired from ﬁrst and second derivatives of the PPG signal. They achieved 94.44% accuracy for biometric identiﬁcation. In another work by Jaafar et al. [6], acceleration plethysmogram (APG) was acquired from 10 subjects and they achieved a 97.5% identiﬁcation rate. In 2016, [7] proposed 12 time domain features from PPG and its derivatives.
+The goal of our research is to develop more robust approaches for processing PPGs and classifying individuals. All the above approaches rely on ﬁducial characteristics (i.e., landmarks) obtained from PPG signals in the time domain. Non-ﬁducial methods have had better success in biometric systems for electrocardiogram (ECG) [8] and to our knowledge have not been applied to PPGs. Non-ﬁducial approaches take a holistic approach where features are extracted statistically based on the overall signal morphology. In this work, we compare the performance of ﬁducial and non-ﬁducial approaches for PPG-based user identiﬁcation.
+The remainder of the paper is organized as follows. The next section will discuss the pre-processing and feature extraction including ﬁducial and non-ﬁducial methods. In Section 2, we discuss two classiﬁcation methods as well as the genetic algorithm for feature reduction. Experiments and results are discussed in Section 3. Finally, the paper is concluded in Section 4.
+2. PPG PROCESSING AND SYSTEM OVERVIEW
+Our PPG biometric recognition system (block diagram) is summarized in Figure 1. First, PPG signals are acquired by PPG sensor and pre-processed to reduce unwanted noise. Next, a modiﬁed Pan Tompkins algorithm is employed to detect peaks in the PPG in order to divide it into different segments. After segmentation and normalization, feature ex-
+
+978-1-5090-4117-6/17/$31.00 ©2017 IEEE
+
+4636
+
+ICASSP 2017
+
+(a)
+
+(b)
+
+Fig. 2: Plots illustrating (a) PPG signal (b) Second derivative PPG.
+
+Fig. 1: Block diagram PPG biometric recognition system.
+traction is applied and the resulting features are stored in a database. During identiﬁcation, an enrolled user supplies a PPG to the biometric system. During the matching phase, the template is passed to a matcher that compares it with features extracted from an acquired PPG.
+In a real application scenario, the PPG can be acquired by a wearable device (e.g., smartwatch). Once the user is veriﬁed, the smart device can log the user into different electronics systems automatically. This is similar to the Nymi wristband that operates with ECG. One can also image other systems such as remote controls that can acquire the PPG and authenticate the user for system personalization.
+2.1. Pre-processing
+There are various noise sources such as baseline wander (BW), motion artifact (MA), and respiration , which can impact the quality of PPG signal acquisition. In this paper, we employ a third order Butterworth bandpass ﬁlter with cutoff frequency 1Hz-5Hz to eliminate this noise in PPG signals. After ﬁltering, systolic peak detection is needed segment the PPG into individual heart beats. In this paper, the peaks are detected using a modiﬁed Pan Tompkins algorithm [9]. Since there is variation between segments, we normalize each segment in terms of maximum amplitude and time.
+2.2. Feature Extraction
+As discussed previously, feature extraction methods of ECG can be categorized into two major classes: ﬁducial point methods and non-ﬁducial methods. For PPG, only ﬁducial methods have been used in prior work. Both approaches are discussed below.
+2.2.1. Fiducial Features
+In ﬁducial point methods, the most often used features are based on local landmarks of heart beats such as temporal or amplitude difference between consecutive ﬁducial landmarks. For PPG, the ﬁducial features are often determined from the original PPG signal and its second derivative. In Figure 2, the relationship between PPG signal and its second derivative
+
+is shown. In Figure 2,the main landmarks are shown- systolic peak, dicrotic notch, and diastolic peak. From the PPGs second derivative, the a and b points are the ﬁrst peak and valley respectively. The c, d, e points occur after the location of the systolic peak and have much smaller amplitude. Even with pre-processing, peak detection can be undependable especially in the case of c, d, and e. If the peaks cannot be extracted at all, the PPG biometric system will require more segments in order to identify the individual which impacts its usability and convenience. On the other hand, noise in the peaks can also impact the accuracy of identiﬁcation, resulting in false positives and false negatives.
+
+2.2.2. Non-ﬁducial Features
+
+Non-ﬁducial methods of feature extraction can overcome the above limitations of landmark extraction. In this paper, our approach only requires extraction of the systolic peak in order to segment the PPG. The systolic peak is easier to successfully identify than any of the other landmarks in practice. Once this peak is extracted, we take a window around it in each segmented PPG. The Discrete Wavelet Transforms (DWT) is the non-ﬁducial method of choice for ECG and is used to extract more reliable features for PPG in this paper. The wavelet transform is a linear operation that transforms a signal by decomposing it into various scales. The signal is passed through a series of high and low pass ﬁlter in order to analyze both high as well as low frequency components. The discrete wavelet transform (DWT) is deﬁned by
+
+∞
+
+y[n] =
+
+x[k]ψ[n − k]
+
+(1)
+
+k=−∞
+
+where the x[k] and ψ represent the analyzed signal and mother wavelet. PPG signal decomposition is basically done in an iterative fashion using the different scales s = 2, 4, 8, ..., 2L, in fact the signal is broken down into many lower resolution components. In this work, Daubechies wavelet of order 4 (db4) with four levels of decomposition is used for feature extraction.
+
+3. PPG-BASED CLASSIFICATION
+Biometric identiﬁcation can be viewed as a binary classiﬁcation problem where enrolled features of each individual can
+
+4637
+
+3.2. Support Vector Machine (SVM)
+
+Fig. 3: (a) Graphical representation of an MLP, (b) An example of two class SVM .
+
+Support Vector Machine (SVM) is a very robust non-parametric classiﬁcation technique that is based on statistical learning theory. The binary SVM algorithms are based on learning a decision boundary with a maximum margin between speciﬁed classes either in data space or in feature space for linear and nonlinear SVMs (Fig. 3 (b)). In this paper we also use SVM for PPG pattern classiﬁcation. The binary SVM classiﬁer optimization problem is solved in order to deﬁne k hyperplanes by the vectors wi as
+
+be viewed as one class and samples from the rest of the population are viewed as other classes. In this paper, we consider every subject’s PPG features and employ a different binary classiﬁer so that each enrolled subject can be recognized by the system. Two different classiﬁcation techniques are studied.
+
+3.1. Neural Network (NN)
+Multilayer perceptron (MLP) network is a static feed forward neural network with one or more layers between input and output layers (Fig. 3 (a)). The input layer consists of the biometric features, hidden layers, and an output layer which determines the subject’s identity. Each node consists of at least one neuron with a nonlinear activation function (e.g., sigmoid). Classiﬁcation begins by assigning input nodes with extracted PPG features from the neural network which then propagates in a forward direction through the perceptron until the output nodes.
+Based on training data, the back propagation (BP) algorithm determines a set of optimal weights according to a minimum mean square error (MSE) criteria at the output neuron:
+
+1 E=
+2
+
+N
+[dj − f (x¯j ∗ W )]2
+
+(2)
+
+j=1
+
+where dj is the desired output and f (x¯j ∗ W ) is the observed output of neural network (yj) at time instant j of the training process. The training repeats until the outputs of the neural network, yj, are stable and close to the target, dj.
+In our later experiments, we use a two layer MLP neural network with 20 neurons in the hidden layer and sigmoid transfer functions for the ﬁrst and hidden layer. The number of neurons in the output layer is equal to the number of subjects (classes). At last, we applied the projection matrix generated from the training set to reduce the dimension of the features set. Since each output is a sigmoidal function, it can differentiate whether the test vector belongs to a class or not with values ranging between 0 and 1 and achieve a series of identiﬁcation results.
+
+ minwi,bi,ξ
+
+k i=1
+
+1 2
+
+wiT
+
+wi
+
++
+
+C
+
+N j=1
+
+k i=li
+
+ξik
+
+Subject to, wlTi φ(xi) + bli ≥ wkT φ(xi) + bk + 2 − ξik
+
+ξik ≥ 0, i = 1, . . . , N. k = li
+
+where b and φ represents the offset of the hyperplane and kernel function respectively. ξ are ”slack” variables that represent the amount of misclassiﬁed objects (training errors) and C > 0 is a control parameter denoting the importance of the training error in the optimization problem. For the describing optimization problem, we refer the reader to [10]. In order to derive non-linear decision functions, the kernel method is used to project the data into higher dimensions where the target data is more easily contained by a hyperplane. In this paper, radial basis function is used as the kernel function (φ). Finally, the decision function is
+
+f
+
+(x)
+
+=
+
+arg
+
+max
+i=1,...,K
+
+(wiT
+
+φ(x)
+
++
+
+bi)
+
+(3)
+
+Once the 42 class SVMs have been trained, they can be used for testing, which is on new PPG sequences.
+
+3.3. Classiﬁcation Optimization
+In this paper, genetic algorithm (GA) is used to select and create reference features for the classiﬁcation problem. In PPG classiﬁcation process using SVM and NN techniques, GA requires less computation time in feature selection and reduction compare to other approaches such as principal component analysis (PCA). Also, GA can reduce the number of input features required to ﬁnd the desired classiﬁer. By eliminating the undesired features, it can result in training weight leading to a good accuracy. To do so, an initially random generated population of chromosomes is created and then a ﬁtness is assigned to each chromosome of the initial population based on a user-deﬁned evaluation function (e.g., classiﬁcation accuracy). Next, multiple feature sets are selected from the current population (those with the largest ﬁtness) and modiﬁed to form a new population using the genetic operators (crossover, mutation, etc.). Finally, the new population is then used in the next iteration of the algorithm and so forth. The algorithm terminates when some stopping criteria is reached.
+
+4638
+
+Table 1: Performance of Identiﬁcation
+
+SVM GA+SVM
+ANN GA+ANN
+
+Fiducial 97.57 98.58 95.31 97.15
+
+Wavelet 99.88 100 99.23 100
+
+Morphology 99.19 100 99.18 100
+
+4. EXPERIMENTAL RESULTS
+
+4.1. Setup
+
+A publicly available databases TBME [11], was used to study the performance of the proposed methods. TBME contains 42 healthy subject with 300 Hz sample rate.
+For our experimental analysis, we computed accuracy rates for MLP neural networks and SVM both with and without the GA.
+
+TP +TN
+
+Accuracy =
+
+(4)
+
+TP +FN +TN +FP
+
+where T P, T N, F N , and F P represent number of true positives, true negatives, false negatives, and false positives respectively. The classiﬁcation was considered correct if the output from the model based on training data was similar to the one that had been stored in database.
+
+4.2. Results & Discussion
+The classiﬁcation accuracies for the above approaches are summarized in Table 1. From Table 1, we can see that the classiﬁcation rate for SVM is better than NN in both ﬁducial and non-ﬁducial feature extraction technique. Based on the observation, NN not only provide weaker performance, but also requires more computational time than SVM technique. The identiﬁcation rates for SVM also show a signiﬁcant improvement compared to NN. Moreover, the result of the SVM algorithm is more stable since it is not easily inﬂuenced by primal weighting value like neural network. Based on our experimentation results, we found out that the classiﬁcation accuracies of non-ﬁducial feature extraction when applied to GA+SVM and GA+NN outperformed the outcomes of ﬁducial feature extraction technique achieving identiﬁcation rates of 100% as compared to 98.58% and 97.15% respectively. It can be observed that wavelet based technique results in 99.23% of accuracy based on ANN classiﬁer while ﬁducial features only succeed in identiﬁcation rate of 95.31%. As discussed before, ﬁducial feature are more sensitive to noise which impacts the result while non-ﬁducial features are far less dependent on peak detection correctness.
+The classiﬁcation performances evaluation shown in Table 1 provide a general idea of the classiﬁer result for a speciﬁc threshold deﬁnition. However, in order to analyze the classiﬁer response for each known class and different fractions of positive data are rejected (FP), the result of Table 1 has to be combined with the analysis of receiver operating characteristic (ROC) curves for each class. Figure 4 presents
+
+(a)
+
+(b)
+
+Fig. 4: Plots illustrating ROC curves for (a) based on SVM (b) based on MLP.
+
+Fig. 5: Identiﬁcation accuracy Fiducial and non-ﬁducial feature extraction with various segments.
+the average ROC curve for different FP and true positive (TP) levels for each class.1. In fact, ﬁgure 4, the false acceptance rate (FAR) and the false rejection rate (FRR) curves are plotted in terms of the system threshold. Figure 4 represent comparison of ROC curves among ﬁducial and wavelet based techniques, which manifest the dominance of wavelet features over ﬁducial based features.
+Another experiment was performed to illustrate how the number of acquired PPG segments inﬂuences accuracy. Note that the number of segments is related to the acquisition and recognition time, which should ideally be short for biometric system usability. Four different PPG segment lengths (5, 10, 15, and 20) were used. Figure 5 represent the identiﬁcation rates of SVM classiﬁer for ﬁducial and non-ﬁducial features. As mentioned before in Table ref, accuracy of ﬁducial feature was less than non-ﬁducial. Although in Figure 5, ﬁducial accuracy increases by increasing the number of segments, still it is less than that of non-ﬁducial. The performance is quite high even with only 5 segments. Considering a 1-2 second heartbeat, 5-10 seconds would be needed to authenticate the user in our system.
+5. CONCLUSION AND FUTURE WORK
+In this study, we have demonstrated an accurate PPG-based identiﬁcation system based on non-ﬁducial features. Classiﬁcation was performed via NN and SVM, and features were reduced by Genetic Algorithm to optimize classiﬁcation. The work is done under a small database of 42 persons and achieved 100% accuracy as compared to 95-98.5% for ﬁducial features.
+
+4639
+
+6. REFERENCES
+[1] YY Gu, Y Zhang, and YT Zhang, “A novel biometric approach in human veriﬁcation by photoplethysmographic signals,” in Information Technology Applications in Biomedicine, 2003. 4th International IEEE EMBS Special Topic Conference on. IEEE, 2003, pp. 13–14.
+[2] YY Gu and YT Zhang, “Photoplethysmographic authentication through fuzzy logic,” in Biomedical Engineering, 2003. IEEE EMBS Asian-Paciﬁc Conference on. IEEE, 2003, pp. 136–137.
+[3] Jianchu Yao, Xiaodong Sun, and Yongbo Wan, “A pilot study on using derivatives of photoplethysmographic signals as a biometric identiﬁer,” in 2007 29th Annual International Conference of the IEEE Engineering in Medicine and Biology Society. IEEE, 2007, pp. 4576– 4579.
+[4] Petros Spachos, Jiexin Gao, and Dimitrios Hatzinakos, “Feasibility study of photoplethysmographic signals for biometric identiﬁcation,” in 2011 17th International Conference on Digital Signal Processing (DSP). IEEE, 2011, pp. 1–5.
+[5] A Res¸it Kavsaog˘lu, Kemal Polat, and M Recep Bozkurt, “A novel feature ranking algorithm for biometric recognition with ppg signals,” Computers in biology and medicine, vol. 49, pp. 1–14, 2014.
+[6] Nur Azua Liyana Jaafar, Khairul Azami Sidek, and Siti Nurfarah Ain Mohd Azam, “Acceleration plethysmogram based biometric identiﬁcation,” in BioSignal Analysis, Processing and Systems (ICBAPS), 2015 International Conference on. IEEE, 2015, pp. 16–21.
+[7] Samik Chakraborty and Saurabh Pal, “Photoplethysmogram signal based biometric recognition using linear discriminant classiﬁer,” in 2016 2nd International Conference on Control, Instrumentation, Energy & Communication (CIEC). IEEE, 2016, pp. 183–187.
+[8] N. Karimian, Z. Guo, M. Tehranipoor, and D. Forte, “Highly reliable key generation from electrocardiogram (ecg),” IEEE Transactions on Biomedical Engineering, , no. 99, 2016.
+[9] Jiapu Pan and Willis J Tompkins, “A real-time qrs detection algorithm,” IEEE transactions on biomedical engineering, , no. 3, pp. 230–236, 1985.
+[10] Jason Weston and Chris Watkins, “Multi-class support vector machines,” Tech. Rep., Citeseer, 1998.
+[11] Walter Karlen, Srinivas Raman, J Mark Ansermino, and Guy A Dumont, “Multiparameter respiratory rate estimation from the photoplethysmogram,” IEEE Transactions on Biomedical Engineering, vol. 60, no. 7, pp. 1946–1953, 2013.
+4640
+

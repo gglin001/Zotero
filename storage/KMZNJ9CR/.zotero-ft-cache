@@ -1,0 +1,540 @@
+1
+Covfefe: A Computer Vision Approach For Estimating Force Exertion
+Vaneet Aggarwal, Hamed Asadi, Mayank Gupta, Jae Joong Lee, and Denny Yu
+
+arXiv:1809.09293v1 [cs.HC] 25 Sep 2018
+
+Abstract—Cumulative exposure to repetitive and forceful activities may lead to musculoskeletal injuries which not only reduce workers’ efﬁciency and productivity, but also affect their quality of life. Thus, widely accessible techniques for reliable detection of unsafe muscle force exertion levels for human activity is necessary for their well-being. However, measurement of force exertion levels is challenging and the existing techniques pose a great challenge as they are either intrusive, interfere with humanmachine interface, and/or subjective in the nature, thus are not scalable for all workers. In this work, we use face videos and the photoplethysmography (PPG) signals to classify force exertion levels of 0%, 50%, and 100% (representing rest, moderate effort, and high effort), thus providing a non-intrusive and scalable approach. Efﬁcient feature extraction approaches have been investigated, including standard deviation of the movement of different landmarks of the face, distances between peaks and troughs in the PPG signals. We note that the PPG signals can be obtained from the face videos, thus giving an efﬁcient classiﬁcation algorithm for the force exertion levels using face videos. Based on the data collected from 20 subjects, features extracted from the face videos give 90% accuracy in classiﬁcation among the 100% and the combination of 0% and 50% datasets. Further combining the PPG signals provide 81.7% accuracy. The approach is also shown to be robust to the correctly identify force level when the person is talking, even though such datasets are not included in the training.
+Index Terms—Musculoskeletal disorders, Force exertion, Computer vision, Deepface, Feature extraction, Neural network
+I. INTRODUCTION
+In the United States, 155 million people work full-time as part of their daily lives. Although all employers are ethically required to provide a safe and healthy workplace for their employees, people are still getting hurt daily. Workplaces injuries like musculoskeletal disorders are preventable, and workplace risk factors are known. However, monitoring these factors reliably and in a scalable way is a key challenge. We propose a computer vision framework for preventing musculoskeletal injuries. The following sections further detail the background motivation, related work, and our contributions.
+A. Motivation
+1) Work-related MSDs: Musculoskeletal disorders (MSDs), such as sprains or strains resulting from overexertion, accounts for 349,050 cases for all workers [1] annually. This means that 33 workers in every 10,000 suffer an injury severe enough that they must take time away from work. [1] Although overall percentage of the workforce getting hurt is small, these injuries
+The authors are with Purdue University, West Lafayette, IN USA 47906, email:{vaneet,hasadi,gupta369,lee2161,dennyyu}@purdue.edu.
+
+are preventable. Furthermore, they not only impact individual worker’s health and quality of life[2], they also result in significant cost employees and society (e.g., workers compensation, medical care, loss productivity, training temporary workers). The annual cost of the injuries in the United States are nearly $60 billion in direct workers compensation costs [3]. Due to high direct and indirect cost of MSDs, there is a strong motivation for all stakeholders (e.g., employers, workers, and researchers) to identify factors that lead to MSDs and actively monitor and eliminate worker exposure to these factors.
+2) Force Exertion as a predictor of MSDs: High force exertion levels are reported as the most common contributing factors with sufﬁcient evidence to suggest a causal relationship for work-related musculoskeletal disorders (MSDs) [4], [5], [6], [7], [8]. A comprehensive report by the National Institute for Occupational Safety and Health (NIOSH) lists high/sustained force, repetitive movements, and poor biomechanical postures are contributors to MSDs, with conclusion that evidence exists linking force to musculoskeletal injuries [9].
+Several key physiological and biomechanical mechanisms are proposed for how force exertions lead to injuries. For instance, chronic low back pain can be a result of tears in the soft tissues [10]. For instance, high and/or frequent force exertions initiates lumbar disc damage and degeneration [11]. In addition to high force exertions, prolonged/sustained force exertions could also lead to work-related MSDs. For example, prolonged force exertions could lead to wrist injuries where frequent force exertions by the hand (e.g., pinching and griping) lead to and exacerbate inﬂammation of the carpal tunnel cumulative tissue stress can eventually lead to injuries [12].
+Although repetition, postures, and vibration are contributors to injuries, force is one of the hardest to measure because it is difﬁcult to observe and depend on individual’s effort. For example, changes in expressions are subtle unless high forces and strong efforts are needed. Many methods are currently available to measure the force exertion levels (detailed in Related Work). However, each method vary in reliability and feasibility as they are either 1) intrusive (e.g., disrupts the worker while they are performing their job), 2) interfere with human machine interface (e.g., need to install force gauges on tool-handles and machine controls), 3) subjective, and most importantly 4) not widely scalable across all workers, jobs, and workplaces as trained ergonomics and safety professionals are needed to implement these methods.
+3) Why Computer Vision approach is needed?: This paper proposes objective and automated predictions of force levels which has minimum distractions on workers and could be
+
+2
+
+used in wide variety of workplaces by using the videos of the person to predict the level and frequency of force exertions. Innovations in computer vision techniques can address many of the deﬁciencies in the current approaches. This paper proposes a new objective approach, which can be widely accessible and is not intrusive to workers.
+B. Related Work
+Here, we present the existing literature and talk about the different types of force exertions that various researchers have used in the work. To demonstrate this approach, we focus on experiments on force exertions using a grip posture. There are several existing methodologies to estimate the exertion level. The overview of different methods is given here along with related work of various researchers using computer vision in estimating individuals health attributes and activity.
+1) Types of Force Exertions:: Lifting, push/pull, pinch grip, and power grip are common methods for exerting force in workplaces and are especially common in manual handling work tasks [13]. For example, in manufacturing and manual handling, workers perform tasks throughout the workday using a combination of the aforementioned exertion types. In this study the power gripping force exertion is selected as input force exertion level due to the following reasons. First, hand grip strength is important in designing hand tools[14]. The second reason is the engagement of limited muscle in grip force exertion. In comparison to lifting, and pull/push, lower muscle mass is in involved thus potentially places workers performing exertions at the limits of their capabilities [15]. Even with lifting, pulling, or pushing, the recommended handobject coupling is a grip posture. The third reason is that grip exertions are upper-extremity movements that again have lower strength capability than whole-body force exertions. Moreover, focusing on upper-extremity actions limits lower body movements and thus allow for better experimental control to demonstrate our approach.
+2) Assessment of Force Exertion Levels:: Various methods have been used by different researchers to measure, estimate workers hand force exertions. For example, the physical exertion level is commonly rated using visual scales [16]. Other techniques include estimating hand forces through context, i.e., using the object weights or checking the carrying loads by observing and interviewing the workers [17], measured with a force gauge or mimicked on a hand dynamometer by workers [18], [19], observed by ergonomists, or measured by electromyography on the forearm muscles [20], [21].
+The conventional method to measure hand grip force uses hand grip dynamometers [18], [19]. Most hand dynamometers operate using strain gauge and directly measures hand grip strength. In workplaces, the workers may be asked to replicate the tasks forces on grip dynamometers. Although these devices provides actual force measurements, their usability is limited due to their availability to workers.
+In observational methods, the force levels is observed and estimated by trained ergonomists. The ergonomists are trained to recognize these subtle cues (twist in body, strain in face, perspiration). These signs will become more clear in high force
+
+assessing requirements. This method could be also performed on recorded videos of the workers. This method is subjective and based to the estimations [22].
+Electromyogram (EMG) is a signal that can be measured from the skin surface. Various studies have used the EMG sensors to measure the muscle activation and hand grip strength. The EMG signals measures the activation of forearm muscles. The recorded signals can be ﬁltered and normalized with the maximum activity to represent the hands grip forces [20], [21], [23]. This method requires the EMG sensors which are not widely available, cannot be used in workplaces due to time constrains, and are intrusive to workers.
+The proposed computer vision method identiﬁed and implemented both sub-surface (PPG, representine blood ﬂow, etc.) and surface (facial expressions) variables to classify the force exertion levels.
+3) Use of Computer Vision for Health Attributes:: Advances in computer vision and machine learning have the potential to address limitations of current ergonomics state-ofthe-art methods for collecting force exertion data in workplace exposure assessments. Automated video exposure assessment has been used in previous studies to automatically quantify repetitive hand activity with the use of digital video processing [24]. Using video recordings to measure the ergonomic risk factor of repetitive motions, the investigators developed algorithms that tracked the hand and calculated kinematic variables of tasks such as frequency and speed [25]. The authors of [26] demonstrated that marker-less video tracking algorithm can be used to measure duty cycle and hand activity levels in repetitive manual tasks. The computer vision-based motion capture has been used previously to track and build on-site biomechanical model of the body and minimize work related ergonomic risk factors on construction sites [27], [28], [29]. The computer vision approach provides a promising tool for quantifying ergonomic risks from repetitive movements and potentially non-neutral postures; however, force exertion levels are another key ergonomic risk factor that computer vision techniques have not been developed to detect force exertion levels that may associate with injury risks.
+Over the last decade, there had been great interest in utilizing the videos of human and estimate the health related parameters like heart rate, breathing rate etc. It is shown that contact methods such as using pulse oximeter can be easily replaced by non contact methods such as human videos [30], [31], [32], [33]. All these works utilizes human facial videos and extract relevant features from the human face to estimate health related parameters. The features used are the pixel intensity values from each frame of the video. These features are combined together to generate PPG signal using signal processing techniques and hence estimating health parameter.
+4) Use of PPG signal for health monitoring:: Photoplethysmogram (PPG) is an optical technique for the volumetric measurement of the organ. It generates a pulsating wave based on the changes in volume of the blood ﬂowing inside the arteries. Recently, there has been growing interest of the researchers in exploring PPG signal. Till date, the PPG signal has been used to extract information such as oxygen saturation level, blood pressure, respiration rate, heart rate, and heart
+
+3
+
+rate variability. It is also a promising technique that is used in early screening of various atherosclerotic pathologies [34]. The amplitude of the PPG has been used as an indicator to vascular distensibility [35]. This information is used by anesthesiologists to judge subjectively whether a patient is sufﬁciently anesthetized for surgery. PPG waveform can be a useful tool for detecting and diagnosing cardiac arrhythmias as well. The researchers have also analysed ﬁrst and second derivate of PPG signal. The ﬁrst derivative of the PPG can also be used to calculate the augmentation index which is a measure of arterial stiffness [34]. The measure of arterial stiffness can be further be related to vascular aging [36]. There have been numerous applications of PPG signal and researchers are still exploring the potential of this signal.
+C. Contributions
+This work provides ﬁrst ever approach for prediction the force exertion level using techniques of computer vision and machine learning, to the best of our knowledge. We propose an algorithm that can classify between three different levels of force exertion, i.e., 0%, 50%, & 100%. Our methodology provides an overall accuracy of over 80% in correctly classifying these three levels. This algorithm uses efﬁcient feature extraction methods from the facial videos and the PPG signals to perform the classiﬁcation. The proposed method ﬁrst uses a classiﬁcation based on features extracted from the video data to classify between two levels, 100% and ≤ 50%. The features from the PPG signals are then used to differentiate between 0% and 50%. Since the PPG signals can be obtained from the face videos [30], this approach is a computer vision approach with the face video as an input and an estimate of force exertion level as the output. Since we are not aware of an existing data set containing face videos and the force exertion levels, we design our own experiment to collect the relevant data for training our model. The data is collected using 20 subjects in total, where each subject was asked to perform different levels of force exertion activities and their videos & PPG data was recorded. Relevant set of features are extracted from this data and two neural networks are trained to achieve an overall accuracy of 81.7%.
+The second key contribution in our work is the extraction of average movement of facial landmarks from the video data. Such features has never been used to train a machine learning algorithm for predicting force level in the existing literature, to the best of our knowledge. The feature extraction is essential since the large number of features in the face video may cause the classiﬁcation algorithm to overﬁt to training samples and generalize poorly to new samples. We demonstrate that the extracted features are the key features in training the model to provide the classiﬁcation between high (100%) & low (0% & 50%) force exertion level. We use Deepface algorithm [37] to process the collected videos. The different frames of the videos are aligned and human face is detected in each frame using Deepface. The spatial location of facial landmarks (128 points on the face) are tracked in the entire video and the average movement of each landmark is calculated relative to its position in the ﬁrst frame of the video. The detailed
+
+explanation on such feature extraction is given in Section III-B1.
+The third contribution in the proposed paper includes efﬁcient feature extraction from photoplethysmogram (PPG) signals. PPG signal is collected for each subject at every force exertion level during our experiments. We utilize this signal to extract various kind of features as detailed in Section III-B2. This approach of feature extraction is novel, and has not been studied in prior works to the best of our knowledge. The extracted PPG features provide second level of classiﬁcation between 0% and 50% force exertion levels in our work. For the cases where the face video signals predict the low levels (0% or 50%), the extracted features from the PPG signals are used to obtain efﬁcient classiﬁcation.
+The proposed approach is shown to be robust to unseen data from an activity level that is different from the activities in our experiment. This is done by recording the face video and the PPG signals of the subjects at a new activity level corresponsing to when the subject is talking. The average movement landmarks for talking were extracted from the videos, and were used to predict force exertion level from our ﬁrst model. If the ﬁrst model predicts low, the extracted PPG features from the obtained PPG signal are passed through our second trained model. The results shows that ﬁrst model classiﬁes 7 out of 7 subjects belonging to low (0% & 50%) force exertion level category and second model predicts 0% force exertion level for 5 out of 7 subjects.
+The rest of the paper is organized as follows. Section II describes the experiment design for the data collection. Section III describes the methodology used in the paper to predict the force extraction levels. The two sets of neural networks are trained, one with features from the face videos and another with the features from the PPG signals. The combination of these two neural networks is used to classify the force exertion level into three categories. Section IV presents the classiﬁcation results of the two neural networks individually, as well as together. Further, the model is shown to be robust as it is able to predict force exertion level well even even the participant is talking. Section V provides additional discussions for the obtained results. Section VI concludes the paper, with a brief mention of the potential future works.
+II. EXPERIMENT DESIGN FOR DATA COLLECTION
+An experiment has been designed to collect the data that will be used to predict force exertion level. A study was conducted where each subject exerted varying levels of muscle force. During these activities, we collected the videos of the person performing the activity as well as data regarding the volumetric blood ﬂow by capturing PPG signal using pulse oximeter. Figure 1 shows the complete set-up we used in our study.
+A. Study participants
+Twenty healthy volunteers participated in this study. The participants were recruited from a university population through email including a description of the study. This study was reviewed by the university’s Institutional Review
+
+4
+
+Age (years) Weight (lb) Grip Force (lb)
+
+Female (n=4) Mean ± SD Min Max
+20.0±1.4 19 22 124.0±33.9 100 148 47.0±15.4 30 62
+
+Male (n=16)
+
+Mean ± SD Min Max
+
+Age (years)
+
+20.8±2.7 18 29
+
+Weight (lb) 133.8±21.7 110 168
+
+Grip MVC (lb) 88.8±20.4 62 118
+
+TABLE I
+
+DATA FOR 20 SUBJECTS IN OUR EXPERIMENT
+
+Fig. 1. The experimental setup with a subject holding a grip dynamometer and pulse oximeter attached to the earlobe. The GoPro attached on the tripod is used to capture the video
+Board and all participants provided informed consent. The only exclusion criteria were current injuries that prevented participants from performing force exertions. Sixteen males and 4 females participated in the study, all were right hand dominant, and their ages ranged from 18 to 29 years. The details of all the subjects that participated in the study is given in Table I.
+B. Study Setup
+The power grip dynamometer was used to measure the grip force of each subject. This devise helps in measuring the maximum isometric strength of the hand and forearm muscles and hence helps us collecting the ground truth of force exertion level for each subject.
+A GoPro camera was used to capture the video of our subjects while they were performing different kind of activities. We placed GoPro in front of the subject, around 0.5 meter away from face, and video recorded the subject during the entire experiment. It is a 12 MP camera and recordings are done at 50 frames per second.
+The photoplethysmogram (PPG) signals were recorded using using pulse oximeter. The PPG signals were captured by Shimmer GST+. This device has a contact probe that is attached to the earlobe. The earlobe is chosen as the suitable position for recording the PPG.. Although the signals could be estimated using the non-contact methodologies [30], in this study the actual PPG signals were recorded using pulse oximeter to minimize the errors of estimation.
+
+gripping postures for each subject. This follows attaching pulse oximeter’s contact probe properly to the subject’s earlobe.
+Participants were given a 5-minutes practice period to familiarize with the devices and environment. The overall study involved three different activity levels at different setting of grip dynamometer. In the ﬁrst trial, each participant performed a grip exertion at maximum force that they are capable of. The subjects were instructed to maintain the maximum force for 9 seconds (note that although the magnitude of the force may decrease during the 9-seconds, participants continued to exert their maximum effort). The recordings were stopped after 9 seconds.The second exertion trial was 0% grip force. In this trial, subjects were asked to hold the grip dynamometer without exerting any grip force. The subjects rested for 5 minutes between each force exertion levels to prevent fatigue effects from carrying over to the next force exertion trial. Finally, the last trial was force exertions at 50% of maximum force . In this trial, each subject was asked to exert exactly 50% of their maximum grip contraction. The distribution of the grip force for different subjects is reported in Table I.
+III. METHODOLOGY
+The overall algorithm proposed in this paper takes person’s video as an input and outputs the force exertion level of the person.
+The methodology devised for predicting the force exertion level from human facial videos consists of using techniques of computer vision and machine learning. The overall method consists of 3 main steps: First step involves processing the videos and extract meaningful and relevant parts of the video, i.e., cropped and aligned human face in our case. Second step extracts the important features from the different frames of the video and PPG signal followed by the third step in which we train neural network that will output a model to predict the force exertion level of person
+The different steps of the proposed method is discussed in details here.
+
+C. Study Design
+At the beginning of the data collection session, participants were provided a description of the study, and written consent was collected. First, the subjects were seated in front of the white background to minimize the noise in video processing in detecting the face. The handheld dynamometer was calibrated as per the hand size to ensure standardized and comfortable
+
+A. Video Processing
+The videos of several subjects are recorded under different force exertion levels as explained in section II-C. Each video is processed using the Deepface algorithm proposed in [37]. This is a state-of-the-art algorithm developed by researchers at Facebook. Deepface is a face recognition algorithm that consists of four main stages: 1. Detect 2. Align 3. Represent, and 4. Classify.
+
+5
+
+Fig. 2. The steps followed for feature extraction from each frame of the video. (a) The actual image (one of the many frame) from the video captured during the experiment. (b) The detected and aligned face using DeepFace. (c) The face along with the 68 landmarks on it. These 68 landmark points are used by DeepFace in face recognition.
+
+step in our overall methodology, because relevant features to train a neural network will be extracted from the output of Deepface.
+
+Fig. 3. The location of 128 landmark points on the face for different subjects. Additional 60 landmarks have been identiﬁed on the face for efﬁcient model training
+There have been other work in developing algorithm for facial recognition [38], [39], [40], [41], [42], [43], but Deepface [37] reached an accuracy of 97.35% in Labeled Faces in the Wild (LFW) dataset and reduced the error in face recognition of current state-of-the art by more than 27%. The high accuracy in Deepface is achieved by revisiting both alignment and representation step. 3D face alignment has been done using piecewise afﬁne transformation and face representation is derived using 9-layer neural network which is a key for the high performance. Therefore, we utilized Deepface for recognizing faces in our approach.
+The 9 seconds video of each subject is trimmed to 7 seconds before passing it to Deepface. The ﬁrst 2 seconds of videos are removed because each subject requires initial 1-2sec to reach to the required force level. Each video is recorded at 50 frames per second and hence, consists of 350 frames We process all these frames using Deepface that recognizes and aligns the face of each subject across the frames using 68 landmark points on the face. Figure 2 shows how deepface is used to extract faces from the each frame in the video. Figure 2 (a) is an example of an actual frame in the video. DeepFace recognizes the face of the person in each and crops the face out of it as shown in Figure 2 (b). This algorithm helps identify 68 landmark points on the face as depicted in Figure 2 (c) and track these 68 landmark points over the whole video The 68 landmark points represents the contour of the face, eyebrows, eyes, lips, and nose. Detecting and aligning the face in each frame of the video is one of the most critical
+
+B. Feature Extraction
+The extraction of “right” features is important as it plays signiﬁcant role in training a neural network. The choice of relevant features leads to the simpliﬁcation of the models which in turn requires shorter training time [44]. “Right” set of features helps in avoiding the curse of dimensionality and leads to generalization of the model by reducing the variance in the model [45]. Choosing the subset of features from the available data reduces redundancy in the input to the neural networks and subsequently improving the performance. We will extract relevant features from two sources: 1. Frames that has been processed by DeepFace 2. PPG signal that has been collected during our data collection process
+1) Features from Videos: Deepface utilizes the information of 68 landmark points on the face. Our proposed method use 128 landmark points on the face as shown in Figure 3. Based on 68 landmark points, we locate 60 more landmarks on the face that lies on the left and right cheeks. Thirty landmarks on each cheek is located based on the location of landmarks on the contour of the face and eyes. Different landmark points can be grouped together based on the location on the face as: 1: Contour of Face (17 landmarks), 2: Left Eye with left eye brow (11 landmarks), 3: Right eye with right eyebrow (11 landmarks), 4: Nose (9 landmarks), 5: Lips (16 landmarks), 6: Left Cheek (32 landmarks), 7: Right Cheek (32 landmarks).
+All the 128 landmark points are tracked in 350 frames for each video. The location (x and y co-ordinate values) of each landmark is extracted and based on the location, the average movement of each landmark with respect to its location in the ﬁrst frame is calculated over the entire video. For each video, average movement, dj,of each landmark, j, is given in equation 1
+
+dj =
+
+n i=1
+
+(xji − xj1)2 + (yji − yj1)2
+
+n
+
+(1)
+
+where n is the number of frames in the video. Thus, the
+
+set D1={d1, d2.......d128} is our ﬁrst set of features used in
+
+6
+
+Fig. 4. Collected PPG Signals (a) 0% grip force (b)50% grip force; T1: time at ﬁrst local minimum of the beat, T2: time at local max of the beat, T3: time at the end of the beat
+
+the prediction of exertion level. These features are potential indicator of exertion level as they depict how each point on the face moves in the entire video when subjects are asked to perform different exertion level activity.
+2) Features from PPG: The other set of features is derived using PPG signal captured during our data collection experiments. PPG signal of each subject consists of multiple beats where each beat is deﬁned as the set of consecutive values of PPG having a maximum PPG value between two minimum values as highlighted in yellow color in Figure 4 (a). Therefore, for each beat we have a starting point denoted at T1, maximum point denoted as T2, and end point denoted at T3. The total number of beats of 7 seconds recorded PPG were varied from 8 to 12 beats. Therefore, from each PPG signal following features are extracted:
+• Time interval between T1 and T2 is extracted for ﬁrst 5 beats
+• Time interval between T2 and T3 for ﬁrst 4 beats • Time interval between T1 and T3 for ﬁrst 4 beats • Standard deviation of PPG values at T2 for all beats • Standard deviation of PPG values at T1 for all beats • Mean of three time intervals: T1 and T2, T2 and T3 and
+T1 and T3 • Standard deviation of three time intervals: T1 and T2, T2
+and T3 and T1 and T3
+The above mentioned 21 features were extracted from PPG signal corresponding to each video. The set of these 21 features is referred to as D2 in rest of the paper. The PPG features extracted from the signal corresponds to the cardiovascular activities of the person during different experiment levels. In this work, we extracted these features from PPG signal that is captured using a contact device. Recently there have been advancements in passively estimating the PPG signal using facial video without the need of any contact device. There are many state-of-the-art techniques discussed in [33], [30], [31], [46], [47], [48], [32], [49] that utilizes videos of the human to extract PPG signal.
+The features extracted for model training is our main novelty as none of the other authors have extracted such features and used machine learning to predict the force exertion level. This
+
+is the ﬁrst ever work that utilizes such facial and PPG features.
+
+C. Model Training
+After all the relevant features D1 and D2 are extracted, we train two neural networks : N N1 & N N2 to predict the three levels of exertion level of human. The feature set D1 is used for training N N1 that classiﬁes 100% force exertion level and rest of other levels (0% & 50% ) and further feature set D2 is trained on N N2 to classify between 0% and 50% level.
+The architecture of both N N1 and N N2 used to train the features is same as shown in Figure 5. The extracted features D1 & D2 were used as the input data into a neural network with 1 input , 3 hidden and 1 output layers as shown in Figure 5. For each hidden layer, 35 neurons are used. The activation function used in the training of network is exponential linear units (ELUs) [50] as deﬁned in equation 2. Batch normalization is used in each hidden layer [51]. The use of drop-out is one of the simplest way to avoid overﬁtting of the neural network [52]. Drop-out rate was set to 50% to avoid over-ﬁtting in all the three hidden layers. This will help in better generalizing the network for unseen data. In the output layer, two neurons were used for 100% and rest (0% and 50%) for N N1 & 0% force exertion and 50% force exertion level for N N2. The best performance of the network is achieved with using Adam [53] as an optimizer along with categorical cross-entropy as a loss function.
+
+x,
+
+if x ≥ 0
+
+f (x) = α × (ex − 1) if x ≤ 0
+
+(2)
+
+IV. RESULTS This section summarizes the classiﬁcation results of both neural networks i.e., N N1 & N N2. The performance of ﬁnal model is discussed along with the noise analysis that shows the robustness of the trained model.
+A. Force level classiﬁcation using D1 The classiﬁcation between 100% (group A) and 0% &
+50% (group B) is done using N N1. The model is trained
+
+7
+Subject ID 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 Group A o o o o o o o o o o o o x x x o o o o o Group B o o o o o x o o o o o o o o o o o o o o
+TABLE II TABLE SHOWING PREDICTION RESULTS FOR N N1
+
+Input layer
+I1
+
+Hidden Hidden Hidden Output layer layer layer layer
+
+I2
+I3
+...
+In
+
+...
+
+...
+
+...
+
+O1 O2
+
+accuracy
+
+1.0
+
+0.8
+
+0.6
+
+train accuracy
+
+test accuracy
+
+train loss
+
+0.4
+
+test loss
+
+0.2
+
+0.0 0
+
+25 50 75 100 125 150 175 # epochs
+
+Fig. 5. The architecture of a fully connected neural network with three hidden Fig. 6. The behavior of accuracy and loss values of N N1 for test and train
+
+layers
+
+dataset against number of epochs
+
+using a fully connected neural network as architecture that utilizes average movement of landmark points. The neural network is trained for 200 epochs. The number of epochs are decided based on the performance of test and train loss curves . The test loss for the performance of neural network is reported using leave one out cross validation approach meaning during training the neural network, we use data for average movements of all force level for 19 subjects and once the model is trained, the performance is measured using data from 1 subject that has been left out of training. This approach has been repeated for all the subjects and the average accuracy on test set has found to be 90% . The graph in ﬁgure 6 represents the behavior of accuracy and loss value for test and training dataset for one of the subject. Table II shows our accuracy results for all subjects. The subjects with ’o’ represents that they have been correctly classiﬁed for a particular group and subjects having ’x’ corresponding to a particular group shows that the class is predicted incorrectly. We can predict Group B correctly for all the subjects except subject no. 6 and also we predict group A correctly 17 out of 20 subjects leading to an overall accuracy of 90%.
+B. Force level classiﬁcation using D2
+After classifying Group A and Group B using N N1, we use N N2 to classify the 0% and 50% force exertion level in Group B. This neural network model utilized all the features extracted from PPG that has been described in section III-B2. This neural network is trained for 175 epochs. The number of epochs are chosen such that model doesnot oveﬁt. The technique of early stopping [54] is used here to avoid overﬁtting, reduce variance in the model and generalize model well over unseen data. This model also uses same approach of ”leave one out” as has been discussed in previous subsection.
+
+Subject ID
+
+1 2 3 4 5 6 7 8 9 10
+
+Group B-0% o o o x o x o o o o
+
+Group B-100% o o x o o o x o x o
+
+Subject ID 11 12 13 14 15 16 17 18 19 20 Group B-0% o o o o o o o o o o Group B-100% o o x x o o o x o o
+TABLE III TABLE SHOWING PREDICTION RESULTS FOR N N2
+
+The average accuracy on 20 subjects is 80% for N N2. The behavior of the accuracy and loss values for testing and training data while training the neural network is shown in Figure 7. Table III shows our average accuracy results for each subjects. The subjects with ’o’ represents that they have been correctly classiﬁed for a particular group and subjects having ’x’ corresponding to a particular group shows that the class is predicted incorrectly. The model can correctly predict 0% force exertion level for 18 out of 20 subjects and 50% force exertion level for 14 subjects out of total of 20 leading to an overall accuracy of 80%.
+C. Final Model
+Our methodology breaks the process of classifying different force exertion levels into two steps and we have provided our accuracy results for two scenarios separately. The overall accuracy of the two models combined is calculated to be 81.7%. The predictions for all the subjects has been combined together from N N1 and N N2 and has been shown in Table IV. There were some subjects that had same facial expression during both 50% and 0% force exertion level experiment and there was no signiﬁcant difference between average movement of the 128 landmarks between these two levels Hence, it is not advisable to use average movement of the landmark points as classifying feature between 0% & 50% force exertion
+
+8
+
+accuracy
+
+1.0
+
+0.9
+
+0.8
+
+0.7
+
+0.6
+
+0.5 train accuracy
+
+0.4
+
+test accuracy
+
+train loss
+
+0.3
+
+test loss
+
+0
+
+25
+
+50
+
+75 100 125 150 # epochs
+
+Fig. 7. The behavior of accuracy and loss values of N N2 for test and train dataset against number of epochs
+
+level. Therefore, we extracted PPG features that relates the cardiovascular parameters with force exertion level.
+D. Model Robustness
+In order to check the robustness of our model, we collected the data of 7 additional subjects while they were performing different kind of activity. We captured the videos of the subjects using the same experimental set-up as explained in section II when they were not performing any sort of force exertion activity, but are talking. We made each subject to speak a paragraph on themselves for 9 seconds for and we recorded their video along with PPG data during this activity. We name this activity as ”talking”.
+Using the same processing technique, we extracted D1 and D2 set of features for all the subjects during talking. The set D1 is passed through trained N N1 and set D2 is passed through trained N N2 and predictions are made as of what activity level they belong to.
+It is interesting to note that for all the 7 subjects when D1 is passed through N N1, it always predicts group B for the activity level which means that our algorithm is able to differentiate between talking and 100% and therefore gives high probability to group B. When set of features derived from PPG are used as an input to the trained N N2, for 5 out of 7 subjects, the model predicted it to be 0% force exertion level and for 2 out of 7 subjects, model predicts as if subjects are at their 50% force exertion level. Note that the data corresponding to talking was not used while training the network. It is completely unseen data for our two trained neural networks.
+V. DISCUSSION
+We demonstrate that the techniques of computer vision and machine learning can predict the force exertion level using extracted features and provides a novel approach for such estimation. Understanding force exertion levels has important implications across domains and applications, and in this work, we demonstrate the approach in the context of workplace injuries. Speciﬁcally, varying levels of force and
+
+Subject ID
+
+1 2 3 4 5 6 7 8 9 10
+
+0% grip Force o o o o o x o o o o
+
+50% grip Force o o x x o o x o x o
+
+100% grip Force o o o o o o o o o o
+
+Subject ID
+
+11 12 13 14 15 16 17 18 19 20
+
+0% grip Force o o o o o o o o o o
+
+50% grip Force o o x x o o o x o o
+
+100% grip Force o o x x o o o x o o
+
+TABLE IV
+
+TABLE SHOWING FINAL PREDICTION RESULTS FROM N N1 & N N2
+
+duration/frequency of these forces are predictive of musculoskeletal injuries. This section provides more discussion on using machine learning in prediction of force exertion level and provides more insights on the feature selection that we performed in our work.
+A. Machine Learning in Classifying Force Levels
+The use of machine learning is two-fold in this work. First, the machine learning is used in DeepFace algorithm for facial recognition that our team further augmented with increased number of features. Secondly, we use machine learning to generate a classiﬁer to predict different force exertion levels.
+There are various methodologies [55], [39], [40], [38], [43], [41], [42], [56] proposed that can achieve facial recognition but the methodology proposed in [37] outperforms other methods and results in the accuracy of 97.35% in Labeled Faces in the Wild (LFW) dataset, reducing the error in face recognition of current state-of-the-art by more than 27%. This method is more robust and the explanation on DeepFace is discussed in section III-A. The 9 layer neural network used in Deepface makes it more robust to detect faces in the video for our study and henceforth extract relevant features from the video frames. These facial features represent a key component for force classiﬁcation.
+The second use of machine learning is force classiﬁcation. In this step, we added additional novelty by leveraging the underlying physiological mechanisms of generating muscle forces to improve force classiﬁcation accuracy. Thus, we included features from PPG as well and deployed a fully connected neural network to train a model that can distinguish between different force exertion levels. The neural networks are known to be universal approximators [57] and hence we use them to identify the underlying function explaining the relationship between the features and response variable.
+B. Facial Features Selection
+The average movement of detected facial landmarks along with the cardiovascular features derived from PPG in different exertion levels have been used to classify the force exertion levels. Our novelty lies in choosing these relevant facial features. As the person increases her effort level, facial expression tends to change and there are differences in the average movement of the facial landmarks for different force exertion level. The identiﬁcation of these visual cues were drawn for tools and techniques from the ﬁeld of human factors. Speciﬁcally, ergonomics practitioners are trained to associate (through observation) cues like ”Substantial Effort
+
+9
+
+Average Movement of Landmarks from Their Initial Position 10
+
+70
+
+0% force
+
+50% force
+
+100% force
+
+60
+
+5
+50
+
+Time interval between T3 & T1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+15
+
+0% force
+
+50% force
+
+100% force
+
+10
+
+40 30
+0% force exertion
+
+50% force exertion
+
+5
+
+Fig. 10. Variation in the time interval between T3 & T1 for all subjects
+
+corresponding to 0% & 50% force exertion level
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+6
+
+0% force
+
+50% force
+
+100% force
+
+4
+
+2
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+Fig. 8. Variation in facial features groups of three randomly chosen subjects, 1: Contour of a face, 2: Left Eye + Eyebrow, 3: Right Eye + Eyebrow, 4: Nose, 5: Lips,6: Left Cheek, 7: Right Cheek
+
+8
+
+MVC Level 0
+
+7
+
+50
+
+100
+
+6
+
+Average Movement
+
+5
+
+4
+
+3
+
+2
+
+1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+Group
+
+Fig. 9. Variation in facial features groups of all subjects, 1: Contour of a
+
+face, 2: Left Eye + Eyebrow, 3: Right Eye + Eyebrow, 4: Nose, 5: Lips,6:
+
+Left Cheek, 7: Right Cheek
+
+with Changed Facial Expression” with an MVC of 70 % and very strong effort. In contrast, ”Obvious Effort, But Unchanged Facial Expression” is associated with 40 % MVC and moderate effort [58]
+Figure 9 & Figure 8 shows how different groups of facial landmarks behave differently for three different force exertion levels. Figure 8 shows the average movement of landmark groups for three randomly picked subjects. It is interesting to note that landmarks belonging to nose always shows least movement in all the three force exertion levels. On the
+
+other hand, face contour, eyes and cheeks show high average movements over the entire video. Figure 9 generalizes this behavior over all the subjects and depicts the box plot of each force exertion level for all the 7 groups of landmarks. The change in the location of the landmarks on the face is explained by the motion of the muscles beneath the skin of the face. As body changes its actions, it leads to the changes in the facial expression [59] and thus we observe the movement of landmarks for different force exertion levels. It is further interesting to note that average movement of landmarks are robust against day to day variations like change in the lighting around them, presence of make-up on the face etc. as well as robust for different people belonging to different skin tone. Therefore, choice of such facial feature leads to high accuracy of our model and make it robust for classifying higher force exertion level.
+As noted previously, changes in facial expressions are observed typically for strong exertions ( 60-70 % MVC); however, a known musculoskeletal injury mechanism is continuous and prolonged sub-maximal force exertions. Speciﬁcally, although a single moderate ( 30-50 % MVC) exertion may not lead to immediate injuries, repeated and prolonged exertions at these levels lead to cumulative trauma disorders. The key challenge is that facial expressions are more likely to be unchanged during these exertion levels. Thus, we further distinguished lower levels of force exertions using cardiovascular parameters of the person which would be captured from PPG signal. This changing trend can be seen in Figure 4 where we observe the increasing trend of PPG signal for 50% force exertion level and a stationary signal for 0% force exertion level. Figure 10 shows the observed variation in one of the PPG feature i.e., time interval between T3 and T1 for ﬁrst four beats, for 0% and 50% force exertion levels. The mean and standard deviation of time interval between T3 and T1 for 0% effort level is 1.03s and 0.55s respectively where mean and standard deviation for 50% force exertion level is 0.86 sec and 0.52 sec respectively. Higher force exertion activity increases the heart rate of the person because of faster cardiac cycles, hence we see differences in PPG extracted features between 0% & 50% effort level. Therefore, both average movement and PPG
+
+10
+
+features become important features in our study. For our analysis, we utilized cardiovascular features derived
+from the PPG signal that had been captured using a contact device placed on the earlobe of the subjects. Although this technique requires contact, continued innovation in wearables (e.g., ﬁtness watches and activity trackers) has provided many options for collection continuous PPG signals without signiﬁcant cost to employers or usability/workﬂow burden to workers. Furthermore, over the last decade, there have been ongoing research in developing methods for estimating PPG signals from the facial videos using non contact methodology. The authors in [32] provided a technique that extracts PPG signal from the human facial videos using complimentary metal-oxide semiconductor camera with the use of external light emitting diodes. Also, the authors of [33], [31] demonstrated that PPG signal can be estimated by just using ambient light as a source of illumination along with simple digital camera. Further advancements led to the formulation of more robust methodology that overcomes challenges in extracting PPG for people having dark skin tones [30]. There are many existing methods that can be easily used to derive PPG signal directly from the facial videos. Future work incorporating these techniques have the potential to make our proposed methodology completely passive and non-contact.
+C. Non-contact Exposure Assessment
+The force exertions has been considered as one of the main contributing factors in current risk assessment tools [60], [61], [62]. The high variability of the identiﬁed risk score with respect to the estimated force exertion parameters is reported in current assessment tools. For example, the Strain Index Assessment [62] score will double if the intensity of the exertion changes from 20% to 40% [8]. In addition, Bao et al. reported weak correlation values between the ergonomists estimates and the worker’s self-reports for pinch and grip force. Further exploration suggested among relationships of worker’s self-reports, the ergonomist’s estimates and the directly measured hand forces [13]. The proposed non-contact assessment method for classifying force levels can provide an objective automated estimations of hand forces.
+VI. CONCLUSIONS
+We demonstrate that a computer vision approach is effective in detecting force exertions across individuals. The approach proposed in this work is robust and model can be used for any new subject for such predictions. Computer vision based monitoring have shown effective applications in fall detection and health monitoring, and this work presents a computer vision framework for musculoskeletal injuries. Because computer vision is not intrusive to the workers and can be done without the need for specialize equipment, this technique will provide workplaces a transformative tool for ensuring on-the-job force requirements (effort level and duration at these levels) do not contribute to workplace injuries. Although current work accurately classiﬁes three force exertion levels, work is ongoing to expand this technique to other exertion levels to better meet the varying needs of different workplaces.
+
+VII. ACKNOWLEDGMENTS
+The authors would like to thank Lingjun Chen and Chufan Gao at Purdue University for the help in data collection and running experiments. We gratefully acknowledge the support of NVIDIA Corporation with the donation of the Titan Xp GPU used for this research.
+REFERENCES
+[1] U. B. of Labor Statistics, “Survey of occupational injuries and illnesses, in cooperation with participating state agencies,” U.S Department of Labor, 2016.
+[2] R. Wells, “Why have we not solved the msd problem?” Work, vol. 34, no. 1, pp. 117–121, 2009.
+[3] Liberty Mutual Research Institute for Safety, “2017 Liberty Mutual Workplace Safety Index,” Liberty Mutual Research Institute for Safety, pp. 39–40, 2017. [Online]. Available: https://www.libertymutualgroup.com/about-liberty-mutual-site/ news-site/Pages/2017-Liberty-Mutual-Workplace-Safety-Index.aspx
+[4] P. W. Buckle and J. Jason Devereux, “The nature of workrelated neck and upper limb musculoskeletal disorders,” Applied Ergonomics, vol. 33, no. 3, pp. 207–217, 2002. [Online]. Available: https://www.sciencedirect.com/science/article/pii/S0003687002000145
+[5] W. M. Keyserling, “Workplace Risk Factors and Occupational Musculoskeletal Disorders, Part 2: A Review of Biomechanical and Psychophysical Research on Risk Factors Associated with Upper Extremity Disorders,” AIHAJ - American Industrial Hygiene Association, vol. 61, no. 2, pp. 231–243, mar 2000. [Online]. Available: http://www.tandfonline.com/doi/abs/10.1080/15298660008984532
+[6] S. P. Schneider, “Musculoskeletal injuries in construction: A review of the literature,” pp. 1056–1064, nov 2001. [Online]. Available: http://www.tandfonline.com/doi/abs/10.1080/104732201753214161
+[7] K. G. Hauret, B. H. Jones, S. H. Bullock, M. Canham-Chervak, and S. Canada, “Musculoskeletal injuries: Description of an underrecognized injury problem among military personnel,” American Journal of Preventive Medicine, vol. 38, no. 1 SUPPL., pp. S61–S70, jan 2010. [Online]. Available: https://www.sciencedirect.com/science/ article/pii/S0749379709006746
+[8] E. Koppelaar and R. Wells, “Comparison of measurement methods for quantifying hand force,” Ergonomics, vol. 48, no. 8, pp. 983–1007, jun 2005. [Online]. Available: http://www.tandfonline.com/doi/abs/10.1080/ 00140130500120841
+[9] National Institute for Occupational Safety and Health (NIOSH), “Musculoskeletal disorders and workplace factors: a critical review of epidemiologic evidence for WMSDs of the neck, upper extremity and low back,” 1997. [Online]. Available: https://stacks.cdc.gov/view/cdc/ 21745
+[10] A. Schwarzer, “The prevalence and clinical features of internal disc disruption in patients with chronic lbp,” Spine, vol. 20, pp. 1878–1883, 1995.
+[11] M. A. Adams, B. J. Freeman, H. P. Morrison, I. W. Nelson, and P. Dolan, “Mechanical initiation of intervertebral disc degeneration,” Spine, vol. 25, no. 13, pp. 1625–1636, 2000.
+[12] B. Fung, K. Chan, L. Lam, S. Cheung, N. Choy, K. Chu, L. Chung, W. Liu, K. Tai, S. Yung et al., “Study of wrist posture, loading and repetitive motion as risk factors for developing carpal tunnel syndrome,” Hand surgery, vol. 12, no. 01, pp. 13–18, 2007.
+[13] S. Bao, N. Howard, P. Spielholz, and B. Silverstein, “Quantifying repetitive hand activity for epidemiological research on musculoskeletal disorders–part ii: comparison of different methods of measuring force level and repetitiveness,” Ergonomics, vol. 49, no. 4, pp. 381–392, 2006.
+[14] Z. Taha et al., “Grip strength prediction for malaysian industrial workers using artiﬁcial neural networks,” International journal of industrial ergonomics, vol. 35, no. 9, pp. 807–816, 2005.
+[15] H. C. Roberts, H. J. Denison, H. J. Martin, H. P. Patel, H. Syddall, C. Cooper, and A. A. Sayer, “A review of the measurement of grip strength in clinical and epidemiological studies: towards a standardised approach,” Age and ageing, vol. 40, no. 4, pp. 423–429, 2011.
+[16] G. Borg, “Psychophysical scaling with applications in physical work and the perception of exertion,” Scandinavian journal of work, environment & health, pp. 55–58, 1990.
+
+11
+
+[17] D. S. Stetson, B. A. Silverstein, W. M. Keyserling, R. A. Wolfe, and J. W. Albers, “Median sensory distal amplitude and latency: comparisons between nonexposed managerial/professional employees and industrial workers,” American Journal of Industrial Medicine, vol. 24, no. 2, pp. 175–189, 1993.
+[18] J. S. Casey, R. W. McGorry, and P. G. Dempsey, “Getting a grip on grip force estimates: Avaluable tool for ergonomic evaluations,” Professional Safety, vol. 47, no. 10, p. 18, 2002.
+[19] R. W. Bohannon, A. Peolsson, N. Massy-Westropp, J. Desrosiers, and J. Bear-Lehman, “Reference values for adult grip strength measured with a jamar dynamometer: a descriptive meta-analysis,” Physiotherapy, vol. 92, no. 1, pp. 11–15, 2006.
+[20] P. J. Keir and J. P. Mogk, “The development and validation of equations to predict grip force in the workplace: contributions of muscle activity and posture,” Ergonomics, vol. 48, no. 10, pp. 1243–1259, 2005.
+[21] S. N. Sidek and A. J. H. Mohideen, “Mapping of emg signal to hand grip force at varying wrist angles,” in Biomedical Engineering and Sciences (IECBES), 2012 IEEE EMBS Conference on. IEEE, 2012, pp. 648–653.
+[22] Z. J. Fan, B. A. Silverstein, S. Bao, D. K. Bonauto, N. L. Howard, and C. K. Smith, “The association between combination of hand force and forearm posture and incidence of lateral epicondylitis in a working population,” Human factors, vol. 56, no. 1, pp. 151–165, 2014.
+[23] P. Spielholz, B. Silverstein, M. Morgan, H. Checkoway, and J. Kaufman, “Comparison of self-report, video observation and direct measurement methods for upper extremity musculoskeletal disorder physical risk factors,” Ergonomics, vol. 44, no. 6, pp. 588–613, 2001.
+[24] C. H. Chen, Y. H. Hu, T. Y. Yen, and R. G. Radwin, “Automated video exposure assessment of repetitive hand activity level for a load transfer task,” Human Factors, vol. 55, no. 2, pp. 298–308, apr 2013. [Online]. Available: http://journals.sagepub.com/doi/10.1177/0018720812458121
+[25] R. L. Greene, D. P. Azari, Y. H. Hu, and R. G. Radwin, “Visualizing stressful aspects of repetitive motion tasks and opportunities for ergonomic improvements using computer vision,” Applied Ergonomics, vol. 65, pp. 461–472, 2017. [Online]. Available: https://www. sciencedirect.com/science/article/pii/S000368701730056X
+[26] O. Akkas, C.-H. Lee, Y. H. Hu, T. Y. Yen, and R. G. Radwin, “Measuring elemental time and duty cycle using automated video processing,” Ergonomics, vol. 59, no. 11, pp. 1514–1525, nov 2016. [Online]. Available: https://www.tandfonline.com/doi/full/10. 1080/00140139.2016.1146347
+[27] M. Liu, S. Han, and S. Lee, “Tracking-based 3d human skeleton extraction from stereo video camera toward an on-site safety and ergonomic analysis,” Construction Innovation, vol. 16, no. 3, pp. 348–367, 2016.
+[28] J. Seo, R. Starbuck, S. Han, S. Lee, and T. J. Armstrong, “Motion data-driven biomechanical analysis during construction tasks on sites,” Journal of Computing in Civil Engineering, vol. 29, no. 4, p. B4014005, 2014.
+[29] R. Starbuck, J. Seo, S. Han, and S. Lee, “A stereo vision-based approach to marker-less motion capture for on-site kinematic modeling of construction worker tasks,” in Computing in Civil and Building Engineering (2014), 2014, pp. 1094–1101.
+[30] M. Kumar, A. Veeraraghavan, and A. Sabharwal, “Distanceppg: Robust non-contact vital signs monitoring using a camera,” Biomedical optics express, vol. 6, no. 5, pp. 1565–1588, 2015.
+[31] M.-Z. Poh, D. J. McDuff, and R. W. Picard, “Advancements in noncontact, multiparameter physiological measurements using a webcam,” IEEE transactions on biomedical engineering, vol. 58, no. 1, pp. 7–11, 2011.
+[32] K. Humphreys, T. Ward, and C. Markham, “Noncontact simultaneous dual wavelength photoplethysmography: a further step toward noncontact pulse oximetry,” Review of scientiﬁc instruments, vol. 78, no. 4, p. 044304, 2007.
+[33] W. Verkruysse, L. O. Svaasand, and J. S. Nelson, “Remote plethysmographic imaging using ambient light.” Optics express, vol. 16, no. 26, pp. 21 434–21 445, 2008.
+[34] M. Elgendi, “On the analysis of ﬁngertip photoplethysmogram signals,” Current cardiology reviews, vol. 8, no. 1, pp. 14–25, 2012.
+[35] J. Dorlas and J. Nijboer, “Photo-electric plethysmography as a monitoring device in anaesthesia: application and interpretation,” BJA: British Journal of Anaesthesia, vol. 57, no. 5, pp. 524–530, 1985.
+[36] N. A. Shirwany and M.-h. Zou, “Arterial stiffness: a brief review,” Acta Pharmacologica Sinica, vol. 31, no. 10, p. 1267, 2010.
+[37] Y. Taigman, M. Yang, M. Ranzato, and L. Wolf, “Deepface: Closing the gap to human-level performance in face veriﬁcation,” in Proceedings of the IEEE conference on computer vision and pattern recognition, 2014, pp. 1701–1708.
+
+[38] O. Barkan, J. Weill, L. Wolf, and H. Aronowitz, “Fast high dimensional vector multiplication face recognition,” in Proceedings of the IEEE International Conference on Computer Vision, 2013, pp. 1960–1967.
+[39] X. Cao, D. Wipf, F. Wen, G. Duan, and J. Sun, “A practical transfer learning algorithm for face veriﬁcation,” in Proceedings of the IEEE International Conference on Computer Vision, 2013, pp. 3208–3215.
+[40] D. Chen, X. Cao, F. Wen, and J. Sun, “Blessing of dimensionality: Highdimensional feature and its efﬁcient compression for face veriﬁcation,” in Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2013, pp. 3025–3032.
+[41] S. Chopra, R. Hadsell, and Y. LeCun, “Learning a similarity metric discriminatively, with application to face veriﬁcation,” in Computer Vision and Pattern Recognition, 2005. CVPR 2005. IEEE Computer Society Conference on, vol. 1. IEEE, 2005, pp. 539–546.
+[42] G. B. Huang, H. Lee, and E. Learned-Miller, “Learning hierarchical representations for face veriﬁcation with convolutional deep belief networks,” in Computer Vision and Pattern Recognition (CVPR), 2012 IEEE Conference on. IEEE, 2012, pp. 2518–2525.
+[43] Y. Sun, X. Wang, and X. Tang, “Deep convolutional network cascade for facial point detection,” in Proceedings of the IEEE conference on computer vision and pattern recognition, 2013, pp. 3476–3483.
+[44] G. James, D. Witten, T. Hastie, and R. Tibshirani, An introduction to statistical learning. Springer, 2013, vol. 112.
+[45] M. L. Bermingham, R. Pong-Wong, A. Spiliopoulou, C. Hayward, I. Rudan, H. Campbell, A. F. Wright, J. F. Wilson, F. Agakov, P. Navarro et al., “Application of high-dimensional feature selection: evaluation for genomic prediction in man,” Scientiﬁc reports, vol. 5, p. 10312, 2015.
+[46] M.-Z. Poh, D. J. McDuff, and R. W. Picard, “Non-contact, automated cardiac pulse measurements using video imaging and blind source separation.” Optics express, vol. 18, no. 10, pp. 10 762–10 774, 2010.
+[47] Y. Sun, S. Hu, V. Azorin-Peris, S. Greenwald, J. Chambers, and Y. Zhu, “Motion-compensated noncontact imaging photoplethysmography to monitor cardiorespiratory status during exercise,” Journal of biomedical optics, vol. 16, no. 7, pp. 077 010–077 010, 2011.
+[48] F. P. Wieringa, F. Mastik, and A. F. W. v. d. Steen, “Contactless multiple wavelength photoplethysmographic imaging: A ﬁrst step toward “spo2 camera” technology,” Annals of Biomedical Engineering, vol. 33, no. 8, pp. 1034–1041, Aug 2005. [Online]. Available: https://doi.org/10.1007/s10439-005-5763-2
+[49] B. D. Holton, K. Mannapperuma, P. J. Lesniewski, and J. C. Thomas, “Signal recovery in imaging photoplethysmography,” Physiological measurement, vol. 34, no. 11, p. 1499, 2013.
+[50] D. Clevert, T. Unterthiner, and S. Hochreiter, “Fast and accurate deep network learning by exponential linear units (elus),” CoRR, vol. abs/1511.07289, 2015. [Online]. Available: http://arxiv.org/abs/1511. 07289
+[51] S. Ioffe and C. Szegedy, “Batch normalization: Accelerating deep network training by reducing internal covariate shift,” CoRR, vol. abs/1502.03167, 2015. [Online]. Available: http://arxiv.org/abs/1502. 03167
+[52] N. Srivastava, G. Hinton, A. Krizhevsky, I. Sutskever, and R. Salakhutdinov, “Dropout: a simple way to prevent neural networks from overﬁtting,” The Journal of Machine Learning Research, vol. 15, no. 1, pp. 1929–1958, 2014.
+[53] D. P. Kingma and J. Ba, “Adam: A method for stochastic optimization,” CoRR, vol. abs/1412.6980, 2014. [Online]. Available: http://arxiv.org/abs/1412.6980
+[54] R. Caruana, S. Lawrence, and C. L. Giles, “Overﬁtting in neural nets: Backpropagation, conjugate gradient, and early stopping,” in Advances in neural information processing systems, 2001, pp. 402–408.
+[55] P. J. Phillips, J. R. Beveridge, B. A. Draper, G. Givens, A. J. O’Toole, D. S. Bolme, J. Dunlop, Y. M. Lui, H. Sahibzada, and S. Weimer, “An introduction to the good, the bad, amp; the ugly face recognition challenge problem,” in Face and Gesture 2011, March 2011, pp. 346– 353.
+[56] M. Osadchy, “Synergistic face detection and pose estimation with energy-based models,” Journal of machine learning research : JMLR., 2007.
+[57] K. Hornik, M. Stinchcombe, and H. White, “Multilayer feedforward networks are universal approximators,” Neural networks, vol. 2, no. 5, pp. 359–366, 1989.
+[58] T. J. Armstrong, “Acgih tlv for hand activity level,” in Biomechanics in Ergonomics. CRC Press, 2007, pp. 377–390.
+[59] C. Fantoni and W. Gerbino, “Body actions change the appearance of facial expressions,” PLoS One, vol. 9, no. 9, 2014. [Online]. Available: http://search.proquest.com/docview/1564617673/
+
+12
+[60] S. Hignett and L. McAtamney, “Rapid entire body assessment,” in Handbook of Human Factors and Ergonomics Methods. CRC Press, 2004, pp. 97–108.
+[61] L. McAtamney and E. N. Corlett, “Rula: a survey method for the investigation of work-related upper limb disorders,” Applied ergonomics, vol. 24, no. 2, pp. 91–99, 1993.
+[62] J. Steven Moore and A. Garg, “The strain index: a proposed method to analyze jobs for risk of distal upper extremity disorders,” American Industrial Hygiene Association Journal, vol. 56, no. 5, pp. 443–458, 1995.
+

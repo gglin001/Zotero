@@ -1,0 +1,196 @@
+An Unsupervised Learning for Robust Cardiac Feature Derivation from PPG Signals
+Soma Bandyopadhyay1, Arijit Ukil1, Chetanya Puri1, Rituraj Singh1, Arpan Pal1, K M Mandana2, C. A. Murthy3
+
+ï€ 
+Abstractâ€”We propose here derivation algorithms for physiological parameters like beat start point, systolic peak, pulse duration, peak-to-peak distance related to heart rate, dicrotic minima, diastolic peak from Photoplethysmogram (PPG) signals robustly. Our methods are based on unsupervised learning mainly following morphology as well as discrete nature of the signal. Statistical learning has been used as a special aid to infer most probable feature values mainly to cope up with presence of noise, which is assumed to be insignificant compared to signal values at each investigation window. Performance of the proposed method is found to be better than other standard methods, yielding precision and sensitivity more than 97% obtained from three real life data sets.
+I. INTRODUCTION
+PPG [1] signal comprises a pulsatile AC component synchronized with heartbeat, and DC baseline with multiple lower frequency components. It has been applied to infer a broad spectrum of physiological parameters like respirationrate, oxygen saturation in blood (SpO2), pulse duration, heart rate, Premature Ventricular Contraction (PVC) [2], arterialstiffness-index [2], cardiac preload [3] and many others. Hence, PPG plays a noteworthy role in the emerging research on smart healthcare analytics. Extracting accurate physiological features [6] from PPG is still an open research area as it is extremely sensitive to motion artifacts and its waveform varies from person to person. Various feature extraction algorithms exist in the literature in this regard. However, many of them follow supervised [4] sensor mining and use first [5] and second derivatives [2]. Here we propose an efficient physiological parameter derivation algorithm based on an unsupervised approach. Our algorithm is based on the morphology, mainly strictly falling and rising edges as well as discrete nature of the pulsatile component of this signal. Proposed algorithm, initially, smoothens the signal by a moving window mechanism. It finds best-fit detection window for deriving physiological parameters based upon sampling frequency (í µí±“í µí± ) of the signals. Then most probable values of the physiological parameters like pulse duration, peak-to-peak distance, are found by using k-means clustering. Then it finds dicrotic minima and diastolic peak. We present performance efficacy of our algorithm based on data collected in our lab, data in [11], and data from MITâ€™s Physionet database [9].
+A. Relevant Literature
+Many articles for finding physiological parameters from PPG signals exist in literature. Many of them used
+
+differentiation based techniques for finding those parameters [2, 5, 8]. Several signal processing and filtering techniques have also been exploited in this regard. In [8], signalconditioning using median based filter and wavelet transformation were applied at the initial stage to preprocess the signal. It also performed cubic spline interpolation before finding the derivatives to ensure continuity of functions. Authors in [10] applied low pass Butterworth filtering at the preprocessing stage followed by several frequency-domain techniques like Short Time Fourier Transform (STFT) for feature extraction. In [7], signal features were extracted from the pulsatile signal like PPG by applying decision thresholding on Slope Sum Function (SSF) derived from the preprocessed signal. Authors in [11] used three band pass filters with variable cut-off frequencies, found signal derivatives, and used decision rules based on slope and beat amplitude information for heart rate estimation.
+B. Identified Gaps in Existing Literature
+For the same normal person at different instances of time PPG signals vary. In fact, the variation is often significant. Hence, it is difficult to obtain a single training pattern for a person. The stated parameters in the previous section are in fact the average values for those parameters. It may be difficult to capture these variations of these parameters in a single signal. Therefore, our unsupervised learning method is expected to be beneficial.
+Differentiation based methods assume continuity of the signal, which is not true for any discrete signal. Note that one can find maxima or minima from their basic definitions itself, without using differentiation. We tried to find maxima, minima, from their basic definitions.
+Many authors did preprocessing of the given PPG signal by doing noise removal operations. Many noise removal methodologies like smoothening involve choosing a window length. We found that many authors used a single window length for noise removal whereas we have used multiple window lengths. Most of the prior literatures use preprocessing techniques like, median based filtering, multistage band pass filtering, which are certainly computation heavy in comparison with moving average filter with two different window sizes applied in proposed algorithm. This computation efficacy of our approach eases our algorithm to perform in real time, which is a key necessity for healthcare applications.
+
+1 with the Innovation Lab Kolkata, TATA Consultancy Services. email:(soma.bandyopadhyay, arijit.ukil, chetanya.puri, singh.rituraj, arpan.pal)@tcs.com.
+
+2 with the Cardiothoracic and Vascular Surgery Department, Fortis Healthcare Limited, Kolkata, India. e-mail: kmmandana@gmail.com.
+3 with the Machine Intelligence Unit, Indian Statistical Institute, Kolkata, India. e-mail: murthy@isical.ac.in.
+
+978-1-4577-0220-4/16/$31.00 Â©2016 IEEE
+
+740
+
+C. Our Contribution and Novelty
+While identifying the gaps in other techniques of physiological parameter derivation for PPG signals, we propose an unsupervised approach mainly based on morphology and distinct nature of the signal. For all PPG signals, it is very difficult to say whether a single window length would be sufficient for smoothening. Here we use two different window lengths for the moving average technique as opposed to a single window length for smoothening. Our minima derivation method is based on strictly falling and strictly rising edges of the pulsatile component of the signal with windowing followed by a threshold based filtering between two consecutive minima. Hence, this can be also applicable for other pulsatile signals like Arterial Blood Pressure (ABP). Then we find maxima between two consecutive detected minima. We present optimum value of detection window for parameter derivation. In our approach, we derive most probable feature values by applying statistical learning. Accuracy of the obtained results establishes the efficacy of our approach for estimating the parameters.
+II. PROPOSED METHOD
+Our algorithm comprises smoothening, finding out best-fit detection window, and physiological parameter derivation. Functional block diagram of the proposed methodology is depicted in Fig.1.
+
+peak/maxima points for data set used by [11]. These values are much better than the values reported in [11].
+C. Physiological Parameter derivation
+1) Derivation of pulse and peak duration Pulse and peak duration are derived on preprocessed PPG
+signals í µÌƒí°·5, í µÌƒí°·7. First minima (â‰ˆbeat start point) and maxima (â‰ˆsystolic peak) are detected. Our minima and maxima derivation algorithms follow morphology, i.e., the strictly rising and falling edges of signal. We compute the following :
+Finding local minima points (The beat start points) We use T2 on í µÌƒí°·5 and í µÌƒí°·7 to obtain two sets of local minima
+points í µÌƒí°¸5 and í µÌƒí°¸7 respectively. Pseudocode of our minima detection function is shown in Table I. Fig.2 depicts proposed minima derivation approach.
+Let í µí¼• denote the difference of time indices between two consecutive minima points of Ìƒí µí°¸5. If í µí¼• value does not exceed the threshold T3 (in the present case 300 milliseconds) then second minima between two consecutive minima points is removed. Similar manipulations are to be made for í µÌƒí°¸7. Let the two resultant sets of two minima points be denoted by Ìƒí µí°¹5 and í µÌƒí°¹7. We take union of í µÌƒí°¹5 and Ìƒí µí°¹7 for obtaining a final set of minima points. We sort minima points in the union set in increasing order. In this sorted minima set, if difference between indices of two consecutive minima falls within a tolerance limit (í µí¼ â‰¤ 33 milliseconds) then the left one of the two consecutive minima is removed. Thus, we obtain a final set of minima points (beat start points) í µí¼‘í µí±ší µí±–í µí±›.
+
+Figure 2. Window based minima (beat start) points derivation
+
+Figure 1. Functional flow of proposed algorithm
+
+A. Smoothening of the signal
+
+Objective of this stage is to remove high frequency
+
+perturbation of the signal. We use moving average with
+
+window sizes MA1 = 5 samples and MA2 = 7 samples of the signal. Where í µÌƒí°·:= Moving averaged signal í µí°· with T1
+
+window Ìƒí µí°·í µí±‡1: {í µÌƒí±¥í µí±˜
+
+=
+
+1 í µí±‡1
+
+âˆ‘í µí µí±–í±‡=10âˆ’1
+
+í µí±¥í µí±˜âˆ’âŒŠT21âŒ‹+í µí±–
+
+âˆ¶
+
+í µí±˜
+
+=
+
+âŒŠT1âŒ‹
+2
+
++
+
+1, âŒŠT1âŒ‹
+2
+
++
+
+2, â€¦ í µí± âˆ’ âŒŠT1âŒ‹} where N: length(í µí°·). Derived smoothened
+
+2
+
+signals are í µÌƒí°·5, í µÌƒí°·7.
+
+B. Derivation of best-fit window
+
+In this article, we use size of the detection window as 300
+milliseconds. In general, value of T2 is to be decided on the basis of sampling frequency. For í µí±“í µí±  = 60 Hz, T2 = 18 samples and for í µí±“í µí±  = 125 Hz, T2 = 37 samples. These values resulted in precision = 97.48; sensitivity = 99.38, for finding systolic
+
+TABLE I. MINIMA DERIVATION
+Function p = Detect minima Input: T2: Window size T3: Distance between two minima í µÌƒí°·í µí±€í µí°´ : Smoothed signal í µí±¥í µí±˜ with í µí±˜ = 1,2,3, â€¦ í µí±; N: í µí±™í µí±’í µí±›í µí±”í µí±¡â„Ž(í µí°·) Output: MI: Minima indices Begin í µí±€: = Find Indices of í µÌƒí°·í µí±€í µí°´ such that: í µÌƒí±¥í µí±˜âˆ’í µí±‡22 > í µÌƒí±¥í µí±˜âˆ’í µí±‡22+1. . . > í µÌƒí±¥í µí±˜âˆ’1 > í µÌƒí²™í µí²Œ < í µÌƒí±¥í µí±˜+1. . . < í µÌƒí±¥í µí±˜+í µí±‡22 MI: = Discard indices í µí±€í µí±˜ in í µí±€ such that |í µí±€í µí±˜ âˆ’ í µí±€í µí±˜âˆ’1 | < í µí±‡3 End
+Finding systolic maxima We derive maxima between two derived consecutive
+minima points, and adopt the similar steps as obtained for í µí¼‘í µí±ší µí±–í µí±› to result in the final set of systolic maxima points í µí¼‘í µí±ší µí±Ží µí±¥.
+
+741
+
+Statistical learning Primary intention of this step is to omit the distorted pulse
+and peak durations due to the presence of noise. We assume noise component is insignificant in each detection window. We find distances between every two consecutive minima points in í µí¼‘í µí±ší µí±–í µí±› and perform k-means clustering on these distances with í µí±˜ = 3. Most dense cluster provides the distance between two consecutive minima or most probable pulse duration (í µí»¼1). On í µí¼‘í µí±ší µí±Ží µí±¥, we do similar calculations to find the most dense cluster, and consequently derive the most probable peak to peak distance (í µí»¼2).
+A PPG signal is either contaminated by motion artifacts/noise or not contaminated by noise. Any method providing any physiological parameter should be applicable in both the mentioned cases. Note that we do not know a-priori whether the signal is contaminated by noise or not. The value of the number of clusters (i.e., 3) is chosen so that most dense cluster would always correspond to the uncorrupted part of the signal. This specific property holds here since the maximum number of possible clusters is 3, and clustering is being done on single dimensional data.
+2) Derivation of dicrotic minima and diastolic peak Derivation of dicrotic minima points and diastolic peaks
+are performed on preprocessed PPG signal í µÌƒí°·5, í µÌƒí°·7 after finding out í µí¼‘í µí±ší µí±–í µí±› and í µí¼‘í µí±ší µí±Ží µí±¥.
+Finding dicrotic minima Let T4, T5 denote the left and right window lengths for
+detecting dicrotic minima points. In this article, values of T4 and T5 are taken as 116 milliseconds (7 samples for í µí±“í µí±  = 60 Hz) and 33 milliseconds (2 samples for í µí±“í µí±  = 60 Hz) respectively. In general, values of T4 and T5 are to be decided on the basis of sampling frequency. Using T4 and T5 on í µÌƒí°·5 and í µÌƒí°·7, we obtain two sets of local minima points í µÌƒí°¸15 and í µÌƒí°¸17 respectively. Pseudocode of our dicrotic minima detection function is shown in Table II. For obtaining a resultant set of dicrotic minima points we take union of í µÌƒí°¸15 and í µÌƒí°¸17. Let the resultant set be denoted by í µÌƒí°¹1. We sort the minima points in union set in increasing order. In this sorted minima set, if difference between indices of two consecutive minima falls within a tolerance limit (í µí¼ â‰¤ 33 milliseconds) then the left one of the two consecutive minima is removed. A set of dicrotic minima í µí¼–â€²í µí±ší µí±–í µí±› is achieved by ensuring that every dicrotic minima is preceded by a maxima in í µí¼‘í µí±ší µí±Ží µí±¥ and followed by the next minima in í µí¼‘í µí±ší µí±–í µí±›of that maxima. A final set of dicrotic minima í µí¼–í µí±ší µí±–í µí±› is achieved by subtracting í µí¼‘í µí±ší µí±–í µí±› from í µí¼–â€²í µí±ší µí±–í µí±›.
+TABLE II. DICROTIC MINIMA DERIVATION
+Function p = Detect dicrotic minima Input: í µí¼‘í µí±ší µí±–í µí±›, í µí¼‘í µí±ší µí±Ží µí±¥: Set of minima points, maxima points obtained í µí±¤í µí±–í µí±›í µí±™, í µí±¤í µí±–í µí±›í µí±Ÿ: Window size on the left, right í µÌƒí°·í µí±€í µí°´ : Smoothed signal í µí±¥í µí±˜ with í µí±˜ = 1,2,3, â€¦ í µí±; N: í µí±™í µí±’í µí±›í µí±”í µí±¡â„Ž (í µí°·), Output: DI: Dicrotic minima indices Begin í µí±€í µí±‘í µí±:= Find Indices of í µÌƒí°·í µí±€í µí°´ such that: í µÌƒí±¥í µí±˜âˆ’í µí±¤í µí±–í µí±›í µí±™ > í µÌƒí±¥í µí±˜âˆ’í µí±¤í µí±–í µí±›í µí±™+1. . . > í µÌƒí±¥í µí±˜âˆ’1 > í µÌƒí²™í µí²Œ < í µÌƒí±¥í µí±˜+1. . . < í µÌƒí±¥í µí±˜+í µí±¤í µí±–í µí±›í µí±Ÿ í µí±€â€²í µí±‘í µí± â‰” Filter í µí±€í µí±‘í µí±: to ensure that every dicrotic minima is preceded by a maxima in í µí¼‘í µí±ší µí±Ží µí±¥ and followed by the next minima in í µí¼‘í µí±ší µí±–í µí±›of that maxima. DI = í µí±€â€²í µí±‘í µí± âˆ’ í µí¼‘í µí±ší µí±–í µí±› End
+
+Finding diastolic peak We have derived diastolic peaks where every diastolic
+peak should be situated between a dicrotic minima and the immediately following minima point (í µí¼‘í µí±ší µí±–í µí±›) by adopting similar steps as obtained for í µí¼–í µí±ší µí±–í µí±›. This has resulted in the set of diastolic peaks represented by í µí¼–í µí±ší µí±Ží µí±¥.
+III. RESULTS
+We compared our algorithmâ€™s performance with the different well-known methods described in section I. We have shown our results on three real life data sets: data in [11], MIMIC II [9] data, and our Lab-Data. In TCS research lab, we have collected fingertip PPG data from 16 persons (11 males and 5 females) whose ages are between 20 to 50 years. All these 16 persons are regular lab associates. The data is collected for 5-minute duration from each person at í µí±“í µí±  = 60Hz, where every person kept the finger at the same place for 5-minutes, ensuring signals without noise. Additionally, we have collected 16 PPG data with 5-minute duration where the person moved his or her finger many times. Lab-Data1 denotes data without noise. Lab-Data2 denotes data with motion artifacts/noise (noise duration â‰¤30% of the total duration). The clearance on ethical issues corresponding to the data collection has been obtained from relevant body in TCS.
+A. Ground Truth Derivation
+The PPG signals in Lab-Data1 and MIMIC II are distributed to individuals in our lab for manual annotations of peaks and minima points. The extreme points with majority voting are taken to be the ground truth for the corresponding signals. Finally, a heart specialist approved the ground truth.
+In case of Lab-Data2, we have found the true heart beat rate (mean value and the standard deviation) manually for every person while capturing the PPG signal.
+B. Performance Comparison
+1) Two 60-minute records with 15867 expert annotated beats of PPG [11] sampled at 125Hz were considered for comparing the maxima/peak points. Table III illustrates better performance of our algorithm with respect to [11]. Note that, in [11], multistage processing is needed (several filters are considered before the extrema points are found) which makes it computationally more expensive than our approach. Additionally the performance of proposed method in terms of precision and sensitivity is better than [11]. Note that this method could not be implemented on other data sets as the authors did not disclose their algorithm completely.
+Also, we have applied derivative based methodology for finding systolic peak/maxima as described in [10] on this data set. Table III illustrates improved performance of our algorithm with respect to [10] with considerably reduced number of false negatives.
+2) Twenty-four publicly available PPG signals from MIMIC II of 5-minute duration sampled at 125 Hz with annotated ground truth (as described in section III.A) are considered for detecting minima points (beat start points). Table III illustrates better performance of our algorithm with respect to [7] in the presence of noise/artifacts. We claim that our algorithm is immune to false negatives for both maxima
+
+742
+
+and minima derivation, as proposed algorithm shows enhanced performance in terms of sensitivity.
+
+TABLE III. PRECISION AND SENSITIVITY OF OUR ALGORITHM IN COMPARISON WITH THE EXISTING METHODOLOGIES.
+
+Performance (%)
+Precision Sensitivity
+
+Maxima/ Systolic Peak Our [11] [10] 97.48 95.97 97.62 99.38 97.03 94.52
+
+Minima/Beat Start
+
+Point
+
+Our
+
+[7]
+
+97.205
+
+96.65
+
+98.79
+
+96.405
+
+We have derived physiological parameters like maxima/systolic peak, minima/beat start point, dicrotic minima, and diastolic peak for Lab-Data1 also. The obtained results are matched with the ground truth by considering a tolerance limit of Â± 32 milliseconds (â‰ˆ Â±2 samples for í µí±“í µí±  = 60 Hz). Performance of proposed algorithm is shown in Table IV. Obtained results (a snapshot) of proposed method are illustrated in Fig.3.
+
+Figure 3. Window based physiological parameters derivation
+
+TABLE IV. PRECISION AND SENSITIVITY OF OUR ALGORITHM ON LABDATA1 WITH TOLERANCE LIMIT 32 MS.
+
+Performance (%)
+Precision Sensitivity
+
+Maxima/ Systolic
+Peak
+99.829 98.451
+
+Minima/ Beat Start point
+99.261 98.439
+
+Dicrotic Minima
+98.086 91.9514
+
+Diastolic Peak
+94.55 94.13
+
+We have performed our experiments on Lab-Data2. Note that this data sets contain motion artifacts. We have found í µí»¼1 and í µí»¼2 by the proposed statistical learning technique and derived the heart rate. Fig. 4 depicts derivation of í µí»¼1 and corresponding heart rate. It has been observed that the derived heart rate lies within one standard deviation of the true heart beat rate (ground truth) for each individual. A snap shot of the results for two individuals is given in table V.
+
+Figure 4. Statistical learning showing clusters with different density and corresponding heart rates (beats per minute)
+
+TABLE V. STATISTICAL LEARNING PERFORMANCE ON DERIVING MOST PROBABLE HEART RATE IN BEATS PER MINUTE (BPM) ON LAB-DATA2.
+
+Sub id 1 2
+
+Cluster Density
+Most dense cluster Least dense cluster Most dense cluster Least dense cluster
+
+Proposed HR(bpm)
+78.59 33.2 65.55 132.72
+
+Ground Truth (Mean Â± Std) (bpm)
+78.57 Â± 3.63
+67.81 Â± 5.07
+
+IV. CONCLUSION
+Cardiac feature derivation provides an immense impact to diagnose patients as well as to ensure early detection of numerous life-threatening illness, diseases, and enables various wellness management applications. In this paper, we have proposed an unsupervised learning algorithm to derive physiological parameters like beat start point (minima points), systolic peak (maxima points), dicrotic minima and diastolic peak mainly considering morphology as well as discrete nature of pulsatile signals like PPG. Our main contributions are: (1) lightweight preprocessing mechanism with moving average filter using two different window sizes 5 and 7, (2) finding out best-fit detection window (300 milliseconds) for parameter derivation, (3) finding maxima and minima points by considering strictly rising and falling edge of the signal without using differentiation method, (4) applying k-means clustering, (k =3) by considering dimensionality of the signal to derive most probable pulse and peak duration due to the presence of noise. We consider noise component is insignificant in each detection window. We have presented performance improvement by comparing with different established state of the arts. Our achieved average precision, sensitivity for systolic peak (maxima) and beat start (minima) points are around 98%, and for dicrotic minima, diastolic peak are around 94%. Our future endeavor is to extend this research to find several physiological abnormalities (e.g. PVC, etc.). We would also like to extend this work where the signal has significant noise component.
+
+REFERENCES
+[1] A.A.R. Kamal, J. B. Harness and A. J. Mearns, "Skin photoplethysmography - a review", Comp. Meth. in Med. , 1989.
+[2] M. Elgendi, â€œOn the analysis of fingertip photoplethysmogram signals,â€ Curr Cardiol Rev, pp. 14-25, 2012.
+[3] D. Kannangara, et al. "An Assessment of the relationship between dicrotic notch timing and cardiac preload." EMBC, 2015.
+[4] E. Grisan, "A supervised learning approach for the robust detection of heart beat in plethysmographic data." EMBC, 2015.
+[5] S.C. Millasseau, et al. â€œDetermination of age-related increases in large
+artery stiffness by digital pulse contour analysisâ€. Clinical Science, pp. 371-344. [6] G. Angius, et al. "Myocardial infarction and antiphospholipid syndrome: a first study on finger PPG waveforms effects." CINC, 2012. [7] W. Zong, et al. "An open-source algorithm to detect onset of arterial blood pressure pulses." IEEE CINC, 2003. [8] C. Wei, et al. "Study on conditioning and feature extraction algorithm of photoplethysmography signal for physiological parameters detection." IEEE ICASSP, 2011. [9] A.L. Goldberger, et al. â€œPhysioBank, PhysioToolkit, and PhysioNet: Components of a New Research Resource for Complex Physiologic Signalsâ€. Circulation 2000. [10] R. Couceiro, et al "Detection of motion artifact patterns in photoplethysmographic signals based on time and period domain analysis." Physiological measurement, vol. 35, no. 12, 2014. [11] M. Aboy, et al. "An automatic beat detection algorithm for pressure signals." IEEE TBME, pp. 1662-1670, 2005.
+
+743
+

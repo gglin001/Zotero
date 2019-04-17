@@ -1,0 +1,119 @@
+Atrial Fibrillation Detection using Photo-plethysmography and Acceleration Data at the Wrist
+Alberto G Bonomi1, Fons Schipper1, Linda M Eerik√§inen1,2, Jenny Margarito1, Ronald M Aarts1,2, Saeed Babaeizadeh3, Helma M de Morree1, Lukas Dekker2, 4
+1Wearable Sensing Technologies (WeST), Philips Research, Eindhoven, The Netherlands 2Electrical Engineering Department, University of Technology, Eindhoven, The Netherlands
+3Philips Healthcare, Andover, MA, USA 4Department of Cardiology, Catharina Hospital, Eindhoven, the Netherlands
+
+Abstract
+Atrial fibrillation (AF) is a pathological cardiac condition leading to increased risk for embolic stroke. Screening for AF is challenging due to the paroxysmal and asymptomatic nature of the condition. We aimed to investigate whether an unobtrusive wrist-wearable device equipped with a photo-plethysmographic (PPG) and acceleration sensor could detect AF. Sixteen patients with suspected AF were monitored for 24 hours in an outpatient setting using a Holter ECG. Simultaneously, PPG and acceleration data were collected at the wrist. PPG data was processed to determine the timing of heartbeats and inter-beat-interval (IBI). Wrist acceleration and PPG morphology were used to discard IBIs in presence of motion artefacts. An ECG validated first-order Markov model was used to assess the probability of irregular rhythm due to AF using PPG-derived IBIs. The AF detection algorithm was compared with clinical adjudications of AF episodes after review of the ECG records. AF detection was achieved with 97 ¬± 2% sensitivity and 99 ¬± 3% specificity. Due to motion artefacts, the algorithm did not provide AF classification for an average of 36 ¬± 9% of the 24 hours monitoring. We concluded that a wrist-wearable device equipped with a PPG and acceleration sensor can accurately detect rhythm irregularities caused by AF in daily life.
+1. Introduction
+Atrial fibrillation (AF) is the most common cardiac arrhythmia affecting over 30 million patients globally. AF is a growing issue in our ageing society since the prevalence of AF steeply increases with age and it affects more than 10% of individuals aged >75 years [1]. AF significantly increases patients‚Äô morbidity and mortality and represents an independent risk factor for stroke and
+
+thromboembolism [2]. Early diagnosis of AF is essential to effectively mitigate stroke risk by targeted oral anticoagulation therapy. However, AF is often asymptomatic or presents itself with vague non-specific cardiac symptoms such as palpitations, chest-pain, dyspnea, and dizziness [3]. As a further obstacle in the diagnosis, AF can manifest itself as a transient, or paroxysmal event, especially in the early stage of its natural course. Thus, first detection of AF represents a technical challenge.
+Diagnosis of AF is often made utilizing a 12-lead ECG recorder or a 24/48 hours Holter ECG. However, many AF patients are missed due to the relatively short monitoring duration and the diagnostic yield ranges between 30% and 60% [4]. User-triggered ECG event monitors and implantable ECG devices achieve higher diagnostic yields (40% - 95%) and better sensitivity to paroxysmal episodes since they can follow the patient for long period of time. Yet, obtrusiveness/invasiveness of the monitoring tools, low patient compliance and high cost contribute to their limited clinical applicability [4]. Alternative solutions for improving AF detection have been recently proposed using smart-phone sensors as unobtrusive long-term monitoring devices [5, 6]. Smart-phone camera sensors can capture photo-plethysmographic (PPG) data from the finger tip of the patients and accurately discriminate AF from normal sinus rhythm and premature beats [5]. This technology would offer increased patient compliance given the ease of use but it is unlikely that it would be able to capture transient or asymptomatic AF as it would only allow spot measurements.
+In this study we sought to investigate the use of a wristwearable sensing device for AF detection. Our objective was to test whether PPG and acceleration data at the wrist could detect AF episodes in daily life. Given that AF results in a peculiarly irregular pattern of the heart rhythm, we hypothesized that the wrist PPG signal could be used to identify such irregularities once de-conditioned by the noise due to motion artefacts.
+
+Computing in Cardiology 2016; VOL 43
+
+ISSN: 2325-887X
+
+DOI:10.22489/CinC.2016.081-339
+
+2. Methods
+This was an observational study aimed at comparing the outcome of a clinical Holter ECG test to an algorithm based on PPG and acceleration data to detect AF episodes in daily life (Figure 1).
+2.1. Participants and protocol
+Volunteers were male and female patients scheduled for a 24 hours Holter ECG test at the Catharina Hospital in Eindhoven, The Netherlands. All the volunteers provided written informed consent. The institutional medical ethical committee approved the study.
+Volunteers reported in the morning to the cardiology department of the hospital for a routine installation of a Holter monitor. Subsequently, a wrist-wearable device equipped with a PPG and acceleration sensor on the wrist of the non-dominant arm for the entire duration of the Holter monitoring period. Volunteers were then discharged from the hospital. The protocol ended after 24 hours when the Holter test ended and the patient returned to the hospital. A synchronization procedure consisting of pressing the event marker on the Holter while tapping on the case of the wrist-wearable device was carried out twice (at the beginning and end of the monitoring period) to allow time alignment of the collected data. Patient information was obtained from the medical records.
+2.2. Wrist-wearable sensing device
+Cardiac rhythm and body acceleration were measured using a wrist-wearable sensor equipped with the Philips Cardio and Motion Monitoring Module (CM3 Generation3, Wearable Sensing Technologies, Philips, Netherlands), which is an integrated module including PPG and accelerometer sensors. The PPG sensor was based on a reflective modality and the light source was formed by two green light LEDs. Sampling frequency of the raw data was 128 Hz and the dynamic range of the accelerometer was ¬± 8g. Validation of this PPG and accelerometer system to measure heart rate during different free-living conditions was provided in previous publications [7, 8]. The raw PPG signal was processed to define the temporal location of fiducial points in the pulse indicating each heartbeat. The accelerometer signal was used to determine the amount of motion for each inter-beat time interval. The following equation defined beat motion level (BML):
+BML =Ì†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µmÌ±é ‚ààa{x,Ì†µÌ±¶Ì†µÌ±¶,Ì†µÌ±ßÌ†µÌ±ß}(Ì†µÌ±°Ì†µÌ±°Ì†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±è‚àím‚àÜ <aÌ†µxÌ±°Ì†µÌ±°<Ì†µÌ±°Ì†µÌ±°Ì†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±èÌ†µÌ±è(Ì†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±éÌ†µÌ±é(Ì†µÌ±°Ì†µÌ±°)))
+where accaxis is the signal for each axis of the accelerometer and tbeat the temporal location of a PPG pulse.
+
+Figure 1. Processing flow to detect atrial fibrillation from PPG and acceleration data at the wrist and evaluate detection accuracy.
+2.3. Holter ECG measurements
+The ECG of the patients was measured using a continuous 12-lead Holter recorder (H12+, Mortara, Milwaukee, WI, USA). This device provided as output the temporal location of each detected beat, the associated classification according to proprietary rhythm classification software (Veritas, Mortara, Milwaukee, WI, USA), and the time of each event marker. Such automatic software allowed identification of AF, normal sinus rhythm, supra-ventricular or ventricular premature beats, artefacts and others. The Holter also allowed a laboratory technician to review the raw ECG signals and verify the selected AF episodes. In this way, a clinical verification of the Holter output was carried out and used as ground truth of rhythm types for the current study. The clinical verification process was done using a dedicated software (HScribe 5, Mortara, Milwaukee, WI, USA) provided by the Holter manufacturer and generated a rectified version of the Holter output, including the validated rhythm type label for each detected beat.
+2.4. AF detection from PPG data
+A first-order 11-state Markov model was used to calculate probability of AF given the irregular pattern in the inter-beat time series. Such algorithm, inspired by the work of Moody and Mark [9], has been previously presented and extensively validated on inter-beat-interval (IBI) data obtained from Holter ECG recordings [10]. A
+
+probability threshold was previously selected to process the output of the Markov model and to associate to each beat either an AF or non-AF label. The BML was used to suppress pulses from PPG that were affected by motion artefacts. When the BML exceeded a predefined threshold the pulses determining such IBI were disregarded. The dataset was further segmented into intervals of 30-seconds to determine whether:
+i) ‚â• 15 valid heartbeats were present in such period; ii) > 70% of the beats were classified as AF; iii) ‚â§ 70% of the beats we classified as AF. If condition i) and ii) were met the interval was categorized as AF. If condition i) and iii) were met the interval was categorized as non-AF. In case condition i) was not met the interval was rejected because of the insufficient number of detected IBIs.
+
+2.5. Statistics
+
+The outcome of the AF detection algorithm was compared to the output of the Holter ECG reference for each patient. The two datasets were synchronized by time aligning the two markers in the Holter with the acceleration signal resulting from the tapping events on the wrist recorder. Further confirmation of the synchronization parameters (time offset and gain) was determined by maximizing the correlation between the ECG-detected beats and PPG-detected pulses time. The time synchronized Holter output was processed similarly to the output of the PPG-based AF classifier. A ground truth of rhythm type was created for each 30-seconds interval of analysis. The accuracy of the AF detection algorithm was defined by its sensitivity and specificity; by comparing the labels of the synchronized 30-sec intervals. Coverage was defined as the ratio between the number of intervals for which a classification output was provided and the total number of 30-sec intervals.
+
+Table 1. Confusion matrix for AF detection. PPG-based algorithm
+
+Holter
+
+AF
+
+nAF Rejected
+
+AF
+
+5754
+
+199
+
+44%
+
+Se: 97%
+
+nAF
+
+309
+
+22036
+
+33%
+
+Sp: 99%
+
+Pr:
+
+PPV:
+
+NPV:
+
+Ac:
+
+21%
+
+95%
+
+99%
+
+98%
+
+AF, atrial fibrillation; nAF, absence of atrial fibrillation, e.g. atrial flutter or normal sinus rhythms; Rejected, average rejected intervals; Se, sensitivity; Sp, specificity; Ac: accuracy; Pr, AF prevalence; PPV, positive-predictive value; NPV, negative predictive value.
+
+Figure 2. Example of the PPG signal recorded in a 30-sec interval during atrial fibrillation and normal sinus rhythm as determined by ECG inspection.
+Figure 3. Inter-beat interval (IBI) pattern obtained during AF and normal sinus rhythm in 30-sec interval. The PPGderived IBIs and the ECG-derived IBIs show a large agreement in absence of motion of the wrist.
+3. Results
+Volunteers were 16 patients (males: 63%, age: 65.2 ¬± 14.0 y, BMI: 29.7 ¬± 7.0 kg/m2). Rate- and rhythm-control medication was prescribed to 44% and 37% of the participants, respectively. About 348 hours of ECG recordings were collected simultaneously with PPG and wrist acceleration data in free-living conditions. According to the Holter ECG reference: four patients experienced 100% AF burden, while one patient suffered from atrial flutter. The remaining 11 patients showed normal sinus rhythm with premature beats: 1175 ¬± 1714 supraventricular premature beats/day (range 5 ‚Äì 4879 beats/day) and 907 ¬± 1510 ventricular premature beats/day (range 0 ‚Äì
+
+495 beats/day). An example of the collected PPG data for a patient suffering from AF and a patient with normal sinus rhythm is shown in Figure 2. An example of the correspondence between detected PPG pulses and ECG beats during AF or normal sinus rhythm is presented in Figure 3.
+AF detection was achieved with 97 ¬± 2% sensitivity and 99 ¬± 3% specificity (Table 1). Atrial flutter was correctly classified as non-AF for 94.6% of the time, and due to motion artefacts, the algorithm did not provide AF classification in an average of 36 ¬± 9% of the 24-hrs monitoring period.
+4. Discussion
+This is the first study showing that a wrist-wearable device equipped with PPG and accelerometer sensors can accurately detect rhythm irregularities due to AF in freeliving patients. The system was capable of suppressing unreliable pulses due to the effect of motion artefacts on the wrist PPG signal. Furthermore, a first-order Markov model showed to robustly handle missing beats in the temporal sequence of IBIs without compromising the assessment of rhythm irregularities. The presented method is particularly promising because it could offer continuous long-term monitoring capabilities at minimal burden for the patient and therefore considerably improve early detection of non-sustained AF.
+Motion artefacts on the PPG signal caused by daily life body movement lead to falsely detected pulses. Acceleration features describing the inter-beat motion level were essential to identify which pulses to reject from the analysis in presence of motion. About 36% of the monitoring time was discarded because of unreliable pulses in the 30-sec analysis epochs. Despite such reduced coverage, the AF detection system would still exceedingly expand the monitoring period as compared to Holter or event recorders. This could increase the likelihood of finding silent paroxysmal AF episodes in patients at risk of embolic stroke or suffering from syncope or sporadic cardiac symptoms like palpitations, fatigue and breathlessness.
+The Markov model showed to robustly process PPGderived IBIs and correctly classify absence of AF in patients showing several sporadic premature beats. The post processing method, which condensed information on a 30-sec interval basis, reduced the number of false positive AF classifications. Indeed, a few instances of high AF probability within a window had minimal impact on the window classification outcome. This may have lowered the confounding effect of rhythm irregularities due to premature beats on the AF classification. The overall, accuracy of the presented AF detection model was similar to that of previously presented ECG algorithms [10]. Yet, the incremental effect of ECG p-wave analysis on reducing false positive rate still needs to be evaluated.
+
+5. Conclusion
+A wrist-wearable device equipped with a PPG and acceleration sensor represents a promising technology to provide accurate detection of rhythm irregularities caused by AF in daily life.
+Acknowledgements
+The authors would like to thank Loes Verborg (MD) and Nicole Sturkenboom (MD) for patient recruitment.
+References
+[1] Chugh SS, Havmoeller R, Narayanan K, Singh D, Rienstra M, Benjamin EJ, Gillum RF, Kim Y, McAnulty JH, Zheng Z, et al. Worldwide epidemiology of atrial fibrillation: a global burden of disease 2010 study. Circulation 2014;129:837-847.
+[2] Wolf PA, Abbott RD, Kannel WB. Atrial fibrillation as an independent risk factor for stroke: the Framingham study. Stroke 1991;2:983-988.
+[3] Levy S, Maarek M, Coumel P, Guize L, Lekieffre J, Medvedowsky JL, Sebaoun A. Characterization of different subsets of atrial fibrillation in general practice in France: the ALFA study. Circulation 1999;99:3028‚Äì3035.
+[4] Rosero SP, Kutyifa V, Olshansky B, Zareb W. Ambulatory ECG monitoring in atrial fibrillation management. Prog in Cardiov Diseases 2013;56:143‚Äì152.
+[5] McManus DD, Lee J, Maitas O, Esa N, Pidikiti R, Carlucci A, Harrington J, Mick E, Chon KH. A novel application for the detection of an irregular pulse using an iPhone 4S in patients with atrial fibrillation. Heart Rhythm 2013;10:315319.
+[6] Williams J, Pearce K, Benett I. The effectiveness of a mobile ECG device in identifying AF: sensitivity, specificity and predictive value. Br J Cardiol 2015;22:70‚Äì2.
+[7] Bonomi AG, Goldenberg S, Papini G, Kraal J, Stut W, Sartor F, Kemps H. Predicting energy expenditure from photoplethysmographic measurements of heart rate under beta blocker therapy: data driven personalization strategies based on mixed models. Conf Proc IEEE Eng Med Biol Soc 2015:7642-6.
+[8] Valenti G, Westerterp KR. Optical heart rate monitoring module validation study. In IEEE International Conference on Consumer Electronics (ICCE) 2013; 195‚Äì196.
+[9] Moody GB, Mark RG. A new method for detecting atrial fibrillation using RR intervals. Computers in Cardiology 1983; 227-230.
+[10] Babaeizadeh S, Gregg RE, Helfenbein ED, Lindauer JM, Zhou SH. Improvements in atrial fibrillation detection for real-time monitoring. J Electrocardiol 2009;42:522‚Äì526.
+Address for correspondence:
+Alberto G Bonomi. HTC34, 5656AE, Eindhoven, The Netherlands. alberto.bonomi@philips.com
+
