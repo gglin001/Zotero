@@ -1,0 +1,678 @@
+第 39 卷 第 9 期 2018 年 9 月
+DOI： 10． 19650 / j． cnki． cjsi． J1803249
+
+仪器仪表学报
+Chinese Journal of Scientific Instrument
+
+Vol. 39 No. 9 Sep． 2018
+
+受运动伪影干扰 PPG 序列的优质信号提取算法*
+
+孙 斌1 ，王成超1 ，陈建飞2 ，张永芳1 ，陈小惠1
+（ 1． 南京邮电大学自动化学院 南京 210023； 2. 南京邮电大学电子与光学工程学院
+
+南京 210023）
+
+摘 要： 为了解决可穿戴设备中，由于运动伪影干扰带来的光电容积脉搏波（ PPG） 信号不稳定，导致生理参数计算错误的问题，
+
+提出了一种可以在 PPG 序列中提取优质、无干扰信号的算法，该算法具有计算量小、抗干扰能力强的优点。首先对采集到的
+
+PPG 序列进行带通滤波和降噪； 之后采用峰度、偏度指标判断是否有运动伪影存在； 然后采用滑窗算法对滤波后的 PPG 信号进
+
+行特征提取，寻找主波波峰、重搏波波峰； 最后，采用方差判别法对特征值进行进一步筛选，用于提取连续的无干扰 PPG 信号。
+
+设计了波长为 905 和 660 nm 的反射式生理参数计算系统，在系统中实现了该算法，使用采集到的受干扰 PPG 信号进行血氧饱
+
+和度和血压计算实验，证明了本算法可以有效提取 PPG 序列中的优质信号，提高了生理参数的计算精度。
+
+关键词： 光电容积脉搏波； 运动伪影； 光电检测； 特征提取； 生理参数计算
+
+中图分类号： TH789 Ｒ318
+
+文献标识码： A 国家标准学科分类代码： 310. 61
+
+Algorithm for extracting high quality signals from PPG sequence with motion artifact
+
+Sun Bin1 ，Wang Chengchao1 ，Chen Jianfei2 ，Zhang Yongfang1 ，Chen Xiaohui1
+（ 1． School of Automation，Nanjing University of Posts and Telecommunications，Nanjing 210023，China； 2． School of Electronic and Optical Engineering，Nanjing University of Posts and Telecommunications，Nanjing 210023，China）
+
+Abstract： In order to solve the problem that the photoplethysmographic （ PPG） signal in wearable device is unstable due to the motion artifact interference，which leads to wrong calculation of the physiological parameters，an algorithm for extracting high quality and noninterference signals in PPG sequence is proposed，which has the advantages of small computation and strong anti-jamming ability． Firstly，the band-pass filtering and noise reduction are carried out for the collected PPG sequences． Secondly，the kurtosis and skewness indexes are used to judge whether there is a motion artifact in the PPG sequence． Thirdly，the sliding window algorithm is used to extract the characteristic of the filtered PPG signal and find the systolic wave and dicrotic wave． Finally，the variance discriminant method is used to further sift the eigenvalues，which can be used to extract continuous non-interference PPG signals． A physiological parameter calculation system that has the reflective sensors with wavelength of 905 nm and 660 nm was designed，in which the algorithm is implemented． Blood oxygen saturation and blood pressure calculation experiments were conducted using the collected disturbed PPG signals，which proves that the algorithm can effectively extract high-quality signals from the PPG sequences and improve the calculation accuracy of physiological parameters． Keywords： photoplethysmographic （ PPG） ； motion artifact； photoelectric detection； feature extraction； physiological parameter calculation
+
+0引 言
+光电容积脉搏波 （ photoplethysmographic，PPG） 具 有 信号易获得、测 量 装 置 易 于 佩 戴、包 含 信 息 量 丰 富 的 特
+
+点，被广泛应用于可穿戴设备。在大多数可穿戴设备中， PPG 传感器采用反射式的结构安装，这种安装结构将发 光管和光电探测器放置在皮肤的同侧，采用皮肤和探测 器紧贴的方式进行信号采集，虽然可以将传感器随意放 置在人体表面任何位置，消除传感器安装给人带来的不
+
+收稿日期： 2018-02 Ｒeceived Date： 2018-02 * 基金项目： 国家自然科学青年基金（ 61801239，61601237） 、江苏省高校自然科学研究面上项目（ 16KJB420001） 、南京邮电大学人才引进基金 （ NY215051） 、南京邮电大学基金（ NY217067，NY215086，NY214057） 项目资助
+
+172
+
+仪器仪表学报
+
+第39 卷
+
+适感，但是由于人体自主的或不自主的运动（ 喘气、咳嗽、 说话等） ，反射式结构更容易引入由于人体运动带来的伪 差干扰，使提取的 PPG 信号质量变差，影响人体参数的 测量精度，针对上述问题，目前主要采用信号处理的方法 进行降噪滤波。Ｒam M． Ｒ． 等人［1］提出了基于自适应步 长最小二乘法的 PPG 信号伪差干扰滤波算法，有效虑除 了 PPG 信号中的干扰，提高了 PPG 信号血氧计算的精 度； 黄海诚［2］提出了一种基于奇异值分解的 PPG 信号伪 差干扰滤波算法，它可以滤除周期和非周期的伪差干扰； 熊继平等人［3］提出一种联合稀疏重构的 PPG 信号运动 噪声降噪算法，将 PPG 信号的运动噪声去除过程建模为 联合稀疏信号重构过程，并将它进一步建模为最优化模 型，通过迭代寻优获得模型最优解，有效去除了 PPG 信 号中的运动噪声； Kasambed P． V． 等人［4］采用小波变换 的方法对 PPG 信号进行降噪处理，并用 FPGA 进行实现， 取得了较好的效果； Lai P． H． 等人［5］采用频带为 0. 5 ～ 30 Hz的巴特沃斯滤波器对原始 PPG 信号进行滤波，之后 分段将信 号 进 行 并 进 行 短 时 间 傅 里 叶 变 换，通 过 优 质 PPG 信号频谱与运动伪影频谱的差异，有效识别出了脚 步和手臂运动带来的伪影，提高了用 PPG 信号测量心率 的精度； Ｒaghuram M． 等人［6］提出多尺度独立分量分析 法，消除了 PPG 信号中的伪差干扰，通过和独立分量分 析法（ independent component analysis，ICA） 的处 理 结 果 进行对比，证明了其优越性； Dubey H 等人［7］采用有限谐 波和方法（ harmonic sum，HSUM） ，对 PPG 信号和运动伪 影信号进行建模，减少了运动伪影对 PPG 序列信号的影 响，提高了心率测量的准确性； Ye Y． L． 等人［8］提出一种 结合非线性自适应滤波和信号分解的混合运动伪影去除 方法，提 高 了 较 强 运 动 伪 影 干 扰 下，心 率 测 量 的 精 度； Islam M． S． 等 人［9］ 提 出 了 基 于 约 束 的 递 归 最 小 二 乘 （ constrained recursive least-squares，CＲLS） 降噪算法，可 以有效从复合 PPG 信号中消除运动伪影信号，这种算法 能够应用在可穿戴设备中，减弱 PPG 信号中的运动伪影 干扰； Tanweer T 等人［10］提出基于奇异值分解和 X-最小 均方算法相结合的多级运动伪影降噪算法，使用三轴加 速度数据作为参考信号，测量 PPG 信号运动伪影的时间 和范围，具有较强的鲁棒性； 彭福来［11］提出独立成分分 析与自适应滤波相结合的方法和基于梳状滤波器滤波的 方法进行 PPG 信号滤波，通过对仿真数据与真实 PPG 信 号进行处理实验，证明此方法均能够有效滤除运动伪迹。
+现有的 PPG 信号运动伪影消除算法对整个 PPG 信 号序列进行处理［12-15］，虽然取得了很好的降噪效果，但是 需要对信号进行多次迭代、相乘、累加等操作，占用系统 资源较大。可穿 戴 设 备 受 到 大 小、重 量、成 本 的 限 制，不 可能选用高性能处理器，所以运动伪影消除算法的选择 也会受到限制，这大大降低了 PPG 信号的质量，造成了
+
+人体生理参数测量的错误。在接收到受干扰的 PPG 时， 可以提取优质的、不受干扰的信号参与人体生理参数的 计算，根据信号的提取情况设置系统的刷新时间，可以解 决可穿戴设备生理参数计算不准确的难题。根据这一思 路，本文提出一种 PPG 序列中的优质信号提取算法，提 取受到干扰的 PPG 序列中的优质信号，之后设计了信号 处理系统，实现该算法，通过提取的信号对人体的血压值 和血氧饱和度进行计算，证明了本方法可以大大提高可 穿戴设备 的 抗 干 扰 能 力，提 升 人 体 生 理 参 数 测 量 的 准 确性。
+1 优质 PPG 信号提取算法
+1. 1 算法总体设计 PPG 信号是利用光电检测原理，在人体组织中检测
+血管容积变化得到的光电脉搏波序列［16-17］，其探测方式 分为透射式和反射式。在透射式结构中，光源和光电探 测器位于待测人体组织的异侧，光信号照射到人体组织 后，一部分被人体组织吸收，另一部分穿过人体组织被光 电探测器接收，光电探测器将光信号转换成电信号； 反射 式结构与透射式不同，光源和光电探测器位于待测人体 组织的同侧，更加适用于可穿戴设备，它可以检测到透射 式结构无法检测到的部位，如手臂、额头、腹部、胸部、大 腿、粘膜组织等。但是，PPG 信号对人体的运动非常敏 感，大声说话、咳嗽、大口吸气等动作都会引入运动伪影 干扰。
+采用优质 PPG 信号提取算法，可以有效解决上述问 题。首先，对采集到的 PPG 信号进行预处理，消除环境、 电路以及 50 Hz 工频信号对 PPG 序列的影响； 之后，对滤 过波的 PPG 信号进行运动伪影检测，采用统计学方法， 计算信号的峰度和偏度，设置合适的阈值，判断信号中运 动伪 影 的 存 在； 然 后，采 用 滑 窗 算 法，提 取 无 运 动 伪 影 PPG 信号的主波峰值、重搏波波峰值，用于计算人体生理 参数； 最后，分别计算主波峰值和重搏波峰值的标准差， 根据实际情况选择阈值，进一步挑选出波动小的 PPG 信 号，完成被运动伪影干扰 PPG 序列的优质信号提取。选 用提取的优质 PPG 信号计算人体各项生理参数，当遇到 运动伪影干扰时，保留前一次的计算结果，直到再次检测 到优质信号时，才对人体生理参数进行计算，用当前计算 结果刷新前一次的计算结果，如此循环，算法流程如图 1 所示。 1. 2 PPG 信号预处理
+采集到 的 PPG 序 列 受 到 运 动 伪 影、环 境 噪 声 和 50 Hz 工频信号的干扰，因此必须对原始 PPG 信号进行 预处理。PPG 信号的预处理分为带通滤波和周期移动平
+
+第9 期
+
+孙 斌 等： 受运动伪影干扰 PPG 序列的优质信号提取算法
+
+173
+
+图 1 算法流程 Fig． 1 Algorithm flow chart
+
+均。在原始 PPG 信号中，有效的脉动频率为 0. 5 ～ 6 Hz， 运动伪影的频率大于 0. 1 Hz［17］，所以将原始 PPG 输入通
+
+过通频带为 0. 5 ～ 6 Hz 的带通滤波器，消除环境噪声和工
+
+频信号的影响； 周期移动平均可以进一步滤除通频带之外
+
+的噪声，计算信号的周期，使得 PPG 信号中只含有脉动信
+
+号和运动伪影，将采集到的 PPG 信号写成向量形式：
+
+f（ x） = ［xi1 xi2 … … xin …］T
+
+（ 1）
+
+式中： f （ x） 为经过滤波处理后的 PPG 信号； xin 表示采集 到的数字化 PPG 序列； 式（ 1） 中的每一个元素表示一个
+
+完整的 PPG 信号周期。提取 3 个完整的 PPG 信号，求对
+
+应点的平均值，使信号平滑：
+
+u +2
+
+g（ x）
+
+∑ =
+
+xin
+
+（ 2）
+
+i=u
+
+式中： g （ x） 表示平滑处理后的 PPG 信号； xin 表示经过滤
+
+波后的 PPG 信号，n ∈ ｛ n | n = 1，2，3，…｝ ，u ∈ ｛ u | u =
+
+2，3，4，5，6，…｝ ，得到新的 PPG 序列：
+
+g（ x） = ［xi1 xi2 … … xin …］T
+
+（ 3）
+
+式中： xin 表示经滤波后再平滑的 PPG 信号，此时信号中 只含有有用的脉动信号和运动伪影干扰。
+
+1. 3 运动伪影检测
+
+经过滤波降噪后的 PPG 序列必须对运动伪影的位 置进行判断。对式（ 3） 中每一个元素进行峰度和偏度的 计算。峰度描述了数据总体分布形态的陡缓程度，计算
+
+公式如下：
+
+∑ K =
+
+1 n
+
+n
+（ xi － x珋） 4
+i =1
+std4
+
+（ 4）
+
+式中： K 表示 PPG 信号的峰度值； xi 表示当前信号值； x珋 表示信号均值； std 表示信号的方差。偏度描述了信号总
+
+体分布的对称性，计算公式如下：
+
+∑ SK =
+
+1 n
+
+n
+（ xi -x珋） 3
+i =1
+std3
+
+（ 5）
+
+式中： SK 表示 PPG 信号的偏度； xi 表示当前信号值； x珋表 示信号均值； std 表示信号的方差。在不受运动伪影干扰
+
+的情况下，PPG 序列中每个周期的波形形态基本相似，信
+
+号没有大幅度的跳跃，所以计算出的统计量大致相等； 当
+
+PPG 序列受到运动伪影干扰时，信号中存在大量不规则
+
+的幅度跳变，波形形态产生变化，上述统计量也会发生变
+
+化，计算结果如图 2、3 所示。从图 2、3 中可知，只有当所
+
+有统计量同时满足某一个阈值时，才可以认为 PPG 信号
+
+不受运动伪影的干扰。
+
+Tk = K + a1
+
+（ 6）
+
+Ts = SK + a2
+
+（ 7）
+
+式中： Tk 、Ts 分别为统计量的阈值； K、SK 为 PPG 信号的峰 度和偏度； a1 、a2 为阈值控制常数，若它们的绝对值小，检 测时对运动伪影敏感，会误剔除计算人体生理参数需要的
+
+优质 PPG 信号； 当阈值控制常数绝对值较大时，运动伪影
+
+不能剔除完全。通过大量实验可知，设计可穿戴系统时， 根据设计指标，阈值控制常数取 0. 3 ～ 0. 5 最佳［18］。
+
+图 2 无运动伪影干扰的 PPG 信号及其统计量 Fig． 2 The PPG signal with no motion artifact and its statistics
+
+174
+
+仪器仪表学报
+
+第39 卷
+
+此时，需要计算的中心点变为 SL/2 +1 ，重复上述判断 过程，其判断过程如图 4 所示。
+
+图 4 PPG 信号波峰提取过程 Fig． 4 PPG signal wave peak extraction process
+
+图 3 运动伪影干扰的 PPG 信号及其统计量 Fig． 3 The PPG signal interfered by motion artifact
+and its statistics
+
+1. 4 PPG 信号特征提取
+
+PPG 序列中 含 有 丰 富 的 人 体 信 息，可 以 通 过 PPG
+
+信号的特征提 取，建 立 波 形 特 征 与 人 体 生 理 参 数 间 的
+
+关系。传统的 PPG 信号特征提取方法是阈值幅度法，
+
+此方法计算 简 单、运 算 速 度 快、运 算 效 率 高，但 是 当 信
+
+号中存在运动 伪 影 时，无 法 准 确 得 到 信 号 的 各 波 峰 位
+
+置。采用基于滑窗的特征提取方法可以避免运动伪影
+
+带 来 的 影 响 ，还 可 以 得 到 主 波 波 峰 、重 搏 波 波 峰 的 位 置 信息［19 。 -20］ 由于在静止时，人体的平均脉搏在 75 次 / s，
+
+选择滑窗的宽度为频率的 75% 。假设初始滑窗的长度
+
+为 L，其横向的滑动方向覆盖 L 个离 散 点，采 集 到 PPG
+
+信号为：
+
+S = ［S1 ，S2 ，…，Sn ］
+
+（ 8）
+
+式中： S 为采集到的 PPG 信 号； Si 为 数 字 化 的 离 散 点。
+
+在进行信号处理前，滑窗覆盖的信号子区间为：
+
+［S1 ，S2 ，…，SL ］
+
+（ 9）
+
+选取滑窗 L 的中心点 SL/2 为信号处理的起始点，如
+
+果满足：
+
+SL/2 ＞ ［S1 ，S2 ，…，SL/2 －1 ］
+
+（ 10）
+
+SL /2 ＞ ［SL /2 +1 ，SL /2 +2 ，…，SL ］
+
+（ 11）
+
+则认为 SL/2 为该区域的主波波峰，同理，如果满足：
+
+SL/2 ＜ ［S1 ，S2 ，…，SL/2 －1 ］
+
+（ 12）
+
+SL /2 ＜ ［SL /2 +1 ，SL /2 +2 ，…，SL ］
+
+（ 13）
+
+则认为 SL/2 为 PPG 信号的波谷，如果以上条件均不
+
+满足，向右移动滑窗，形成新的点集合：
+
+［S2 ，S3 ，…，SL+1 ］
+
+（ 14）
+
+将得到的波峰位置序列记为：
+
+P = ［P1 ，P2 ，…，Pn ］
+
+（ 15）
+
+波谷位置序列记为：
+
+T = ［T1 ，T2 ，…，Tn ］
+
+（ 16）
+
+重搏波的波峰位于 Pi 与 Ti 间，此时若滑窗宽度仍设
+
+置为检测波峰时的宽度，在信号检测时会受到主波峰的
+
+影响，因此无法检测到重搏波的波峰，将滑动窗口缩小，
+
+可以准确找到波峰之间重搏波的波峰。根据式（ 17 ） 计
+
+算此波段的峰峰值：
+
+H = Pn － Pn－1 + … + P2 － P1 n －1
+
+（ 17）
+
+设主波峰峰值 的 一 半 作 为 新 滑 窗 的 宽 度，进 行 峰 值
+
+判断，过程如图 5 所示，用滑窗从左向右检测出所有的波
+
+峰位置：
+
+C = ［C1 ，C2 ，…，Cn ］
+
+（ 18）
+
+Fig． 5
+
+图 5 PPG 信号重搏波峰值提取过程 The extraction process of the dicrotic wave peak
+value of the PPG signal
+
+由于缩小的滑窗可以检测到主波波峰和重搏波波
+
+峰，用式（ 18） 和（ 15） 作差，得到重搏波波峰位置信息：
+
+C' = C － P
+
+（ 19）
+
+1. 5 优质信号提取
+
+由于人体正常的呼吸也会导致运动伪影的产生， 而人体的呼吸 很 难 保 持 一 致，强 度、频 度 变 化 在 所 难 免，因此为了提 高 人 体 参 数 的 测 量 精 度，对 删 除 了 噪 声和较大运动伪影的 PPG 信 号 进 行 进 一 步 处 理。采 用式（ 20） 计算提取到的主波峰值和重搏波波峰值的 标准差：
+
+第9 期
+
+孙 斌 等： 受运动伪影干扰 PPG 序列的优质信号提取算法
+
+175
+
+n
+
+∑ （ Ui － U） 2
+
+槡 D =
+
+i =1
+n －1
+
+（ 20）
+
+式中： D 为提取的主波波峰和重搏波波峰的标准差； Ui 为
+
+不受运动伪影干扰的 PPG 信号的主波波峰值和重搏波
+
+波峰值； U 是它们的平均值。之后对标准差设定阈值，用
+
+于判断 PPG 信号是否符合要求：
+
+Dy = D + a
+
+（ 21）
+
+式中： Dy 表示提取到优质 PPG 信号的对应标准差，采用
+
+这些信号可以准确可靠地计算人体生理参数。a 为提取
+
+阈值，用于进一步检测不受干扰的 PPG 信号，它的值根
+
+据实验和系统的技术指标确定，太大会导致不能提取到
+
+最优的信号，计算出的参数仍有较大误差； 太小则会导致
+
+检测不到信号，从而提高了信号提取难度。一般地，对于
+
+测量精度较高的系统可以将阈值缩小，而对于测量精度
+
+较低的系统可以适当放大阈值，本系统中取 a = 0. 3。
+
+2 人体生理参数计算系统
+
+2. 1 反射式 PPG 信号提取
+为了验证优质 PPG 信号提取算法的可行性，设计了 反射式 PPG 信号人体生理参数计算系统。该系统可以 采集人体的 PPG 信号和 ECG 信号，并对信号进行 A / D 转换、数字滤波、数据传输操作，上位机中设计了数据处 理软件，可以实现 PPG 序列中优质信号的提取和人体生 理参数计算。
+利用反射式结构采集 PPG 信号，选用 DCM03 作为 PPG 信号传感器。DCM03 集成了 LED 发射器和光电接 收管，LED 的发光频率分别为 905 和 660 nm，人体组织 对这个频率段波长吸收较少，发射的光信号可以较好的 从人体中射出，PPG 信号的损失较小，图 6 （ a） 所示为反 射式传感器实物，图 6（ b） 所示为反射式传感器原理。采 集好的 PPG 信号传输至信号调理电路，之后输入核心处 理器，信号调理电路由放大模块、A / D 转换模块、滤波模 块组成。放大电路将采集到的 PPG 信号放大，其放大倍 数为 500； A / D 转换模块将采集到的模拟 PPG 信号转换 成数字信号； 滤波模块由带通滤波器和陷波器组成，为了 消除环境光噪声和电路中的噪声干扰，带通滤波器的通 频带为 0. 5 ～ 10 Hz，陷波器的陷波频率为 50 Hz，主要用 于滤除电网中的交流信号干扰。
+2. 2 ECG 信号提取
+心电图（ electrocardiogram，ECG） 信号可以分析和判 断心脏健康情况，反映心脏各部分结构。本系统采用标 准的加压单极肢体导联进行心电信号提取，选用 AD 公 司的 AD8232 作为 ECG 测量电路的核心，AD8232 内置专
+
+图 6 反射式 PPG 信号采集图 Fig． 6 Ｒeflective type PPG signal acquisition diagram
+
+用仪表放大器、运算放大器、右腿驱动放大器、电源电压
+
+基准电压缓冲器，可以在放大 ECG 信号的同时，抑制电
+
+极半电池电位，采用双极点高通滤波器消除运动对 ECG
+
+信号的影响，滤波器与仪表放大器连接，使用者可以选择
+
+不同的截止频率满足各种需要。系统在测量时，测量者
+
+是静止状态，为了得到失真最小的 ECG 波形，根据芯片
+
+特性，在电路中设计一个 0. 5 Hz 双极点高通滤波器，之
+
+后连接一个双极点 40 Hz 低通滤波器，用于滤除电路和
+
+外界噪 声 的 干 扰，根 据 式 （ 22 ） 可 以 计 算 低 通 滤 波 器
+
+参数。
+
+fc =
+
+10
+
+槡 2π ＲH1 CH1 ＲH2 CH2
+
+（ 22）
+
+式中： fc 表示低通滤波器截止频率； ＲH1 、CH1 、ＲH2 、CH2 为连
+
+接在 AD8232 对应引脚的阻容值，其中要求 ＲH1 = ＲH2 ≥
+
+100 kΩ，CH1 = CH2 。系统中要有较锐的截止频率，因此低
+
+通滤波器采用 Sallen-Key 滤波器结构，其参数计算公式
+
+如下：
+
+fc =
+
+1
+
+槡 2π ＲL1 CL1 ＲL2 CL2
+
+（ 23）
+
+式中： fc 表示高通滤波器截止频率； ＲL1 、CL1 、ＲL2 、CL2 为高
+
+通滤波器的阻容值，设计时，要求
+
+Ｒ L1
+
+=
+
+ＲL2 ，CL1
+
+=
+
+C
+
+。 ［21］
+L2
+
+考虑系 统 的 实 际 情 况，配 合 其 他 电 路 参 数 设 计，选 择
+
+ＲH1 = ＲH2 = 10 M，CH1 = CH2 = 0. 22 μF，ＲL1 = ＲL2 = 10 M， CL1 = CL2 = 0. 1 μF 作为 ECG 提取电路中，滤波器电容电 阻的值。除了滤波器外，运算放大器的增益设置为 11，
+
+仪表放大器的值设置为 100，系统的总增益为 1 100。将
+
+采集到的 ECG 信号连接至 STM32 处理器的 AD 端口，将
+
+采集到的模拟 ECG 信号转换为数字信号，通过串口传输
+
+至上位机显示。
+
+2. 3 系统总体设计
+
+系统采用多电源供电，选用 TPS7A4901DGN 对系统 进行 3. 3、3、2. 5 V 供电，模拟地与数字地采用磁珠隔离。 PPG 信 号 提 取 电 路 和 ECG 信 号 提 取 电 路 将 采 集 到 的
+
+176
+
+仪器仪表学报
+
+第39 卷
+
+信号进行 A / D 转换，输入以 STM32 为核心的处理电路
+
+中，分别使用 DCM03 和镀金电极作为 PPG 信号和 ECG
+
+信号提取探头。采集到的信号在 STM32 中进行预处理，
+
+抑制电路和环境光线带来的干扰，之后用串口将预处理
+
+后的数据传输至上位机。在上位机中，采用 C#开发了人
+
+体生理参数 采 集 软 件，软 件 主 要 包 含 PPG 信 号 显 示 窗
+
+口、ECG 信号显示窗口、人体生理参数计算窗口。上位机
+
+接收到 PPG 信号和 ECG 信号后，系统可以进行血压和血
+
+氧饱和度的计算，血氧饱和度为血液中被氧结合的氧合
+
+血红蛋白的 容 量 占 全 部 可 结 合 的 血 红 蛋 白 容 量 的 百 分
+
+比，采用式（ 24） 进行计算。
+
+SpO2 = A － BＲ
+
+（ 24）
+
+式中：
+
+A
+
+=
+
+λ1
+εHb
+
+； B λ1
+
+λ1
+
+ε － ε Hb
+
+HbO2
+
+=
+
+ελ1 Hb
+
+λ2
+εHb ； λ1
+－ εHbO2
+
+ε HbO2
+
+为动脉血液
+
+中氧合血红蛋白（ HbO2 ） 吸光系数； εHb 为动脉血液中还
+
+原血红蛋白（ Hb） 的吸光系数； Ｒ 表示 905 和 660 nm 透射
+
+光强度变化和透射光强度直流分量间的比值； 在计算时，
+
+采用 PPG 信号的平均值代替直流分量，峰峰值代替交流 分量可以 计 算 Ｒ 值 大 小［18］。收 缩 压 采 用 式 （ 25 ） 进 行 计算［19］。
+
+ΔSBP = － γ·2PTT·ΔPTT
+
+（ 25）
+
+式中： ΔSBP 为收缩压； PTT 为脉搏波传导至 ECG 信号峰
+
+值的时间； γ 为一个血管特 征 量，取 值 在 0. 016 ～ 0. 018
+
+之间，单 位 为 mm·Hg －1 。 舒 张 压 采 用 式 （ 26 ） 进 行
+
+计算［19］。
+
+P = P × e －Td /fKT
+
+d
+
+s
+
+（ 26）
+
+式中： Pd 为收缩压； Ps 为舒张压； Td 为脉搏波的下降沿舒
+
+张期； fKT 为脉搏波特征 K 值与脉搏周期间的线性关系
+
+值［19］； K 为平均动脉压与舒张压差和收缩压与舒张压差
+
+的比值。
+
+3 实验与讨论
+
+为了验证 所 提 出 算 法 的 有 效 性，采 用 自 行 设 计 的 人体生理参数 计 算 系 统 提 取 人 体 手 腕 处 的 信 号，之 后 计算人体的 血 氧 饱 和 度 和 血 压 值。如 图 7 所 示，在 手 腕处提取 PPG 信号，同时采用标 准 肢 体 导 联 形 式 采 集 ECG 信号，将信号传输至上位机软件中，计算人体生理 参数。采用 PHILPS 便携式血 氧 仪 和 欧 姆 龙 电 子 血 压 计测量同一个 测 试 者 的 血 氧 饱 和 度 和 血 压 值，与 本 系 统的计算结果进行对比，如图 7 所示。从图 7 可知此时 实验者的血氧饱和度为 96% ，收缩压为 105 mm·Hg，舒 张压为 64 mm·Hg。
+
+Fig． 7
+
+图 7 血压和血氧饱和度实验 The experiments of blood pressure and blood
+oxygen saturation
+
+采用第 2 节介绍的人体生理参数计算系统计算生理
+
+参数时，让实验者进行手腕抖动，人为制造较大幅度的运
+
+动伪影，之后采用直接提取 PPG 信号的测量结果与本文
+
+提出的算法处理 PPG 信号后测量的结果进行对比，结果
+
+如图 8 所示。从图 8 中可观察到，未经过本文算法处理
+
+过的 PPG 信号计算得到的结果随着运动伪影的出现呈
+
+现出无规律跳动和杂乱排列的情况，给人体生理参数的
+
+计算带来较大误差，甚至引入错误结果。经过本文算法
+
+处理过的 PPG 信号测量的数据分别为血氧饱和度 95% ，
+
+收缩压 105 mm·Hg，舒张压 75 mm·Hg，测量结果不随运
+
+动伪影的出现而改变与图 7 结果基本一致，大大增加了
+
+数据测量的稳定性。利用相对误差表征数据的精度［22］，
+
+以图 7 所示仪器的测量结果作为真实值，计算图 8 数据
+
+的精确度提高率为：
+
+H=
+
+∑ 1
+T1 N
+
+N i =1
+
+（
+
+xi
+
+－
+
+T1 ）
+
+∑ 1
+MT2
+
+M i =1
+
+（
+
+yi
+
+－
+
+T2 ）
+
+（ 27）
+
+式中： H 为数据精确度变化率； xi 为传统方法计算的生理
+
+参数值； yi 为本文提出算法计算的生理参数值； T1 和 T2 为
+
+待测数据真实值，本实验中 T1 、T2 相等，N、M 为测量次数，
+
+M 和 N 相等。经过计算可得本文提出的算法将收缩压的
+
+精确度提高了 1. 85 倍，舒张压的精确度提高了 3. 22 倍，
+
+血氧饱和度的精确度提高了 4. 83 倍，大大提升了人体生
+
+理参数计算的稳定性和可靠性。此外，本文提出的 PPG
+
+序列优质信号提取算法与传统算法不同，在进行优质信
+
+号提取时，仅需要寻找 PPG 信号的主波峰值、重搏波波
+
+峰值以及它 们 的 标 准 差 即 可，运 算 步 骤 少、计 算 过 程 简
+
+单，运算速度快，而传统算法需要采用卷积、连乘、累加等
+
+操作，运算较为繁琐和复杂。综上所述，经过本文算法的
+
+处理，采用 PPG 序列中不受运动伪影干扰的信号进行人
+
+第9 期
+
+孙 斌 等： 受运动伪影干扰 PPG 序列的优质信号提取算法
+
+177
+
+体生理参数计算可以有效提升结果的准确率，消除运动 伪影对计算结果的影响，大大提升系统的运算效率。
+
+Fig． 8
+
+图 8 血压和血氧饱和度计算结果 The calculation results of blood pressure and blood
+oxygen saturation
+
+4结 论
+
+在现有的可穿 戴 系 统 中，采 用 信 号 采 集 之 后 立 即 计 算或者滤波降噪后再处理的工作模式，增大了系统的处 理负担，加大了数据的冗余度，导致系统处理速度变慢； 由于 PPG 信号容易受运动伪影的干扰，给人体生理参数
+
+的计算带来了较大的误差，甚至错误结果，阻碍了可穿戴 系统的发展。采用本文提出的优质 PPG 信号提取算法 提取优质信号，并且通过它们计算人体生理参数，当遇到 运动伪影干扰时不进行计算，等再次检测到优质信号后， 再计算人体 生 理 参 数 的 方 法，可 以 有 效 解 决 上 述 问 题。 采用自行设计的生理参数检测系统，实现了本文提出的 算法，检测抖动的人体手腕处 PPG 信号，计算血氧饱和 度和血压值，验证了本方法的实用性、鲁棒性、可靠性。
+参考文献
+［1 ］ ＲAM M Ｒ，MADHAV K V，KＲISHNA E H，et al． A novel approach for motion artifact reduction in PPG signals based on AS-LMS adaptive filter ［J］． IEEE Transactions on Instrumentation and Measurement，2012， 61（ 5） ： 1445-1457．
+［2 ］ 黄海诚． 基于 PPG 信号的运动状态下心率检测［D］． 南京： 东南大学，2016． HUANG H CH． Heart rate monitoring from photoplethysmographic signals during motion state ［D］． Nan Jing： Southeast University，2016．
+［3 ］ 熊继平，蒋定德，蔡丽桑，等． 基于联合稀疏谱重构的 PPG 信号降 噪 算 法［J］． 电 子 学 报，2017，45 （ 7 ） ： 1646-1652． XIONG J P，JIANG D D，CAI L S，et al． An algorithm of motion artifact reduction in PPG signals based on joint sparse spectrum reconstruction ［J］． Acta Electronica Sinica，2017，45（ 7） ： 1646-1652．
+［4 ］ KASAMBE P V，ＲATHOD S S． VLSI wavelet based denoising of PPG signal［J］． Procedia Computer Science， 2015，49（ 1） ： 282-288．
+［5 ］ LAI P H，KIM I． Lightweight wrist photoplethysmography for heavy exercise： motion robust heart rate monitoring algorithm［J］． Healthcare Technology Letters，2 （ 1 ） ， 2015，2（ 1） ： 6-11．
+［6 ］ ＲAGHUＲAM M，SIVANI K，ＲEDDY K A． Ｒeduction of motion artifacts from pulse oximeter' s PPG signals using MSICA ［C］． International Conference on Control， Instrumentation， Communication and Computational Technologies，2016： 491-494．
+［7 ］ DUBEY H， KUMAＲESAN Ｒ， MANKODIYA K． Harmonic sum-based method for heart rate estimation using PPG signals affected with motion artifacts ［J］． Journal of Ambient Intelligence and Humanized Computing，2016，9（ 1） ： 1-14．
+［8 ］ YE Y L，CHENG Y F，HE W W，et al． Combining nonlinear adaptive filtering and signal decomposition for motion artifact removal in wearable photoplethysmography ［J］． IEEE Sensors Journal，2016，16（ 19） ： 7133-7141．
+［9 ］ ISLAM M S，SHIFAT-E-ＲABBI M，DOBAIE A M A，
+
+178
+
+仪器仪表学报
+
+第39 卷
+
+et al． PＲEHEAT： Precision heart rate monitoring from intense motion artifact corrupted PPG signals using constrained ＲLS and wavelets［J］． Biomedical Signal Processing and Control，2017，38： 212-223． ［10］ TANWEEＲ T，HASSAN S Ｒ，KAMBOH A M． Artifact reduction from PPG signals during intense exercise using filtered X-LMS［C］． IEEE International Symposium on Circuit and Systems，2017： 1-4． ［11］ 彭福来． 基于光电容积脉搏波描记法的无创血红蛋白 浓度检 测 技 术 的 研 究［D］． 北 京： 北 京 理 工 大 学， 2016． PENG F L． Ｒesearch on the technology of non-invasive hemoglobin measurement based on photoplethysmography ［D］． Beijing： Beijing Institute of Technology，2016． ［12］ 王金海，岳晨飞，韦然，等． 基于 EMD 的动态脉搏数 据处理研究［J］． 仪器仪表学报，2016，37（ 增刊 1） ： 34-39． WANG J H，YUE CH F，WEI Ｒ，et al． Ｒesearch in dynamic pulse data processing based on EMD ［J］． Chinese Journal of Scientific Instrument， 2016， 37（ Suppl． 1） ： 34-39． ［13］ 王海涛，吕沙里，郑慧君，等． 容积脉搏波序列的异 常模 式 检 测［J］． 仪 器 仪 表 学 报，2009，30 （ 11 ） ： 2285-2290． WANG H T，LV SH L，ZHENG H J，et al． Detection of abnormal pattern of volume pulse time series ［J］． Chinese Journal of Scientific Instrument，2009，30（ 11） ： 2285-2290． ［14］ 行鸿彦，许瑞庆，王长松． 基于经验模态分解的脉搏 信号特 征 研 究［J］． 仪 器 仪 表 学 报，2009，30 （ 3 ） ： 596-602． XING H Y，XU Ｒ Q，WANG CH S． Pulse signal feature research based on empirical mode decomposition［J］． Chinese Journal of Scientific Instrument，2009，30 （ 3） ： 596-602． ［15］ 荣凡稳，郑伟，陈冉，等． 基于深度学习的运动心率 测量系统［J］． 电子测量与仪器学报，2017，31（ 12） ： 1912-1917． ＲONG F W，ZHENG W，CHEN Ｒ． Sportive heart rata measuring system based on deep learning［J］． Journal of Electronic Measurement and Instrumentation，2017， 31（ 12） ： 1912-1917． ［16］ 陈 廷 鋆． 脉 搏 波 自 动 检 测 及 无 线 通 讯 技 术 的 研 究［D］． 北京： 北京工业大学，2009． CHEN T J． Ｒesearch on pulse wave automatic detection and wireless communication technology ［D］． Beijing： Beijing University of Technology，2009． ［17］ ALLEN J． Photoplethysmography and its application in clinical physiological measurement ［J］． Physiological
+
+Measurement，2007，28（ 3） ： 31-39． ［18］ 邵 翰 羽． 网 络 化 无 伤 血 氧 监 测 系 统 的 研 究 与 设
+计［D］． 南京： 南京邮电大学，2017． SHAO H Y． Ｒesearch on networked and noninvasive blood oxygen monitoring system［D］． Nanjing： Nanjing University of Posts and Telecommunications，2017． ［19］ 洋洋． 基于 PPG 与 ECG 的无创心血管参数检测系统 研究［D］． 南京： 南京邮电大学，2016． YANG Y． Ｒesearch on non-invasive measurement system of cardiovascular parameters based on PPG and ECG signals［D］． Nanjing： Nanjing University of Posts and Telecommunications，2016． ［20］ 洋洋，陈小惠，王保强，等． 脉搏信号中有效信号识 别与特征提取方法研究［J］． 电子测量与仪器学报， 2016，30（ 1） ： 126-132． YNAG Y，CHEN X H，WANG B Q，et al． Effective signal recognition and feature extraction of pulse signal［J］． Journal of Electronic Measurement and Instrumentation，2016，30（ 1） ： 126-132． ［21］ Single-lead heart rate monitor front end ［M］． U． S． A： Analog Devices，2012． ［22］ 费业泰． 误差理论与数据处理［M］． 6 版． 北京： 机械 工业出版社，2010． FEI Y T． Error theory and data processing［M］． 6th edition． Beijing： Machinery Industry Press，2010．
+作者简介
+孙斌（ 通信作者） ，2008 年于江苏科技大 学获得学士学位，2015 年于南京理工大学获 得博士学位，现为南京邮电大学讲师，主要研 究方向为光电信号处理与图像信息融合。 E-mail： ffgz366@ 163． com
+Sun Bin （ Corresponding author） received his B. Sc. degree from Jiangsu University of Science and Technology in 2008，Ph. D. degree from Nanjing University of Science and Technology in 2015． Now he is a lecturer in Nanjing University of Posts and Telecommunications． His main research interests include photoelectric signal processing and image information fusion．
+陈建飞，2009 年于哈尔滨理工大学获得 学士学位，2015 年于南京理工大学获得博士 学位，现为 南 京 邮 电 大 学 讲 师，主 要 研 究 方 向为毫米波成像及图像处理。 E-mail： chenjf@ njupt． edu． cn
+Chen Jianfei received his B. Sc. degree from Harbin University of Technology in 2009，Ph. D. degree from Nanjing University of Technology in 2015． Now he is a lecturer in Nanjing University of Posts and Telecommunications． His main research interest include millimeter wave imaging and image processing．
+

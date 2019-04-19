@@ -1,0 +1,357 @@
+Cardiac Arrhythmia Detection from Single-lead ECG using CNN and LSTM assisted by Oversampling
+
+Dhwaj Verma
+Department of Information Technology Indian Institute of Information Technology, Allahabad
+Allahabad, India dhwaj9911103454@gmail.com
+
+Sonali Agarwal
+Department of Information Technology Indian Institute of Information Technology, Allahabad
+Allahabad, India sonali@iiita.ac.in
+
+Abstract—Cardiac Arrhythmia is one of most commonly occurring cardiovascular disease in which atrial fibrillation is most commonly occurring arrhythmia which can be detected using single lead electrocardiogram. In this research, we develop a Deep Learning (DL) model with a combination of Convolutional Neural Net and Long Short-term Memory assisted by Oversampling technique which classifies the 2017 PhysioNet/CinC Challenge dataset into four classes, i.e. normal sinus rhythm, atrial fibrillation, others and noisy classes with an accuracy better than present techniques. We can integrate this Algorithm to CPS-heart to find abnormalities in the human heart.
+Keywords— medical signal processing; cardiac arrhythmia; atrial fibrillation; electrocardiogram; ECG; ECG analysis;
+I. INTRODUCTION
+According to WHO (World Health Organization) and CedarsSinai Heart Institute report [1], atrial fibrillation is most common cardiac arrhythmia in 33.5 million people worldwide i.e. 0.5% of world human population has this disease, in India only atrial fibrillation causes stroke and paralysis to 1.27 crores people which will be going to be double in every two years [2]. Atrial fibrillation is a type of supraventricular tachycardia in which heart beats irregularly and rapidly which causes poor blood flow and increases the risk of heart failure dementia and stroke [3]. Usually, atrial fibrillation shows symptoms like heart palpitations, shortness of breath and fatigue, it’s usually found in people above 40 years [4].
+Atrial Fibrillation can be diagnosed using ECG (electrocardiogram) [5], where doctors and cardiologists analyze the ECG and take their decision. But nowadays automatic ECG classification is an emerging technique for doctors to diagnose atrial fibrillation more effectively. Conventional methods firstly preprocess the data than mine out the features and then feed these features to machine learning algorithms like SVM (support vector machine) [6] or Neural networks for classification [7]. These days deep learning based neural network models show great results in Image processing, signal processing, biomedical signal processing etc. DL models prevent the monotonous work
+
+of feature extraction and do this work of its own. Convolutional Neural Networks (CNN) and Long Short-Term Memory (LSTM) are two commonly used DL models in which CNN mines out representation features and LSTM mine out time sequence features.
+In this paper we propose a novel twelve layered deep learning model which consists One Dimensional CNN, it extracts representation features from long single lead normalized ECG and pass these features to LSTM which take sequence features and pass them to dense layers which classify the ECG into four classes. Our approach, the task is to draw up as a temporal sequence predicting problem that can be solved by sequence-tosequence learning framework one can integrate it to CPS-Heart [8] ECG section to find abnormalities in the human heart as cardiac arrhythmias is a part of cardiovascular diseases.
+A. Data We are using PhysioNet Challenge 2017 [9] dataset which
+consists 8528 samples of short single ECG which is sampled at 300 Hz and ranges in 30sec to 60sec in duration. These ECG samples are recorded from mobile AliveCor device. The dataset contains four types of ECG signal with different numbers of samples i.e. i) 5154 signals of normal sinus rhythm. ii) 771 signals of atrial fibrillation iii) 2557 signals are tagged as others and 46 are noisy.
+Organization of this paper is like that Section I explains about the need of automatic ECG classification and gives a brief overview of ECG dataset that we are using. Section II includes previous researches in the field of ECG classification by classical machine learning techniques and new deep learning approaches. Section III explains our classification algorithm, data preprocessing, deep learning model that we are using and training of that model. Section IV shows scores and accuracies of the model. Section V includes F1 scores comparison with existing techniques. Section VI includes future work and overview of the model we use and results we got from that model.
+
+978-1-5386-5314-2/18/$31.00 ©2018 IEEE
+
+14
+
+II. RELATED WORK
+Many researches are going on in this field of ECG classification as now market is full of mobile ECG devices and photoplethysmograph (PPG) devices generate massive data. Their data need to be processed effectively and produce some useful information like Clifford proposed detection of atrial fibrillation can do by plotting heart rate variability on Poincare plot [10] as they have taken out two features from interbeat intervals i.e. stepping and dispersion and feed these features and SVM (Support Vector Machine) to classify between normal ECG and atrial fibrillation ECG. Researchers from Switzerland proposed a deep learning approach to solve PhysioNet Challenge 2017 problem by converting the ECG in the form of an image in form of normalized spectrogram and feeding these images to 2D CNN [11] which gives them accuracy 81.2% on the Validation set. Some Scholars from Canada proposed the combined deep learning approach i.e. CNN combined with LSTM but they use one layer of CNN and three layers of LSTM and get accuracy of 84% [12] but some researchers from the USA decided to do it in a classical way by taking out features from ECG signal and classify them using SVM or neural networks in a hierarchical manner by oversampling the data as this data is highly imbalanced and gets the accuracy of 78.55% [13]. Some scientists from France proposed CRNN (Convolutional Recurrent neural net) to solve PhysioNet problem by feeding raw ECG to 1D CNN along with heart rate, they also use classify in a hierarchical manner and get accuracy 77% [14] but a physics professor from Poland take different route they extract the features from regularity of RR interval and morphology and classify the ECGs by hybrid detection techniques [15].Scientists from Lithuania use only three-layered LSTM but instead of feeding raw ECG they feed 13 pre-calculated QRS complex features and get accuracy of 78% [16] last but not the least scientists from the Czech Republic have used 2D CNN but they feed envelograms of QRS complexes they get accuracy 81% by using multiple level classification and neural networks [17].
+
+A. Trimming of ECG Raw ECG is not suitable for deep learning model because
+every sample differs from 30-60 secs. Hence in the proposed research, we trim ECG from 1–25 secs to ensure no information loss and DL model will not face any problem in training as data is of standard size and give best results.
+B. Normalization of ECG Now trimmed ECG is normalized between 0 and 1 as
+normalizing your data accelerates your model training speed and we are standardizing the data so that DL model will not memorize, it will regularize and we also compared results between normalized and non-normalized and in our case normalized data shows the best result.
+C. Over-Sampling As observed previously in the introduction that data is highly
+imbalanced as we can observe in Fig. 2 that dataset has 8528 samples where the normal class has 5154 samples, atrial fibrillation class have 771 samples, others class have 2557 samples and noisy have 46 samples. DL model will not give in best result in highly imbalanced dataset so we have to balance the dataset by various different techniques [18] for example we can apply downsampling but reducing the samples will not improve model’s accuracy as in DL model we need huge amount of samples so we use over-sampling technique called SMOTE (Synthetic Minority Over-Sampling Technique) [19] which will increase the class size of minority classes by which model will expand the borders of its decision making.
+
+III. METHOD In this research deep learning algorithm has been proposed consisting of trimming, normalizing, oversampling and training as shown in Fig. 1
+
+Fig. 1. Classification Algorithm
+
+Fig. 2. ECG data distribution pie chart showing the imbalanced dataset
+SMOTE will balance the dataset by making total 20,616 samples i.e. each class will have 5154 samples making minority classes equal to majority class.
+D. Deep Learning Model Architecture We use twelve layered architecture as shown in Table I with
+three layers of 1D convolutional layers which will extract representation features from normalized ECG in between every convolutional layer we use 1D max pooling which will take out
+
+15
+
+maximum from every feature vector from above 1D CNN block to maximize the information and avoiding redundant information, after that we put dropout layer which helps the network to reduce overfitting through which model will not memorize, it will regularize. For first two layers kernel size is 6 and for last one kernel size is 3. We use glorot uniform initializer for kernel initialization.
+After that two LSTM layers with 64 neurons is taken into use. LSTM is different from conventional RNN (Recurrent neural network) as it has different structure i.e. in place of the single neural network it has four neural nets each of them interacts each other in a very special way. LSTM has two features that it can avoid long-term dependency problem and it also handles vanishing gradient problem very efficiently. We want that LSTM can store more length time-dependent features that’s why we use two layers of LSTM with glorot uniform initializer for kernel initialization. After LTMS layers we have feature vector which has representation and time-dependent features which is feed to dense layer with four output neurons followed by softmax layer, four output neurons are for four classes that we have to classify i.e. it will be a percentage of belongingness to every class and maximum is taken as class label.
+
+TABLE I.
+
+Deep Learning Architecture
+
+Layers
+
+Parameters
+
+Activation
+
+Convolution 1D
+
+32
+
+Relu
+
+Max-Pooling 1D
+
+2
+
+Dropout
+
+0.05
+
+Convolution 1D
+
+32
+
+Relu
+
+Max-Pooling 1D
+
+2
+
+Dropout
+
+0.10
+
+Convolution 1D
+
+16
+
+Relu
+
+Max-Pooling 1D
+
+2
+
+Dropout
+
+0.15
+
+LSTM
+
+64
+
+Tanh
+
+LSTM
+
+64
+
+Tanh
+
+Dense
+
+04
+
+Softmax
+
+E. Training To train the model we spilt the 20616 samples into training
+set and validation set i.e. 15% of data is used as testing set i.e. 3092 samples are used for testing and 17523 are used for training we iterate the model for 100 epochs and we got training loss 0.1545, training accuracy 93.92%, validation loss 0.3926 and validation accuracy 86.49% as shown in Fig. 3.
+Dense layer has normal weight initialization and at the time of training and we use Adam optimizer and categorical cross entropy loss function. We implemented our DL model on Keras with Tensor flow backend.
+
+Fig. 3. On the left side is training loss vs validation loss and on right side training accuracy vs validation accuracy
+
+IV. RESULTS By using 85% data for training and 15% accuracy for testing we get 86.49% testing accuracy then we calculate F1 score of model on Validation set given by 2017 PhysioNet/CinC Challenge on their website we got F1 score 91.11% with F1n score 92.25%, F1a score 93.61%, F1o score 80.29% and F1p score 98.30%, these values are calculated from values in Table II by formulas given in scoring of 2017 PhysioNet/CinC Challenge [9]. Then we calculate F1 score on testing set i.e. 15% of dataset then we got F1 score 89.22% with F1n score 90.81%, F1a score 94.46%, F1o score 81.29% and F1p score 92.30% these values are calculated from values in Table III by formulas given in scoring 2017 PhysioNet/CinC Challenge [9].
+
+Reference Classification
+
+Normal AF
+Others Noisy Total
+
+TABLE II.
+
+Predicted Classification
+
+Normal AF Others Noisy
+
+143
+
+0
+
+7
+
+0
+
+1
+
+44
+
+5
+
+0
+
+15
+
+0
+
+55
+
+0
+
+1
+
+0
+
+0
+
+29
+
+160
+
+44
+
+67
+
+29
+
+Total 150 50 70 30
+
+Reference Classification
+
+Normal AF
+Others Noisy Total
+
+TABLE III.
+
+Predicted Classification Normal AF Others Noisy
+
+702
+
+1
+
+65
+
+0
+
+2
+
+92
+
+8
+
+0
+
+73
+
+4
+
+326
+
+0
+
+1
+
+0
+
+0
+
+6
+
+778
+
+97
+
+399
+
+6
+
+Total 768 102 423
+7
+
+V. COMPARISION We compare our F1 scores to others existing techniques given in the literature to our techniques as shown in Table IV. We find our technique gives best F1 score [9] 91.1% on validation set given by PhysioNet and in case of classifying atrial fibrillation our technique gives best F1a score 93.6% which is our
+
+16
+
+primary objective to classify atrial fibrillation as it is a most 660 2GB graphics card which increases learning the speed of
+
+common cardiac arrhythmia.
+
+deep learning model exponentially.
+
+TABLE IV.
+
+Comparison with existing algorithms
+
+Literature name
+
+F1n
+
+F1a
+
+F1o
+
+F1p
+
+F1
+
+Convolutional Recurrent Neural
+
+Networks for Electrocardiogram 87.8 79.0 70.1 65.3 79.0 Classification [10]
+
+Cardiac Arrhythmia Detection from
+
+ECG Combining Convolutional and Long Short-Term Memory Networks
+
+92.0
+
+85
+
+75
+
+47
+
+84
+
+[11]
+
+Atrial Fibrillation Classification from a Short Single Lead ECG Recording 78.2 70.2 80.4 85.2 78.5
+
+Using Hierarchical Classifier [12]
+
+Atrial Fibrillation Detection and ECG Classification based on Convolutional 89.0 78.0 63.0 78.0 77.0 Recurrent Neural Network [13]
+
+Classification of Atrial Fibrillation in
+
+Short-term ECG Recordings Using a Machine Learning Approach and
+
+86
+
+78
+
+66
+
+78 77.0
+
+Hybrid QRS Detection [14]
+
+Atrial Fibrillation Classification
+
+Using QRS Complex Features and 90 75 69
+
+-
+
+78
+
+LSTM [15]
+
+Automatic Detection of Atrial Fibrillation and Other Arrhythmias in Holter ECG Recordings Using 91 80 74 54 81
+
+Rhythm Features and Neural Networks [16]
+
+Cardiac Arrhythmia Detection from
+
+Single-lead ECG using CNN and LSTM assisted by Oversampling (Our
+
+92.2
+
+93.6
+
+80.2
+
+98.3
+
+91.1
+
+technique)
+
+VI. CONCLUSION This research solved the problem of cardiac arrhythmia detection with the help of deep learning using 1D convolution and LSTM which gives F1 score 91.11%. We have noticed that accuracies in case of others classes have less in both cases because others are not a single class it is a collection of many classes i.e. it’s is a collection of many arrhythmias i.e. why deep learning not able to generalize very efficiently as compared to remaining classes. Oversampling helps our model to mine more information from samples from minority class and improve our results exponentially because deep learning help works best on balanced data. In future, we will collect the real-time data and test our model on that values, after that we will build an android application where people can check arrhythmia using ECG sensors.
+ACKNOWLEDGMENT Authors are thankful to MHRD (Ministry of Human Resource Development), India to providing HP systems with Nvidia GTX
+
+REFERENCES
+[1] Cedars-Sinai Medical Centre (2013, Dec 17). WHO study: Atrial fibrillation is growing global health concern. [online]. Availale: https://www.cedars-sinai.org/newsroom/world-health-organization-studyatrial-fibrillation-is-a-growing-global-health-concern/.
+[2] Sushmi Day (2017, Dec 25 ). Threat of paralysis, stroke on rise among Gen Y [Online]. Available: https://timesofindia.indiatimes.com/india/Threat-ofparalysis-stroke-on-rise-among-Gen-Y/articleshow/45635013.cms
+[3] Wikipedia(2017, Apil 10). Atrial fibrillation: Revision history [Online]. Available: https://en.wikipedia.org/wiki/Atrial_fibrillation
+[4] Apollo hospitals. Atrial Fibrillation [Online]. Available: https://www.apollohospitals.com/patient-care/health-and-lifestyle/ourdoctors-talk/atrial-fibrillation
+[5] Stopafib(2009, July 05). How to Know It's Atrial Fibrillation [Online]. Available: https://www.stopafib.org/know.cfm
+[6] Zhao, Qibin, and Liqing Zhang., "ECG feature extraction and classification using wavelet transform and support vector machines.", Neural Networks and Brain, 2005. ICNN&B'05. IEEEI international Conference ,vol. 2, 2005, pp. 1089-1092..
+[7] Prasad, G. et al., "Classification of ECG arrhythmias using multi-resolution analysis and neural networks.", TENCON IEEE conference on Convergent Technologies for the Asia-Pacific Region, vol. 1, 2003, pp. 227-231.
+[8] Verma, Dhwaj, "CPS-heart: cyber-physical systems for cardiovascular diseases.", Proceedings of the Workshop Program of the 19th ACM International Conference on Distributed Computing and Networking, 2018, pp. 26-30.
+[9] Clifford, Gari et al., "AF Classification from a short single lead ECG recording: the PhysioNet/Computing in Cardiology Challenge 2017.", Computing 44, 2017.
+[10] Park, Jinho et al., "Atrial fibrillation detection by heart rate variability in
+Poincare plot.", Biomedical engineering online 8, no. 1 (2009).
+[11] Zihlmann, Martin et al., "Convolutional Recurrent Neural Networks for Electrocardiogram Classification." arXiv preprint rXiv:1710.06122 (2017).
+[12] Warrick, Philip, and Masun Nabhan Homsi, "Cardiac Arrhythmia Detection from ECG Combining Convolutional and Long Short-Term Memory Networks.", Computing 44 (2017).
+[13] Coppola et al., "Atrial Fibrillation Classification from a Short Single Lead ECG Recording Using Hierarchical Classifier.", Computing 44 (2017): 1.
+[14] Limam, Mohamed and Frederic Precioso, "Atrial Fibrillation Detection and ECG Classification based on Convolutional Recurrent Neural Network.", Computing 44 (2017).
+[15] Soliński, Mateusz et al., "Classification of Atrial Fibrillation in Short-term ECG Recordings Using a Machine Learning Approach and Hybrid QRS Detection.", Computing 44 (2017).
+[16] Maknickas et al., "Atrial Fibrillation Classification Using QRS Complex Features and LSTM.", Computing 44 (2017).
+[17] Plesinger, Filip et al. "Automatic Detection of Atrial Fibrillation and Other Arrhythmias in Holter ECG Recordings Using Rhythm Features and
+Neural Networks." Computing 44 (2017).
+[18] Seiffert, Chris et al. "RUSBoost: Improving classification performance when training data is skewed.", Pattern Recognition, 2008 pp. 1-4
+[19] Chawla et al., "SMOTE: synthetic minority over-sampling technique." Journal of artificial intelligence research16. 2002, pp. 321-357.
+
+17
+
