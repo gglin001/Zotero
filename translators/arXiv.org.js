@@ -9,7 +9,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"browserSupport": "gcsv",
-	"lastUpdated": "2019-04-07 02:15:00"
+	"lastUpdated": "2019-04-22 00:50:00"
 }
 
 /*
@@ -114,7 +114,7 @@ function doWeb(doc, url) {
 			id = url.substring(p + 5, url.length - 4);
 		}
 		else {
-			id = ZU.xpathText(doc, '//td[contains(@class,"arxivid")]/a')
+			id = ZU.xpathText(doc, '//tr[td[text() = "Cite as:"]]//span[@class = "arxivid"]/a')
 				|| ZU.xpathText(doc, '//b[starts-with(normalize-space(text()),"arXiv:")]');
 		}
 		if (!id) throw new Error('Could not find arXiv ID on page.');
