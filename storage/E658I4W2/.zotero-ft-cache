@@ -1,0 +1,1485 @@
+Insights into the eﬀect of blood pressure and pregnancy on the PPG
+signal
+by B´arbara Monserrat Ramos Mac´ıas
+B.Sc., The University of Guadalajara, 2015
+A THESIS SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS FOR THE DEGREE OF MASTER OF APPLIED SCIENCE in The Faculty of Graduate and Postdoctoral Studies (Biomedical Engineering)
+THE UNIVERSITY OF BRITISH COLUMBIA (Vancouver)
+December 2018 c B´arbara Monserrat Ramos Mac´ıas 2018
+
+The following individuals certify that they have read, and recommend to the Faculty of Graduate and Postdoctoral Studies for acceptance, the thesis entitled: Insights into the effect of blood pressure and pregnancy on the PPG signal submitted by B´arbara Monserrat Ramos Mac´ıas in partial fulﬁllment of the requirements for the degree of Master of Applied Science in Biomedical Engineering Examining committee: Guy Albert Dumont, Electrical and computer engineering Supervisor John Mark Ansermino, Anesthesiology, pharmacology and therapeutics Co-Supervisor Philippe Kruchten, Electrical and computer engineering Chair nominee
+ii
+
+Abstract
+Introduction: Hypertension in pregnancy, characterized by high blood pressure, is one of the three most common causes of maternal death. Photoplethysmography (PPG) is a portable, non-invasive and low-cost technique, which might have the potential to detect hypertension in pregnancy along with measuring three vital signs: oxygen saturation, heart rate, and respiratory rate. Currently, eﬀorts have been made to estimate blood pressure and detect hypertension with the PPG signal.
+Objectives: The primary objective of this study is to describe the eﬀect of pregnancy and blood pressure on the PPG signal.
+Methods: We calculated the average pulse per month of gestational age from 5,072 PPG signals of normotensive women to create a visual representation of a normal pregnancy eﬀect on the PPG morphology. We ﬁtted a linear model using the gestational age, blood pressure and their interaction to predict PPG features. The PPG features were extracted from 11,412 PPG signals of pregnant women. The PPG features were calculated using four algorithms developed to locate the: dicrotic notch, diastolic peak, systolic peak, start of the pulse, and second derivative waves.
+Results: We observed PPG morphology changes based on the gestational age in normal pregnancy. The association with blood pressure described in the literature for non-pregnant subjects of some PPG features such as heart rate can change in pregnancy based on the gestational age. The obtained results of the four algorithms are: 1) pulse location algorithm with an accuracy of 97.6% and 98.1% for the start of the pulse and systolic peak location, respectively; 2) pulse veriﬁcation algorithm improved pulse location positive predictivity; 3) equal accuracy between the ‘a’ and ‘b’ waves and the pulses location; and 4) reliable dicrotic notch, diastolic peak and ‘e’ location based on the comparison with a high-performance dicrotic notch algorithm and visual inspection.
+Conclusion: The normal cardiovascular changes seen during pregnancy consistently aﬀect the PPG signal and can be visually represented. The gestational age has a signiﬁcant eﬀect on the PPG detection of hypertension in pregnant women.
+iii
+
+Lay summary
+Hypertension in pregnancy, characterized by high blood pressure, is one of the three most common causes of maternal death. Photoplethysmography (PPG) is a technique that might have the potential to estimate blood pressure along with three vital signs: oxygen saturation, heart rate and respiratory rate. The use of the PPG to estimate blood pressure could be advantageous because is portable, non-invasive, easy to use, and low-cost. Currently, eﬀorts have been made to estimate blood pressure and detect hypertension with the PPG signal in non-pregnant subjects.
+We performed an exploratory analysis to describe the eﬀect of blood pressure and pregnancy in the PPG signal. The results of the exploratory analysis shown that gestational age has a signiﬁcant eﬀect on the detection of hypertension with the PPG signal in pregnant women.
+iv
+
+Preface
+The area of research of PPG relation with hypertensive disorders of pregnancy was provided by Dr. Guy Dumont, Dr. Mark Ansermino and Dr. Peter von Dadelszen. The author contributed by performing a literature review in the topic and designing a research program which was supervised by Dr. Guy Dumont. The author suggested as research topic measuring the combined gestational age and blood pressure dependence of the PPG signal. Ethics approval required for this research study was obtained by the UBC C&W Research Ethics Board (Certiﬁcate#H17-01346).
+The data used for this research study came from the Community-Level Interventions for Pre-eclampsia (CLIP) trial performed by the Pre-eclampsia and eclampsia monitoring, prevention & treatment (PRE-EMPT) group, speciﬁcally the PPG signals used in this research study were acquired in the CLIP trial in collaboration with LionsGate Technologies who provided the Phone OximeterTM sensors. The author was responsible for the ethics submission, analysis, interpretation of the results, and writing of each section of the thesis. Assistance from the research group was provided for the ethics application. Sample selection and statistical analysis recommendations according to the CLIP trial database content was provided by the PRE-EMPT group, mainly by Dr. Beth Payne, Jeﬀrey Bone, Dr. Marianne Vidler and Dr. Peter von Dadelszen.
+v
+
+Table of Contents
+Abstract . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . iii
+Lay summary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . iv
+Preface . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . v
+Table of Contents . . . . . . . . . . . . . . . . . . . . . . . . . . . . vi
+List of Tables . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ix
+List of Figures . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . x
+List of Acronyms . . . . . . . . . . . . . . . . . . . . . . . . . . . . xii
+Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . . . . . xiv
+Dedication . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xvi
+1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1 1.1 Photoplethysmography (PPG) signal . . . . . . . . . . . . . 1 1.1.1 PPG components . . . . . . . . . . . . . . . . . . . . 1 1.1.2 Measurement protocol, reproducibility and artifacts . 4 1.1.3 Current and future applications . . . . . . . . . . . . 4 1.1.4 Potential to detect hypertension in pregnancy . . . . 5 1.2 Hypertension in pregnancy . . . . . . . . . . . . . . . . . . . 5 1.2.1 Deﬁnition and diagnosis . . . . . . . . . . . . . . . . . 6 1.2.2 Impact . . . . . . . . . . . . . . . . . . . . . . . . . . 8 1.2.3 Community-Level Interventions for Pre-eclampsia (CLIP) 9 1.3 General objective . . . . . . . . . . . . . . . . . . . . . . . . 9 1.4 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+2 PPG and clinical data preprocessing . . . . . . . . . . . . . . 15
+vi
+
+Table of Contents
+2.1 PPG preprocessing . . . . . . . . . . . . . . . . . . . . . . . 15 2.1.1 PPG ﬁltering . . . . . . . . . . . . . . . . . . . . . . . 15 2.1.2 Pulse segmentation . . . . . . . . . . . . . . . . . . . 16 2.1.3 Signal quality index (SQI) . . . . . . . . . . . . . . . 22
+2.2 Clinical data preprocessing . . . . . . . . . . . . . . . . . . . 25 2.2.1 Clinical data selection . . . . . . . . . . . . . . . . . . 25 2.2.2 Classiﬁcation by blood pressure range . . . . . . . . . 25
+2.3 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26
+3 PPG feature extraction . . . . . . . . . . . . . . . . . . . . . . 28 3.1 Arterial stiﬀness/blood pressure related features . . . . . . . 28 3.1.1 a, b and D detection . . . . . . . . . . . . . . . . . . 34 3.1.2 Dicrotic notch, diastolic peak and e detection . . . . 38 3.2 Pulse rate variability (PRV) related features . . . . . . . . . 43 3.2.1 Time domain . . . . . . . . . . . . . . . . . . . . . . . 43 3.2.2 Frequency domain . . . . . . . . . . . . . . . . . . . . 44 3.3 Blood oxygen saturation (SpO2) related features . . . . . . . 45 3.4 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46
+4 Blood pressure and gestational age dependent PPG changes 47 4.1 Average pulse per month of gestational age . . . . . . . . . . 48 4.2 Gestational age dependent PPG features . . . . . . . . . . . 48 4.2.1 Heart rate, anacrotic and catacrotic phase times . . . 51 4.2.2 Pulse rate variability . . . . . . . . . . . . . . . . . . 54 4.2.3 Acceleration PPG . . . . . . . . . . . . . . . . . . . . 55 4.2.4 Skewness, spring constant, dicrotic notch and diastolic peak position . . . . . . . . . . . . . . . . . . . . . . . 58 4.2.5 Area under the curve . . . . . . . . . . . . . . . . . . 60 4.2.6 SpO2 related features . . . . . . . . . . . . . . . . . . 61 4.3 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . 61
+5 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 64 5.1 Objectives, contributions and limitations . . . . . . . . . . . 64 5.1.1 Pulse segmentation: peaks and valleys location . . . . 64 5.1.2 Signal quality index (SQI) implementation . . . . . . 65 5.1.3 PPG features extraction . . . . . . . . . . . . . . . . 66 5.1.4 Eﬀect of gestational age, blood pressure and the interaction between them in the PPG signal. . . . . . . 68 5.2 Future work . . . . . . . . . . . . . . . . . . . . . . . . . . . 69
+vii
+
+Table of Contents Bibliography . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 71
+Appendix
+A Pulse veriﬁcation algorithm code . . . . . . . . . . . . . . . . 80
+viii
+
+List of Tables
+2.1 Performance measures of pulse location algorithms . . . . . . 20 2.2 Confusion matrix between the estimated and LGT SQI . . . 24 4.1 Pakistan normotensive women PPG signals per month . . . . 50 4.2 PPG signals per month and blood pressure group . . . . . . . 51 4.3 PPG time features in pregnancy per blood pressure group . . 52 4.4 Original PRV features in pregnancy per blood pressure group 54 4.5 Anew PRV features in pregnancy per blood pressure group . 55 4.6 d2PPG features in pregnancy per blood pressure group . . . . 57 4.7 Skewness, spring constant, dicrotic notch and diastolic peak
+position in pregnancy per blood pressure group . . . . . . . . 59 4.8 SpO2 related features in pregnancy per blood pressure group 61 4.9 AUC features in pregnancy per blood pressure group . . . . . 62
+ix
+
+List of Figures
+1.1 PPG methods . . . . . . . . . . . . . . . . . . . . . . . . . . . 1 1.2 PPG characteristic parameters . . . . . . . . . . . . . . . . . 2 1.3 PPG frequency components . . . . . . . . . . . . . . . . . . . 3 1.4 Light spectrum characteristics of HbO2 and Hb . . . . . . . . 6 1.5 CLIP general visit ﬂow diagram . . . . . . . . . . . . . . . . . 10 1.6 CLIP ﬁrst visit ﬂow diagram . . . . . . . . . . . . . . . . . . 11 1.7 CLIP subsequent visit ﬂow diagram . . . . . . . . . . . . . . 12
+2.1 Pulse segmentation algorithm . . . . . . . . . . . . . . . . . . 16 2.2 Moving window algorithm . . . . . . . . . . . . . . . . . . . . 18 2.3 Moving window algorithm visual representation . . . . . . . . 19 2.4 Performance example of moving window algorithm . . . . . . 20 2.5 Pulse veriﬁcation algorithm . . . . . . . . . . . . . . . . . . . 21 2.6 Performance example of pulse veriﬁcation algorithm . . . . . 22 2.7 Oﬄine SQI implementation . . . . . . . . . . . . . . . . . . . 23 2.8 Estimated and LGT SQI comparison . . . . . . . . . . . . . . 24 2.9 Visits blood pressure classiﬁcation ranges . . . . . . . . . . . 26
+3.1 Amplitudes of PPG characteristic parameters . . . . . . . . . 29 3.2 Times of PPG characteristic parameters . . . . . . . . . . . . 29 3.3 Area based PPG features . . . . . . . . . . . . . . . . . . . . 32 3.4 d2PPG characteristic parameters . . . . . . . . . . . . . . . . 33 3.5 d2P P G with obtained a, b and e location . . . . . . . . . . . 35 3.6 dP P G with obtained D location . . . . . . . . . . . . . . . . 36 3.7 a, b and D detection algorithm visual representation . . . . . 37 3.8 PPG with obtained dicrotic notch, diastolic peak and e location 39 3.9 Dicrotic notch, diastolic peak and e detection algorithm part 1 41 3.10 Dicrotic notch, diastolic peak and e detection algorithm part 2 42 3.11 Pulse rate variability in frequency and time domain . . . . . . 45
+4.1 Average pulse from month 2-8 of gestational age . . . . . . . 49 4.2 Average pulse from month 8-10 of gestational age . . . . . . . 49
+x
+
+List of Figures 4.3 Heart rate, gestational age and blood pressure group . . . . . 52 4.4 Anacrotic phase time, gestational age and blood pressure group 53 4.5 RMSSDb, gestational age and blood pressure group . . . . . 56 4.6 EA ratio, gestational age and blood pressure group . . . . . . 57 4.7 ASI, gestational age and blood pressure group . . . . . . . . . 60
+xi
+
+List of Acronyms
+ABP - Arterial Blood Pressure AI - Augmentation Index APM - Average Pulse per Month APS - Average Pulse per Signal APW - Average Pulse Width ASI - Artery Dtiﬀness Index A.C. - Alternate Current BPV - Blood Pressure Variability CCM - Complex Correlation Measure CD - Cardiovascular Disease CLIP - Community-Level Interventions for Pre-eclampsia c-HCP - Community Health Care Provider DIC - Disseminated Intravascular Coagulation D.C. - Direct Current EDD - Estimated Date of Delivery FIR - Finite Impulse Response ﬁlter GA - Gestational Age HELLP - Hemolysis Elevated Liver enzymes Low Platelet count HF - High Frequency pulse rate variability HR - Heart Rate HRV - Heart Rate Variability IIR - Inﬁnite Impulse Response ﬁlter IQR - InterQuartile Range LED - Light-Emitting Diode LF - Low Frequency pulse rate variability LGT - LionsGate Technologies, inc. LMICs - Low and Middle-Income Countries MAP - Mean Arterial Pressure PIERS - Pre-eclampsia Integrated Estimate of RiSk POM - PIERS On the Move PP - Peak to Peak PPG - PhotoPlethysmoGraphy
+xii
+
+List of Acronyms
+PP50 - number of successive diﬀerences between Peak to Peak intervals larger than 50 ms pPP50 - Percentage of successive diﬀerences between Peak to Peak intervals larger than 50 ms PRE-EMPT - PRE-eclampsia and Eclampsia Monitoring, Prevention and Treatment PRV - Pulse Rate Variability RMSE - Root Mean Squared Error RMSSD - Root Mean Square Successive Diﬀerences SDAPP - Standard Deviation of the Averages of Peak to Peak intervals SDPP - Standard Deviation of Peak to Peak time SDSD - Standard Deviation of Sucessive Diﬀerences RPCnp - ReProducibility Coeﬃcient Non-Parametric SpO2 - Blood oxygen saturation SQI - Signal Quality Index Tb98 - percentage of Time with a SpO2 Below 98 Tb96 - percentage of Time with a SpO2 Below 96 Tb94 - percentage of Time with a SpO2 Below 94 TIPP - Triangular Interpolation of the histogram of the Peak to Peak intervals ULF - Ultra Low Frequency pulse rate variability VLF - Very Low Frequency pulse rate variability
+xiii
+
+Acknowledgements
+I would like to thank the faculty, staﬀ and research mates who supported me and accompanied me throughout my research. Specially to my supervisor Dr. Guy Dumont from whom I always received innovative suggestions to keep moving forward my research accompanied by his unconditional support both professionally and personally. I would like to thank to my co-supervisor Dr. Mark Ansermino for sharing with me his valuable clinical knowledge and his unstoppable curiosity which for me meant a high interest and motivation in my research.
+I want to thank to all the members of the PRE-EMPT research group for their continuous feedback and making this research study possible. Particularly to the UBC PRE-EMPT group who were always willing to hear my concerns and provide feedback based in their particular expertise. Thank you to all the UBC PRE-EMPT group for this satisfactory learning journey and particularly would like to thank to:
+• Dr. Peter von Dadelszen for sharing his research questions and passion about pre-eclampsia for a better future understanding of this syndrome and actions that can be taken to prevent maternal mortality and morbidities.
+• Dr. Beth Payne for her continuous guiding and introducing me to the clinical predictions models, specially the miniPIERS model.
+• Dr. Marianne Vidler as a research program manager for directing my doubts to the speciﬁc member of the UBC PRE-EMPT group and the fun team building activities.
+• Sumedha Sharma for introducing me to the CLIP trial protocol and reviewing my thesis drafts.
+• Jeﬀrey Bone and Dr. Vivian Ukah for their recommendations regarding statistical analysis.
+• Domena Tu for continuously delivering to me the updated databases and PPG signals.
+xiv
+
+Acknowledgements
+• Tang Lee for taking the time to understand all my research study and provide feedback, as well as sharing with me her data ﬁltering decisions of the CLIP trial.
+• Maggie Woo for her organization of meetings, the PRE-EMPT annual meeting and the fun yoga sessions.
+I would like to thank to all the members of the Digital Health Innovation Lab (DHIL) research group for their continuous feedback and support. Specially to Dustin Dunsmuir for introducing me to the mobile app with which the PPG signals was taken during the CLIP trial and the signal quality index used in it. Also to Erin Cooke for assisting me with the ethics application submissions. I want to thank Dr. Klaske van Heusden for taking her time to understand my research study to provide her feedback when need it. And also Dr. Parastoo Dehkordi for her important collaboration on the moving window algorithm design and Karlen’s algorithms implementation. And thank all my research mates from DHIL group for their continuous support and caring, particularly to Brett Hannigan, Rosa Hillgruber, Celine Legeuh, Niema Ganad Poor, Dr. Roberto Pagano, Dr. Soodeh Ahani, Shayeste Vefaghnematollahi and Mahdi Youseﬁ.
+I would like to thank to Rashika Raizada, Sandeep Sadaram, Rishab Jain, Elizabeth Tintu, Berenice Molina Ortega, Alejandra Donaji Herrera Reyes and Ren´ae Zepeda Guti´errez for helping me to establish myself in Vancouver and the unforgettable moments.
+I would like to thank to my funders CONACYT and MITACS, without them this project would not have been possible.
+And more importantly, I want to thank my family: Mar´ıa del Refugio Mac´ıas Medina, Manfred Ramos Ponce, Manfred Ramos Mac´ıas y Andrea Naomi Ramos Mac´ıas. Thanks to their love, patience and constant support I was able to ﬁnish my research study, I am very thankful of having them in my life. Their support and encouragement in every decision and step I have taken for working in what I feel passionate about was critical for me to achieve it. There is no words to describe how much it means to me.
+xv
+
+Dedication
+Quiero dedicar mi tesis a mi familia, especialmente a mis padres: Mar´ıa del Refugio Mac´ıas Medina y Manfred Ramos Ponce.
+xvi
+
+Chapter 1
+Introduction
+1.1 Photoplethysmography (PPG) signal
+The PPG signal measures the volumetric changes in peripheral blood vessels. These blood volume changes are detected by measuring the transmittance or reﬂectance of light as shown in Figure 1.1. The transmittance PPG uses a light source opposite to the photodetector in a translucent part of the body such as the ear or the ﬁnger, while the reﬂectance PPG uses a light source next to the photodetector so the anatomical sites that can be used are not as restricted. Despite the diﬀerences, the PPG signals acquired with both methods are similar [65].
+1.1.1 PPG components
+Time domain components The PPG waveform morphology is a consequence of the cardiac cycle and vascular impedances. Both phases of the cardiac cycle can be distinguished:
+1. The systolic phase, in which the aortic valve of the heart opens and ejects oxygenated blood to reach the rest of the body is characterized in the PPG waveform by the systolic peak as shown in Figure 1.2,
+
+(a) Reﬂectance PPG
+
+(b) Transmitance PPG
+
+Figure 1.1: PPG methods. In each method a photodetector and typically 2 light sources with wavelengths of 660 and 940 nm are used (e.g. photodiode and 2 LEDs). The resulting 2 PPG signals are used for the estimation of blood oxygen saturation (SpO2) as explained in subsection 1.1.3. Diagram from Karthik, et al. [33]
+
+1
+
+1.1. Photoplethysmography (PPG) signal
+Figure 1.2: PPG characteristic parameters
+which corresponds to a major increment in blood volume because of the blood ejection. 2. The diastolic phase, in which the aortic valve closes while the left ventricle is ﬁlling and preparing for the next blood ejection is characterized in the PPG waveform by the diastolic peak and the dicrotic notch as shown in Figure 1.2, where the diastolic peak represents a wave reﬂection due to diﬀerences in impedance across the cardiovascular system. The dicrotic notch is also a consequence of this wave reﬂection and is represented as the valley between the systolic and diastolic peak. As the cardiac cycle, the PPG waveform is divided for its study in two phases: the anacrotic and catacrotic phase. The dividing parameter in the PPG waveform for the anacrotic and catacrotic phase is the systolic peak as shown in Figure 1.2. The anacrotic phase morphology is primarily associated with systole while the catacrotic phase morphology varies with the vascular impedance characteristics and diastole [60]. Despite the simple PPG waveform morphology, the origin is not yet fully understood, even when valuable cardiovascular information has been extracted from it for a wide range of clinical applications.
+2
+
+1.1. Photoplethysmography (PPG) signal
+Figure 1.3: PPG frequency components
+Frequency domain components The PPG waveform is also characterized and interpreted by its frequency components as shown in Figure 1.3:
+• The baseline (D.C.) component, which is due to constant blood volume and tissues light absorption.
+• The pulsatile (A.C.) component which has a frequency band from 0.5– 7 Hz, often described as 0.5–4 Hz when only the systolic peak location is of interest, measures the volume changes related to the cardiac cycle and wave reﬂections.
+• The frequency components below 0.5 Hz are usually discarded and — depending on the equipment used for acquiring the PPG signal — may not be present, i.e. if it has an automatic gain controller or auto-centering. The following low frequency components have been described: – A component with a frequency band of 0.2–0.45 Hz, belongs to volume changes due to respiration. – A low-frequency component of 0.1 Hz called Mayers wave is part of a vascular response to the sympathetic nervous system [8, 32]. – A very low-frequency component of 0.01-0.08 Hz is a vascular response to the regulation of body temperature [34].
+3
+
+1.1. Photoplethysmography (PPG) signal
+1.1.2 Measurement protocol, reproducibility and artifacts
+There is no recognized standard for PPG measurement, which can make it diﬃcult to compare results from diﬀerent research studies since the reproducibility of the PPG signal can be aﬀected by the site and method of probe attachment, subject, sensor-tissue force, room temperature and acclimatization, posture, relaxation, embedded ﬁltering of the device with which the PPG signal was taken, etc [5, 68, 75].
+Aside from the reproducibility concerns, the PPG signal is vulnerable to speciﬁc artifacts that should be removed during the preprocessing:
+• Ambient light interference where external light changes are detected by the photodiode resulting in PPG signal artifacts.
+• Power interference/electromagnetic noise, 60 or 50 Hz depending on the country.
+• Motion artifacts due to ﬁnger movement of the patient. This will induce diﬀerent venous pressures that will be detected as changes in blood volume. Motion artifacts can’t be removed with typical techniques, such as digital ﬁlters because the frequency range of motion artifacts is from 0.1 Hz and above which overlaps with the frequency range of the PPG signal. [24, 36].
+1.1.3 Current and future applications
+The PPG signal is currently used in commercial medical devices, such as digital beat-to-beat blood pressure measurement systems, pulse oximeters, which could include respiration and heart rate measurements, and vascular diagnostics.
+PPG has potential for further innovation and research has been done on a wide range of topics:
+• Continuous physiological monitoring: blood oxygen saturation, blood pressure, respiration rate, heart rate, cardiac output, etc.
+• Blood vessels characteristics: arterial stiﬀness, aging, endothelial dysfunction, arterial disease, vasospasm, etc.
+• Autonomic functions: pulse rate variability, thermoregulation, vasomotor function, orthostatic intolerance, etc. [5].
+4
+
+1.2. Hypertension in pregnancy
+Two of the most common applications of the PPG signal which are also used for this research study are for measuring blood oxygen saturation and heart rate.
+Blood oxygen saturation
+Blood oxygen saturation measurement with pulse oximeters has become a standard for monitoring patients in critical care due to its ability to detect hypoxemia. Blood oxygen saturation estimation is done by acquiring two PPG signals, each with a diﬀerent light source: one emitting in the red spectrum (660 nm) and the other one in the infrared spectrum (940 nm). The 660 and 940 nm wavelengths are used because of the characteristic light-absorption diﬀerence between deoxyhemoglobin and oxyhemoglobin at these wavelengths, as shown in Figure 1.4. Finally, for estimating blood oxygen saturation, pulse oximeter manufacturers calculate a ratio using the AC and DC components of infrared and red PPG signals and transform this ratio to blood oxygen saturation value using a calibrated empirical relation [14, 24].
+ratio = ACrDCir DCr ACir
+Heart rate
+Heart rate monitoring is also widely used in critical care due to its ability to detect bradycardia and tachycardia. Heart rate is calculated from the PPG signal by measuring the time between the systolic peaks [57].
+1.1.4 Potential to detect hypertension in pregnancy
+Eﬀorts had been made to estimate the blood pressure in non-pregnant subjects [61, 70, 73] and speciﬁc PPG features have been associated with arterial stiﬀness and blood pressure [43, 62, 64]. For this thesis, the blood pressure related PPG features are included together with pulse rate variability PPG features due to the possible loss of autonomic function in severe conditions as seen with complications of hypertension in pregnancy [23, 51].
+1.2 Hypertension in pregnancy
+In this section we describe the deﬁnition, diagnosis and impact of hypertension in pregnancy. This section also includes a summary of the community-
+5
+
+1.2. Hypertension in pregnancy
+Figure 1.4: Light spectrum characteristics of oxyhemoglobin and deoxyhemoglobin. Data plotted from [58] level interventions for pre-eclampsia (CLIP), an intervention to improve the care of hypertension in pregnancy from where the data for this study was collected.
+1.2.1 Deﬁnition and diagnosis
+According to the American College of Obstetricians and Gynecologists (The College) Task Force on Hypertension on Pregnancy [49], four categories of hypertension in pregnancy are considered: Pre-eclampsia Pre-eclampsia (PE) is an idiopathic multisystemic disorder that can develop during pregnancy and the postpartum period. The diagnostic criteria include:
+• Blood pressure – Greater than or equal to 140 mm Hg systolic or greater than or equal to 90 mm Hg diastolic on two occasions at least 4 hours 6
+
+1.2. Hypertension in pregnancy
+apart after 20 weeks of gestation in a woman with previously normal blood pressure. – Greater than or equal to 160 mm Hg systolic or greater than or equal to 110 mm Hg diastolic, hypertension can be conﬁrmed within a short interval (minutes) to facilitate timely antihypertensive therapy.
+And:
+• Proteinuria
+– Greater than or equal to 300 mg protein per 24-hour urine collection (or this amount extrapolated from a timed collection)
+– Protein/creatinine ratio greater than or equal to 0.3 – Dipstick reading of 1+ (used only if other quantitative methods
+are not available)
+In the absence of proteinuria, new-onset hypertension with the new onset of any of the following signs or symptoms:
+• Thrombocytopenia
+– Platelet count less than 100,000/microliter
+• Renal insuﬃciency
+– Serum creatinine concentration greater than 1.1 mg/dL or a doubling of the serum creatinine concentration in the absence of other renal diseases
+• Impaired liver function
+– Elevated blood concentration of liver transaminases to twice the normal concentration
+• Pulmonary edema
+• Cerebral or visual symptoms
+Chronic hypertension Chronic hypertension is deﬁned as high blood pressure which predates conception or was detected before 20 weeks of gestation.
+7
+
+1.2. Hypertension in pregnancy
+Chronic hypertension with superimposed pre-eclampsia
+Chronic hypertension which is complicated by pre-eclampsia is diagnosed in the following scenarios:
+• Women with hypertension only in early gestation who develop proteinuria after 20 weeks of gestation
+• Women with proteinuria before 20 weeks of gestation who:
+– Experience sudden exacerbation of hypertension – Suddenly manifest other signs and symptoms of pre-eclampsia – Sudden, substantial and sustained increases in protein excretion
+Gestational hypertension
+Gestational hypertension is characterized by new-onset elevation of blood pressure after 20 weeks of gestation in the absence of accompanying proteinuria or the characteristic signs and symptoms of pre-eclampsia.
+1.2.2 Impact
+Hypertension in pregnancy is one of the three most common causes of maternal death, from which the majority pertain to low and middle-income countries (LMICs) mainly due to a lack of access to proper maternal healthcare and awareness [3, 56].
+Pre-eclampsia can be particularly dangerous because pregnant women may not feel sick even when some signs are measurable such as high blood pressure [2]. When pre-eclampsia is not treated it can progress, increasing the risk of a wide range of serious complications: eclampsia (seizures), stroke, coma, retinal/cortical blindness, antepartum/postpartum hemorrhage, hemolysis elevated liver enzymes low platelet count (HELLP) syndrome, disseminated intravascular coagulation (DIC), intrauterine growth restriction, placental abruption/infraction and even maternal/infant death [15]. As a long-term outcome, the preeclamptic woman may have an increased risk of developing a cardiovascular disease or stroke later in life [1].
+In order to prevent maternal mortality and morbidities, research for more accessible alternatives to detect pregnant women at an increased risk could be an important step forward.
+8
+
+1.3. General objective
+1.2.3 Community-Level Interventions for Pre-eclampsia (CLIP)
+Signiﬁcant eﬀorts have been done to improve the care of women with preeclampsia and other hypertensive disorders in LMICs, as is the case of the Pre-eclampsia and Eclampsia Monitoring, Prevention and Treatment (PREEMPT) initiative. CLIP is part of the third objective of the PRE-EMPT project, consists of three independently powered cluster randomized control trials focused on reducing pre-eclampsia-related and all-cause, maternal and perinatal mortality and major morbidity by 20% or more in intervention clusters in Maputo and Gaza Province (Mozambique), Sindh Province (Pakistan) and in Karnataka State (India) [50] (ClinicalTrials.gov Identiﬁer: NCT01911494).
+As part of the CLIP intervention, the team developed a mobile phonebased tool that rapidly and reliably identiﬁes women in LMICs at increased risk of adverse outcomes in the following 48 hours due to pre-eclampsia. This tool is known as the PIERS on the Move (POM) mobile phone application which includes: 1) a predictive model based on symptoms and signs called miniPIERS model and 2) an optional mobile phone adapted pulse oximetry sensor called Phone Oximeter [16].
+The Phone Oximeter optional addition was only used in Mozambique and Pakistan according to the visit ﬂow diagram of ﬁgs. 1.5 to 1.7 to increase the predictive ability by measuring blood oxygen saturation (SpO2) [51] in the pregnant population under study in the intervention arm.
+The collected PPG signals provided a volumetric measure of the amount of blood in peripheral vessels, which in addition to oxygen saturation may capture other hypertension related features, such as vascular compliance, which in a future study could be used to improve the current miniPIERS prediction model. The addition of the pulse oximetry sensor in Mozambique and Pakistan allowed collection of 17,043 PPG signals from 15,974 pregnant women during the CLIP trials. The PPG signals in combination with clinical measurements recorded during the CLIP visits (blood pressure, gestational age and antepartum/postpartum status) are used in this research study.
+1.3 General objective
+The general objective of the exploratory analysis performed in this thesis is to increase the understanding of the eﬀect of pregnancy and hypertension on the PPG signal. This information can be used as a criterion to select the training sample to develop PPG models which detect hypertension in
+9
+
+1.3. General objective
+Figure 1.5: CLIP community Health Care Provider (c-HCP) visit ﬂow diagram general procedure [50]
+10
+
+1.3. General objective
+Figure 1.6: CLIP community Health Care Provider (c-HCP) ﬁrst visit ﬂow diagram [50]
+11
+
+1.3. General objective
+Figure 1.7: CLIP community Health Care Provider (c-HCP) subsequent visit ﬂow diagram [50]
+12
+
+1.4. Conclusion
+pregnancy. The general objective is divided into the following two ﬁnal objectives:
+• Assess the eﬀect of gestational age on the PPG signal in normotensive women.
+• Assess the eﬀect of gestational age, blood pressure and the interaction between them on the PPG signal.
+To achieve the mentioned ﬁnal objectives, the PPG signal changes were measured by ﬁrst meeting the following objectives:
+• Identify pulses in the 14,123 PPG signals which are >35 seconds long.
+• Implement a signal quality index (SQI) algorithm to discard automatically the low-quality sections of the PPG signals.
+• Develop algorithms to identify the following PPG characteristic parameters: dicrotic notch, diastolic peak, maximum of the ﬁrst derivative of the PPG and second derivative of the PPG waves (a, b and e). These characteristic PPG parameters will be used to extract the PPG features.
+• Extract PPG features related to blood pressure, heart rate variability and blood oxygen saturation from the PPG signals with an average high-quality SQI.
+1.4 Conclusion
+We focused in this 1st chapter on outlining the hypertension in pregnancy impact and the PPG signal as a tool that could improve its detection. In detail this 1st chapter includes:
+• The PPG signal components and its applications.
+• The PPG signal potential to detect hypertension in pregnancy.
+• The hypertension in pregnancy diagnosis and impact.
+• The CLIP intervention which is focused on the improvement of care of the hypertensive disorders in pregnancy. And the intervention from where the data used for this study was collected.
+• The thesis objectives.
+13
+
+1.4. Conclusion The general objective of this thesis is a step towards the improvement of hypertension in pregnancy detection through the PPG signal. It is an exploratory analysis to assess if the PPG models to detect hypertension in pregnancy should consider gestational age as a variable or/and as a criterion for selecting the training sample. The general objective is divided in two ﬁnal analyses which are described in the 4th chapter. In the 4th chapter the eﬀect of gestational age and blood pressure on the PPG features extracted in the 3rd chapter is measured. Before the PPG feature extractions described in the 3rd chapter, the preprocessing of the PPG signal and clinical data is described in the 2nd chapter.
+14
+
+Chapter 2
+PPG and clinical data preprocessing
+In this chapter, the exclusion and inclusion criteria will be explained. In the PPG preprocessing section the criteria and methods for discarding irrelevant/distorted information from the PPG signal are described. A pulse segmentation algorithm is then described. In the clinical data preprocessing section, we cover the clinical information selection and classiﬁcation.
+2.1 PPG preprocessing
+The irrelevant/distorted information from the PPG was discarded following 3 main steps: ﬁltering, pulse segmentation, and signal quality index (SQI) estimation.
+2.1.1 PPG ﬁltering
+Filtering aims to keep the frequency components of the PPG signal which are of interest while labeling the rest as noise and minimizing them. The range of 0.5 to 7 Hz is of interest since it contains the blood volume changes related to the cardiac cycle and wave reﬂections, and we are not interested in extracting respiratory rate from the PPG signal. The speciﬁc ﬁlters required depend on the factors described in Section 1.1.2, as well as on the device used to record the signal. Therefore, a speciﬁc ﬁlter was designed as follows:
+1. The DC component is eliminated by subtracting the mean.
+2. Identifying noise distribution and impact: In the frequency domain of the PPG signal, the dominant frequencies are lower than 0.5 Hz. The frequencies lower than 0.5 Hz are labeled as noise/irrelevant in this study so we aim to minimize them.
+3. Minimizing noise: An inﬁnite impulse response (IIR) was chosen over a ﬁnite impulse response (FIR) ﬁlter due to its capability to achieve
+15
+
+2.1. PPG preprocessing
+
+a similar frequency response with a lower ﬁlter order. The ﬁlter was applied forward and backward to ensure no phase distortions are introduced while increasing the frequency response. The selected ﬁlter was a Chebyshev type II order 8 highpass with a cutoﬀ frequency at 0.5 Hz and stopband attenuation of 40 dB.
+4. Verifying absence of electromagnetic noise: Since electricity in Mozambique/Pakistan alternates at 50 Hz, this is the frequency of the electromagnetic noise. Considering the signal was sampled at 48 Hz, the perceived frequency of the electromagnetic noise is at 2 Hz due to the aliasing eﬀect. The absence of electromagnetic noise in the signals was veriﬁed because there is no important frequency component at 2 Hz, unless patient heart rate is 120 bpm.
+5. Selecting a technique to minimize motion artifacts distortion: Some motion artifact removal algorithms have been developed in which the shape of the waveform could be compromised and complete motion artifacts removal can’t be assured [24, 36, 52]. Therefore, a Signal Quality Index (SQI) is a better approach since it doesn’t modify the PPG waveform and it allows to speciﬁcally discard the distorted pulses from each signal.
+
+2.1.2 Pulse segmentation
+
+In order to discard the distorted pulses, the signal must ﬁrst be segmented into pulses. Before the pulse segmentation, the resolution was improved by increasing the signals sample frequency from 48 to 192 Hz by a spline interpolation. Then, pulse segmentation was done with a gaussian ﬁlters algorithm [30] described in the block diagram of Figure 2.1. Average pulse width estimation, pulse location, and pulse veriﬁcation are represented by the blue, red and yellow blocks, respectively. The inputs are identiﬁed as boxes with grey color. Each component of the block diagram will be explained in detail in this section.
+
+Figure 2.1: rithm
+
+Pulse segmentation alg1o6-
+
+2.1. PPG preprocessing
+Average pulse width estimation The average pulse width is estimated by inputing a six second PPG sample into a modiﬁed gaussian ﬁlters algorithm [30]. The modiﬁcations are the following:
+• The input is a “clean” PPG sample selected between three six secondsamples. The six second-samples belong to the ﬁrst 18 seconds of the PPG. The “clean” PPG sample is the one with the maximum crosscorrelation between the ﬁrst and last three seconds.
+• Two dominant frequencies are chosen as the possible average heart rate after calculating the discrete cosine transform.
+• The algorithm is not recursive, so only one average pulse width (inverse of average heart rate) and one pulse location is outputed.
+Pulse location The pulse locations are obtained by inputing the PPG signal and the average pulse width estimation into the moving window algorithm. The moving window algorithm detailed in Figure 2.2 consists of the following steps:
+1. Creating a window with a width equal to the estimated average pulse width. As shown in Figure 2.3, the moving window algorithm is tolerant to a certain degree of estimated average pulse width impreciseness or pulse rate variability.
+2. Finding the maximum and minimum in the window. The maximum and minimum location are used to deﬁne the ﬁrst and second interval.
+3. Finding maximum/minimum in the ﬁrst interval and saving as peak/pulse. As shown in Figure 2.3b, the use of the ﬁrst interval avoids erasing previous real peaks/pulses which can be located in the window.
+4. Finding maximum/minimum in the second interval and saving as peak/pulse. As shown in Figure 2.3a, the use of the second interval allows erasing mislabelled peaks/pulses and locating the real peak/pulse even when it is outside the window.
+5. Advancing the window by half of the window width to complete an iteration.
+17
+
+2.1. PPG preprocessing
+Figure 2.2: Moving window algorithm. Where the input is a PPG signal and the output is the start of the pulses and systolic peaks location. APW indicates average pulse width; peak, systolic peak location; pulse, start of a pulse location; maxLoc/minLoc, maximum/minimum location in current window or interval.
+18
+
+2.1. PPG preprocessing
+
+(a) Window width<pulse width
+
+(b) Window width>pulse width
+
+Figure 2.3: Moving window algorithm visual representation. Represents two possible scenarios of the moving window algorithm performance which is used to locate the start of the pulses and systolic peaks on the PPG signal. Where each row represents an iteration. The box indicates the window; black point, maximum/minimum in the window; red circle, peaks/pulses located and black arrow, interval 1/2.
+
+19
+
+2.1. PPG preprocessing
+
+Figure 2.4: Systolic peak and start of the pulses location (worst case in the test) obtained with 1) the moving window algorithm and, 2) the gaussian ﬁlters algorithm.
+
+The moving window algorithm was used rather than the Gaussian ﬁlters algorithm for pulse location since improved performance was achieved as shown in table 2.1 and Figure 2.4. Results shown in table 2.1 and Figure 2.4 were obtained from 20 signals within the smaller CLIP identiﬁcation number of the Pakistan database. For this test, the Gaussian ﬁlters and moving window algorithm were used with a ﬁxed average pulse width.
+Pulse veriﬁcation
+In approx. 1 of every 46 PPG signals, at least 10% of the obtained locations were false positives. If the dicrotic notch is already labeled as the start of a pulse it will be impossible to locate it as a dicrotic notch. To reduce the false positives, the pulse veriﬁcation algorithm described in Figure 2.5 was implemented as shown in Figure 2.6.
+
+Accuracy Sensitivity Speciﬁcity
+
+Pulse location
+
+MW (%) GF (%)
+
+97.6
+
+93.7
+
+98.7
+
+97.3
+
+95.4
+
+86.3
+
+Systolic peak location
+
+MW (%) GF (%)
+
+98.1
+
+93.5
+
+99.2
+
+96.3
+
+95.7
+
+87.6
+
+Table 2.1: Performance measures of the moving window algorithm (MW) and gaussian ﬁlters algorithm (GF).
+
+20
+
+2.1. PPG preprocessing
+Figure 2.5: Pulse veriﬁcation algorithm. This algorithm is used to verify that dicrotic notches and diastolic peaks were not labelled as start of the pulses and systolic peaks, respectively. The input are start of the pulses and systolic peaks location and the output are the veriﬁed start of the pulses and systolic peaks location.
+21
+
+2.1. PPG preprocessing
+
+Figure 2.6: Systolic peak and start of the pulse location in one of the worst case scenarios 1)before and 2)after pulse veriﬁcation algorithm
+
+The pulse veriﬁcation algorithm compares the pulse amplitude with the previous and next pulse. In the case that several pulses amplitudes are considerably small compared to the neighbour pulses, then these pulses are discarded. This algorithm is ideally implemented oﬀ-line with only a few lines of code as shown in appendix A.
+
+2.1.3 Signal quality index (SQI)
+After the pulse segmentation, it is possible to discard the low-quality pulses using the SQI. The SQI consists of a score per pulse from 0 to 100, where 0 means the lowest quality and 100 the higher quality. In this study Karlen’s SQI algorithm [30] was used with the following stages and with modiﬁcations that are underlined:
+
+1. Calibration: Create a pulse reference set by selecting the ﬁrst 5 pulses with a correlation>0.95.
+2. SQI estimation:
+(a) Measure the correlation between the tested pulse and the longest pulse of the reference set.
+(b) Estimate SQI from the obtained correlation (C) according to equation 2.1.
+
+400(C+1)
+e 99 SQI = 100 e8
+
+(2.1)
+
+22
+
+2.1. PPG preprocessing
+Figure 2.7: Oﬄine SQI implementation. 1)Filtered PPG signal with a motion artifact section. 2)Backward and forward SQI estimation. 3)SQI merged result from backward and forward SQI estimation
+(c) Update pulse reference set with the tested pulse if correlation>0.95. 3. Ofﬂine implementation: SQI estimation was done backward and for-
+ward, assigning to each pulse the highest SQI obtained as shown in Figure 2.7. To test the performance of the estimated SQI it was compared to the sensor’s provider, LionsGate Technologies (LGT), SQI. The algorithm for LGT SQI is information to which we do not have access but a mean LGT SQI per signal was provided. The comparison was done in the 14,123 signals that are >35 seconds long, with the results as follows: • 97% of the signals identiﬁed as high-quality by the estimated SQI were identiﬁed as high-quality by the LGT SQI, as shown in table 2.2. • A conﬁdence interval of the diﬀerences between the estimated and LGT SQI of 16 • A kurtosis of the diﬀerences between the estimated and LGT SQI of 8, a higher kurtosis than the one found in a normal distribution. If the LGT SQI per pulse had been provided, then it could have been used to discard low-quality pulses.
+23
+
+2.1. PPG preprocessing
+
+high-quality LGT SQI low-quality
+Total
+
+Estimated SQI high-quality low-quality
+
+12,496 (97%) 731 (61%)
+
+427 (3%)
+
+469 (39%)
+
+12,923 (100%) 1,200 (100%)
+
+Table 2.2: Classiﬁcation into high-quality (SQI≥70) and low-quality (SQI<70) signals using the estimated and LGT SQI.
+
+Figure 2.8: Correlation and Bland-Altman plot between the estimated and LGT SQI. RMSE indicates root mean squared error; r, pearson r-value; IQR, interquartile range; skewness, test of diﬀerence-data; kurtosis, test if diﬀerence-data is gaussian; RPCnp, reproducibility coeﬃcient non-parametric estimated as 1.45*IQR; dot lines, represent conﬁdence interval.
+24
+
+2.2. Clinical data preprocessing
+2.2 Clinical data preprocessing
+2.2.1 Clinical data selection
+The clinical information collection was done during the CLIP visits. The CLIP visits occurred between the identiﬁcation of each woman’s pregnancy to 6 weeks postpartum for 4,781 women in Mozambique and 11,399 women in Pakistan. During each CLIP visit, health workers collected clinical measurements as mandated by protocol from which the following were selected:
+• PPG recording and spO2 signal recorded with the LionsGate Technologies (LGT) pulse oximeter.
+• Gestational age (days) estimated from the symphysis-fundal height if the ultrasound information is unavailable.
+• Systolic and diastolic blood pressure (mmHg) measured with the Microlife AS1-2 sphygmomanometer.
+• Antepartum/postpartum status of the visit.
+For this analysis only antepartum visits were considered. This means that an average of 4.4 and 3.5 antepartum CLIP visits per pregnancy in Mozambique and Pakistan, respectively were considered. According to the CLIP visit ﬂow diagram of ﬁgs. 1.5 to 1.7 the PPG and spO2 signal were recorded only in 1) ﬁrst visits and 2) subsequent visits in which the systolic blood pressure is equal or above 140 mmHg.
+Each PPG recording is a maximum of 1 minute long and contains 2 PPG signals: a red (660 nm) and an infrared (940 nm) signal. The red PPG signal was selected for the analysis since the estimated SQI was higher in the red signal compared to the infrared signal implying a higher signal quality. The red PPG signals were included if it were high-quality signals (estimated SQI≥70) and excluded if it were signals of short duration (>35 seconds long). A total of 11,412 PPG red signals met the described criteria from which 11,083 were collected in ﬁrst visits and 329 in subsequent visits.
+2.2.2 Classiﬁcation by blood pressure range
+Two diﬀerent kinds of classiﬁcation of the clinical data was done: per visit and per women. Clinical data classiﬁcation by the blood pressure range of the visit was done as follows:
+• Normotensive visit: sbp<120 mmHg and dbp<80 mmHg
+25
+
+2.3. Conclusion
+Figure 2.9: Visits blood pressure classiﬁcation ranges • Prehypertensive visit: sbp≥120 mmHg or dbp≥80 mmHg and sbp<140
+mmHg with dbp<90 mmHg. • Hypertensive visit: sbp≥140 mmHg or dbp≥90 mmHg Clinical data classiﬁcation by the blood pressure range of the women through pregnancy was done as follows: • Normotensive women: all the visits were normotensive visits. • Prehypertensive women: at least one prehypertensive visit and with-
+out any hypertensive visits. • Hypertensive women: at least one hypertensive visit.
+2.3 Conclusion
+We focused this 2nd chapter on describing the PPG and clinical data preprocessing. The PPG preprocessing section includes the methods for:
+• PPG ﬁltering from noise/irrelevant information. • PPG signal segmentation into pulses, which we performed in 3 stages:
+average pulse width estimation, pulse location and pulse veriﬁcation, explaining the algorithms used in each of these stages. Speciﬁcally,
+26
+
+2.3. Conclusion the pulses location and pulses veriﬁcation algorithm were described in this chapter. • The signal quality index (SQI) estimation. Describing the oﬀ-line implementation of Karlen’s SQI algorithm [30] used. The obtained highquality pulses are then used to extract PPG features in the 3rd chapter. The clinical data preprocessing section includes the criteria for: • The selection of the clinical information • The classiﬁcation by blood pressure range of visits and women. The objective of the PPG preprocessing is ﬁltering the PPG signal and identifying high-quality pulses that can be used for extracting PPG features in the 3rd chapter. Then, the eﬀect of gestational age and blood pressure in the PPG features extracted in the 3rd chapter is estudied in the 4th chapter. The objective of the clinical data preprocessing is selecting the clinical information that can be used either as inclusion criteria or as variables of the two ﬁnal analyses which are described in the 4th chapter. In the data preprocessing section we also classiﬁed the data as required for the analyses described in this 4th chapter.
+27
+
+Chapter 3
+PPG feature extraction
+In this chapter, the selection and calculation of PPG features is covered in the following 3 sections:
+• The ﬁrst section covers the interpretation and calculation of PPG features used to assess high arterial stiﬀness and high blood pressure. Arterial stiﬀness and blood pressure PPG features are covered in the same section due to their plausible correlation [27]. As part of the PPG features calculation, algorithms were designed to locate the dicrotic notch, diastolic peak, maximum of the ﬁrst derivative and second derivative of the PPG waves (a, b and e).
+• The second section covers PPG features used to measure pulse rate variability (PRV), an estimate of heart rate variability (HRV). HRV is a normal homeostatic mechanism, where a reduced HRV is related with a loss of autonomic functions in severe conditions, possibly in hypertensive women at risk of a complication. In this section, the typical PRV features are reviewed. The selection criteria and calculation method of the PRV features used are also covered.
+• The third section covers the blood oxygen saturation features calculation to identify gas exchange impairment, e.g. in a pre-eclampsia complication.
+The PPG features were calculated from the high-quality PPG signals selected on the 2nd chapter.
+3.1 Arterial stiﬀness/blood pressure related features
+The physiological interpretation and calculation of the arterial stiﬀness/blood pressure PPG features [11, 18, 41, 43, 60–62, 64, 67, 73, 74] are explained in this section. An average PPG feature per signal was calculated from the pulses with an SQI≥70.
+28
+
+3.1. Arterial stiﬀness/blood pressure related features
+Figure 3.1: Amplitudes of PPG characteristic parameters: as, systolic peak amplitude; an, dicrotic notch amplitude and ad, diastolic peak amplitude.
+Figure 3.2: Times of PPG characteristic parameters: ts, systolic peak time; tc, catacrotic phase time; tP P I , peak to peak interval time; td, diastolic peak time and tn, dicrotic notch time
+29
+
+3.1. Arterial stiﬀness/blood pressure related features
+
+• Augmentation index (AI):
+
+– Interpretation: A measure of the augmentation of the systolic peak by the reﬂected wave1 (diastolic peak). If the arterial stiﬀness increases, the reﬂected wave velocity increases arriving earlier/closer to the systolic peak. Therefore, the higher the arterial stiﬀness, the higher the augmentation index.
+
+– Calculation: According to equation 3.1, where AI indicates aug-
+
+mentation index; ad, diastolic peak amplitude and as, systolic
+
+peak amplitude. Each amplitude is measured from the start of
+
+the pulse.
+
+AI = ad as
+
+(3.1)
+
+• Artery stiﬀness index (ASI):
+
+– Interpretation: The higher the arterial stiﬀness, the higher the artery stiﬀness index since the time between the diastolic and systolic peak decreases.
+
+– Calculation: According to equation 3.2, where ASI indicates
+
+artery stiﬀness index; td, diastolic peak time and ts, systolic peak
+
+time.
+
+1 ASI =
+td − ts
+
+(3.2)
+
+• Dicrotic notch position:
+
+– Interpretation: The dicrotic notch is the valley between the diastolic peak and the systolic peak. So, as the diastolic peak amplitude increases and is closer to the systolic peak with a higher arterial stiﬀness, the dicrotic notch amplitude increases and is closer to the systolic peak.
+
+– Calculation: According to equation 3.3, where trn indicates dicrotic notch relative time; tn, dicrotic notch time; ts, systolic peak time; arn, dicrotic notch relative amplitude; an, dicrotic notch amplitude and as, systolic peak amplitude. Each amplitude is measured from the start of the pulse.
+
+arn
+
+=
+
+an as
+
+trn = tn − ts
+
+1Wave reﬂection origin described on subsection 1.1.1.
+
+(3.3)
+
+30
+
+3.1. Arterial stiﬀness/blood pressure related features
+
+• Anacrotic and catacrotic phase time:
+
+– Interpretation: Decreased in subjects with an increased blood pressure [55, 66].
+– Calculation: The anacrotic phase time (ts) is the time from the start of the pulse to the systolic peak and the catacrotic phase time (tc), the time from the systolic peak to the end of the pulse.
+
+• Heart rate:
+
+– Interpretation: An increased resting heart rate is associated with cardiovascular disease (CD) [22] and a predictive model of CD has been developed from heart rate recordings [47]. Also, if the anacrotic and catacrotic phase time decreases with an increased blood pressure [55], heart rate is expected to increase.
+
+– Calculation: According to equation 3.4, where HR indicates heart rate and tP P I , peak to peak time.
+
+60 HR =
+tP P I
+
+(3.4)
+
+• Skewness:
+
+– Interpretation: An increase in the arterial stiﬀness will cause an earlier arrival of the reﬂection wave, which can be interpreted as a less skewed shape of the pulse contour.
+– Calculation: Skewness formula adapted to consider the sampled pulse contour as the probability density function. According to equation 3.5, where the integral symbol indicates the trapezoidal numerical integration; t, time and a (t), amplitude per time.
+
+µ = ta (t) dt σ = E T 2 − µ2 E T 2 = t2a (t) dt
+
+E T 3 = t3a (t) dt
+
+Skewness = E
+
+X − µ 3 E T 3 − 3µσ2 − µ3
+
+= σ
+
+σ3
+
+(3.5)
+
+31
+
+3.1. Arterial stiﬀness/blood pressure related features
+
+Figure 3.3: Area based PPG features
+
+• Area under the curve:
+– Interpretation: Used to analyze pulse morphology variations. Signiﬁcant because the time-weighted area under the pulse of the pressure waveform is the mean arterial pressure (MAP) [41]. And the pressure waveform morphology is similar to the one of the PPG.
+– Calculation: The area under the pulse (A), the anacrotic (A1) and the catacrotic (A2) phase were calculated using a trapezoidal numerical integration. Each pulse was normalized in time and amplitude.
+
+• Spring constant:
+
+– Interpretation: The higher the arterial stiﬀness, the lower the spring constant. An estimation of the elasticity of the arterial wall from a model developed by Wei [71].
+– Calculation: According to equation 3.6, where k indicates spring constant; a (t), amplitude per time and D is the displacement from the equilibrium point. D is the volume diﬀerence between the location of the maximum point of the ﬁrst derivative of the PPG and the systolic peak.
+
+k
+
+=
+
+d2a(t)
+− dt2
+
+|at systolic peak
+
+D
+
+(3.6)
+
+32
+
+3.1. Arterial stiﬀness/blood pressure related features
+Figure 3.4: PPG and d2PPG with amplitudes of characteristic parameters: aa, amplitude of a; ab, amplitude of b and ae, amplitude of e wave
+33
+
+3.1. Arterial stiﬀness/blood pressure related features
+
+• Acceleration photoplethysmography ratios:
+
+– Interpretation: The higher the arterial stiﬀness, the lower the absolute value of the BA ratio [28] and EA ratio [69]. The second derivative of the PPG (d2PPG), also called acceleration PPG, is characterized by minimums and maximums in each pulse identiﬁed with the letters a, b, c, d and e [64]. In the d2PPG, a reﬂects the acceleration that will lead to the maximum increase in volume; b, the deceleration that together with a shapes the anacrotic phase and e, the acceleration that leads to the diastolic peak.
+
+– Calculation: According to equation 3.7, where BA indicates BA ratio; EA, EA ratio; aa, amplitude of a; ab, amplitude of b and ae, amplitude of e. Each amplitude was measured from 0.
+
+BA = −ab aa
+EA = ae aa
+
+(3.7)
+
+In order to calculate this arterial stiﬀness and blood pressure related features, the following PPG characteristic parameters are located ﬁrst: dicrotic notch, diastolic peak, a, b, e and D.
+
+3.1.1 a, b and D detection
+The systolic peak and start of the pulse were used to locate a, b and D2 in the designed algorithm:
+1. Locate zero of d2P P G.
+
+zero = t |d2P P G=0
+
+(3.8)
+
+2. Locate D, the maximum in the dP P G between the pulse start and the systolic peak location.
+3. Locate a, the maximum in the d2P P G between the last zero before the pulse start and D location.
+4. Locate b, the minimum in the d2P P G between D and the ﬁrst zero after the systolic peak location.
+
+2The maximum of the ﬁrst derivative of the PPG which is used to calculate D, will be referred as the D wave itself.
+
+34
+
+3.1. Arterial stiﬀness/blood pressure related features
+Figure 3.5: d2P P G with obtained a, b and e location from a PPG signal in which the dicrotic notch is 1) pronounced and 2) unpronounced
+The a, b and D detection algorithm works based on the principle that local maximum and minimum ﬁrst derivative is zero as follows:
+1. D is located as the maximum dP P G between the start of the pulse (dP P G zero) and systolic peak (dP P G zero).
+2. a is located as the maximum d2P P G between the d2P P G zero previous to D and D, which is a d2P P G zero too.
+3. b is located as the minimum d2P P G between the d2P P G zero later to D and D, which is a d2P P G zero too. 35
+
+3.1. Arterial stiﬀness/blood pressure related features
+Figure 3.6: dP P G with obtained D location from a PPG signal in which the dicrotic notch is 1) pronounced and 2) unpronounced
+36
+
+3.1. Arterial stiﬀness/blood pressure related features
+
+Figure 3.7: a, b and D detection algorithm visual representation. The input are the
+
+PPG start of the pulses and systolic peaks location. The output are the maximum
+
+of the dPPG (D) and d2PPG waves a and b location. From top to bottom the
+
+PPG, dPPG and d2PPG signal. The red circle corresponds to start of the pulse;
+
+blue circles, systolic peak; black circle, D; black asterisk, d2PPG zero; red asterisk,
+
+a and blue asterisks, b.
+
+37
+
+3.1. Arterial stiﬀness/blood pressure related features
+
+3.1.2 Dicrotic notch, diastolic peak and e detection
+The designed algorithm to detect the dicrotic notch, diastolic peak and, e wave consists of the following steps:
+
+1. Deﬁne segment (S) to be analyzed: From the systolic peak to the end of the pulse.
+
+2. Assure suﬃcient sampling frequency to locate the zero in d2S. A more accurate zero location is necessary for this algorithm because heights between zero locations will be measured. Spline interpolation is recommended after calculating derivatives and extracting S segment to increase sample frequency if necessary.
+
+3. Locate peaks and valleys of the blood volume ﬂow rate3 (dS), the zero
+
+location of d2S.
+
+zero = t |d2S=0
+
+(3.9)
+
+4. Estimate blood volume ﬂow change (C) in each wave.
+
+C = d (dS (zeros))
+
+(3.10)
+
+5. Identify wave reﬂection (W), the wave with the maximum blood volume ﬂow change (C). maxLoc indicates the location of the maximum.
+
+W = maxLoc (C)
+
+(3.11)
+
+6. W is relocated if another wave is closer to the mean dicrotic notch height and has a C value bigger than half of the maximum C.
+
+7. Locate acceleration and deceleration section of the wave reﬂection
+
+zeros = [zeros, length (S)] Acc = zeros (W ) : zeros (W + 1) Dec = zeros (W + 1) : zeros (W + 2)
+
+(3.12)
+
+8. Locate dicrotic notch, the minimum volume (S) during Acc.
+9. Locate diastolic peak, the maximum volume (S) during Dec.
+3The volume ﬂow rate is the volume of ﬂuid that is passing per unit time, which we assume to estimate with the dPPG signal.
+
+38
+
+3.1. Arterial stiﬀness/blood pressure related features
+Figure 3.8: Obtained dicrotic notch, diastolic peak and e location in a PPG signal with a dicrotic notch 1) pronounced and 2) unpronounced
+10. Locate e, the maximum acceleration (d2S) during Acc. The ability of the estimated dicrotic notch to assess changes in blood
+pressure and gestational age is tested in the next chapter against 1) the obtained e location and 2) another dicrotic notch location obtained with an algorithm described in [37], this dicrotic notch will be called the delineator dicrotic notch.
+39
+
+3.1. Arterial stiﬀness/blood pressure related features
+The theory behind the dicrotic notch, diastolic peak and e detection algorithm is explained per pulse as follows:
+1. We assumed that the wave reﬂection is present after the systolic peak and before the end of the pulse.
+2. A low sampling frequency of the PPG signal can aﬀect the preciseness of parameters location, so it is recommended to increase the sampling frequency if necessary.
+3. The local maximums and minimums of dP P G are located as the d2P P G zeros. The dP P G represents the blood volume ﬂow rate4.
+4. In each pulse, the maximum blood volume ﬂow increase is due to the heart’s blood ejection during systole. d2P P G zeros are the delimiters chosen to calculate the blood volume ﬂow increase and decrease per dP P G wave.
+5. In the selected PPG segment, after the systolic peak and before the end of the pulse, we assumed that the maximum blood volume ﬂow increase is due to the wave reﬂection. We also assumed that the wave reﬂection is delimited by its dP P G valleys (the lower blood volume ﬂow before and after the wave reﬂection).
+6. The obtained wave reﬂection location is veriﬁed by comparing it with the previously wave reﬂections location in the PPG signal.
+7. We deﬁned the acceleration section of the wave reﬂection as the positive d2P P G section and the decceleration section as the negative d2P P G section.
+8. We assumed the dicrotic notch is the minimum blood volume in the acceleration section.
+9. We assumed the diastolic peak is the maximum blood volume in the decceleration section. If the dicrotic notch and diastolic peak are not local maximum and minimum, this results in a dicrotic notch and diastolic peak shared location.
+10. We assumed the e locations is the maximum d2P P G in the acceleration section. e is located under this deﬁnition even if c and d waves are not apparently found as local maximum and minimum.
+4The volume ﬂow rate is the volume of ﬂuid that is passing per unit time, which we assume to be estimated with the dPPG signal.
+40
+
+3.1. Arterial stiﬀness/blood pressure related features
+Figure 3.9: Dicrotic notch, diastolic peak and e detection algorithm visual representation from step 1 to 5. The input are the PPG start of the pulses and systolic peaks location. The output from the ﬁrst 5 steps is the location of the maximum dPPG increase after the systolic peak. From top to bottom the PPG, dPPG and d2PPG signal. The transparent black box is used to focus in the PPG segment from the systolic peak to the end of the pulse. The black asterisk indicates d2P P G zero and the red box indicates the maximum blood volume ﬂow increase whi4ch1 corresponds to the wave reﬂection.
+
+3.1. Arterial stiﬀness/blood pressure related features
+Figure 3.10: Dicrotic notch, diastolic peak and e detection algorithm visual representation from step 6 to 10. The input is the location of the maximum dPPG increase after the systolic peak. The output from the last 5 steps are the dicrotic notch, diastolic peak and d2PPG wave e location. From top to bottom the PPG, dPPG and d2PPG signal. From top to bottom the PPG, dPPG and d2PPG signal. The transparent black box is used to focus in the PPG segment from the systolic peak to the end of the pulse. The red arrow represents the acceleration section of the wave reﬂection while the blue arrow the decceleration. The black asterisk indicates d2P P G zero; red asterisk, e and blue circle, the diastolic peak and dicrot4i2c notch sharing the same location in this case.
+
+3.2. Pulse rate variability (PRV) related features
+
+3.2 Pulse rate variability (PRV) related features
+PRV features were analyzed due to its relationship with heart rate variability (HRV) [38, 57]. HRV is a healthy homeostatic mechanism of the human body [40, 59] and a decrease of the HRV is correlated with severe conditions [6, 12, 13, 23, 38, 40, 44, 46, 54]. Pre-eclampsia related complications are severe conditions that might be correlated with a decrease of PRV [20, 46]. In this section, PRV features selection and calculation5 is explained:
+
+3.2.1 Time domain
+
+The time domain PRV features are classiﬁed by its calculation method [10, 31, 38] as follows:
+• Geometric indices, discarded:
+
+– PRV triangular index; TIPP, triangular interpolation of the histogram of the PP intervals; diﬀerential index; logarithmic index; etc. Considered robust to artifacts but at least 20 minutes of PPG signal is used. If obtained PPG signals >20 minutes long, these features were calculated.
+– Poincare plots: SD1 and SD2. It has been proven that existing PRV features already specify the information provided [9, 26].
+
+• Nonlinear methods, discarded:
+
+– Fano factor; wavelet variance estimation; allan factor; Fractal measures (e.g. power-law correlation, detrended ﬂuctuation analysis, multifractal analysis); entropy measures (e.g. approximate entropy, sample entropy, compression entropy); complex correlation measure (CCM); etc. If the physiological interpretation were already discovered, these features were calculated.
+
+• Statistical indices, only SDPP and RMSSD selected:
+
+– SDPP, standard deviation of peak to peak (PP) time (tP P I ). Represents all components of variability.
+– RMSSD, the root mean square successive diﬀerences. Represents single pulse variability.
+
+RM SSD = E dtP P I 2
+
+(3.13)
+
+5Selected PRV features (SDPP, RMSSD, and HF) were calculated from the tP P I of the systolic peak and b peak for comparison in next chapter.
+
+43
+
+3.2. Pulse rate variability (PRV) related features
+
+– SDSD, standard deviation of succesive diﬀerences. Discarded because if the initial heart rate is not signiﬁcantly diﬀerent from ﬁnal heart rate in the recording, then SDSD ≈ RMSSD.
+
+SDSD = E dtP P I 2 − E (dtP P I )2
+
+(3.14)
+
+– SDAPP, standard deviation of the averages of PP intervals in 5minute segments; SDPP index, mean of the standard deviations of all PP intervals of 5-minute segments. If obtained PPG signals >15 minute long, these features were calculated.
+– PP50 and pPP50, number and percentage of succesive diﬀerences >50 ms in the entire recording. Highly correlated with RMSSD, RMSSD is preferred.
+For the time domain PRV features calculation, only pulses with an SQI>50 were analyzed.
+
+3.2.2 Frequency domain
+In the frequency domain PRV features, the power spectral density of peak to peak time (tP P I ) is analyzed. Power spectral density was calculated with the Lomb-Scargle periodogram, speciﬁcally designed for unevenly sampled signals, as shown in Figure 3.11. The power spectral density of deﬁned frequency ranges [10, 38] is analyzed for PRV:
+• ULF, ultralow frequency - 0.0001 to 0.003 Hz
+• VLF, very low frequency - 0.003 to 0.04 Hz
+• LF, low frequency - 0.04 to 0.15 Hz
+• HF, high frequency - 0.15 to 0.4 Hz.
+• LF normalized, LF/(LF+HF)
+• HF normalized, HF/(LF+HF)
+• LF/HF ratio
+To analyze each range, the PPG signal length must be at least 10 times the wavelength of the lower frequency bound. Therefore, to calculate HF, LF, VLF, and ULF a signal with a length of 1, 4, 55 and 1,666 minutes is required, respectively.
+
+44
+
+3.3. Blood oxygen saturation (SpO2) related features
+Figure 3.11: In the top, pulse rate variability (PRV) as peak to peak interval over time. In the bottom, power of PRV per frequency
+We selected PPG signals with ≥ 57 seconds of continuous SQI>50 considering that 1-minute length should be continuous for HF calculation. As a ﬁnal requirement, a minimum heart rate of 48 bpm was set to satisfy the Nyquist sampling criterion in the higher frequency bound of HF. From the PPG signals selected according to the criteria described in the 2nd chapter, 47.81% met the requirements for HF calculation.
+3.3 Blood oxygen saturation (SpO2) related features
+If the gas exchange is impaired as part of a pre-eclampsia complication, SpO2 related features might allow us to identify the gas exchane impairment [51]. The following features were calculated from the SpO2 signal:
+• Mean of SpO2 • Standard deviation of SpO2 • Delta, the diﬀerence between the maximum and minimum SpO2 • Tb98, the percentage of time with a SpO2 below 98. • Tb96, the percentage of time with a SpO2 below 96. • Tb94, the percentage of time with a SpO2 below 94.
+45
+
+3.4. Conclusion
+3.4 Conclusion
+We focused in this 3rd chapter on describing the selection and calculation of PPG features. The PPG features are described in 3 sections:
+• Arterial stifness/blood pressure related PPG features. We explain the calculation of these PPG features using the location of PPG characteristic parameters and include the desgined algorithms to locate these PPG characteristic parameters: dicrotic nothc, diastolic peak, maximum of the PPG ﬁrst derivative and PPG second derivative waves (a, b and e).
+• Pulse rate variability (PRV) related PPG features. We explain the calculation of these PPG features using the systolic peak locations. We included rationale about why some commonly used PPG features were discarded in the analysis.
+• Blood oxygen saturation (SpO2) related PPG features. We explain the calculation of these PPG features from the SpO2 signal.
+The objective of the PPG features calculation is to measure changes in the PPG signal that are dependent on gestational age and blood pressure in the 4th chapter as part of the two ﬁnal analyses.
+46
+
+Chapter 4
+Blood pressure and gestational age dependent PPG changes
+In this chapter, the changes of PPG morphology during pregnancy for the states of normotension, prehypertension and hypertension are analyzed:
+• In the ﬁrst section, an average pulse per month of gestation is calculated from normotensive pregnant women. The objective of this visual representation is to facilitate the understanding of how normal cardiovascular changes during pregnancy could aﬀect the PPG morphology. The obtained visual representation can be used to estimate the direction of the changes of unlimited PPG morphology features during pregnancy. This visual representation clearly shows an evolution of the PPG morphology throughout pregnancy but it provides limited information of other sources of variation of the PPG morphology. As it is explained in section 1.1.2, many factors aﬀect the PPG morphology so the gestational age is only one of them and this should be understood as a limitation.
+• In the second section, the eﬀect of gestational age, blood pressure status and the interaction between them for each PPG feature is estimated. The objective is: 1) to assess if the gestational age changes of the PPG diﬀer between a pregnant women who is normotensive, prehypertensive or hypertensive; and 2) to compare the eﬀect of hypertension and gestational age. This analysis and its interpretation is limited by the assumption of linear changes and the relatively small number of hypertensive pregnant women in the ﬁrst trimester.
+47
+
+4.1. Average pulse per month of gestational age
+4.1 Average pulse per month of gestational age
+The maternal cardiovascular system has to evolve during pregnancy so changes in hemodynamic parameters such as heart rate, stroke volume, and blood pressure have been observed [42]. If heart rate and blood pressure change, the PPG morphology is expected to change as well [44, 45, 54]. However, limited information about the PPG morphology changes through pregnancy is available [25, 62, 72]. The identiﬁcation of normal PPG changes during pregnancy is a step forward to identify abnormal changes and understand them.
+For calculating the average pulse per month (APM) of gestational age, 5,072 PPG signals from normotensive subjects were used (see table 4.1). The obtained APM is shown in Figures 4.1 and 4.2. For calculating the APM we used the following procedure:
+1. Interpolate 500 samples per pulse with a cubic spline.
+2. Normalize in time and amplitude each pulse.
+3. Calculate the average pulse per signal (APS), the average of the pulses with an SQI≥ 70 of each signal.
+4. Calculate the average pulse per month (APM), the average of the APS that belong to each month of gestation.
+From the obtained APM, PPG morphology changes can be implied. The observed changes could be caused by normal changes of the cardiovascular system during pregnancy [42] such as the following ones:
+• The increase of heart rate from the ﬁrst to third trimester might explain the decrease of the dicrotic notch and diastolic peak amplitude [45] from month 2 to month 8 in Figure 4.1.
+• The increase of systolic blood pressure and slight decrease of heart rate in term could explain the increase of the dicrotic notch and diastolic peak amplitude [35, 45] from month 8 to month 10 in Figure 4.2.
+4.2 Gestational age dependent PPG features
+In this section, the eﬀect of gestational age, blood pressure status and the interaction between them for each PPG feature is estimated with a linear regression model. The eﬀect estimation is limited by the assumption of linear
+48
+
+4.2. Gestational age dependent PPG features
+Figure 4.1: Gestational age dependent PPG morphology changes (Month 2 to 8)
+Figure 4.2: Gestational age dependent PPG morphology changes (Month 8 to 10) 49
+
+4.2. Gestational age dependent PPG features
+changes and relatively small sample size of hypertensive pregnant women in the ﬁrst trimester, which should be considered in the interpretation. The linear regression model has the form of equation 4.1, where Y indicates the estimated PPG feature value; G, gestational age in months; P , dummy variable which indicates prehypertension; H, dummy variable which indicates hypertension; x0, PPG feature value in the normotensive group at 2 months of pregnancy; x1, monthly increment of the PPG feature value in the normotensive group; x2, increment of PPG feature value at 2 months of pregnancy if prehypertensive; x3, additional monthly increment of the PPG feature value if prehypertensive; x4, increment of PPG feature value at 2 months of pregnancy if hypertensive and x5, additional monthly increment of the PPG feature value if hypertensive.
+
+Y = x0 + x1G + x2P + x3GP + x4H + x5GH Ynormotensive = x0 + x1G
+Yprehypertensive = x0 + x2 + (x1 + x3) G Yhypertensive = x0 + x4 + (x1 + x5) G
+
+(4.1)
+
+In the linear regression model it was assumed independent observations because in most of the pregnancies only 1 PPG signal was recorded. Also, we proved that the linear mixed eﬀect model results were similar to the results of the linear regression model in this case. The sample used to ﬁt the models is described in table 4.2. The selected sample is composed of the clinical data collected in hypertensive, prehypertensive and normotensive visits6 of Mozambique and Pakistan.
+The eﬀect of gestational age, blood pressure and the interaction between them in the PPG signal is analyzed through each of the extracted PPG features. Each subsection describes the analysis and interpretation of a group of PPG features.
+
+6Clinical data classiﬁcation by the blood pressure range of the visit described on section 2.2.2
+
+Gestational age (Mo.) 2 3 4 5 6 7 8 9 10 No. of PPG signals 73 413 726 984 913 801 725 394 43
+Table 4.1: No. of PPG signals obtained from normotensive women in Pakistan per month (30 days)
+50
+
+4.2. Gestational age dependent PPG features
+
+Mo. Normotensive (9441) Prehypertensive (1545) Hypertensive (426)
+
+1
+
+1
+
+0
+
+0
+
+2
+
+112
+
+29
+
+3
+
+3
+
+633
+
+105
+
+11
+
+4
+
+1212
+
+195
+
+18
+
+5
+
+1706
+
+213
+
+20
+
+6
+
+1836
+
+271
+
+36
+
+7
+
+1636
+
+255
+
+64
+
+8
+
+1313
+
+235
+
+96
+
+9
+
+796
+
+199
+
+139
+
+10
+
+172
+
+41
+
+38
+
+11
+
+6
+
+2
+
+1
+
+Table 4.2: No. of PPG signals obtained from normotensive, prehypertensive and hypertensive visits in Pakistan and Mozambique combined per month (30 days)
+
+4.2.1 Heart rate, anacrotic and catacrotic phase times
+The time-related PPG features of heart rate, anacrotic phase time and catacrotic phase time are interpreted together due to their association (where the inverse of the heart rate is the average pulse time and the pulse time is the anacrotic phase time plus the catacrotic phase time).
+Heart rate results are shown in table 4.3 and Figure 4.3. At month 2 of gestation, the hypertension group is associated with an increased heart rate compared to the normotensive. This result is expected because this relation has been found between non-pregnant hypertensive and normotensive subjects [22, 55]. Surprisingly, the opposite eﬀect is found after month 7 of gestation where hypertension is associated with a decreased heart rate compared to normotension. This eﬀect was also tested in groups: 1st, 2nd, 3rd trimester and term with similar trends for each blood pressure group. The decreased heart rate in hypertension is specially interesting since in normotensive pregnant women heart rate usually increases until the third trimester to be able to provide more blood to the growing fetus only decreasing slightly at term when there is an increase in stroke volume [42]. I would suggest that after month 7 of gestation, hypertension leads to a decreased heart rate as a mechanism to try to lower blood pressure.
+The anacrotic phase time is increased in the hypertension group as com-
+51
+
+4.2. Gestational age dependent PPG features
+
+Figure 4.3: Heart rate, gestational age and blood pressure group. Dashed line indicates the interquartile range and the solid line, the linear regression model.
+
+Table 4.3: Heart rate, anacrotic and catacrotic phase time variations due to gestational age and blood pressure status: regression model results
+
+Normotensive Prehypertensive Hypertensive pr
+
+(reference)
+
+diﬀerence
+
+diﬀerence
+
+Heart rate (bpm)
+
+M2 91.48 ± 0.28§ 5.99 ± 0.73§ MI 0.12 ± 0.07∗ -0.96 ± 0.17§
+
+7.70 ± 1.8§ § 0.1
+-1.78 ± 0.34§
+
+Anacrotic phase time (ms)
+
+M2 140 ± 0.7§ MI -0.5 ± 0.2‡
+
+4 ± 1.8† 0.9 ± 0.4†
+
+22 ± 4.6§ 3.2 ± 0.9§
+
+§ 0.24
+
+Catacrotic phase time (ms)
+
+M2 525 ± 1.9§ MI -0.2 ± 0.5
+
+-47 ± 4.8§ 6.7 ± 1.1§
+
+-69 ± 12.2§ 9.5 ± 2.2§
+
+§ 0.12
+
+M2 indicates estimate at month 2 of gestation and MI, estimated monthly increment. The model regression coeﬁcients are described as mean ± standard deviation. Normotensive visits are used as reference values. Prehypertensive and hypertensive visits are described with the diﬀerence from the normotensive reference value. P-values of regression coeﬃcients were calculated from a t-test (two-sided) and p-value of the model was calculated from a F-test. No correction for multiple comparisons was done. § p < 0.0001, ‡ p < 0.001, † p < 0.01, ∗ p < 0.05
+
+52
+
+4.2. Gestational age dependent PPG features
+Figure 4.4: Anacrotic phase time, gestational age and blood pressure group. Dashed line indicates the interquartile range and the solid line, the linear regression model.
+pared to normotension, regardless of the gestational age, as shown in table 4.3 and Figure 4.4. Surprisingly, the opposite eﬀect was expected since a decrease in the anacrotic phase time has been described as an indicator of increased blood pressure in non-pregnant subjects [55, 66]. The anacrotic phase time is increased in hypertension even at the gestational age in which the heart rate is increased. This result suggests that the eﬀect of hypertension in the ﬁnger PPG during pregnancy is diﬀerent than in non-pregnant subjects.
+On the other hand, the catacrotic phase time changes mostly represent the observed heart rate changes as shown in table 4.3. At month 2 of gestation, hypertension is associated with a decreased catacrotic phase time compared to normotension. This it the expected result because this relation has been found between non-pregnant hypertensive and non-pregnant normotensive subjects [55, 66]. However, after month 7 of gestation the relation with hypertension is shifted to an increased catacrotic phase time compared to normotension. So, it follows the same patterns as heart rate. Based on these results I suggest that during pregnancy the catacrotic phase time is more aﬀected by heart rate while the anacrotic phase time is more aﬀected by blood pressure.
+53
+
+4.2. Gestational age dependent PPG features
+
+4.2.2 Pulse rate variability
+Pulse rate variability (PRV) was calculated to estimate heart rate variability (HRV). HRV is a measure of the autonomic function and a decrease of HRV is associated with severe conditions [6, 12, 23, 38, 40, 46]. PRV was measured with: SDPP, which indicates standard deviation of peak to peak time; RMSSD, root mean square of the successive diﬀerences between the peak to peak times and HF, power spectral density of high frequency (0.15 to 0.4 Hz) variability of peak to peak times.
+PRV features were calculated from 1) the time between systolic peaks as it is originally done and 2) from the time between the b waves of the second derivative of the PPG signal. It has been described that HRV can also be estimated from the second derivative of the PPG [19, 29, 63], so it was included to compare it with the original PRV in diﬀerent blood pressure status and gestational ages.
+Table 4.4: Pulse rate variations (systolic peak) due to gestational age and blood pressure status: regression model results
+
+Normotensive Prehypertensive Hypertensive
+
+p
+
+r
+
+(reference)
+
+diﬀerence
+
+diﬀerence
+
+SDPP (ms)
+
+M2 38 ± 0.5§ MI -0.3 ± 0.1‡
+
+-3 ± 1.2† 0.7 ± 0.3‡
+
+-2 ± 3.0
+
+∗
+
+0.03
+
+0.5 ± 0.5
+
+RMSSD (ms)
+
+M2 37 ± 0.6§ MI -0.7 ± 0.1§
+
+-3 ± 1.5 1.1 ± 0.4
+
+-3 ± 3.8
+
+§
+
+0.05
+
+1.3 ± 0.7‡
+
+HF ms2
+
+M2 402 ± 23§ MI -1 ± 6
+
+-96 ± 68 25 ± 30
+
+-173 ± 167 14 ± 16
+
+0.55 0.03
+
+M2 indicates estimate at month 2 of gestation and MI, estimated monthly increment. The model regression coeﬁcients are described as mean ± standard deviation. Normotensive visits are used as reference values. Prehypertensive and hypertensive visits are described with the diﬀerence from the normotensive reference value. P-values of regression coeﬃcients were calculated from a t-test (two-sided) and p-value of the model was calculated from a F-test. No correction for multiple comparisons was done. § p < 0.0001, ‡ p < 0.001, † p < 0.01, ∗ p < 0.05
+
+PRV obtained from the systolic peak does not show any speciﬁc trend between diﬀerent blood pressure groups as shown in table 4.4. This result is consistent with other studies which compare the heart rate variability between hypertension and normotension, in pregnant and non-pregnant
+
+54
+
+4.2. Gestational age dependent PPG features
+
+Table 4.5: Pulse rate variations (b wave) due to gestational age and blood pressure status: regression model results
+
+Normotensive Prehypertensive Hypertensive
+
+p
+
+r
+
+(reference)
+
+diﬀerence
+
+diﬀerence
+
+SDPPb (ms)
+
+M2 38 ± 0.5‡ MI -0.3 ± 0.1‡
+
+-1 ± 1.3 0.5 ± 0.3
+
+4 ± 3.2
+
+§
+
+0.08
+
+0.9 ± 0.6
+
+M2 37 ± 0.6§ RMSSDb (ms)
+MI -0.7 ± 0.2§
+
+-1 ± 1.7 0.9 ± 0.4†
+
+10 ± 4.2†
+
+§
+
+0.15
+
+2.2 ± 0.8‡
+
+HFb ms2
+
+M2 423 ± 24§ MI -1 ± 6
+
+-75 ± 70 12 ± 31
+
+-23 ± 172 14 ± 16
+
+0.32 0.03
+
+M2 indicates estimate at month 2 of gestation and MI, estimated monthly increment. The model regression coeﬁcients are described as mean ± standard deviation. Normotensive visits are used as reference values. Prehypertensive and hypertensive visits are described with the diﬀerence from the normotensive reference value. P-values of regression coeﬃcients were calculated from a t-test (two-sided) and p-value of the model was calculated from a F-test. No correction for multiple comparisons was done. § p < 0.0001, ‡ p < 0.001, † p < 0.01, ∗ p < 0.05
+
+subjects [21, 39]. However, PRV from the systolic peak in normotensive pregnant women is slightly decreased throughout pregnancy. I would suggest that the decrease may be caused by the heart rate increment [44, 54] rather than a decreased functionality of the autonomic system in this case.
+PRV obtained from the b wave, speciﬁcally SDPPb and RMSSDb, is increased during hypertension compared to normotension as shown in table 4.5 and Figure 4.5. This increase has been observed in blood pressure variability (BPV) in pregnant and non-pregnant hypertensive subjects rather than in heart rate variability [21, 39]. The existence of a diﬀerence in BPV between hypertension and normotension is conﬁrmed with the diﬀerences in the autonomic control of blood pressure described between hypertensive and normotensive pregnant women [7, 17]. Considering the PPG signal is aﬀected by blood pressure changes, the PRV obtained from the PPG second derivative might be a measure which includes BPV and HRV eﬀect.
+4.2.3 Acceleration PPG
+We analyzed the eﬀect of blood pressure and gestational age in the BA and EA ratios, b and e wave amplitude divided by a wave amplitude of the PPG
+
+55
+
+4.2. Gestational age dependent PPG features
+Figure 4.5: RMSSD from b, gestational age and blood pressure group. Dashed line indicates the interquartile range and the solid line, the linear regression model.
+second derivative, also called acceleration PPG. A decrease on the absolute value of EA and BA ratio has been described during hypertension and increased arterial stiﬀness [28, 53, 64, 69], so the results will be interpreted under this assumption.
+The absolute value of the BA ratio (|BA|) is decreased in hypertension compared to normotension in pregnant women as shown in table 4.6. This result is consistent with the expected relation between hypertension and normotension. The relation in |BA| between being hypertensive and normotensive apparently becomes more evident as gestational age increases, which might be caused by the higher blood pressure values in each group as gestational age increases. As with other PPG features, all the variations in the BA ratio can not be explained by the gestational age and blood pressure status alone.
+The EA ratio (EA) is increased in hypertensive pregnant women as shown in table 4.6 and Figure 4.6. Surprisingly, the opposite relation was expected: a decrease in hypertension compared to normotension. The reasons that lead to the opposite eﬀect in EA during pregnancy are unknown. The diﬀerence in EA between being hypertensive and normotensive also becomes more evident as gestational age increases.
+56
+
+4.2. Gestational age dependent PPG features
+
+Figure 4.6: EA ratio, gestational age and blood pressure group. Dashed line indicates the interquartile range and the solid line, the linear regression model.
+
+Table 4.6: |BA| and EA ratio variations due to gestational age and blood pressure status: regression model results
+
+Normotensive Prehypertensive Hypertensive pr
+
+(reference)
+
+diﬀerence
+
+diﬀerence
+
+|BA| ratio (%)
+
+M2 88 ± 0.26§ MI 0.51 ± 0.06§
+
+-1 ± 0.68† -0.04 ± 0.16
+
+-5 ± 1.72‡ § 0.17
+-8.8 ± 0.31‡
+
+EA ratio (%)
+
+M2 20.9 ± 0.16§ MI 0.35 ± 0.04 §
+
+1.3 ± 0.42‡ 0.04 ± 0.10
+
+5.0 ± 1.06§ 5.8 ± 0.19‡
+
+§ 0.25
+
+M2 indicates estimate at month 2 of gestation and MI, estimated monthly increment. The model regression coeﬁcients are described as mean ± standard deviation. Normotensive visits are used as reference values. Prehypertensive and hypertensive visits are described with the diﬀerence from the normotensive reference value. P-values of regression coeﬃcients were calculated from a t-test (two-sided) and p-value of the model was calculated from a F-test. No correction for multiple comparisons was done. § p < 0.0001, ‡ p < 0.001, † p < 0.01, ∗ p < 0.05
+
+57
+
+4.2. Gestational age dependent PPG features
+In the case of both PPG features, the diﬀerences are apparently observable from the ﬁrst trimester of pregnancy when hypertension should correspond mostly to women who are hypertensive before becoming pregnant. So, I would suggest that these PPG features relations might be present in pregnancy independently of the hypertension category and gestational age at which hypertension is detected.
+4.2.4 Skewness, spring constant, dicrotic notch and diastolic peak position
+Skewness, spring constant, dicrotic notch and diastolic peak position are all blood pressure related PPG features. An increase in blood pressure lead to an earlier and higher dicrotic notch and diastolic peak [48, 60, 61, 74] while decreasing the skewness and spring constant. In this subsection, the diastolic peak height is the augmentation index and the diastolic peak time is the inverse of the arterial stiﬀness index (ASI).
+According to the table 4.7 and Figure 4.7, the dicrotic notch and diastolic peak times are shorter in hypertension compared to normotension regardless of the gestational age. The result is consistent with the theory that a higher blood pressure will lead to an increased wave reﬂection velocity causing it to be detected earlier and closer to the systolic peak.
+Regarding the dicrotic notch and diastolic peak height, the relation between hypertension and normotension is not very clear. Both heights are represented as a percentage of the systolic peak height which might have affected the result. However, both heights tend to decrement in normotension as gestational age increases as shown in table 4.7. More speciﬁcally according to Figures 4.1 and 4.2, both decrease until month 8 in normotension.
+As mentioned in the subsection 3.1.2, the dicrotic notch position was calculated with the proposed algorithm, the delineator algorithm [37] and as the e wave location for comparison. No diﬀerence in the correlation, p-value and direction of the linear models were found regardless of the different estimates obtained for each model. Whether one of the dicrotic notch detection algorithms is slightly better for an speciﬁc porpuse as detecting blood pressure changes could be tested in a future study with a sensitivity analysis as sobol indices.
+In the case of the skewness and spring constant, a decrease in hypertension compared to normotension in pregnant women as expected is shown in table 4.7. The decreased skewness and spring constant in the hypertensive group compared to the normotensive group are apparently present regardless of the gestational age.
+58
+
+4.2. Gestational age dependent PPG features
+
+Table 4.7: Skewness, spring constant, dicrotic notch and diastolic peak position variations due to gestational age and blood pressure status: regression model results.
+
+Normotensive (reference)
+
+Prehypertensive Hypertensive
+
+diﬀerence
+
+diﬀerence
+
+pr
+
+Arterial Stiﬀness Index s−1
+
+M2 4.67 ± 0.03§ MI -0.03 ± 0.006§
+
+0.22 ± 0.06§ 0.03 ± 0.015∗
+
+0.61 ± 0.16§ 0.11 ± 0.030§
+
+§ 0.22
+
+Dicrotic notch time (ms)
+
+M2 193 ± 0.84§ MI 0.19 ± 0.21
+
+-3 ± 2.19 -1.11 ± 0.51†
+
+-15 ± 5.57‡ -2.60 ± 1.02†
+
+§ 0.16
+
+Augmentation Index (%)
+
+M2 61.6 ± 0.3§ MI -0.7 ± 0.07§
+
+-2.4 ± 0.7§ 0.9 ± 0.16§
+
+-2.4 ± 1.8 1.2 ± 0.32§
+
+§ 0.11
+
+Dicrotic notch height (%)
+
+M2 58.3 ± 0.29§ MI -0.8 ± 0.07§
+
+-2.1 ± 0.77‡ 1.0 ± 0.18§
+
+-2.5 ± 1.9 1.5 ± 0.36§
+
+§ 0.13
+
+Skewness
+
+M2 0.910 ± 0.004§ -0.020 ± 0.011∗ -0.055 ± 0.027† § 0.17
+MI 0.014 ± 0.001§ -0.007 ± 0.003‡ -0.003 ± 0.005
+
+Spring constant (%)
+
+M2 0.860 ± 0.010§ -0.024 ± 0.025 MI 0.015 ± 0.002§ -0.009 ± 0.006
+
+-0.089 ± 0.063 § 0.15
+-0.043 ± 0.011§
+
+M2 indicates estimate at month 2 of gestation and MI, estimated monthly increment. The model regression coeﬁcients are described as mean ± standard deviation. Normotensive visits are used as reference values. Prehypertensive and hypertensive visits are described with the diﬀerence from the normotensive reference value. P-values of regression coeﬃcients were calculated from a t-test (two-sided) and p-value of the model was calculated from a F-test. No correction for multiple comparisons was done. § p < 0.0001, ‡ p < 0.001, † p < 0.01, ∗ p < 0.05
+
+59
+
+4.2. Gestational age dependent PPG features
+Figure 4.7: ASI, gestational age and blood pressure group. Dashed line indicates the interquartile range and the solid line, the linear regression model.
+4.2.5 Area under the curve
+The area under the curve refers to three measures: the area under the pulse, the area under the anacrotic phase and the area under the catacrotic phase. The maximum of each measure is 100% and the minimum is 0% because each section was normalized before calculating the area under the curve.
+According to table 4.9 and Figures 4.1 and 4.2, the three features decrease as gestational age increases in normotensive pregnant women. The areas under the anacrotic phase and the catacrotic phase are calculated with normalized time. When a given phase’s time decreases, the calculated areas decrease too. The area under the pulse and the anacrotic phase are apparently more aﬀected by blood pressure than by heart rate.
+If the changes in the area under the curve of the PPG could be extrapolated to the arterial pressure waveform, then it can potentially become a signiﬁcant PPG feature. The reason is that the eﬀect of hypertension, gestational age or other factors measured in the PPG area under the curve could be used for a more accurate non-invasive estimation of the mean arterial pressure [4].
+60
+
+4.3. Conclusion
+
+Table 4.8: SpO2 related features variations due to gestational age and blood pressure status: regression model results.
+
+Normotensive Prehypertensive Hypertensive pr
+
+(reference)
+
+diﬀerence
+
+diﬀerence
+
+Mean SpO2 (%)
+
+M2 98.58 ± 0.03§ -0.12 ± 0.07∗ MI 0.01 ± 0.01 0.01 ± 0.02
+
+-0.52 ± 0.18‡ ‡ 0.04
+0.10 ± 0.03‡
+
+SD SpO2 (%)
+
+M2 0.83 ± 0.03§ MI -0.03 ± 0.01§
+
+0.02 ± 0.08 0.02 ± 0.02
+
+0.51 ± 0.20‡ § 0.06
+-0.10 ± 0.04‡
+
+Time below 98% of SpO2 (s)
+
+M2 4.50 ± 0.19§ MI -0.24 ± 0.05§
+
+0.86 ± 0.50∗ 0.01 ± 0.12
+
+4.54 ± 1.26§ § 0.08
+-0.82 ± 0.23§
+
+Time below 96% of SpO2 (s)
+
+M2 2.19 ± 0.13§ MI -0.09 ± 0.03‡
+
+0.57 ± 0.33∗ -0.02 ± 0.08
+
+2.83 ± 0.83§ § 0.06
+-0.50 ± 0.15§
+
+M2 indicates estimate at month 2 of gestation and MI, estimated monthly increment. The model regression coeﬁcients are described as mean ± standard deviation. Normotensive visits are used as reference values. Prehypertensive and hypertensive visits are described with the diﬀerence from the normotensive reference value. P-values of regression coeﬃcients were calculated from a t-test (two-sided) and p-value of the model was calculated from a F-test. No correction for multiple comparisons was done. § p < 0.0001, ‡ p < 0.001, † p < 0.01, ∗ p < 0.05
+
+4.2.6 SpO2 related features
+For the calculated SpO2 related features no apparent eﬀect of gestational age, hypertension or the interaction was found.
+
+4.3 Conclusion
+We focused this 4th chapter in analyzing the eﬀect of gestational age and blood pressure on the PPG signal. Completing the two ﬁnal objectives of the thesis:
+• Assessing the eﬀect of gestational age in the PPG signal in normotensive women in the 1st section. Speciﬁcally, creating a visual representation of the PPG morphology throughout pregnancy. This visual representation is calculated as the average pulse per month of gestational age in normotensive pregnant women using 5,072 PPG signals. We have shown how normal cardiovascular changes during pregnancy can
+61
+
+4.3. Conclusion
+
+Table 4.9: Area under the curve variations due to gestational age and blood pressure status: regression model results.
+
+Normotensive Prehypertensive Hypertensive pr
+
+(reference)
+
+diﬀerence
+
+diﬀerence
+
+Area under the pulse (%)
+Area under the anacrotic phase
+(%)
+Area under the catacrotic phase
+(%)
+
+M2 53.30 ± 0.10§ 0.11 ± 0.27 MI -0.37 ± 0.03§ 0.23 ± 0.06§ M2 52.24 ± 0.10§ 0.72 ± 0.25‡ MI -0.16 ± 0.02§ 0.14 ± 0.06† M2 41.73 ± 0.10§ -1.14 ± 0.26§ MI -0.30 ± 0.03§ 0.25 ± 0.06§
+
+0.35 ± 0.68 0.15 ± 0.12
+
+§ 0.15
+
+2.48 ± 0.64§ § 0.22
+0.42 ± 0.12§
+
+-3.0 ± 0.66§ 0.06 ± 0.12
+
+§ 0.18
+
+M2 indicates estimate at month 2 of gestation and MI, estimated monthly increment. The model regression coeﬁcients are described as mean ± standard deviation. Normotensive visits are used as reference values. Prehypertensive and hypertensive visits are described with the diﬀerence from the normotensive reference value. P-values of regression coeﬃcients were calculated from a t-test (two-sided) and p-value of the model was calculated from a F-test. No correction for multiple comparisons was done. § p < 0.0001, ‡ p < 0.001, † p < 0.01, ∗ p < 0.05
+
+induce changes in the PPG morphology. The obtained visual representation can be ideally used to estimate the direction of the changes during pregnancy of unlimited PPG morphology features. The obtained visual representation clearly shows an evolution of the PPG morphology through pregnancy, but it must be understood that it has the limitation of underestimating other common sources of variation of the PPG morphology.
+• Assessing the eﬀect of gestational age, blood pressure and the interaction between them in the PPG signal in the 2nd section. Speciﬁcally, measuring this eﬀect in the PPG features extracted in the 3rd chapter. The measured eﬀect of the interaction between the blood pressure status and the gestational age in the PPG features provides an insight of how cardiovascular changes during pregnancy might diﬀer between hypertensive, prehypertensive and normotensive women. For example, a decrease in the expected heart rate through pregnancy when hypertensive, rather than an increase as when the pregnant women is normotensive. The obtained results suggests that the expected cardiovascular changes during pregnancy when normotensive do not nec-
+
+62
+
+4.3. Conclusion essarily apply when hypertensive. Another ﬁnding from this analysis is that the expected relation of the PPG features with blood pressure found in non-pregnant subjects do not necessarily apply to pregnant women. From the 2nd section results, it is plausible that the visual representation of the PPG morphology through pregnancy obtained from normotensive women in the 1st section does not apply to hypertensive or prehypertensive women. Also from these obtained results, we recommend that PPG models to detect hypertension should consider gestational age as a variable and for the training sample and in the case that the PPG model is developed from a sample of non-pregnant subjects, then it should be tested in pregnant women at diﬀerent gestational ages before using the estimates provided.
+63
+
+Chapter 5
+Conclusion
+In this chapter the objectives, contributions and limitations of this thesis are explored. It also includes a future work section emphasized towards the development of a PPG model for the detection of hypertension in pregnancy.
+5.1 Objectives, contributions and limitations
+This thesis aimed to increase the understanding of the eﬀect of gestational age on the PPG signal and its plausible impact in the development of PPG models to detect hypertension in pregnancy. We intented to achieve this general objective by ﬁrst meting a series of short term objectives through the chapters of this thesis. The resulting contributions and limitations are described from the initial to the ﬁnal objective as follows:
+5.1.1 Pulse segmentation: peaks and valleys location
+The objective of segmenting the PPG signal into pulses allows the analysis of each cardiac cycle eﬀect and is a necessary step for PPG features extraction and SQI implementation. Towards this objective, an algorithm for pulse segmentation was developed implementing concepts from Karlen’s algorithm [30]. The developed algorithm outperformed the pulse and systolic peak location accuracy, sensitivity and speciﬁcity obtained with Karlen’s algorithm. The contributions and limitations of the developed pulse segmentation algorithm are explored through its 3 stages:
+1. Average pulse width estimation: A modiﬁed Karlen’s algorithm [30] was used. The modiﬁcations were done to improve the accuracy of the average pulse width estimation, resulting in an improved pulse location by either Karlen’s original algorithm or the developed pulse location algorithm. The limitation of these modiﬁcations is an increased time to output the average pulse width estimation.
+2. Pulse location: An algorithm for pulse location was developed called moving window algorithm. The moving window algorithm advantages
+64
+
+5.1. Objectives, contributions and limitations
+and limitations compared to Karlen’s algorithm [30] are:
+(a) The accuracy, sensitivity and speciﬁcity is increased. The possible impreciseness of the average pulse width estimate does not aﬀect as much the performance of the moving window algorithm compared to Karlen’s algorithm [30].
+(b) Pulses and systolic peaks are identiﬁed in the same algorithm. (c) The average pulse width estimate used is ﬁxed from a selected
+sample. This can minimize the average pulse width estimates obtained from samples with motion artifacts with the limitation that no updating would be performed when a signiﬁcant heart rate change is present. Assuming that motion artifacts are more common than a signiﬁcant heart rate change in a one minute PPG signal, then a ﬁxed average pulse width is desirable. (d) Reduced number of operations mostly due to the ﬁxed average pulse width estimate.
+3. Pulse veriﬁcation: An optional algorithm intended to be used oﬀ-line which can be implemented with a few lines of code.
+Summary: The developed pulse segmentation algorithm improved the accuracy, sensitivity and speciﬁcity for pulse and systolic peak location. This algorithm is intended to be used oﬀ-line but the ﬁrst two stages could possibly be used in real-time. As future work, a comparison against other pulse and systolic peak locations algorithms can be done. The obtained pulse locations are then used for implementing the signal quality index (SQI), which allows identifying the high-quality PPG pulses for further analysis.
+5.1.2 Signal quality index (SQI) implementation
+The objective of implementing an SQI algorithm is to identify high-quality pulses and PPG signals for further analysis. The SQI described by Karlen [30] is implemented using the obtained pulses location. No major modiﬁcations were done other than the backward and forward calculation as part of an oﬀ-line implementation.
+We compared the performance of the estimated SQI against the LGT SQI, the sensor provider’s model, resulting in 97% of the PPG signals identiﬁed as high-quality by our algorithm being identiﬁed as high-quality by the LGT SQI as well. We suggest that the estimated SQI performs a reliable identiﬁcation of high-quality pulses and PPG signals. A limitation of the
+65
+
+5.1. Objectives, contributions and limitations
+estimated SQI performance analysis is that the LGT SQI was used for comparison rather than a human labelled PPG dataset. An advantage is that the estimated and LGT SQI were compared in 14,123 PPG signals. It must be mentioned that Karlen’s SQI has been previously tested with its original pulse location algorithm [30]. As future work, the PPG signals which were identiﬁed as high-quality by only one of the SQI algorithms can be reviewed to identify the diﬀerences. Also, the estimated SQI can be tested in Karlen’s labelled dataset to measure if there is an improvement in the classiﬁcation of high and low quality pulses by using the proposed pulse location algorithm.
+Summary: 97% of the PPG signals that were identiﬁed as high-quality with the implemented SQI algorithm were identiﬁed as high-quality with the LGT SQI as well. Only high-quality pulses and PPG signals identiﬁed by the estimated SQI are considered for PPG features extraction and analysis. Based on this results, we would suggest that the majority of the PPG signals used to extract and analyze PPG features are high-quality.
+5.1.3 PPG features extraction
+The objective of the PPG features extraction is to measure the eﬀect of gestational age, blood pressure and the interaction between them in the PPG signal. For this analysis PPG features related to blood pressure, heart rate variability and blood oxygen saturation are extracted from the 11,412 high-quality and >35 seconds long PPG signals. To extract the selected PPG features, the following PPG characteristic parameters need to be located: dicrotic notch, diastolic peak, maximum of PPG ﬁrst derivative and PPG second derivative waves (a, b and e).
+The dicrotic notch, diastolic peak and e location have in common the ability to identify the most signiﬁcant wave reﬂection in the PPG signal. From these 3 parameters, the dicrotic notch is more widely described in literature and a number of algorithms have attempted to locate it. One of them is the delineator dicrotic notch algorithm, which had been tested in a dataset of 2,564 pulses annotated by trained engineers and approved by medical experts in 36 arterial blood pressure (ABP) signals obtaining a sensitivity and positive predictivity of 98.98% and 98.81%, respectively [37]. Based in the high-performance of the delineator dicrotic notch algorithm, it was selected for comparison to our designed dicrotic notch detection algorithm. Therefore, the ability of the estimated dicrotic notch location to assess changes in blood pressure and gestational age is tested in the 4th chapter against 1) the estimated e location and 2) the delineator dicrotic notch location [37]. Where a linear model of the eﬀect of gestational age,
+66
+
+5.1. Objectives, contributions and limitations
+blood pressure and the interaction between them in the dicrotic notch location is analyzed. Between the models built from the estimated dicrotic notch, e location and the delineator dicrotic notch no diﬀerence was found in the models correlation, models p-value and variables eﬀect direction. We suggest that there is no signiﬁcant diﬀerence between the dicrotic notch detection of the developed and delineator algorithms. As future work, it can be tested wether one of the dicrotic notch detection algorithms is slightly better for the speciﬁc detection of blood pressure or gestational age changes with a sensitivity analysis as sobol indices. We also suggest that the dicrotic notch algorithms performance can be compared in PPG labelled data. However, according to the linear models obtained in the 4th chapter, the estimated diastolic peak location is apparently a better indicator of hypertension at diﬀerent gestational ages than the estimated dicrotic notch, e location and delineator dicrotic notch. So, we suggest that future algorithms which aim to locate a signiﬁcant wave reﬂection in the PPG signal for hypertension detection should prioritize the diastolic peak location over the dicrotic notch and e location.
+The maximum of the PPG ﬁrst derivative, a and b location algorithm performance was not tested, however since it is design using simple accepted deﬁnitions, it is suggested that its performance is equivalent to the performance of the pulse and systolic peak location.
+Summary: As a ﬁrst step the location of the following PPG characteristic parameters was performed: dicrotic notch, diastolic peak, maximum of PPG ﬁrst derivative and PPG second derivative waves (a, b and e). The performance of the developed algorithm used to locate the dicrotic notch is comparable to the delineator dicrotic notch algorithm [37] which have a high-performance. The algorithms for the location of the diastolic peak, maximum of PPG ﬁrst derivative and PPG second derivative waves (a, b and e) were not directly tested but had an apparently high performance as well. Based on further analysis we suggest that algorithms which aim to locate a signiﬁcant wave reﬂection in the PPG signal for hypertension detection should prioritize the location of the diastolic peak over the dicrotic notch and e wave. As a second step PPG features related to blood pressure, heart rate variability and blood oxygen saturation were extracted from the 11,412 high-quality and >35 seconds long PPG signals. The obtained PPG features were used to measure the eﬀect of gestational age, blood pressure and the interaction between them in the PPG signal.
+67
+
+5.1. Objectives, contributions and limitations
+5.1.4 Eﬀect of gestational age, blood pressure and the interaction between them in the PPG signal.
+The objective of assessing the gestational age eﬀect in the PPG signal was pursued because we aim to build a PPG model to detect hypertension in pregnancy. If the characteristic evolution of the cardiovascular system during pregnancy signiﬁcantly aﬀects the PPG signal, then the gestational age should be considered either as a variable or as a criterion to select the training sample of a PPG prediction model.
+As a ﬁrst exploratory analysis the eﬀect of gestational age in the PPG signal was tested with an univariate linear regression between the PPG features and the gestational age. However, with this approach, we could not compare the eﬀect of gestational age with the eﬀect of blood pressure in the PPG signal to conclude its signiﬁcance. Despite this, we created a visual representation of the changes in the PPG morphology through pregnancy using 5,072 PPG signals from normotensive pregnant women, proving that the characteristic evolution of the cardiovascular system during pregnancy aﬀects the PPG morphology. This visual representation can be ideally used to estimate the direction of the changes of unlimited PPG morphology features during pregnancy, however, it can not be used to conclude the clinical signiﬁcance of this changes. A limitation of this visual representation is that it underestimates other sources of variation of the PPG morphology which are described in section 1.1.2.
+As a next step, the eﬀect of gestational age, blood pressure and the interaction between them is measured to interpret the signiﬁcance of the gestational age eﬀect. For this purpose each PPG feature is ﬁt to a linear model which input variables are gestational age, blood pressure and the interaction between them. According to the obtained results, we suggest that gestational age should be considered as a variable and as a criterion to select the training sample for developing a PPG prediction model. The expected eﬀect of blood pressure in some PPG features can signiﬁcantly diﬀer depending on gestational age. For example, in the ﬁrst trimester, heart rate is increased in hypertension compared to normotension as in non-pregnant subjects but in the third trimester the opposite relationship is found. These results also suggest that PPG models that estimate blood pressure developed in non-pregnant subjects should be tested in pregnant women at diﬀerent gestational ages before using the estimates provided. Finally, the obtained results suggests that the expected cardiovascular system evolution through pregnancy may diﬀer depending on the woman’s blood pressure.
+Summary: The normal cardiovascular changes in pregnancy have an ob-
+68
+
+5.2. Future work
+servable eﬀect on the PPG signal. The gestational age is a signiﬁcant variable and should be considered for the development of PPG models to detect hypertension. As a limitation of this study, we considered an extra number of PPG signals from systolic hypertensive pregnant women. A PPG signal was recorded in a subsequent visit if the systolic blood pressure was higher or equal to 140 mmHg. Another limitation is that the eﬀect of hypertension on the PPG signal was not analyzed by the type of hypertension.
+5.2 Future work
+A visual representation of how being hypertensive aﬀects the PPG signal through pregnancy can be developed for comparison with the one of normotensive women. I suggest that this visual representation can be ideally created by categories of hypertension in pregnancy because depending on the category, hypertension is or is not present before 20 weeks of gestation. Diastolic hypertension and systolic hypertension could also be compared.
+The observed variability between subjects of the PPG signal might be reduced by:
+• Adopting the current protocol for blood pressure measurement with the sphygmomanometer (resting in a deﬁned position) for the duration of PPG signal collection.
+• Collecting the PPG signal before measuring blood pressure with a sphygmomanometer. If the blood pressure and the PPG signal are collected at similar times, the occlusion of the brachial artery with the blood pressure cuﬀ may aﬀect the PPG signal.
+• Collecting information about any other factors that might induce variability between subjects as gestational age, height, age and body mass index.
+Currently, eﬀorts have been made to predict blood pressure from the PPG signal using machine learning algorithms. However, I would suggest try to reduce variability by using a measurement protocol and that the input should consider a sample of 1 minute per patient and should not be segmented into multiple ‘independent’ samples as it is commonly done in literature [61, 70, 73]. It is also recommended to train, test and validate the machine learning models for the interpretations that can be done from the results.
+69
+
+5.2. Future work To improve the understanding of the blood pressure and gestational age eﬀect on the PPG signal, diﬀerent types of hypertension could be identiﬁed and analyzed separately. For example for heart rate, we could test whether the association of increased heart rate with chronic hypertension is present on gestational hypertension. We could also test wether the PPG signal of normotensive pregnant women who became hypertensive was diﬀerent from the ones that did not. The PPG signal collected in ﬁrst or subsequent visits might be used to test the probability that a pregnant women might have greater levels of proteinuria. It could also be directly compared the PPG signal of chronic hypertensive women during pregnancy, non-pregnant chronic hypertensive women and women with pregnancy induced hypertension. The CLIP intervention sample has the advantage of being a very complete sample to try to predict and/or understand hypertension in pregnancy through the PPG signal. Pregnancy induced hypertension is usually detected after 20 weeks of gestation, so the smaller sample size of hypertensive women in the third trimester should not signiﬁcantly aﬀect the understanding and/or prediction of pregnancy induced hypertension.
+70
+
+Bibliography
+[1] Preeclampsia: heart disease and stroke. https://www.preeclampsia. org/health-information/heart-disease-stroke. Accessed: 201806-18.
+[2] Preeclampsia: signs and symptoms. https://www.preeclampsia.org/ health-information/sign-symptoms. Accessed: 2018-06-18.
+[3] II Abubakar, T Tillmann, and A Banerjee. Global, regional, and national age-sex speciﬁc all-cause and cause-speciﬁc mortality for 240 causes of death, 1990-2013: a systematic analysis for the global burden of disease study 2013. Lancet, 385(9963):117–171, 2015.
+[4] Wonsik Ahn and Young Jin Lim. Mean arterial blood pressure estimation and its limitation. Canadian Journal of Anesthesia/Journal canadien d’anesth´esie, 52(9):1000–1001, 2005.
+[5] John Allen. Photoplethysmography and its application in clinical physiological measurement. Physiological measurement, 28(3):R1, 2007.
+[6] European Society of Cardiology American, The North, , and Society of Pacing Electrophysiology. Guidelines Heart rate variability. pages 354–381, 1996.
+[7] Diana E Ayala, Ram´on C Hermida, Artemio Moj´on, Jos´e R Fern´andez, In´es Silva, Rafael Ucieda, and Manuel Iglesias. Blood pressure variability during gestation in healthy and complicated pregnancies. Hypertension, 30(3):611–618, 1997.
+[8] Luciano Bernardi, Alberto Radaelli, Pier Luigi Solda, Andrew JS Coats, Martin Reeder, Alessandro Calciati, Christopher S Garrard, and Peter Sleight. Autonomic control of skin microvessels: assessment by power spectrum of photoplethysmographic waves. Clinical science, 90(5):345– 355, 1996.
+71
+
+Bibliography
+[9] Michael Brennan, Marimuthu Palaniswami, and Peter Kamen. Do existing measures of poincare plot geometry reﬂect nonlinear features of heart rate variability? IEEE transactions on biomedical engineering, 48(11):1342–1347, 2001.
+[10] Gari D Cliﬀord and St Cross College. Signal Processing Methods for Heart Rate Variability. 2002.
+[11] Nivedita Daimiwal and M Sundhararajan. Non invasive measurement and analysis of cardiac output for diﬀerent age group using ppg sensor.
+[12] Parastoo Dehkordi, Ainara Garde, Walter Karlen, Christian L. Petersen, David Wensley, Guy A. Dumont, and J. Mark Ansermino. Evaluation of cardiac modulation in children in response to apnea/hypopnea using the Phone Oximeter. Physiological Measurement, 37(2):187–202, 2016.
+[13] Parastoo Dehkordi, Ainara Garde, Walter Karlen, David Wensley, J.Mark Ansermino, and Guy A. Dumont. Pulse rate variability compared with heart rate variability in children with and without sleep disordered breathing. Proc. IEEE Conf. Eng. Med. Biol., 2013:6563– 6566, 2013.
+[14] Russell Paul Dresher. Wearable forehead pulse oximetry: Minimization of motion and pressure artifacts. PhD thesis, Citeseer, 2006.
+[15] Lelia Duley. The global impact of pre-eclampsia and eclampsia. In Seminars in perinatology, volume 33, pages 130–137. Elsevier, 2009.
+[16] Dustin T. Dunsmuir, Beth A. Payne, Garth Cloete, Christian Leth Petersen, Matthias G¨orges, Joanne Lim, Peter Von Dadelszen, Guy A. Dumont, and J. Mark Ansermino. Development of mHealth applications for pre-eclampsia triage. IEEE Journal of Biomedical and Health Informatics, 18(6):1857–1864, 2014.
+[17] Eeva MK Ekholm, Sampo J Piha, Kari UO Tahvanainen, Kari J Antila, and Risto U Erkkola. Autonomic hemodynamic control in pregnancyinduced hypertension. Hypertension in Pregnancy, 13(3):253–263, 1994.
+[18] Mohamed Elgendi. On the Analysis of Fingertip Photoplethysmogram Signals. Current Cardiology Reviews, 8(1):14–25, 2012.
+72
+
+Bibliography
+[19] Mohamed Elgendi, Mirjam Jonkman, and Friso DeBoer. Heart rate variability and the acceleration plethysmogram signals measured at rest. In International Joint Conference on Biomedical Engineering Systems and Technologies, pages 266–277. Springer, 2010.
+[20] Tammy Y. Euliano, Kostas Michalopoulos, Savyasachi Singh, Anthony R. Gregg, Mariem Del Rio, Terrie Vasilopoulos, Amber M. Johnson, Allison Onkala, Shalom Darmanjian, Neil R. Euliano, and Monique Ho. Photoplethysmography and Heart Rate Variability for the Diagnosis of Preeclampsia. Anesthesia & Analgesia, XXX(Xxx):1, 2017.
+[21] R. Faber, M. Baumert, H. Stepan, N. Wessel, A. Voss, and T. Walther. Baroreﬂex sensitivity, heart rate, and blood pressure variability in hypertensive pregnancy disorders. Journal of Human Hypertension, 18(10):707–712, 2004.
+[22] Kim Fox, Jeﬀrey S Borer, A John Camm, Nicolas Danchin, Roberto Ferrari, Jose L Lopez Sendon, Philippe Gabriel Steg, Jean-Claude Tardif, Luigi Tavazzi, Michal Tendera, et al. Resting heart rate in cardiovascular disease. Journal of the American College of Cardiology, 50(9):823– 830, 2007.
+[23] Ainara Garde, Guohai Zhou, Shahreen Raihana, Dustin Dunsmuir, Walter Karlen, Parastoo Dekhordi, Tanvir Huda, Shams El Arifeen, Charles Larson, Niranjan Kissoon, et al. Respiratory rate and pulse oximetry derived information as predictors of hospital admission in young children in bangladesh: a prospective observational study. BMJ open, 6(8):e011094, 2016.
+[24] Jaqub Ghairat and Hassan Mouhsen. Motion artifact reduction in PPG signals. Master Thesis, 2015.
+[25] Nan Han, Xiaomin Luo, and Fangming Su. A quantitative investigation of hemodynamic adaptation to pregnancy using uterine artery Doppler ultrasonography and ﬁnger photoplethysmography. Hypertension in Pregnancy, 33(4):498–507, 2014.
+[26] Rosangela Akemi Hoshi, Carlos Marcelo Pastre, Luiz Carlos Marques Vanderlei, and Moacir Fernandes Godoy. Poincar´e plot indexes of heart rate variability: Relationships with other nonlinear variables. Autonomic Neuroscience: Basic and Clinical, 177(2):271–274, 2013.
+73
+
+Bibliography
+[27] DJ Hughes, Charles F Babbs, LA Geddes, and JD Bourland. Measurements of young’s modulus of elasticity of the canine aorta with ultrasound. Ultrasonic Imaging, 1(4):356–367, 1979.
+[28] Issei Imanaga, Hiroshi Hara, Samonn Koyanagi, and Kohtaro Tanaka. Correlation between wave components of the second derivative of plethysmogram and arterial distensibility. Japanese heart journal, 39(6):775–784, 1998.
+[29] Vala Jeyhani, Shadi Mahdiani, Mikko Peltokangas, and Antti Vehkaoja. Comparison of hrv parameters derived from photoplethysmography and electrocardiography signals. In Engineering in Medicine and Biology Society (EMBC), 2015 37th Annual International Conference of the IEEE, pages 5952–5955. IEEE, 2015.
+[30] Walter Karlen, K Kobayashi, J Mark Ansermino, and GA Dumont. Photoplethysmogram signal quality estimation using repeated gaussian ﬁlters and cross-correlation. Physiological measurement, 33(10):1617, 2012.
+[31] Ahsan Habib Khandoker. Poincare plot methods for heart rate variability analysis. 2013.
+[32] B Khanoka, Y Slovik, D Landau, and M Nitzan. Sympathetically induced spontaneous ﬂuctuations of the photoplethysmographic signal. Medical and Biological Engineering and Computing, 42(1):80–85, 2004.
+[33] Panayiotis Kyriacou, Karthik Budidha, and Tomas Y Abay. Optical techniques for blood and tissue oxygenation. 2014.
+[34] Peter D Larsen, Murray Harty, Mohana Thiruchelvam, and Duncan C Galletly. Spectral analysis of ac and dc components of the pulse photoplethysmograph at rest and during induction of anaesthesia. International journal of clinical monitoring and computing, 14(2):89–95, 1997.
+[35] Stephane Laurent, John Cockcroft, Luc Van Bortel, Pierre Boutouyrie, Cristina Giannattasio, Daniel Hayoz, Bruno Pannier, Charalambos Vlachopoulos, Ian Wilkinson, and Harry Struijker-Boudier. Expert consensus document on arterial stiﬀness: methodological issues and clinical applications. European heart journal, 27(21):2588–2605, 2006.
+[36] Han-Wook Lee, Ju-Won Lee, Won-Geun Jung, and Gun-Ki Lee. The periodic moving average ﬁlter for removing motion artifacts from ppg
+74
+
+Bibliography
+signals. International Journal of Control, Automation, and Systems, 5(6):701–706, 2007.
+[37] Bing Nan Li, Ming Chui Dong, and Mang I Vai. On an automatic delineator for arterial blood pressure waveforms. Biomedical Signal Processing and Control, 5(1):76–81, 2010.
+[38] Marek Malik, J Thomas Bigger, A John Camm, Robert E Kleiger, Alberto Malliani, Arthur J Moss, and Peter J Schwartz. Heart rate variability: Standards of measurement, physiological interpretation, and clinical use. European heart journal, 17(3):354–381, 1996.
+[39] Giuseppe Mancia, Alberto Ferrari, Luisa Gregorini, Gianfranco Parati, Guido Pomidossi, Giovanni Bertinieri, Guido Grassi, Marco di Rienzo, Antonio Pedotti, and Alberto Zanchetti. Blood pressure and heart rate variabilities in normotensive and hypertensive human beings. Circulation research, 53(1):96–104, 1983.
+[40] Rollin McCraty and Fred Shaﬀer. Heart rate variability: New perspectives on physiological mechanisms, assessment of self-regulatory capacity, and health risk. Global Advances In Health and Medicine, 4(1):46–61, 2015.
+[41] Beate H McGhee and Elizabeth J Bridges. Monitoring arterial blood pressure: what you may not know. Critical Care Nurse, 22(2):60–79, 2002.
+[42] Karen Melchiorre, Rajan Sharma, Asma Khalil, and Baskaran Thilaganathan. Maternal cardiovascular function in normal pregnancy: Evidence of maladaptation to chronic volume overload. Hypertension, 67(4):754–762, 2016.
+[43] SC Millasseau, RP Kelly, JM Ritter, and PJ Chowienczyk. Determination of age-related increases in large artery stiﬀness by digital pulse contour analysis. Clinical science, 103(4):371–377, 2002.
+[44] Oliver Monfredi, Alexey E. Lyashkov, Anne-Berit Johnsen, Shin Inada, Heiko Schneider, Ruoxi Wang, Mahesh Nirmalan, Ulrik Wisloﬀ, Victor A. Maltsev, Edward G. Lakatta, Henggui Zhang, and Mark R. Boyett. Biophysical Characterization of the Underappreciated and Important Relationship Between Heart Rate Variability and Heart Rate. Novelty and Signiﬁcance. Hypertension, 64(6):1334–1343, 2014.
+75
+
+Bibliography
+[45] Shahzad Munir, Antoine Guilcher, Tamra Kamalesh, Brian Clapp, Simon Redwood, Michael Marber, and Philip Chowienczyk. Peripheral augmentation index deﬁnes the relationship between central and peripheral pulse pressure. Hypertension, 51(1):112–118, 2008.
+[46] Malia S.Q. Murphy, Geoﬀrey E.J. Seaborn, Damian P. Redfearn, and Graeme N. Smith. Reduced heart rate variability and altered cardiac conduction after pre-eclampsia. PLoS ONE, 10(9):1–11, 2015.
+[47] Bjarne M Nes, Christian R Gutvik, Carl J Lavie, Javaid Nauman, and Ulrik Wisløﬀ. Personalized activity intelligence (pai) for prevention of cardiovascular disease and promotion of physical activity. The American journal of medicine, 130(3):328–336, 2017.
+[48] JOSADS Nu¨rnberger, S Dammer, A Opazo Saez, T Philipp, and RF Sch¨afers. Diastolic blood pressure is an important determinant of augmentation index and pulse wave velocity in young, healthy males. Journal of human hypertension, 17(3):153, 2003.
+[49] American College of Obstetricians, Gynecologists, et al. Hypertension in pregnancy. report of the american college of obstetricians and gynecologists task force on hypertension in pregnancy. Obstetrics and gynecology, 122(5):1122, 2013.
+[50] B Payne, Peter von Dadelszen, Z Bhutta, L Magee, O Adetoro, John Sotunsa, Esperan¸ca Sevene, Maputo Province Manhi¸ca, Kh´atia Munguambe, Charfudin Sacoor, et al. Protocol 13prt/9313: The community level interventions for pre-eclampsia (clip) trials: four prospective cluster randomised controlled trials comparing a package of interventions directed towards improving maternal and perinatal outcomes related to pre-eclampsia with current standards of care (nct01911494). Lancet, 2015.
+[51] B A Payne, J A Hutcheon, D Dunsmuir, G Cloete, G Dumont, D Hall, J Lim, L A Magee, R Sikandar, R Qureshi, E van Papendorp, J M Ansermino, and P von Dadelszen. Assessing the incremental value of blood oxygen saturation (SpO(2)) in the miniPIERS (Pre-eclampsia Integrated Estimate of RiSk) Risk Prediction Model. J Obstet Gynaecol Can, 37(1):16–24, 2015.
+[52] Fulai Peng, Zhengbo Zhang, Xiaoming Gou, Hongyun Liu, and Weidong Wang. Motion artifact removal from photoplethysmographic
+76
+
+Bibliography
+signals by combining temporally constrained independent component analysis and adaptive ﬁlter. BioMedical Engineering Online, 13(1):1– 14, 2014.
+[53] Yousef K Qawqzeh, Rubins Uldis, and Mafawez Alharbi. Photoplethysmogram second derivative review: Analysis and applications. Scientiﬁc Research and Essays, 10(21):633–639, 2015.
+[54] Jerzy Sacha. Interaction between heart rate and heart rate variability. Annals of Noninvasive Electrocardiology, 19(3):207–216, 2014.
+[55] Rohan Samria, Ridhi Jain, Ankita Jha, Sandeep Saini, and Shubhajit Roy Chowdhury. Noninvasive cuﬀ’less estimation of blood pressure using photoplethysmography without electrocardiograph measurement. AGE, 18:25, 2014.
+[56] Lale Say, Doris Chou, Alison Gemmill, O¨ zge Tun¸calp, Ann Beth Moller, Jane Daniels, A. Metin Gu¨lmezoglu, Marleen Temmerman, and Leontine Alkema. Global causes of maternal death: A WHO systematic analysis. The Lancet Global Health, 2(6):323–333, 2014.
+[57] Axel Sch¨afer and Jan Vagedes. How accurate is pulse rate variability as an estimate of heart rate variability?: A review on studies comparing photoplethysmographic technology with an electrocardiogram. International Journal of Cardiology, 166(1):15–29, 2013.
+[58] Scott Prahl, Oregon Medical Laser Center. Optical absorption of hemoglobin. https://omlc.org/spectra/hemoglobin/. Accessed: 2018-07-03.
+[59] Fred Shaﬀer, Rollin McCraty, and Christopher L. Zerr. A healthy heart is not a metronome: an integrative review of the heart’s anatomy and heart rate variability. Frontiers in Psychology, 5(September):1–19, 2014.
+[60] Ping Shi, Sijung Hu, Y Zhu, J Zheng, Y Qiu, and PYS Cheang. Insight into the dicrotic notch in photoplethysmographic pulses from the ﬁnger tip of young adults. Journal of medical engineering & technology, 33(8):628–633, 2009.
+[61] Gasper Slapniˇcar, Mitja Luˇstrek, and Matej Marinko. Continuous blood pressure estimation from ppg signal. Informatica, 42(1), 2018.
+77
+
+Bibliography
+[62] Fangming Su, Zhaoxi Li, Xiurong Sun, Nan Han, Lei Wang, and Xiaomin Luo. The pulse wave analysis of normal pregnancy: Investigating the gestational eﬀects on photoplethysmographic signals. Bio-Medical Materials and Engineering, 24(1):209–219, 2014.
+[63] Haruko Takada, Kazuo Okino, and Yumiko Niwa. An evaluation method for heart rate variability, by using acceleration plethysmography. Health Evaluation and Promotion, 31(4):547–551, 2004.
+[64] Kenji Takazawa, Nobuhiro Tanaka, Masami Fujita, Osamu Matsuoka, Tokuyu Saiki, Masaru Aikawa, Sinobu Tamura, and Chiharu Ibukiyama. Assessment of vasoactive agents and vascular aging by the second derivative of photoplethysmogram waveform. Hypertension, 32(2):365–370, 1998.
+[65] Toshiyo Tamura, Yuka Maeda, Masaki Sekine, and Masaki Yoshida. Wearable photoplethysmographic sensors: past and present. Electronics, 3(2):282–302, 2014.
+[66] Hirofumi Tanaka, Gerardo Heiss, Elizabeth L McCabe, Michelle L Meyer, Amil M Shah, Judy R Mangion, Justina Wu, Scott D Solomon, and Susan Cheng. Hemodynamic correlates of blood pressure in older adults: the atherosclerosis risk in communities (aric) study. The Journal of Clinical Hypertension, 18(12):1222–1227, 2016.
+[67] XF Teng and YT Zhang. Continuous and noninvasive estimation of arterial blood pressure using a photoplethysmographic approach. In Engineering in Medicine and Biology Society, 2003. Proceedings of the 25th Annual International Conference of the IEEE, volume 4, pages 3153–3156. IEEE, 2003.
+[68] XF Teng and Yuan-Ting Zhang. The eﬀect of applied sensor contact force on pulse transit time. Physiological measurement, 27(8):675, 2006.
+[69] Emma von Wowern, Gerd O¨ stling, Peter M Nilsson, and Per Olofsson. Digital photoplethysmography for assessment of arterial stiﬀness: repeatability and comparison with applanation tonometry. PloS one, 10(8):e0135659, 2015.
+[70] Ludi Wang, Wei Zhou, Ying Xing, and Xiaoguang Zhou. A novel neural network model for blood pressure estimation using photoplethesmography without electrocardiogram. Journal of healthcare engineering, 2018, 2018.
+78
+
+[71] Ching-Chuan Wei. Developing an eﬀective arterial stiﬀness monitoring system using the spring constant method and photoplethysmography. IEEE Trans. Biomed. Engineering, 60(1):151–154, 2013.
+[72] Magdalena Wykrtowicz, Tomasz Krauze, Przemyslaw Guzik, Jaroslaw Piskorski, Wieslaw Markwitz, Andrzej Wykrtowicz, and Henryk Wysocki. Arterial stiﬀness, central hemodynamics and wave reﬂection in normal pregnancy and control nonpregnant women. European Journal of Obstetrics Gynecology and Reproductive Biology, 159(1):49–52, 2011.
+[73] Xiaoman Xing and Mingshan Sun. Optical blood pressure estimation with photoplethysmography and ﬀt-based neural networks. Biomedical optics express, 7(8):3007–3020, 2016.
+[74] YS Yan and YT Zhang. Noninvasive estimation of blood pressure using photoplethysmographic signals in the period domain. In Engineering in Medicine and Biology Society, 2005. IEEE-EMBS 2005. 27th Annual International Conference of the, pages 3583–3584. IEEE, 2006.
+[75] Xin-Yu Zhang and Yuan-Ting Zhang. The eﬀect of local mild cold exposure on pulse transit time. Physiological measurement, 27(7):649, 2006.
+79
+
+Appendix A
+Pulse veriﬁcation algorithm code
+The code of the pulse veriﬁcation algorithm is provided to increase its understanding and prove its easy implementation. This code is used to discard false positive pulses and systolic peaks location. A big percentage of false positives is possible when the estimated average pulse width is around half of the real average pulse width. % PPG − PPG s i g n a l which o n l y c o n t a i n s c o m p l e t e p u l s e % pulseLocs − Vector with pulses location % peakLocs − Vector with systolic peaks location
+T = length ( peakLocs ) ; s = PPG( peakLocs ) ; p = PPG( p u l s e L o c s ) ;
+H1 = s ( 1 :T) − p ( 1 :T ) ; H2 = s ( 2 : T−1) − p ( 1 : T−2); H3 = s ( 2 : T−1) − p ( 3 :T ) ; H4 = p ( 2 : T−1) > p ( 1 : T−2); H5 = p ( 2 : T−1) > p ( 3 :T ) ; HeightPeak = H2 . / H1 ( 1 : end−2) <0.75 & H3 . / H1 ( 3 : end) <0.75 & H4 & H5 ;
+H2 = s ( 1 : T−2) − p ( 2 : T−1); H3 = s ( 3 :T) − p ( 2 : T−1); H4 = s ( 2 : T−1) < s ( 1 : T−2); H5 = s ( 2 : T−1) < s ( 3 :T ) ; HeightBeat = H2 . / H1 ( 1 : end−2) <0.75 & H3 . / H1 ( 3 : end) <0.75 & H4 & H5 ;
+A = HeightPeak | HeightBeat ;
+i f sum(A) > round (T∗ 0 . 1 )
+80
+
+Appendix A. Pulse veriﬁcation algorithm code peakLocs ( logical ( [ 0 ;A; 0 ] ) ) = 0; pulseLocs ( logical ([0;A;0;0])) = 0; peakLocs = peakLocs ( peakLocs >0); pulseLocs = pulseLocs ( pulseLocs >0);
+end
+81
+

@@ -1,0 +1,784 @@
+Motion Artefact Minimisation from a Photoplethysmography based Non-invasive Sensor
+Hongwei Yuan
+A thesis submitted in requirement for Doctor of Philosophy in the
+Optical Fibre Sensors Research Centre Department of Electronic and Computer Engineering
+Supervisor: Assoc. Prof. Elfed Lewis, Dr. Gabriel Leen & Dr. Thomas Newe Submitted to
+University of Limerick December, 2017
+
+Declaration of Authorship
+I, Hongwei Yuan, declare that this thesis titled, ‚ÄòMotion Artefact Minimisation from a Photoplethysmography based Non-invasive Sensor‚Äô and the work presented in it are my own. I confirm that:
+ÔÇß This work was done wholly or mainly while in candidature for a research degree at this University.
+ÔÇß Where any part of this thesis has previously been submitted for a degree or any other qualification at this University or any other institution, this has been clearly stated.
+ÔÇß Where I have consulted the published work of others, this is always clearly attributed.
+ÔÇß Where I have quoted from the work of others, the source is always given. With the exception of such quotations, this thesis is entirely my own work.
+ÔÇß I have acknowledged all main sources of help. ÔÇß Where the thesis is based on work done by myself jointly with others, I have
+made clear exactly what was done by others and what I have contributed myself.
+Signed:
+Date:
+I
+
+II
+
+Motion Artefact Minimisation from a Photoplethysmography based Non-invasive Sensor
+
+Abstract
+
+Hongwei Yuan
+
+The collection of photoplethysmography (PPG) signals from optical based sensor probes has been used extensively for the monitoring of heart rate (HR), respiration rate, blood pressure, oxygen saturation (SpO2), haemoglobin concentration (Hb). One of the drawbacks of PPG based measurement is that the signal is strongly degraded by motion artefact. Much research has been undertaken relating to the removal of motion artefact noise resulting from the wearer‚Äôs movement. Research reports show that the autonomic nervous system (ANS) of the human body, as part of the peripheral nervous system, can be disturbed by body motion events, leading to unconsciously varying vital physiological parameters including body temperature, blood pressure, respiration rate, eye pupils, and heartbeat. The PPG signal, as a recordable biosignal, can also be affected by ANS when accompanied by variations in physiological events e.g., exercise, breathing and motion, in general.
+An accelerometer and a wearable chest respiration monitor are introduced into the PPG sensor device to remove/minimise the low frequency noise induced by such physiological events. The results have shown that the baseline of PPG signal is affected by acceleration, particularly in the vertical direction as opposed to acceleration in the horizontal plane for the system under test. Experimental results from a total of 23 subjects demonstrated that PPG signals during motion events are influenced by the variation of local blood pressure at the point of measurement which is in turn induced from: (1) the vertical height difference between the measuring site and the reference level (the heart level); and (2) the ANS variation.
+Furthermore, a novel proposed filtering method based on envelope algorithm (not previously reported work) has been proposed with the analysis and comparison of existing artefact removal techniques. All data have been brought together to enable measurement of vital physiological parameters without corruption by noises including motion artefact, blood pressure and respiration variations.
+III
+
+IV
+
+Acknowledgements
+I would like to give my sincere thanks to my supervisors, Prof. Elfed Lewis, Dr. Gabriel Leen and and Dr. Thomas Newe for the immense amount of guidance, help and the unstinting support they have provided for research.
+Special thanks to Dr. John Clifford, Dr. Eoin O‚ÄôConnell, and Jimmy O‚ÄôSullivan for their help, advice and guidance in the laboratory.
+I also wish to thank Dr M√°irt√≠n √ì‚ÄôDroma for our friendship.
+I want to thank Dr Gerard Dooly, Dr Sinead O‚ÄôKeeffe, and Dr Thomas Newe for the many ways in which they provided assistance whenever necessary.
+I also want to give my thanks to Stefan Zenger who has contributed technical support in this research.
+Sincere thanks must go to the members of the Optical Fibre Sensors Research Centre and the administrative staff of the Department of Electronic and Computer Engineering at the University of Limerick who were very supportive in so many ways. In this context, I would like to acknowledge Sven Poeggel, Daniele Tosi, Dinesh Duraibabu, Mohd Anwar Zawawi, Tim Lam, Muzaffar Rao, Lingxia Chen, Damien Meere, and Dr Urich Timm. They have always been there to give advice and support.
+The authors would like to acknowledge the clinical observation and practice provided by Registered General Nurse Ann Lewis during the clinical testing.
+I wish to thank the the Science Foundation Ireland (grant number: 11/RFP/ECE3335) for funding this work.
+My family also deserves special thanks, for all the support they have given me over the years.
+I would finally like to extend my thanks to all my friends outside of the university who have been a constant support.
+V
+
+VI
+
+Ethics Approval by the University of Limerick
+All subjects gave their informed consent for inclusion before they participated in the study. The study was conducted in accordance with the Declaration of Helsinki, and the protocol was approved by the University of Limerick Ethics Committee (2016_11_04_S&E and 2016_12_09_S&E).
+VII
+
+VIII
+
+Table & Contents
+Declaration of Authorship ............................................................................................. I Abstract ...................................................................................................................... III Acknowledgements ..................................................................................................... V Ethics Approval by the University of Limerick ........................................................VII Table & Contents........................................................................................................ IX List of Figures ......................................................................................................... XIII List of Tables ........................................................................................................... XIX Abbreviations .......................................................................................................... XXI CHAPTER 1. INTRODUCTION ......................................................................... 1
+1.1 Research Motivation...................................................................................... 3 1.2 Contributions of the Thesis ........................................................................... 4 1.3 List of Publications........................................................................................ 6 1.4 Outline of the Thesis ..................................................................................... 7 CHAPTER 2. PHOTOPLETHYSMOGRAPHY.................................................. 9 2.1 Bio-Photonics ................................................................................................ 9
+2.1.1 Human Skin ......................................................................................................9 2.1.2 Haemoglobin...................................................................................................12 2.1.3 Optical Properties............................................................................................13 2.2 Autonomic Nervous System (ANS) ............................................................ 17 2.3 Photoplethysmography (PPG) based Concept ............................................ 19 2.3.1 What is PPG....................................................................................................19 2.3.2 Theory and Method of Non-Invasive SpO2 and Hb Monitoring.....................21 2.4 PPG Device Design based on an Embedded System .................................. 24 2.4.1 An Embedded System.....................................................................................24
+IX
+
+2.4.2 Microcontroller ............................................................................................... 24 2.4.3 Digital Accelerometer..................................................................................... 25 2.4.4 PPG-Based Device ......................................................................................... 28 2.5 Blood Pressure Monitor............................................................................... 30 2.6 Summary ..................................................................................................... 31 CHAPTER 3. DEVELOPMENT OF MONITORING AND COMPENSATION TECHNIQUES ...................................................................................................... 33 3.1 Review of Development of Non-Invasive Monitoring Techniques ............ 33 3.1.1 Haemoglobin from Invasive Monitoring to Non-invasive Monitoring .......... 34 3.1.2 From Non-invasive SpO2 Monitoring to Non-invasive SpHb Monitoring..... 36 3.2 Review of Existing Methods for Compensation of Motion Artefact .......... 38 3.2.1 Adaptive Noise Cancellation (ANC) .............................................................. 40 3.2.2 Empirical Mode Decomposition (EMD) ........................................................ 42 3.3 The Proposed Envelope-Based Filtering Method ....................................... 44 3.4 Summary ..................................................................................................... 45 CHAPTER 4. MULTI-SENSOR SYSTEM....................................................... 47 4.1 PPG Sensor Device Layout ......................................................................... 48 4.1.1 Main Sensor Board ......................................................................................... 49 4.1.2 Development of the Finger Sensor Probe ....................................................... 53 4.1.3 Accelerometer Data Optimization .................................................................. 56 4.2 Experimental Setup ..................................................................................... 57 4.2.1 Typical Medical Devices for Reference Data Capture ................................... 57 4.2.2 Schematic of the PPG-Based Sensor System ................................................. 59 4.3 IAR System (Code on the MCU) and LabVIEW........................................ 61 4.4 Summary ..................................................................................................... 64 CHAPTER 5. ANALYSIS OF PPG SIGNALS IN THE CONTEXT OF EXTERNAL PHYSIOLOGICAL PARAMETERS................................................... 65
+X
+
+5.1 Introduction ................................................................................................. 65 5.2 BL and Local BP ......................................................................................... 66
+5.2.1 The BL of the PPG Signal...............................................................................66 5.2.2 BP Response to VHD......................................................................................70 5.3 Factors which can Affect PPG Signals ........................................................ 71 5.3.1 VHD Variation ................................................................................................71 5.3.2 Analysis of ANS Variation ..............................................................................75 5.3.3 External Pressure at the Measuring Site..........................................................83 5.3.4 PPG Signal Response to Wrist Rotation .........................................................84 5.4 Severe Motion Tests .................................................................................... 85 5.5 Summary ..................................................................................................... 88 CHAPTER 6. ANS EFFECT ON HUMAN VITALS......................................... 91 6.1 Introduction ................................................................................................. 91 6.2 SpO2, HR and Hb Affected by ANS ............................................................ 92 6.2.1 SpO2 Analysis .................................................................................................92 6.2.2 HR and Hb Analysis........................................................................................93 6.3 Summary ..................................................................................................... 94 CHAPTER 7. MOTION ARTEFACT REMOVAL IN HB MONITORING ...... 97 7.1 Filtering Methods Used on PPG Data ......................................................... 97 7.1.1 Low Pass/High Pass Filtering on Raw PPG Signal ........................................97 7.1.2 Empirical Mode Decomposition Method........................................................99 7.1.3 The Proposed Method Based on an Envelope Algorithm .............................102 7.1.4 Comparison of Filtering Methods .................................................................103 7.2 Hb coefficients in Stationary and Non- Stationary States ......................... 104 7.2.1 Hb Coefficient Development in a Stationary State .......................................104 7.2.2 Hb Coefficient Development in Non-Stationary States ................................108 7.3 Hb Coefficient with Respect to VHD Variation .........................................110
+XI
+
+7.4 The Test of Proposed Method in a Series of Distortions............................113 7.5 Summary ....................................................................................................115 CHAPTER 8. CONCLUSIONS AND FUTURE WORK .................................117 Bibliography............................................................................................................. 121 Appendix A: Publications Arising from This Work ........................................ App-A-1 Appendix B: MCU Code................................................................................. App-B-1 Appendix C: Parts List .................................................................................... App-C-1
+XII
+
+List of Figures
+Figure 1.1: Health Care Cost (1970-2015) [7] .................................................................. 2 Figure 1.2: Illustration of the change in health spending over the period 2010‚Äì2013 [8] 2 Figure 1.3: (a) Raw Hb coefficients, (b) raw PPG signals, (c) acceleration signals, and (d) respiration intensity ..................................................................................................... 4 Figure 1.4: Factors which can affect PPG signals.............................................................5 Figure 2.1: The human skin structure [24]......................................................................10 Figure 2.2: Different absorption spectra of haemoglobin derivatives according to wavelength [39]...............................................................................................................16 Figure 2.3: The principle of PPG describe by the schematic diagrams of light attenuation [68] ............................................................................................................... 20 Figure 2.4: Diagram block of an embedded system........................................................24 Figure 2.5: Pin designation for MSP430F1611 [80] ....................................................... 25 Figure 2.6: (a) 3-Wire SPI Connection Diagram and (b) 4-Wire SPI Connection Diagram [81] ................................................................................................................... 26 Figure 2.7: ADXL345 general pin connection [81] ........................................................ 27 Figure 2.8: The PPG sensor system block diagram ........................................................ 28 Figure 2.9: The embedded system for PPG signal monitoring [93] ............................... 30 Figure 2.10: Influence of the contact pressure in pulse oximetry [94] ........................... 30 Figure 2.11: Philips arm BP Monitor [96] ...................................................................... 31 Figure 3.1: Radiometer ABL-820 CO-Oximeter, from Radiometer Company [97] ....... 34 Figure 3.2: HemoCue¬Æ201, from HemoCue Company [98]..........................................35 Figure 3.3: Radical-7‚Ñ¢ Pulse CO-Oximeter [86] .......................................................... 35 Figure 3.4: ChoiceMMed, one of commercial pulse Oximeters ..................................... 37 Figure 3.5: TouchHb and the data transmitted to Cell Phone wirelessly [91] ................ 37
+XIII
+
+Figure 3.6: Removal of motion artefact by adaptive filter.............................................. 41 Figure 3.7: (a) motion artefact and (b) removal of motion artefact by adaptive filter [118] ................................................................................................................................ 41 Figure 4.1: The custom designed multi-sensor system ................................................... 48 Figure 4.2: Schematic of the probe board ....................................................................... 49 Figure 4.3: Top view of Optical Bio-Sensor Device_Main Board.................................. 50 Figure 4.4: Bottom view of Optical Bio-Sensor Device_Main Board............................ 50 Figure 4.5: MSP430 MCU clock system ........................................................................ 51 Figure 4.6: Schematic of the main sensor board ............................................................. 52 Figure 4.7: First generation of a finger clip with an embedded ADXL345 .................... 53 Figure 4.8: The second generation of a finger clip with an embedded ADXL345 ......... 54 Figure 4.9: Top view of the probe board......................................................................... 55 Figure 4.10: Bottom view of the probe board ................................................................. 55 Figure 4.11: Three-dimensional coordinate system: (a) ADXL345EB (REV.1 by Intempco) and (b) PPG finger sensor probe.................................................................... 56 Figure 4.12: A HemoCue¬Æ201 used as Hb monitoring reference .................................. 57 Figure 4.13: OXYGEN SATURATION PULSOX-8 used as oxygen saturation and HR monitoring reference ....................................................................................................... 58 Figure 4.14: Electronic Blood Pressure Monitor used as HR and BP monitoring reference.......................................................................................................................... 58 Figure 4.15: The PPG sensor system block diagram and the main steps for Hb estimation ........................................................................................................................ 59 Figure 4.16: Experimental setup of the custom sensor system ....................................... 60 Figure 4.17: The block diagram of the overall process of the motion artefact minimisation algorithm ................................................................................................... 60 Figure 4.18: The code flow on the MCU ........................................................................ 62
+XIV
+
+Figure 4.19: the code for Raw Labview readings required calibration ........................... 63 Figure 4.20: ACC and motion detection interface .......................................................... 64 Figure 5.1: (a) PPG and (b-d) AAC signals measurement with main motion acceleration in x-axis...........................................................................................................................68 Figure 5.2: (a) PPG and (b‚Äìd) AAC signals measurement with main motion acceleration in y-axis...........................................................................................................................68 Figure 5.3: (a) PPG and (b‚Äìd) AAC signals measurement with main motion acceleration in z-axis ........................................................................................................................... 69 Figure 5.4: Enlarged portion of Figure 5.3 in the interval 990‚Äì1110 s ...........................70 Figure 5.5: PPG baseline intensities and standard deviations when the subjects were in the sitting position and the finger sensor probe set at three different vertical levels ...... 73 Figure 5.6: PPG baseline amplitudes and standard deviations when the subjects were in the standing position and the finger sensor probe set at three different vertical levels... 73 Figure 5.7: PPG baseline amplitudes and standard deviations when the subjects were in the lying position and the finger sensor probe set at three different vertical levels ........ 74 Figure 5.8: PPG baseline amplitudes for 18 subjects whilst in the sitting position and the finger sensor probe set at three different vertical levels.................................................. 75 Figure 5.9: (a) ACC; (b) respiration and (c) PPG signals recorded from changing body positions .......................................................................................................................... 77 Figure 5.10: (a) PPG and (b) ACC signals for which the subject maintained the finger sensor probe at the same height above the floor and varied the VHD by changing body positions .......................................................................................................................... 79 Figure 5.11: Enlarged portion of the PPG (a) and the ACC signals (b) in the interval 1110‚Äì1280 s in Figure 5.10 ............................................................................................. 80 Figure 5.12: (a) PPG signal and (b) ACC signals with a deep yawn event.....................82 Figure 5.13: (a) Respiration including deep breathing and talking events and (b) PPG signal ............................................................................................................................... 83
+XV
+
+Figure 5.14: The PPG signal affected by local BP variations at the measuring site due to (a) external pressure applied on finger probe and (b) external pressure applied on wrist by processing the inflatable-cuff type blood pressure monitor ....................................... 84
+Figure 5.15: Illustration of (a) PPG and (b) ACC signals recorded from rotating wrist. 85
+Figure 5.16: (a) PPG and (b) X-axis ACC signals captured in the process of swinging the arm up and down with long resting time intervals .................................................... 87
+Figure 5.17: (a) PPG and (b) ACC signals captured in the process of swinging the arm up and down with short resting time intervals ................................................................ 87
+Figure 5.18: Factors which can affect PPG signals......................................................... 88
+Figure 6.1: (a) PPG intensity, (b) SpO2 and (c) ACC signals. Dotted line a1 indicates the wearer standing up; dotted lines b1 and c1 indicates a deep yawn and a cough, respectively ..................................................................................................................... 93
+Figure 6.2: (a) HR and (b) Hb readings .......................................................................... 94
+Figure 7.1: (a) Respiration; (b) raw PPG signal at 810 nm; (c) FFT of PPG at 810 nm during 620‚Äì730 s; (d) FFT of PPG at 810 nm during 870‚Äì950 s and (e) low/high pass filtered PPG at 810 nm (cutoff frequency at 0.5 Hz) ...................................................... 99 Figure 7.2: (a) Raw PPG signal, subsequent and 1st IMF, and (b) FFT of 1st IMF component ..................................................................................................................... 100 Figure 7.3: (a) Raw PPG signal, subsequent and 2nd IMF, and (b) FFT of 2nd IMF component ..................................................................................................................... 100 Figure 7.4: (a) Raw PPG signal, subsequent and 3rd IMF, and (b) FFT of 3rd IMF component ..................................................................................................................... 101 Figure 7.5: (a) Raw PPG signal, subsequent and 4th IMF, and (b) FFT of 4th IMF component ..................................................................................................................... 101 Figure 7.6: (a) Raw PPG signal, subsequent and 5th IMF, and (b) FFT of 5th IMF component ..................................................................................................................... 101 Figure 7.7: (a) Raw PPG signal, subsequent and 6th IMF, and (b) FFT of 6th IMF component ..................................................................................................................... 102
+XVI
+
+Figure 7.8: (a) Respiration; (b) raw PPG signal at 810 nm with both upper and lower envelopes; (c) envelope filtered PPG at 810 nm by the proposed method; (d) FFT of PPG at 810 nm during 620‚Äì950 s and (e) enlarged portion of raw and envelope filtered PPG signals (in the intervals 680‚Äì710 s and 900‚Äì930 s) .............................................. 103 Figure 7.9: Raw PPG signal, 0.7‚Äì3 Hz bandpass filtered PPG, EMD filtered PPG (1st IMF component Ì†µÌ±ê1(Ì†µÌ±°)), and AC part of proposed method filtered PPG ...................... 104
+Figure 7.10: (a) Acceleration; (b) respiration; (c) raw PPG at 810 nm and 1300 nm with no filtering enabled; (d) Hb coefficient from raw PPG; (e) 0.8‚Äì3.9 Hz band pass filtered PPG signals at 810 nm and 1300 nm; (f) Hb coefficient during 0.8‚Äì3.9 Hz band pass filtered PPG; (g) proposed method filtered PPG signals at 810 nm and 1300 nm; and (h) Hb coefficient from proposed method filtered PPG ..................................................... 106
+Figure 7.11: (a) EMD filtered PPG (Ì†µÌ±ãDC, low + Ì†µÌ±ãAC, EMD); (b) EMD filtered PPG (Ì†µÌ±ãDC, constant + Ì†µÌ±ãAC, EMD); (c) EMD filtered Hb (Ì†µÌ±ãDC, low + Ì†µÌ±ãAC, EMD); (d) EMD filtered Hb (Ì†µÌ±ãDC, constant + Ì†µÌ±ãAC, EMD) .......................................................107
+Figure 7.12: (a) Acceleration; (b) respiration; (c) raw PPG at 810 nm and 1300 nm with no filtering enabled; (d) Hb coefficient from raw PPG; (e) 0.8‚Äì3.9 Hz band pass filtered PPG signals at 810 nm and 1300 nm; (f) Hb coefficient during 0.8‚Äì3.9 Hz band pass filtered PPG; (g) proposed method filtered PPG signals at 810 nm and 1300 nm; and (h) Hb coefficient from proposed method filtered PPG ..................................................... 109
+Figure 7.13: (a) EMD filtered PPG (Ì†µÌ±ãDC, low + Ì†µÌ±ãAC, EMD); (b) EMD filtered PPG (Ì†µÌ±ãDC, constant + Ì†µÌ±ãAC, EMD); (c) EMD filtered Hb (Ì†µÌ±ãDC, low + Ì†µÌ±ãAC, EMD); (d) EMD filtered Hb (Ì†µÌ±ãDC, constant + Ì†µÌ±ãAC, EMD) ....................................................... 110
+Figure 7.14: (a) Acceleration; (b) respiration; (c) raw and proposed method filtered PPG signals at 810 nm; (d) raw and proposed method filtered PPG signals at 1300 nm; and (e) raw Hb coefficient (black square point) and proposed method filtered Hb coefficient (red circle point) ............................................................................................................ 112
+Figure 7.15: Histograms of (a) raw Hb coefficients (standard deviations) with no filtering enabled and (b) Hb coefficients by proposed filtered method (standard deviations) for which the subjects were in the sitting position and the hands with the sensor probe on were set at three different vertical levels ............................................ 113
+XVII
+
+Figure 7.16: (a) Raw Hb coefficients (black square points) and filtered Hb coefficients (red circle points), (b) raw PPG and envelope filtered PPG signals by the proposed method, (c) ACC signals, and (d) respiration intensity................................................. 115
+XVIII
+
+List of Tables
+Table 2.1: The electromagnetic spectrum wavelength and visible light spectrum wavelength‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶...14
+Table 3.1: Comparison of three haemoglobin devices: Standard Laboratory CoOximeter (e.g., Radiometer ABL-820 CO-Oximeter (tHb)), point-of-care device (e.g., HemoCue ¬Æ 201), and SpHb monitoring (e.g., Radical-7¬Æ; Masimo Corp., Irvine, CA) ......................................................................................................................................... 36 Table 4.1: The bus pin configuration .............................................................................. 49 Table 5.1: Systolic, Diastolic And HR at Different Height Level ................................... 71 Table 5.2: Mean BLs and AMs at Different VHD Values for 18 individual subjects were in the sitting position and the finger sensor probe set at three different vertical levels .. 73 Table 5.3: Mean, Median, Standard Deviation, and Interquartile Range of Baseline from 18 sets of PPG signals at Different VHD Deviation ....................................................... 75 Table 5.4: Mean, Median, Standard Deviation, and Interquartile Range of AM from 18 sets of PPG signal at Different VHD Deviation..............................................................75 Table 5.5: Main parameters of body variation from a standing position to a sitting position ............................................................................................................................ 77 Table 5.6: Primary Parameters of Body Variation from Sitting Position to Standing Position............................................................................................................................ 78 Table 5.7: Mean, Median, Standard Deviation, and Interquartile Range of Primary Parameters of Body Variation from Sitting to Standing..................................................78 Table 7.1: Hb coefficients deduced from raw and proposed method filtered PPG signals for which the five individual subjects were in the sitting position and the finger sensor probe set at three different vertical levels‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶‚Ä¶..113
+XIX
+
+XX
+
+Abbreviations
+
+a Ì†µÌ±éÌ†µÌ±° Ì†µÌ∞¥Ì†µÌ±° AC ACC ACC_X ADC A&E AM ANC ANS Arb BL BP BPM c
+
+Acceleration Angular Acceleration Total Absorbance Alternating Current Acceleration X-axis Acceleration Analogue-to-Digital Converter Accident and Emergency Amplitude Modulation Adaptive Noise Cancellation Autonomic Nervous System Arbitrary Analog Unit Baseline Blood Pressure Beats Per Minute The Speed of Light (approximately 3.0√ó108 m/s)
+XXI
+
+c1 cn Ì†µÌ±êÌ†µÌ∞¥ cHb CO2 COHb CPU CS CSO Ì†µÌ±ë D DC DSP DST DAC DCO DMA
+
+The First IMF Component of the Data s(t) The nth IMF Component of the Data s(t) Concentration of the Absorber Haemoglobin Concentration Carbon dioxide Carboxy-Haemoglobin Central Processing Unit Chip Select Central Statistics Office Distance of Optical Path Duty Cycle Direct Current Digital Signal Processing Discrete Saturation Transform Digital-to-Analogue Converter Digitally Controlled Oscillator Direct Memory Access
+XXII
+
+E EMD EU Ì†µÌ±≠ FBC FFT FIR Œµ g GDP GNI Ì†µÌºÜ fs h h1
+h11
+
+Light Extinction Empirical Mode Decomposition European Union Force Full Blood Count Fast Fourier Transform Finite Impulse Response Extinction Coefficient/ Attenuation Coefficient Anisotropy factor Gross Domestic Product Gross National Income Wavelength Sampling Frequency Planck's Constant The Difference between the Data s(t) and the Mean of the Upper and Lower Envelopes Ì†µÌ±ö1 The Difference of ‚Ñé1and m11
+XXIII
+
+h1k H2O Hb HbCO HbO2 HHb HR HRV Ì†µÌ∞º0 Ì†µÌ∞º IC IMF I2C InGaAs iMEMS Ì†µÌ≤å LCD
+
+The Difference of ‚Ñé1(Ì†µÌ±ò‚àí1) and m1k Water Haemoglobin concentration Carboxyhaemoglobin concentration Oxyhaemoglobin/Oxygenated Haemoglobin concentration Deoxyhaemoglobin Haemoglobin concentration Heart Rate Heart Rate Variability Original Intensity Measured Intensity Integrated Circuit Intrinsic Mode Functions Inter Integrated Circuit Communications Indium Gallium Arsenide Integrated Micro Electro Mechanical Systems Spring Stiffness Constant Liquid Crystal Display
+XXIV
+
+LED LMS Ì†µÌ±ö m1 Ì†µÌ±ö11 m1k MCDST MDF MetHb MHb Mid-IR MSE NLMS NIR OECD OFSRC SpOC
+
+Light Emitting Diode Least Mean Square Mass The Mean of the Upper and Lower Envelopes of s(t) The Mean of the Upper and Lower Envelopes of ‚Ñé1 The Mean of the Upper and Lower Envelopes of ‚Ñé1Ì†µÌ±ò Minimum Correlation Discrete Saturation Transform Multidelay Block Frequency Domain Adaptive Filter Methaemoglobin The Haemoglobin Molecular Weight 64,500 g/mol Mid-wave Infrared Mean Square Error Normalized Least Mean Square Near-Infrared Organisation for Economic Co-operation and Development Optical Fiber Sensor Research Centre Oxygen Content
+XXV
+
+P PPG PI PR PPG PVI Ì†µÌ±ü Ì†µÌ±ü1
+Ì†µÌ±üÌ†µÌ±õ
+RAM Rdiff RF RHb RISC RLS s(t)
+
+Total Period of the Signal Photoplethysmography Perfusion Index Pulse Rate Photoplethysmography Pleth Variability Index Radius of an Arc The First Residue Defined as the Difference between the Data Ì†µÌ±†(Ì†µÌ±°) and the Subtracted Ì†µÌ±ê1 The nth Residue Stated as the Difference between the (n‚àí1)th Residue Ì†µÌ±üÌ†µÌ±õ‚àí1 and the nth IMF Component Ì†µÌ±êÌ†µÌ±õ Random Access Memory Diffuse Reflection Radio Frequency Reduced Haemoglobin Reduced Instruction Set Computing Recursive Least Squares Source Data
+XXVI
+
+SCLK SD SDA SDO SMI SpCO SpO2 SpHb SPI SpMet SQI SNR T tHb ¬µa ¬µs UART
+
+Clock for SPI Standard Deviation Serial Data Input Serial Data Output Self Mixing Interferometry Carboxyhaemoglobin Saturation of Peripheral Oxygen Total Haemoglobin Serial Peripheral Interface Methaemoglobin Signal Quality Index Singal-to-Noise Ratio Time of the Active Signal Total Haemoglobin Concentration Absorption Coefficient Scattering Coefficient Universal Asynchronous Receiver/Transmitter
+XXVII
+
+UL UV USART
+Ì†µÌ±£ VHD VI VLF Ì†µÌºî Ì†µÌ±•dis Ì†µÌ±ãÌ†µÌ±ñ,raw(Ì†µÌ±°) Ì†µÌ±ãÌ†µÌ±ñ,upper(Ì†µÌ±°) Ì†µÌ±ãÌ†µÌ±ñ,lower(Ì†µÌ±°) Ì†µÌ±ãÌ†µÌ±ñ,AC(Ì†µÌ±°) Ì†µÌ±ãÌ†µÌ±ñ,DC(Ì†µÌ±°)
+
+University of Limerick Ultraviolet Universal Synchronous/Asynchronous Receiver/Transmitter Velocity Vertical Height Difference Virtual Instrument Very Low Frequency Angular Frequency Distance the Spring Stretched from its Equilibrium Position The Raw Signal The Upper Envelope of the Raw Signal The Lower Envelope of the Raw Signal The AC (Time Varying) Component of the Raw Signal The DC (Non-Time Varying) Component of the Raw Signal
+
+XXVIII
+
+CHAPTER 1.
+INTRODUCTION
+The current population of the world is about 7.5 billion [1], and this figure is estimated to reach 9.7 billion in 2050 [2]. In addition to the increasing number of people, the average life span around the world is also rising. Worldwide, the average life expectancy at birth was 71.0 years (68 years and 6 months for males and 73 years and 6 months for females) over the period 2010‚Äì2013 according to United Nations World Population Prospects 2012 Revision [3], or 70.7 years (68.2 years for males and 73.2 years for females) for 2009 according to the World Factbook [4]. Ireland is ranked 19th on the List of Healthcare by the World Health Organization (2015) [5]. Life expectancy at birth is now 76.8 years for men and 81.6 years for women (Central Statistics Office, CSO, 2013) [6].
+This ageing of the older will intensify the rise in the number of the people living with all kinds of elderly diseases including cardiovascular diseases, arthritis, cancer, osteoporosis, diabetes, vision/hearing change/loss, sleep disorders and respiratory diseases. Health care cost of OECD (Organisation for Economic Co-operation and Development) countries is charted in Figure 1.1 [7]. The average spending in OECD countries in 2013 was 9 % of GDP (Gross Domestic Product, compared with 12.4 % of GNI (Gross National Income) in Ireland). Public spending in Ireland was 8.8 % of GNI in 2013. Health spending in Ireland appears to be relatively high by international standards. This is particularly so given consideration of our relatively a young demographic. OECD data shows that 12.7% of the population in Ireland was over 65 compared to an European Union (EU) average of 18%. Figure 1.2 illustrates the change in the health spending from 2000 to 2013. The public spending has increased by 164 percent over the period (‚Ç¨8.1 billion) whilst private spending 269 % (‚Ç¨3.9 billion) [8].
+1
+
+Figure 1.1: Health Care Cost (1970-2015) [7]
+Figure 1.2: Illustration of the change in health spending over the period 2010‚Äì2013 [8]
+However, Ireland‚Äôs healthcare spending in 2016 ranked below that of lower-income countries, Macedonia and Slovenia, despite a relative increase in spending than last past several years. The waiting time of A&E (Accident and Emergency) service in Ireland continued to be the worst among the OECD countries, ranked 21st out of 35 countries according to the Euro Health Consumer Index and followed by Poland, Greece and the UK [9]. Rapidly growing population and long A&E waiting time raise the demand for human vital signs monitoring devices. Novel, compact and non-invasive operated monitoring devices hence have been promoted for being used by the subjects who are wearing it.
+2
+
+Such an optical photoplethysmography (PPG) sensor has been developed to measure anaemia, Blood Pressure (BP), blood oxygen saturation, Heart Rate (HR), vasomotor function and thermoregulation [10]. Monitoring human vital signs out of the hospital environment could greatly improve the quality of daily life.
+However, despite the benefit of convenient and mostly real time monitoring, the drawback does exist such as the undesired artefacts/noises induced into the useful physiological signals. Motion artefact (that occurs with voluntary or involuntary human body motion during monitoring) is currently one of the toughest problems in the design of many commercial devices such as pulse oximeters.
+1.1 Research Motivation
+During recording of the various vital physiological signals, both in the hospital environment and daily care, contamination of the original signals due to noise is a limitation in the application of the wearable sensor devices. A drawback of the photoplethysmography (PPG) technology has been that the PPG signal is easily affected by any activities relating to hemodynamic pressure variation near the PPG sensor. These factors include movement of the subject (e.g., walking and swinging arm) accompanied with that of the measurement apparatus [11-17] and autonomic nervous system (ANS, e.g., changes in respiration) variations [18]. To avoid the errors induced by these factors, traditionally, measurements of human vitals are collected in the conditions that the subject is motionless and in a lying or sitting position.
+For example, Figure 1.3 (one experimental study by the author) shows one case study of a series of distortion test in haemoglobin (Hb) monitoring. Region (A1) and Region (A2) in Figure 1.3d mark deep breathing and cough events, and accordingly PPG-fluctuations occurred with the ANS variation as shown in Figure 1.3b. Figure 1.3c depicts acceleration signals versus time, and region (B) indicates the vertical height difference (VHD, the vertical distance from the attached PPG probe to heart level) of the finger sensor position, and the raw PPG signal was mainly affected from the local BP variation near the finger sensor position. Region (C) in Figure 1.3c represents the movement of body position with no VHD between the finger sensor probe and the heart level. The PPG-fluctuation in Figure 1.3b indicates that a change of body position can stimulate
+3
+
+ANS variation to influence the raw PPG signal as well as raw Hb coefficients readings in Figure 1.3a. Region (D) in Figure 1.3c indicates the swing of an arm with the finger sensor probe on between 25 cm above heart level and 25 cm below heart level. Region (E) in Figure 1.3c shows the acceleration signal during a walking event while the subject tried to breath at an even speed (Figure 1.3d). The measurements of raw Hb coefficients and raw PPG signals are illustrated in Figure 1.3a and Figure 1.3b. The walking event disturbs the raw Hb coefficient readings more dramatically observable than other events in the series of the distortion test. Therefore, there is a demonstrable need for algorithms capable of detecting and removing these artefacts from the desired signals.
+Figure 1.3: (a) Raw Hb coefficients, (b) raw PPG signals, (c) acceleration signals, and (d) respiration intensity
+1.2 Contributions of the Thesis A novel development of a filtering method based on an envelope algorithm has been proposed, building on, but improving the analysis and comparison of existing artefact removal techniques. The thesis focuses on signal artefact removal comparison between different filtering methods and validates the accuracy of Hb monitoring in a large group subjects through preliminary statistical analysis. A multi-sensor approach combining the optical probe, an accelerometer and a wearable chest respiration monitor has been adopted in our sensor device. The study of motion artefact removal in non-invasive
+4
+
+hemoglobin monitoring is based on the research of PPG signals in the context of external physiological parameters, not only motion artefact noise but also ANS (e.g., deep breathing, cough and talking events) and BP on the measuring location (e.g., VHD) have been brought into consideration for the first time, to the best of the knowledge of the author. Data from the multi-sensor system is combined to enable measurement of vital physiological parameters and furthermore used to minimise signal noise including motion artefact, BP and respiration variations. In its entirety, this thesis has produced a number of contributions which are described below.
+1. Novel design of PPG sensor finger probe with an accelerometer embedded. The finger sensor probe was attached to the subject using Velcro tape in order to make the finger band size adjustable for different finger sizes.
+2. Factors which can affect PPG signals. Accompanied with motion artefact, BP near the measuring site is introduced with the motion events. To study of the effect of motion on human vital physiological information, the properties of the PPG signal have been investigated in detail and factors which can affect PPG signals are shown in Figure 1.4. Results demonstrate that a PPG signal is highly affected by BP at the measuring site from VHD, ANS and pressure variations.
+Figure 1.4: Factors which can affect PPG signals
+3. Further research on the removal of the motion artefacts in human vitals monitoring is conducted and executed based on the experimental analysis of the PPG signals. Traditionally, a band-pass filter would be adopted in the removal of the noises in the corrupted PPG signals. However, some noise frequencies fall into that of the PPG signals, e.g., motion, so methods such as adaptive filtering and empirical mode decomposition (EMD) are used in the removal of these artefacts. In the thesis, the author has proposed a novel efficient envelope-based
+5
+
+filtering method. The result of Hb measurement between three methods (the band pass, the EMD, and the proposed methods) are compared in detail and tested on five subjects in both the stationary and the non-stationary states. 4. In Figure 1.4, body position variation (standing up) and a change in breathing pattern (a deep yawn and a cough) are two factors which tend to influence SpO2, HR, and Hb reading. These results are reported through the study of ANS during motion events. 5. The thesis mainly focuses on the research relating to the effects of motion on the quality of non-invasive blood diagnosis by PPG-based sensor system, with a particular emphasis on the VHD at the measuring site.
+1.3 List of Publications
+Journals:
+ÔÇ∑ Yuan, H., Poeggel, S., Newe, T., Lewis, E., Viphavakit, C., & Leen, G. "An Experimental Study of the Effects of External Physiological Parameters on the Photoplethysmography Signals in the Context of Local Blood Pressure (Hydrostatic Pressure Changes)." Sensors, 17(3), pp. 556‚Äì576, 2017.
+ÔÇ∑ Yuan, H., Memon, S.F., Newe, T., Lewis, E. G. "Motion Artefact Minimization from Photoplethysmography based Non-invasive Hemoglobin Sensor Based on an Envelope Filtering Algorithm." Measurement, 115, pp 288‚Äì298, 2018.
+Conference papers:
+ÔÇ∑ Yuan, H.; Leen, G.; Lewis, E. "Effects of autonomic nervous system on the quality of non-invasive blood diagnosis by PPG-based sensor system." In Proceedings of the 2015 11th Conference on Ph.D. Research in Microelectronics and Electronics (PRIME), Glasgow, UK, 29 June‚Äì2 July 2015; pp. 373‚Äì376.
+ÔÇ∑ Yuan, H., et al. "A wireless, body-worn non-invasive device for measuring biometric parameters such as total haemoglobin concentration." University Hospital Limerick (UHL) Research Symposium, 2013.
+6
+
+ÔÇ∑ Duraibabu, Dineshbabu, Niall Kelly, Sven Poeggel, Hugh Flood, Hongwei Yuan, Gerard Dooly, Deirdre McGrath, Daniele Tosi, Elfed Lewis, and Gabriel Leen. "Optical fibre pressure and temperature sensor system designed for urodynamic applications." In Sixth European Workshop on Optical Fibre Sensors (EWOFS'2016), pp. 991617-991617. International Society for Optics and Photonics, 2016.
+ÔÇ∑ Newe, T., O'Connell, E., Meere, D., Yuan, H., Leen, G., O'Keeffe, S., & Lewis, E. (2016, May). Optical fibre multi-parameter sensing with secure cloud based signal capture and processing. In Sixth European Workshop on Optical Fibre Sensors (EWOFS'2016) (pp. 99162V-99162V). International Society for Optics and Photonics.
+1.4 Outline of the Thesis
+The rest of this thesis is organized as follows:
+Chapter 2 lays out the background of the topic, mainly from the aspects: 1) the introduction of human skin and its optical properties; 2) basic conception of ANS; 3) PPG based technique and sensor device; 4) a brief description of the electronic microcontroller hardware used in the investigation of the integrated circuit and 5) BP monitor.
+Chapter 3 includes a literature review on the development of non-invasive monitoring technique and the methods for compensation of motion artefact in bio sensor systems.
+In Chapter 4, the proposed optical sensor system is described from the view of the experimental setup and the schematic of the biomedical application flow diagram with particular emphasis on the proposed envelope-based filtering method.
+Chapter 5 reports on the research relating to the effects of local BP variation in the quality of PPG signals. A corrupted PPG signal during the motion process tends to be varied by local BP, and factors that would or would not affect the PPG signal during a movement event of the probe are discussed in detail. To deal with this problem, firstly
+7
+
+method is proposed by using accelerometers to measure the acceleration and movement for PPG analysis and feature extraction. External pressure on/near measuring point, ANS, and VHD between the measuring site and heart level in the vertical direction are also all factors that can potentially affect local BP at the measuring site. A more severe test of motion by swinging an arm is included at the end of this chapter. Chapter 6 describes the effects of ANS on the quality of the PPG based measurements, including HR, SpO2 and Hb. Human vitals monitoring results presented here illustrate that a baseline (being the difference between 0 and the maximum value of this waveform during the interval) in PPG signal is highly affected by ANS induced both from a) movement of body position and b) physiological variation, such as yawning and coughing. A synthetic noise generation and moving average filtering method are used in a clean and enhanced signal. Chapter 7 begins by comparison of existing artefact removal techniques with the novel development filtering method based on the envelope algorithm. The chapter focuses on the artefact removal comparison between different filtering methods and validates the accuracy of Hb monitoring in a large group subjects through a preliminary statistical analysis. Chapter 8 concludes the thesis that PPG signals related measurements tends to be easily contaminated by BP variation at the measuring site caused from motion artefact. Suggestions for further work are also presented in this chapter.
+8
+
+CHAPTER 2.
+PHOTOPLETHYSMOGRAPHY
+2.1 Bio-Photonics The real-time evaluation of a patient‚Äôs physiological condition is essential not only during or after surgery, but also for on-going daily patient care. The current standard for the Hb determination requires invasive methods, involving the handling of blood and needles, and the subsequent in-vitro analysis of samples [19-21]. Analysis of different kinds of human tissues has been widely studied in biomedical research. Some biosensors are designed for monitoring human vitals from direct contact with human skin using optical non-invasive method. Hence, the constitution of the skin, its optical properties and the interaction of light with it are firstly described. 2.1.1 Human Skin The human skin is the outer covering of the body and it is the largest organ of the human body (15‚Äì20 % of the total body weight) [22]. The skin can be divided into several layers of ectodermal tissue and it protects the underlying muscles, bones, ligaments and internal organs from external influences, manages heat regulation, and assumes a part of the metabolism and immunology [23]. The complex structured skin can be described by three layers, which are epidermis, dermis, and fat layer (hypodermis). A 2-D view of the human skin structure is shown in Figure 2.1 [24]. Skin pigmentation depends on the melanin concentration: the darker of the skin the higher the melanin concentration in the epidermis [22].
+9
+
+Epidermis
+
+Figure 2.1: The human skin structure [24]
+
+The epidermis is the outer layer of the human skin tissue, and normally referred as the tough, strong and thin ‚Äòcoat‚Äô for the human body. Its thickness can vary from 40 Œºm near the forehead or the hand surface to 1.5 mm in the sole of the foot region. The stratum corneum is the outermost and most important section of the epidermis as it separates the human body from its surrounding environment and is relatively waterproof preventing most substances especially bacteria and viruses from entering the body [22]. The stratum corneum is generally the compositions of stratified squamous epithelium without blood vessels in it. On the other hand the epidermis also tends to fight against trauma to protect the internal tissues of the human body, e.g., muscles, blood vessels, organs, nerves, etc. Thicker skin can be seen in certain areas of the human body and gives higher strength protection by an enhanced stratum corneum. These locations typically can be found at hands between the palms or the bottom of the feet.
+
+Keratinocytes (main part as outer keratin layer), Melanocytes (pigment melanin), Langerhans (part of the skin's immune system, against skin allergies) and Merkel cells are the main type of cells within the epidermis [25]. Melanin is the representation of the
+
+10
+
+tan of the skin, produced by melanocytes from absorption of sunshine. The cells in the epidermis layer are mainly nourished by a diffusion process: nutrients and air are transported by capillaries, part of the oxygen is diffused from the outside of human body that is surrounded by air [26]. In the areas as the end of the tips, like the ears, toes, fingertips and nose, the network is passed by the arterial shunt vessels around the cells. The mitosis takes the responsibility as the carrier for formation for cells through and between the basal layers. The replacement of cells in the epidermis takes place as the daughter cells increase, covering the cells that tend to decay from their isolation to the nutrients. The apoptosis and metabolism ultimately leads cells in the epidermis to death and are replaced in the stratum corneum by new and young cells [26].
+Dermis
+The dermis normally can be divided into hair follicles, apocrine glands (sweat glands), sebaceous (oil) glands, lymphatic vessels, nerves endings, and blood vessels (capillaries); all these contained are located underneath the epidermis. The thickness of the dermis falls into the range of 1 Œºm to 4 Œºm. It has the function of cushion protecting the human body against external pressure and strain [22]. The dermis and the epidermis are tightly connected by a basement type membrane between them. It can be seen as a very thick layer of organic film made up from fibrous (elastin) and elastic (collagen) tissue that provides flexible strength for the daily care of skin protection. The details of the components of the dermis are described as following [27]:
+The hair follicles support the human body with different types of hair all over the body. Hair supports in the personal appearance also plays the important role in physics, e.g., adjusting skin temperature, acting as a cushion and buffer from outside forces, and providing extra sensation.
+The apocrine glands generate sweat stimulated from extra or inner heat. Stress and emotion are other factors can result in the production of sweat. In the aspect of chemical components, sweat is mainly made of water, salt, waste (excreta), and other chemicals. Sweat often evaporates away from the skin surface of the body. Through this process, the body temperature can be controlled (cooling).
+11
+
+The sebaceous glands, also named the oil glands, secrete sebum by nature of moisturizing hair follicles. Sebum is a kind of oil, which has the same function as a moisturizer, keeping the skin as moist and smooth, and as barriers, stopping harmful substances entering from outside.
+The nerve endings transmit electrical signals which initiate the sensation, e.g., pain from hurting, touch scratching, pressure from an external force, and heat from the environment. Some portions of the human skin include more nerve endings than others. In general, the fingertips and toes have more nerve cells and hence they are much more sensitive to touch than other sections of the human body.
+The blood vessels are widely distributed throughout the human body. Some of these are extended to the dermis. Both nutrients and oxygen are provided to the skin through the blood vessels. On the other hand, they play a key role in regulating body temperature and balance the temperature according to the environment. In detail, heat tends to broaden the blood vessels, allowing large volumes of blood to flow inside the vessels of the skin. This heat is released to cool down the body temperature. Similarly, when the environment is cold, the vessels in the skin tend to shrink, helping to maintain heat within the human body. As mentioned before, the blood vessels, nails, hair follicles, apocrine glands, and other components are classified belonging into the dermis.
+The Fat Layer
+The fat layer, also called the hypodermis, contains largely loose connective tissue and elastin tissue with fat cells among them, responsible for a connecting link of the underlying tissue (e.g., bones and muscles) and the skin as the insulation layer [28]. It also provides a supply of a nervous network and blood vessels for the muscle. The fat in the hypodermis is up to 50% of the total body fat. Fibroblasts and adipocytes serve as the insulation and padding for the body.
+2.1.2 Haemoglobin
+Oxygen is an essential requirement to support an individual‚Äôs life. Brain damage, organ failure, or even death, can result from an inadequate supply of oxygen to vital organs and tissues. The cardiovascular system (responsible for transporting oxygen, nutrients,
+12
+
+and cellular waste products throughout the body) and respiratory system (transporting air into the lungs and facilitating the diffusion of Oxygen into the blood stream while receiving waste Carbon Dioxide from the blood and exhaling it) are two of the circulatory systems in the human body; they are working together, responsible for many body functions. Within the blood, Hb plays the role of transporting oxygen from the lungs to the rest of the human body. It is the iron-containing respiratory protein in red blood cells. Hb level/concentration, measured in grams per decilitre (g/dL), reflects the blood‚Äôs ability for carrying oxygen and iron [29-31]. Normal haemoglobin levels of women are ranging from 12‚Äì16 g/dL and those of men are in the range of 13‚Äì18 g/dL.
+2.1.3 Optical Properties
+Further work in this thesis involves spectroscopic measurements in tissues, where the optical properties of the measured skin must be taken into account. The optical properties (e.g., scattering and absorption) of the skin have shown the details of the hypodermis structure by analysing Mie-scattering and Rayleigh reflected signals [32]. To describe the wave nature of the electromagnetic radiation, the terms wavelength Œª, or frequency Ì†µÌ±ì are used. In detail, it includes: 1) amplitude, defined as the brightness of the light signal; 2) wavelength Ì†µÌºÜ or frequency Ì†µÌ±ì, which is described by Ì†µÌ±ê = Ì†µÌºÜÌ†µÌ±ì, where Ì†µÌ±ê stands for the speed of light (approximately 3.0√ó108 m/s) [33-35]. This was the classical interpretation of electromagnetic fields and waves, crystallized in Maxwell Equations, which dominated until in the late 19th century at which point Planck, Einstein and others came along with new-born quantum theory. In terms of the modern quantum theory, electromagnetic radiation consists of photons. From the particle description of the electromagnetic radiation, they are discrete particles carrying energy as Ì†µÌ∞∏ = ‚ÑéÌ†µÌ±ê/Ì†µÌºÜ, where h denotes Planck's constant moving at the speed of light [34].
+From the particle view of light, the number of photons decides the brightness of the light, and the energy contained in each photon determines the colour of the light. Different effects have been shown when several parts of the electromagnetic spectrum interacting with all kinds of matter, e.g., Microwave through far infrared: Plasma oscillation, molecular rotation; Near infrared: Molecular vibration, plasma oscillation (in metals only); Ultraviolet (UV): Excitation of molecular and atomic valence
+13
+
+electrons, including ejection of the electrons (photoelectric effect); X-rays: Excitation and ejection of core atomic electrons, Compton scattering (for low atomic numbers), etc. Therefore, the human body could act differently according to wavelength from 400 nm to 2000 nm [33]. The electromagnetic spectrum wavelength and visible light spectrum wavelength are shown in Table 2.1. The pigment melanin is the main and highly effective absorber of light in skin tissue, particularly in the UV light and the visible light ranges.
+Table 2.1: The electromagnetic spectrum wavelength and visible light spectrum wavelength
+Optical properties of light interaction events with human body can be divided into reflection/refraction, absorption, and scattering [36, 37]. These three optical properties are the main processes for investigation of human tissue by non-invasive optical methods. As the PPG sensor device is based on light transport through human skin and light propagation in biological tissues requires knowledge about the light interaction within the medium, light transport in biological tissue and turbid media is introduced. The haemoglobin measurement, based on the development of an optical sensor system, strongly depends on an understanding of the optical properties when light propagating through and interacting within the biological tissue. Reflection is the variation of a wave front in direction when it meets the interface from one medium to another different medium. In the case of reflection the wave front tends to return towards the first medium. The law of reflection makes the thing clear that the incident and the reflection wave are on the same side of one medium and specular reflection makes the angles between the normal and the two waves the same.
+14
+
+Refraction: When a beam of light propagates from one medium into another transmission medium, the change in direction of light propagation is named as refraction.
+Absorption of light is attributable to the absorption of electromagnetic energy within a molecule. In the case of absorption, the energy of a photon is imparted to an atom or molecule in that medium when a wave light transmits through it. The energy absorbed from the photon tends to transform into the absorber in the form of internal energy, often stored as thermal energy.
+The medium discussed in this thesis is the human skin. Absorption of photons can cause damage of tissue if the incident light into the tissue results in heating leading to thermal effects. If sufficient energy is absorbed from photons, there will be energy transfer from the light into energy stored in the tissue so the tissue is highly affected. This can occur at any wavelength but is most efficient at shorter ones e.g. UV light and X-ray.
+Molecules with the capability of efficiently absorbing photons are named chromophores. These chromophores can be divided into two types depending on how photons are absorbed in the tissue: vibrational transition absorption and electric transition absorption [38]. Water (via vibrational transitions) dominates as it comprises more than 90% of human tissue. In the case of electronic transition absorption, it is caused by porphyrins which are highly effective as chromophores in absorbing photons. The mechanical vibrational frequencies correspond with excitation wavelengths which are longer being well matched to microwave and Mid-wave Infrared (Mid-IR, in the wavelength range from 2.5 ¬µm to 8 ¬µm). Hence UV, visible, and near infrared light normally fall in the range of electronic transition absorption as they are associated with relatively energetic (higher frequency) absorption. Since the absorption could provide information on the concentration of various chromophores and due to the low absorption of light near the visible and near infrared range, light between 500 nm and 1500 nm is often used as light source for non-invasive human vitals measurements. UV light wavelengths are generally considered unsuitable for direct exposure to tissue.
+Scattering happens when a photon interacts with a particle. The variations in refractive index of the medium where the irregular changes tend to force the photon to deviate
+15
+
+from a straight trajectory to many possible angular directions. Light interaction through scattering occurs when the photon passes through media, such as cellular content, collagen fibres, ultrastructure of the chromophores, nuclei, and cells. In the scattering event, the photon changes direction or polarisation state when it bounces off a microscopic obstacle as described above. Scattering can be divided into Mie scattering and Rayleigh scattering according to the size of particles compared with the wavelength of the light [32]. Mie scattering occurs in the case when particles have similar scale as the wavelength of light; while Rayleigh scattering occurs when the particle sizes are much smaller than the incident photon wavelength. The concentration of the scattering components is derived from the scattering properties. For example, scattering signals are affected by the size, form, discrete particles, and continuous variations in the medium. The refractive index, which greatly affects the scattering and absorption properties of tissue, is given special care in the design of bio sensor monitoring device. Different absorption coefficients of haemoglobin derivatives, according to wavelength are shown in Figure 2.2, such as Oxy-haemoglobin (HbO2 or O2Hb), Reduced haemoglobin (RHb) or Deoxyhaemoglobin haemoglobin (HHb), carboxy-haemoglobin (COHb) and methaemoglobin (MetHb). The concentration of these haemoglobin derivatives and water comprise the main absorption medium in blood, leading to specific attenuations to light signals with different wavelengths [39].
+Figure 2.2: Different absorption spectra of haemoglobin derivatives according to wavelength [39]
+16
+
+2.2 Autonomic Nervous System (ANS)
+The ANS, referred to the bundle of motor neurons and the axonal connections [40], is part of the peripheral nervous system that regulates involuntary body functions subconsciously, such as BP [18, 41-44], heart and breathing rates [45-49], digestion [43, 49, 50], body temperature [51-53] and other processes [40, 53-57]. An ANS contains two sets of nerve cells, brain stem and spinal cord. They are connected to the other cells called autonomic ganglions by nerve fibres. Nerve fibres from these ganglia in general have the function of connecting internal organs within.
+The sympathetic and parasympathetic nervous systems, two divisions of the ANS, usually function in opposition to one another and have a complementary relationship, creating a balance within the human body [58-60]. In general, the sympathetic nervous system speeds up heart and respiration rates, boosts BP; the parasympathetic nervous system, in contrast, counters the sympathetic one by mediating the body's relaxing functions, slowing down HR and breathing speed, releasing BP [59-61]. ANS variations induced by physiological events include changes in the breathing pattern, e.g., yawning, coughing, gasping, and are activated by activities such as exercise and eating. ANS activity can affect BP and breathing rate and reduce the quality of PPG signals.
+The sympathetic nervous division of the ANS regulation can be described as the flightor-fight responses [62]. The sympathetic nervous division of the ANS, speeding up HR, plays the role to make the body to engage with and function under different kinds of stress. In standard physiology, the sympathetic nervous division tends to govern arousal, has the fight or fight reaction, and is activated by any stimulus signals if over an individual‚Äôs threshold (this threshold can vary enormously). The stimulus signals include feelings, noise, light, drugs and chemicals (e.g., caffeine). An immediate anticipatory state tends to be generated by the release of adrenaline in response to the stimulus signal, which would cause the heart to beat more strongly and quickly, increasing blood supply to the muscles and raising BP.
+Meanwhile, the parasympathetic nervous division of the ANS, slowing down HR, tends to be constantly opposing the sympathetic system [63]. It helps maintain normal body functions, calms down moods, and conserves physical resources. Many organs are
+17
+
+controlled by both the sympathetic nervous division and the parasympathetic nervous division. Most of the time, the two divisions have opposite functions of the same organ. The parasympathetic nervous division of the ANS also performs such tasks as relaxing the bladder, speeding up the HR and dilating eye pupils. One of the examples could be that when the heart receives a neural signal stimulated from the neurons of the sympathetic nervous division, the heart will speed up and on the other hand, the heart tends to slow down when it receives a neural stimulation generated from the parasympathetic nervous division.
+The parasympathetic division comes into operation when the stimulus being responded to initiates. It acts in a way opposite to the sympathetic division, and allows the human body to cool down and rebuild a balance within the body [18, 56, 58]. In detail, the parasympathetic nervous division activates encouragement to relax muscles, and specially would slow the HR and lower the BP. It also tends to assist the breathing system to get back to its normal rate. The parasympathetic division supports rest and sleep modes. The standard for ANS analysis is that the two divisions keep each other in check, e.g., the sympathetic division goes up while the parasympathetic division goes down.
+A good example of optimal balance between sympathetic nervous system and parasympathetic nervous system can be seen in animals (e.g., cats) that could respond to certain environmental alerting sounds and motions switching quickly from a relaxed state, and then as soon as the situation is considered safe, they return quickly to the relaxed state. Normally, when the ANS receives stimulation information from around the human body and externally, it tends to respond by adjusting the processes between the body and the environment, usually through the sympathetic nervous division to oppose the original stimulus and through the parasympathetic nervous division to tolerate them. The parasympathetic nervous division and sympathetic nervous division usually work together in opposition to each other, creating a new balance which is the same as existed within the body before the stimulus event.
+The Heart Rate variability (HRV) consists of low and high frequency mediation which are fluctuated by the sympathetic and the parasympathetic nervous systems [64]. Very
+18
+
+low frequency (VLF) fluctuation and low frequency mediations are known to be influenced by the sympathetic nervous system while high frequency fluctuation tends to be affected from parasympathetic nervous systems [65]. On the other hand, the variation in sympathetic and parasympathetic activities has been reported due to the induced respiratory changes [66]. The PPG signal at the fingertip has been used for the assessment of the limb BP change induced by pulse volume variation. The sympathetic nervous system tends to innervate the systolic blood volume in the peripheral arteries and arterioles to which PPG signal is highly proportional [67].
+2.3 Photoplethysmography (PPG) based Concept
+2.3.1 What is PPG
+Photoplethysmography (PPG) is an optics based technique monitoring blood volume variations in the microvascular vessels at the site of measurement. It is often used at the skin surface to make measurements of blood volumetric variation in organs [10]. A PPG signal is often collected from the absorption changes measured by a photodiode, e.g., in a pulse oximeter, when light illuminates the skin surface. During optical illumination process, part of the transmitted light (travelling though biological tissue) is used to be absorbed by the skin and tissue, the light absorbent properties of tissue within skin surface, e.g., muscle, are constant while the blood volumetric variation shows up as a pulsatile signal broadly corresponding to each heartbeat. The principle of monitoring human vitals using a PPG technique is based on the fact that haemoglobin derivatives, mainly HbO2 and HHb, compared with the rest of the blood plasma (mainly water in optical property), have different light absorption in the visible red and near infrared regions. Thus, based on this principle, it is possible to separate the non-pulsatile (Direct Current, DC part) component from the pulsatile (Alternating Current, AC part) component in the arterial blood using a multi-wavelength based Light Emitting Diode (LED, a semiconductor device that converts an electrical current into light) system.
+In detail, the principle of PPG as the schematic diagrams of light attenuation by tissue shown in Figure 2.3, peripheral blood volume tends to rise during cardiac contraction, resulting in the decrease of light absorption (attenuation) in photodetector; the diastole process will decrease the blood volume, leading to the increase of the signal. The PPG
+19
+
+signal variation in the photodiode (a semiconductor device that converts light into an electrical current) is strongly related to changes in the blood flow process and the blood volume variation in the underlying-skin tissue. The AC component shows changes in the blood volume that occurs between the systolic and diastolic phases of the cardiac cycle; the fundamental frequency of the AC component depends on the heart rate and is superimposed onto the DC component [68]. The DC (steady part) and AC (pulsatile part) components can be separated in the PPG signal providing a pulsatile wave.
+Figure 2.3: The principle of PPG describe by the schematic diagrams of light attenuation [68]
+With each cardiac cycle, the heart functions as a pump sending arterial blood out to the periphery. The arterial blood and the venous blood tend to perfuse to the dermis and the fat layer of the skin as mentioned in section 2.1.1. The pressure at the end tip of the skin can be weak, but still be sufficient to allow important information to be captured from the pulse [69]. A common property is that one large initial peak is followed by another small secondary peak and this pattern is found in each cardiac cycle. The volume variation of blood is detected by a photodiode measuring the transmitted or reflected intensity of the incidental light, and the source light is provided normally by multiple wavelength LEDs. The PPG based sensor device can be used for the monitoring
+20
+
+physiological parameters such as respiration, BP, HR, hypo- and hypervolemia as well as other circulatory conditions. The PPG signal can vary widely from one person to another and from the location that the finger clip is placed but with the common property as mention above used for human vital monitoring.
+
+2.3.2 Theory and Method of Non-Invasive SpO2 and Hb Monitoring
+
+When light is transported in biological tissue, the overall effect of absorption causes a reduction in the intensity of the light beam traversing the medium [70, 71]. A relationship between the absorption of light in a purely absorbing medium and the thickness of the medium is fundamentally described by the Beer-Lambert law [72, 73],
+
+Ì†µÌ∞º = Ì†µÌ∞ºoÌ†µÌ±í‚àíÌ†µÌºáaÌ†µÌ±ë
+
+(2.1)
+
+where Ì†µÌ∞ºo and Ì†µÌ∞º are the incident (original, the intensity entering the sample at Ì†µÌ±ß = 0) and transmitted light respectively, Ì†µÌºáa (mm‚àí1 ) is the molar absorption coefficient, and Ì†µÌ±ë (mm) is the optical path length along the medium. The absorbance A is defined as the negative natural logarithm of the transmittance (ratio Ì†µÌ∞º to Ì†µÌ∞ºo) of light,
+
+Ì†µÌ∞º Ì†µÌ∞¥ = ‚àíln Ì†µÌ∞ºo = Ì†µÌºáaÌ†µÌ±ë = Ì†µÌºÄÌ†µÌ±ëÌ†µÌ±êÌ†µÌ∞¥
+
+(2.2)
+
+where Ì†µÌºÄ (Ì†µÌ±Ä‚àí1mm‚àím) is molar attenuation coefficient of the absorbing substance at a
+
+specific wavelength, also known as the molar extinction coefficient, and Ì†µÌ±êÌ†µÌ∞¥ is the concentration of the absorbing substance.
+
+The Beer-Lambert law is also valid if more than one absorbing substance is present. Each absorber contributes in part to the total absorbance. The resulting total absorbance Ì†µÌ∞¥Ì†µÌ±° of a medium with Ì†µÌ±õ absorbing substances for a given light is written as:
+
+Ì†µÌ±õ
+Ì†µÌ∞¥Ì†µÌ±° = ‚àë Ì†µÌºÄi(Ì†µÌºÜ)Ì†µÌ±ëÌ†µÌ±ñÌ†µÌ±êÌ†µÌ∞¥,Ì†µÌ±ñ
+Ì†µÌ±ñ=1
+
+(2.3)
+
+The Beer-Lambert law is only valid under certain limited conditions: the light entering the medium must be monochromatic and perfectly collimated, and the medium itself must be purely and uniformly absorbing [72, 73]. Therefore, the Beer-Lambert law allows the concentrations of Ì†µÌ±õ different substances to be determined if the absorbance of
+
+21
+
+light is measured at Ì†µÌ±õ different wavelengths and the extinction coefficients of the substances are known [74].
+
+The measuring principle of pulse oximetry is based on the different absorbance properties of oxygenated and deoxygenated haemoglobin and the pulsatile intensity variation. The volume and pressure fluctuations are generated in the systolic phase of
+the heart. HbO2 and HHb are the main light absorbers in human blood. A further distinction is drawn between functional and dysfunctional haemoglobin. Functional Haemoglobin is able to bind reversible oxygen, dysfunctional is not. Most of the haemoglobin in healthy blood is functional haemoglobin whose extinction coefficient is greater than that of dysfunctional haemoglobin. In pulsoximetry the oxygen saturation is defined as [75, 76]
+
+SpO2
+
+=
+
+Ì†µÌ±êHbO2 Ì†µÌ±êHbO2 + Ì†µÌ±êHHb
+
+(2.4)
+
+The SpO2 is an indirect/non-invasive measurement of the oxygen content of blood (pulse oximetry) where SaO2 is a direct/invasive measurement of the oxygen content of the blood (arterial blood analysis).
+
+SaO2
+
+=
+
+Ì†µÌ±êHbO2
+
++
+
+Ì†µÌ±êHbO2 Ì†µÌ±êHHb + Ì†µÌ±êCOHb
+
++
+
+Ì†µÌ±êMetHb
+
+(2.5)
+
+Pulse oximeters normally work in the wavelength range from 600 nm to 1000 nm. The SpO2 reading in blood is to be measured at wavelengths where the differences in the extinction coefficients of HHb and HbO2 are high. The absorption spectra of haemoglobin derivatives in Figure 2.2 shows the significant absorption differences of HHb and HbO2 are at the selected wavelengths (660 nm and 905 nm) [77].
+To determine non-invasive Hb concentration, suitable wavelengths of light need to be selected based on the absorption properties of tissue components. Research has shown that blood has a stronger absorption at short wavelengths and water (H2O) at long wavelengths. The near-infrared window (also known as the optical window) falls into the range of wavelengths from 650 nm to 1350 nm where light has its maximum depth
+22
+
+of penetration in tissue [78]. The light absorption in the near-infrared window dominates attenuation over light scattering. Assumptions are made for which (1) the absorption of plasma and water is similar, and (2) red blood cells are mainly filled with Hb and water. Blood basically consists of two different types of haemoglobin: deoxyhaemoglobin (HHb) and oxygenated haemoglobin (HbO2). These two different types of haemoglobin exhibit different absorption spectra that are normally represented in terms of molar extinction coefficients. During the measurement of Hb, the absorption should not be dependent on the oxygen saturation. That means the measurement is only practicable at so called isosbestic points where the molar extinction coefficient spectra of HHb and HbO2 intersect. One such point is known to exist around 810 nm [23]. Also at the wavelength of 810 nm the absorption coefficient of water is insignificantly small in comparison to the Hb concentration. According to the assumption that red blood cells are mainly filled with water, another wavelength of 1300 nm is selected as the absorption spectra of HHb and HbO2 above 1200 nm is identical and the absorption is indistinguishable to the absorption of water [23].
+
+Finally the determination of Hb concentration measurement is performed at the wavelengths Ì†µÌºÜ1 = 810 nm and Ì†µÌºÜ2 = 1300 nm . The ratio of the ratio of both wavelengths leads to the quotient H, also known as Hb coefficient [72],
+
+Ì†µÌ∞ª
+
+=
+
+Ì†µÌ∞¥t,810 nm Ì†µÌ∞¥t,1300 nm
+
+=
+
+ln(Ì†µÌ∞ºAÌ†µCÌ∞ºD+CD,8C1,801n0mnm) ln(Ì†µÌ∞ºAÌ†µCÌ∞ºD+CD,1C3,10300n0mnm)
+
+=
+
+ln(10)
+
+Ì†µÌºÄHb(Ì†µÌºÜ810 nm)Ì†µÌ±êHb Ì†µÌºáH2O(Ì†µÌºÜ1300 nm)Ì†µÌ±ÄHb
+
+where the approximate haemoglobin molecular weight Ì†µÌ±ÄHb is 64,500 g/mol.
+
+(2.6)
+
+Finally the haemoglobin concentration can be determined as follows:
+
+Ì†µÌ±êHb
+
+=
+
+0.434
+
+Ì†µÌ∞ª
+
+¬∑
+
+Ì†µÌºáH2O(Ì†µÌºÜ1300 nm) ¬∑ 64,500 Ì†µÌºÄHb(Ì†µÌºÜ810 nm)
+
+g/mol
+
+(2.7)
+
+23
+
+2.4 PPG Device Design based on an Embedded System 2.4.1 An Embedded System An Embedded system is as a computer system in a combination of hardware and software for a larger machine. Daily accessible electronic devices, except for personal computers, are generally based on an embedded systems with the properties of small size, low power consumption, and without human intervention. There are large areas of applications but not limited to these including medical sensor systems, transportation, banking and office equipment [79]. In general, the hardware included in an embedded system is based on the microcontroller, power source, clock oscillator, Real Time Clock (RTC), reset circuit, power-up reset and watchdog timer reset, memory, I/O (Input/Output), I/O buses, interrupt handler, Digital-to-Analogue Converter (DAC) and Analogue-to-Digital Converter (ADC), Liquid Crystal Display (LCD) and LED display, keypad/keyboard, sensors, actuators, etc. A simple diagram block of an embedded system is shown in Figure 2.4.
+Figure 2.4: Diagram block of an embedded system
+2.4.2 Microcontroller The microcontroller is a small computer, generally on a single Integrated Circuit (IC), containing a processor core, memory, and programmable input/output peripherals. For example, the ultra-low power microcontrollers from the Texas Instruments MSP430 family consist of devices featuring different sets of peripherals and targeting of different applications. The architecture combines five low power modes and has been optimized to achieve extra battery life in a wearable measurement application. The
+24
+
+microcontrollers feature a powerful 16-bit Reduced Instruction Set Computing (RISC) CPU (Central Processing Unit), 16-bit registers, and constant generators. The internal digitally controlled oscillator (DCO), as one of the clock sources, allows wake-up from low power mode to active mode in less than 6 ¬µs. Figure 2.5 shows the pin designation for MSP430F1611, which is one of MSP430X161X series. In detail, the MSP430F1611 is a microcontroller configured with two Universal Synchronous/Asynchronous Receiver/Transmitter (USART), two built-in 16-bit timers (Timer A and Timer B), double 12-bit DAC, a 12-bit ADC, Inter Integrated Circuit Communications (I2C), Serial Peripheral Interface (SPI), Direct Memory Access (DMA), and 48 I/O pins. Moreover, the MSP430X161X series also have extended Random Access Memory (RAM) address for stack and memory applications [80].
+Figure 2.5: Pin designation for MSP430F1611 [80]
+2.4.3 Digital Accelerometer Processing of physical data starts with capturing this data. Sensors can be designed for virtually every physical and chemical quantity including weight, velocity, acceleration,
+25
+
+electrical current, voltage, temperatures etc. chemical compounds. Many physical effects used for constructing sensors. Digital accelerometer is a IC device that measures both static gravity and dynamic acceleration (e.g., vibration or falling movement). The custom built PPG finger clip device used in the project incorporates an ADXL345 accelerometer. Since it is a small, ultra-low power needed, triple-axis accessible, the MEMS accelerometer is well suited for wearable sensor device applications. Both SPI (3-wire and 4-wire SPI connection diagram shown in Figure 2.6) and I2C connection interface can be used for communication in master input and slave output mode.
+Figure 2.6: (a) 3-Wire SPI Connection Diagram and (b) 4-Wire SPI Connection Diagram [81]
+The ADXL345 (resolution being 3.9 mg/LSB and sensor access range ¬±16 g) is based on capacitance-sensing. The accelerometer contains capacitive plates internally. Some plates have fixed positions and others movable with miniscule springs. The acceleration detected from that causes the internal capacitances between all the plates to change as the acceleration forces applied to the sensor. The amplitude of the capacitance variation is proportional to the strength of acceleration while the polarity and magnitude are determined by an internal phase-sensitive demodulator. The general pin connection of ADXL345 is portrayed in Figure 2.7. C1 and C3 are two 100 nF capacitors used as bypass capacitors to reduce analog supply noise C2, located between VS and GND, is provided to reduce digital I/O clocking noise. SDA, SDO, CS, INT1, and SCLK are connected to the main sensor board by FH12-12S-0.5SH, a 12-pin cable. Sensing functions such as tap sensing and freefall sensing are provided [81].
+26
+
+Figure 2.7: ADXL345 general pin connection [81]
+The calculation of forces Ì†µÌ±≠ and moments in biomechanics relies on the accurate measurement of the kinematics of the body segments. The motion of the skin and the underlying soft tissue with respect to the bone is the source of the skin-motion artefact. In order to measure the kinematics different sensors can be used, passive markers, optical devices or inertial sensors, but all of them are placed on the skin. Two useful kinematic sensors for the measurement of human movement include the accelerometer and rate gyroscope. An accelerometer is a device that measures acceleration a, based on variation of the mass-spring system. Ì†µÌ±≠ = Ì†µÌ≤åÌ†µÌ±•dis = Ì†µÌ±öÌ†µÌ≤Ç (Hooke‚Äôs law and Newton‚Äôs second law of motion), so Ì†µÌ≤Ç is proportional to the length of extension or contraction, where Ì†µÌ≤å is a spring constant, Ì†µÌ±•dis is the distance the spring stretched from its equilibrium position and Ì†µÌ±ö is the mass of the object [82].
+From the acceleration signal it is relatively easy to compute the natural frequency of the finger sensor clip. It must be noted that the impacts normally occurring during biomechanical measurements, e.g. the foot contact during gait, will cause a vibration of the attachment. If the natural frequency is very close to or below the frequencies of interest (the natural frequency of the internal organs is in the range from 4 Hz to 12 Hz), a measurement distortion will occur. The accelerometer is located inside the finger clip of the sensor and the sensor uses the output signals of these to actively compensate for rapid or rhythmic movement during ambulation. The frequency behaviour of the soft
+27
+
+tissue between the bone and a skin-mounted accelerometer (to decide if the sensor device is appropriate for the application) is given in the reference [83]. 2.4.4 PPG-Based Device The PPG technique has been widely used as a bio sensor device for monitoring of human vitals in clinical and home based applications. The PPG-based system block diagram is shown in Figure 2.8. The design of a non-invasive PPG sensor system usually including these several modules: a processor, light sources (LEDs with different wavelengths), sensor devices, such as, a light detector (photodiode), pressure sensor, temperature sensor; memory unit, for the storage of data; user interfaces, including an LCD screen and buttons; a pre-processing filtering and amplifier circuit; an input and output programming interface for coding, testing and debugging; a communication component, wireless or cable used for data transition; power supply unit, from a battery or USB plug cable. The fingertip, earlobe or forehead is often selected as the preferred locations for locating a PPG sensor probe. The PPG sensor probe can be designed to be such that the detector and the LEDs are on the same side or on the opposite sides (i.e., reflective or transmissive). Hence, a PPG sensor device tends to be classified as a reflective PPG sensor or transmissive PPG sensor according to the structure of the probe. Additionally, the PPG signal collected from the sensor probe tends to be optimized by a filtering and amplifying function to maximize the quality of information.
+Figure 2.8: The PPG sensor system block diagram
+28
+
+The PPG sensor device is deployed for blood volume monitoring by an optical method [10]. A typical application is the pulse oximeter. It uses one or multiple LEDs and photodetectors to spectrally resolve the transmitted signal and obtain the oxygen concentration (SpO2) and pulse rate (HR) continuously and noninvasively. Furthermore, the PPG technique is used for the design of more functional bio sensor devices. Masimo rainbow¬Æ Pulse CO-Oximetry makes the measurement of Total Haemoglobin (SpHb), Oxygen Content (SpOC), Carboxyhaemoglobin (SpCO), and Methaemoglobin (SpMet) [84-88]. The NBM 200 product range from OrSense (the NBM 200 system, OrSense, Ness Ziona, Israel), another medical device company, focus mainly on the blood parameter monitoring of perfusion index (PI), pleth variability index (PVI), SpO2, and arterial blood haemoglobin [89-91]. The region of the sensor probe applied on the human body is important and specially selected based on the signal quality and the wearable condition limitation. In general, the sensor probe is a clip type and normally clipped to the earlobe, foot toe or fingertip. For example, the cell walls of the dermis are rich with vessels and therefore greatly affects the intensity of the signals, and the finger compared with the earlobe is therefore more sensitive to variations in the ANS system [92]. More details about PPG-based monitors are described in Chapter 3 of this thesis, the literature review.
+One example of an embedded system for PPG application [93] is show in Figure 2.9. The sensor is a reflective mode, with the actuators (in this case, IR LED) and Si photodiode. The microprocessor is programmed at a 100 Hz sampling frequency rate for the 10-bit DAC converter (PPG signal and 2-axes acceleration data) and to drive a bluetooth communication. Filters, amplifiers and step-up DC/DC converters (electronic circuits or electromechanical devices that convert a source of DC between different voltage levels) are also shown in the block diagram.
+29
+
+Figure 2.9: The embedded system for PPG signal monitoring [93]
+2.5 Blood Pressure Monitor When the finger clip was put on the finger, the subject changed the locations of the finger clip from the thumb to the little finger (the normal blood flow patterns were altered by the externally applied clip pressure in a different manner) and the haemoglobin and oxygen concentration readings were observed to slightly increase. This was explained by Timm in his thesis in Chapter 8 [77]. The influence of the contact pressure which will finally lead to the local limb BP change is shown in Figure 2.10 [94].
+Figure 2.10: Influence of the contact pressure in pulse oximetry [94]
+30
+
+It is assumed that the application of the external pressure from a clip will have an influence on the local BP. Therefore, the pressure in blood should be taken into consideration as an important parameter in designing the haemoglobin sensor device. The easiest way to adjust the configuration of the finger clip is by making its diameter adjustable. Hence the finger should be just in contact with the finger clip (e.g., as an adjustable wrench to correctly suit a screw nut), so that the finger clip will not affect blood flow in the tissue. Another solution is by using an internally mounted electrical pressure sensor (BP monitor) that continuously measures finger arterial pressure to calculate BP change (ŒîP) and the pressure-haemoglobin coefficient so as to compensate for any pressure applied on fingers accordingly, e.g., the Finapres¬Æ NOVA [95] and Philips arm BP monitor (Figure 2.11) [96].
+Figure 2.11: Philips arm BP Monitor [96]
+2.6 Summary Some biosensors are designed for monitoring human vitals from direct contact with human skin using optical non-invasive method. Hence, the constitution of the skin, its optical properties and the interaction of light with it are firstly described. PPG signal contents the information for human vitals measurement and the related theory and method of non-invasive Hb monitoring are introduced in this chapter. Also a brief introduction to integrated circuit is necessary for further design of the bio sensor device
+31
+
+in the development of motion artefact minimisation from photoplethysmography based non-invasive haemoglobin sensor.
+32
+
+CHAPTER 3.
+DEVELOPMENT OF MONITORING AND COMPENSATION TECHNIQUES
+The development of non-invasive monitoring technique based on PPG method is studied in this chapter. It concentrates mainly on the difference of invasive and noninvasive monitoring of SpO2 and Hb readings in Section 3.1. Then, Section 3.2 describes the literature review relating to motion artefact removal methods, mainly focusing on methods for compensation of motion artefact and the associated algorithms. 3.1 Review of Development of Non-Invasive Monitoring Techniques The most common method for monitoring the Hb in the blood is by drawing blood from individuals and testing it at the location or removed to a laboratory. Arterial blood samples are analysed using a laboratory CO-oximeter (a blood gas analyser) [87]. The GEM Premier 3000 Oximeter is one of solutions used for point-of-care measurement. The patient‚Äôs vitals can be provided from comprehensive oxygenation analysis. However, it requires several steps, and often a considerable time delay to receive the results. Another measurement result by invasive measurements from hospital is the so called full blood count (FBC) method which is also used for monitoring haemoglobin. The ability to measure haemoglobin noninvasively and continuously using the PPG technique is a breakthrough measurement that guarantees a more rapid assessment of an individual‚Äôs condition. Non-invasive monitoring promises no need of handling blood and needles and no need for the risk of biohazard waste disposal.
+33
+
+3.1.1 Haemoglobin from Invasive Monitoring to Non-invasive Monitoring Haemoglobin Monitoring is becoming more important as it is widely adopted both in hospital care and home care. The traditional method used for monitoring Hb is invasive and uncomfortable as blood samples are extracted from patients to analyse for haemoglobin concentration. There are mainly two types: Standard Laboratory COOximeter (arterial blood samples are analysed in laboratory, e.g., Radiometer ABL-820 CO-Oximeter (totle Haemoglobin, tHb) [97], shown in Figure 3.1), and point-of-care device (e.g., HemoCue¬Æ201 [98], shown in Figure 3.2). The former method is base on chemical electrolyte electrodes. The latter one is using the method of spectrophotometry which measures the intensity of light substance absorbs or transmits light through sampe solution over a certain rangle of wavelength. The latter has severed advantages over the former; a major one being the whole measurement procedure itself to get the Hb takes less than one minute, the other being the cost. The point-of-care device is based on the Azide methaemoglobin method which relies on the use of dry reagents [99]. The instrument of Figure 3.1 is much more accurate than the HemoCue device, but is confined to being used in the pathology laboratory.
+Figure 3.1: Radiometer ABL-820 CO-Oximeter, from Radiometer Company [97]
+34
+
+Figure 3.2: HemoCue¬Æ201, from HemoCue Company [98]
+Then non-invasive (prick-less) techniques (Acoustic Methods [100], Conductance Methods [101] and Optical Methods [102, 103]) are being increasingly used in medical devices to detect Hb without extracting blood samples from human body. Although they were firstly used as auxiliary parameters, they are showing great advantages over invasive methods. Specifically, PPG based haemoglobin monitoring technology (e.g., Radical-7¬Æ; Masimo Corp., Irvine, CA [86], as shown in Figure 3.3), which can provide non-invasive, continuous online Hb measurements [72, 102, 104]. It uses a similar operation principle to that established by Timm and et al and which forms the basis for the device in this investigation. The comparisons of these three haemoglobin monitoring methods are described in Table 3.1
+Figure 3.3: Radical-7‚Ñ¢ Pulse CO-Oximeter [86]
+35
+
+Table 3.1: Comparison of three haemoglobin devices: Standard Laboratory Co-Oximeter (e.g., Radiometer ABL-820 CO-Oximeter (tHb)), point-of-care device (e.g., HemoCue ¬Æ
+201), and SpHb monitoring (e.g., Radical-7¬Æ; Masimo Corp., Irvine, CA)
+
+Device
+Method
+Characteristics
+Substrate for Analysis Sample Chamber
+Needle Stick Hazard Biohazard Waste Disposal Special Training /Quality Control Calibration
+Patient Apprehension Accuracy Class
+
+Standard Laboratory CO-Oximeter (e.g., Radiometer ABL-820
+CO-Oximeter)
+
+Hematology Analyzer, Point-ofCare Device (e.g.,
+HemoCue 201)
+
+Chemical Electrolyte electrodes
+
+Spectrophotometry
+
+Invasive, Delayed, Intermittent
+Blood Test Tube
+Yes
+Yes
+
+Invasive, Delayed, Intermittent
+Blood Cuvette
+Yes
+Yes
+
+Yes
+Yes Moderate to High
+High
+
+Yes
+Yes Moderate to High Moderate to High
+
+Non-invasive Monitoring Device (e.g., Radical-7)
+Multiple wavelengths of
+light Noninvasive, Immediate, Continuous
+Blood Finger
+No
+No
+No
+Internal Low
+Moderate
+
+The clinical definition of anemia in adults is defined as having a Hb in blood which is less than 12‚Äì13 mg/L [105], usually manifested as a lack of red blood cells. Lionel Lamhaut et al performed a survey in order to compare the accuracy of non-invasive haemoglobin monitoring and HemoCue¬Æ201 with automated laboratory haemoglobin measurement [106]. The study shows that SpHb monitoring with the Radical-7¬Æ gives lower reading accuracy than the HemoCue¬Æ201 for the assessment of Hb(finger clip samples may overestimate in haemoglobin measurements from 0.1 g/dl to 0.4 g/dl and ear clip may differ from the Hb in a range of 0.7 g/dl to 2.8 g/dl).
+3.1.2 From Non-invasive SpO2 Monitoring to Non-invasive SpHb Monitoring
+Pulse Oximeter is widely used as a continuous, non-invasive technique that measures the oxygen saturation (SpO2) and the pulse rate of a patient. One called ChoiceMMed is shown in Figure 3.4. From non-invasive SpO2 monitoring to non-invasive SpHb
+36
+
+Monitoring was considered a great breakthrough for PPG signal applications in the monitoring of human health [23, 107-109].
+Figure 3.4: ChoiceMMed, one of commercial pulse Oximeters
+One example of non-invasive SpHb monitoring device is NBM 200 (Lmb, Schwaig, Germany) [91], as seen in Figure 3.5. It includes a probe into which the finger is inserted. It consists of a reusable ring shaped sensor that is placed on the donor's finger using a pneumatic finger sensor cuff. When LEDs in the probe shine light through the finger, a photodiode on the opposite side interprets the absorption patterns to produce an instant reading of the Hb in the patient's blood in less than 60 seconds. The major difference in the instruments design between SpO2 and SpHb monitoring lies in the former is employed with 660 nm and 905 nm wavelength LEDs while the latter with 805 nm and 1300 nm wavelength LEDs.
+Figure 3.5: TouchHb and the data transmitted to Cell Phone wirelessly [91]
+Other SpHb commercial monitoring devices include the one from Masimo Rainbow¬Æ SET¬Æ platform, e.g., Pronto-7‚Ñ¢ Pulse CO-Oximeter, as shown previously in Figure
+37
+
+3.3. It allows a continuous non-invasive measurement of haemoglobin (SpHb), oxygen saturation (SpO2), pulse rate (PR) and perfusion index (PI), and also it has a good interactive interface. Human clinical studies have been undertaken successfully to prove the validity of this device, thus far [110-113]. However, neither the mode of operation, nor the number of wavelengths used, is publicly available.
+The research team in Optical Fiber Sensor Research Centre (OFSRC) of University of Limerick (UL) and teamwork have previously conducted preliminary groundwork on optical sensor probes for monitoring Hb [73, 104, 108]. Their devices are also based on PPG signal, which is a technique using waveform to detect blood volume changes in the microvascular bed of tissue and also it can be used to assess the concentrations of blood components. With four suitable wavelength LEDs in the finger clip, this sensor system could simultaneously do a measurement of total haemoglobin concentration, oxygen saturation and pulse rate [23, 107-109] and the data could be transmitted to a PC and output through wireless sensor networks based on Bluetooth.
+3.2 Review of Existing Methods for Compensation of Motion Artefact
+The digital accelerometer was introduced in section 2.4.2. The reliability of the PPG signal being strongly influenced by the motion of the wearer has been widely reported [14-16, 114], which will be described in detail below.
+The movement of an individual wearing a PPG device can be classified into several different types. Yan et al proposed finger motion in five different positions, e.g., horizontal movement of finger and waving hand [11], and Peng et al studied four types of finger motion, such as bending and pressing of the finger [12].
+The collection of PPG signals from optical based sensor probes has also been used extensively for the monitoring of HR, respiration rate and oxygen saturation [15, 73, 115]. One of the drawbacks of PPG based measurement is that the signal is strongly degraded by motion artefact [11]. Much research has been undertaken relating to the removal of motion artefact noise resulting from the wearer‚Äôs movement.
+The correction introduced using accelerometers, gyroscopes (relative and global sensors motion, angular velocity), laser diode, and motion-resistant algorithms are introduced to
+38
+
+remove the deviation of motion artefact. Methods used to minimise the impact of motion artefact include: adaptive noise cancellation algorithm (e.g., Normalized Least Mean Square, NLMS) to recover signals corrupted due to body motion using acceleration data [14], relative sensor motion via self-mixing interferometry in a laser diode [15], periodic moving average filter [16], and a method that uses synthetic noise reference signal without any extra hardware [17]. Most of the methods are effective on the condition that the corrupted signal is only affected by the factor of motion noise. However, other physiological interfering parameters, e.g., breathing pattern and BP variations, can also affect the original PPG signal quality during the motion events.
+For the research study of reducing motion artefact in the Hb monitoring system, commercial pulse oximetry (SpO2) is a good place to start, since it is also based on the PPGs waveform theory and its motion artefact elimination techniques have been widely investigated. Some pulse oximeters include a motion-resistant algorithm and show good performance and improvement in rhythmic human movements (e.g., uniform walking pace) by software compensation [16]. But the breakthrough of such robust motion elimination pulse oximetry capable of measurement whilst in motion continuously and in real time is still in research and was not yet been achieved. Most pulse oximeters that are used in physical care in sports are not recommended to be used during the process of training. It has been reported that there is a strong need of special care in the elderly groups and in sports (health care in real-time), so the highest demand of reducing motion artefacts are pushing the research work on these PPGs sensor devices to improve the accuracy of those sensor devices.
+A PPG signal obtained from a wearer in motion contains a motion artefact signal mixed with the desired physiological signal. The motion artefact tends to be induced through ambient lighting, a loose of skin contact between led and photodiode, inertial blood flow and tissue shaping (hydrostatic pressure changes). Kinematics is the description of the movement of the body segments, independent of the forces that cause movement. Kinematic variables include linear and angular displacements, velocities, and accelerations. Motion artefacts in PPGs as a result of finger bending and motion artefacts in forehead obtained PPGs as a result of walking are described in reference [83]. Voluntary and involuntary movements, such as movement during transport,
+39
+
+tapping, rubbing, scratching, waving, shivering, and seizures in adult and pediatric patients; and kicking, stretching, crying, flexing, and imposed motion in neonates, are some common sources of patient motion in the clinical setting [116].
+3.2.1 Adaptive Noise Cancellation (ANC)
+Over the past three decades, the adaptive filter as a linear filtering system involving the transfer function controlled by variable parameters to adapt to changing signal over time by the mathematical optimization. Most of the adaptive filters have the features of digital filtering due to the convenience of optimization algorithm and development of applications. The adaptive filtering technics are widely adopted in the situations where some applications possess the unknown or constantly changing environments whereas some parameters are uncorrelated with each other‚Äôs [117].
+The removal of motion artefact from a sensor signal using adaptive filtering method is shown schematically in Figure 3.6 for which the closed cycle in the adaptive filter works as a loop with the difference signal Ì†µÌ±í(Ì†µÌ±õ) as the feedback. Ì†µÌ±†(Ì†µÌ±õ) should be uncorrelated with the motion noise Ì†µÌ±£(Ì†µÌ±õ) (which cannot be detected directly), and if both the motion artefact in bio-sensor clip Ì†µÌ±£1(Ì†µÌ±õ) and the motion received by accelerometer Ì†µÌ±£2 (Ì†µÌ±õ) are extremely correlated with movement ofwearer Ì†µÌ±£(Ì†µÌ±õ) , Ì†µÌ±£1(Ì†µÌ±õ) then can be assessed using the ANC process by regulating the coefficients of the filtering system. the system then can The elimination of the motion artefact finally realized by the filtering system with the decrease of the difference between output value Ì†µÌ±¶(Ì†µÌ±õ) and Ì†µÌ±£1(Ì†µÌ±õ). The subtraction between Ì†µÌ±¶(Ì†µÌ±õ) and an expected value Ì†µÌ±ë(Ì†µÌ±õ) is defened as the error signal Ì†µÌ±í(Ì†µÌ±õ) which is close to the desired signal Ì†µÌ±†(Ì†µÌ±õ). In general, the closed cycle in the adaptive filtering process (modification of the filtering transfer algorithm) consists of the iteration of a cost function by which the goal of minimisation the cost of the next iteration is achieved. One such is the mean square error (MSE) of the signal.
+Filter consistency, filter performance, tools, and digital signal processing (DSP) requirements are the primary concern in selecting the adaptive filter that best suits the needs in real applications. As the power of DSP greatly improved nowadays, all kinds of adaptive filtering methods have been more and more commonly and routinely used in smart digital devices such as mobile cell phones, video cameras, and medical
+40
+
+monitoring machines [117]. Adaptive filtering can be divided into least mean squares (LMS), NLMS, recursive least squares (RLS), and multidelay block frequency domain adaptive filter (MDF) in terms of filtering implementations.
+Figure 3.6: Removal of motion artefact by adaptive filter
+The adaptive removal of motion artefact is highlighted in the reference [118] which stated that adaptive motion artefact reduction only induced into the PPG signal when the motion event occurred along the axis of the sensor probe. The acceleration data from the digital accelerometer is remodelled as an additional Ì†µÌ±§(Ì†µÌ±°) into the desired signal. Then this motion corrupted PPG signal can be compensated by the estimated motion artefact part. The schematic of the motion artefact minimisation process is plotted in Figure 3.7 [118].
+Figure 3.7: (a) motion artefact and (b) removal of motion artefact by adaptive filter [118]
+41
+
+The adaptive filtering methods adopted by wearable sensor devices to reduce the effect of the motion artefact are to guarantee devices such as pulse oximetry capable of being in full function in the motion events both short periods and long periods for the wearers. A newly developed motion-noise-removal algorithm named discrete saturation transform (DST), is developed by Masimo for monitoring SpO2 non-invasively in motion and low peripheral perfusion situations by the proposed adaptive Ô¨Ålter. The Masimo pulse oximetry is designed based on the Beer‚ÄìLambert law described in Chapter 2 of this thesis. Research reports have proved that the adaptive filter method adopted measurements are signiÔ¨Åcantly improved and less alarm rate than without the method applied on. Minimum correlation discrete saturation transform (MCDST) demonstrates that the linear fitting method in DST can be used to replace the traditional adaptive filter, reducing the energy consumption whilst boosting the development of measurements [119].
+3.2.2 Empirical Mode Decomposition (EMD)
+Empirical mode decomposition (EMD) method is one essential step in Hilbert‚ÄìHuang transform (HHT) (another being Hilbert spectral analysis). By decomposing the complicated original signal into several other partial components in specific rules, the EMD method can be as useful as other analysis methods in signal processing, e.g, Finite Impulse Response (FIR) and Kalman filters. The direct advantage of the EMD method is its application in clarify the analysis of a complicated signal by a small number of components, described as intrinsic mode functions (IMFs).The EMD algorithm turns out to be very useful in the study of seismic records series [120, 121]. Unlike the analysis of frequency domain of Fourier Transforms, EMD is simply but highly efficient for the nonlinear and non-stationary time series analysis in time domain [122].
+IMF has in a more general features as a simple harmonic component with inconstant amplitude in the time domain. The procedure of extracting each unit of IMFs has to follow the rules that (1) Throughout the original signal in a continuous time domain, there is only one extreme between each set of zero crossings and (2) the mean value of the upper and lower envelopes of the signal is zero [123, 124].
+42
+
+In every ‚Äòraw‚Äô data set, ‚Äòextreme‚Äô values exist which are those points whose first-order derivatives are equal to zero in the data s(t), the interpolated data can be determined by a cubic spline interpolation through these extreme values. A loop following the rules above for the procedure of each IMF was obtained from the upper Ì†µÌ±ãÌ†µÌ±ñ,upper(Ì†µÌ±°) and lower Ì†µÌ±ãÌ†µÌ±ñ,lower(Ì†µÌ±°) envelopes of the raw signal. The difference between the data s(t) and the mean of the upper and lower envelopes Ì†µÌ±ö1 is the first component ‚Ñé1:
+
+‚Ñé1 = Ì†µÌ±†(Ì†µÌ±°) ‚àí Ì†µÌ±ö1
+
+(3.1)
+
+h1 has the potential to be the the first IMF if only it satisfies the rules. If h1 is not the first IMF, the subsequent shifting process will then be necessary. In another loop procedure, ‚Ñé1is treated as input data similar to the position of s(t), the mean of the upper and lower envelopes of ‚Ñé1 is defined as m11, the difference of ‚Ñé1and m11 is ‚Ñé11:
+
+‚Ñé11 = ‚Ñé1 ‚àí Ì†µÌ±ö11 The loop can be up to Ì†µÌ±ò times until ‚Ñé1Ì†µÌ±ò is found for being qualified as an IMF:
+
+(3.2)
+
+‚Ñé1Ì†µÌ±ò = ‚Ñé1(Ì†µÌ±ò‚àí1) ‚àí Ì†µÌ±ö1Ì†µÌ±ò
+
+(3.3)
+
+For simplification purpose, the first IMF component of the data s(t) is described as Ì†µÌ±ê1 instead of ‚Ñé1Ì†µÌ±ò:
+
+Ì†µÌ±ê1 = ‚Ñé1Ì†µÌ±ò
+
+(3.4)
+
+the residue, Ì†µÌ±ü1, is the rest of the data Ì†µÌ±†(Ì†µÌ±°) subtracted Ì†µÌ±ê1, and treated as the new data similar to data Ì†µÌ±†(Ì†µÌ±°) as the input for deducing of the next IMF component of the data Ì†µÌ±†(Ì†µÌ±°).
+
+The nth residue Ì†µÌ±üÌ†µÌ±õ is stated as the difference between the (n‚àí1)th residue Ì†µÌ±üÌ†µÌ±õ‚àí1 and the nth IMF component Ì†µÌ±êÌ†µÌ±õ:
+
+Ì†µÌ±üÌ†µÌ±õ = Ì†µÌ±üÌ†µÌ±õ‚àí1 ‚àí Ì†µÌ±êÌ†µÌ±õ
+
+(3.5)
+
+43
+
+A decomposition of the data Ì†µÌ±†(Ì†µÌ±°) into Ì†µÌ±õ-empirical modes is realised by repeating the processure of the nth IMF component Ì†µÌ±êÌ†µÌ±õ until the residue Ì†µÌ±üÌ†µÌ±õ becomes a monotonic function. So the data Ì†µÌ±†(Ì†µÌ±°) can be described as:
+
+Ì†µÌ±õ
+Ì†µÌ±†(Ì†µÌ±°) = ‚àë Ì†µÌ±êÌ†µÌ±ó + Ì†µÌ±üÌ†µÌ±õ
+Ì†µÌ±ó=1
+
+(3.6)
+
+3.3 The Proposed Envelope-Based Filtering Method
+
+A novel method for implementing the PPG filtering is described which is based on an existing standard envelope algorithm as opposed to traditional filtering methods. The envelope is a curve ‚Äúenveloping‚Äù the source data. The envelope is formed as a tangent to every peak in the source dataset. Different methods have been proposed to compute an envelope, e.g., Hilbert-Huang transforms (HHT) [125], the cubic spline interpolation algorithm [126], and Akima interpolation algorithm [127]. Each envelope algorithm has their set of limitations: e.g., HHT is required to fit the envelope of a signal including the extreme points of the signal; the cubic spline interpolation algorithm might be not flexible enough and overshoot may occur; the Akima interpolation algorithm [126] may incur break points on the data and this may result in a lack of ‚Äòsmoothness‚Äô in the signal.
+
+In every ‚Äòraw‚Äô data set, ‚Äòextreme‚Äô values exist which are those points whose first-order derivatives are equal to zero in the raw signal, Ì†µÌ±ãÌ†µÌ±ñ,raw(Ì†µÌ±°), where Ì†µÌ±ñ stands for a variable and Ì†µÌ±° is the time (in second). The upper Ì†µÌ±ãÌ†µÌ±ñ,upper(Ì†µÌ±°) and lower Ì†µÌ±ãÌ†µÌ±ñ,lower(Ì†µÌ±°) envelopes of the source data were obtained from the adjacent-averaging smoothing of the interpolated data, which takes the average of a certain number of data points around each point in original data (in this case, five-point-smoothing was employed on the grounds that it provides sufficient noise suppression). The methodology for obtaining the upper and lower envelopes of a signal is based on a standard subroutine within the commercial package OriginPro (OriginLab Corporation, Northampton, Massachusetts, USA) and explained in greater detail in the reference related to envelope algorithm [128]. The raw PPG signal, Ì†µÌ±ãÌ†µÌ±ñ,raw(Ì†µÌ±°), can be optimized and expressed as the AC (time varying) component Ì†µÌ±ãÌ†µÌ±ñ,AC(Ì†µÌ±°) and the DC (non-time varying) component Ì†µÌ±ãÌ†µÌ±ñ,DC(Ì†µÌ±°).
+
+44
+
+Ì†µÌ±ã (Ì†µÌ±°) = Ì†µÌ±ñ,AC
+
+(Ì†µÌ±ãÌ†µÌ±ñ,raw(Ì†µÌ±°)‚àíÌ†µÌ±ãÌ†µÌ±ñ,lower(Ì†µÌ±°))‚àô(Ì†µ1Ì±õ ‚àëÌ†µÌ†µÌ±ñÌ±õ=0(Ì†µÌ±ãÌ†µÌ±ñ,upper(Ì†µÌ±°)‚àíÌ†µÌ±ãÌ†µÌ±ñ,lower(Ì†µÌ±°))) (Ì†µÌ±ãÌ†µÌ±ñ,upper (Ì†µÌ±°)‚àíÌ†µÌ±ãÌ†µÌ±ñ,lower (Ì†µÌ±°))
+
+(3.7)
+
+Ì†µÌ±ãÌ†µÌ±ñ,DC(Ì†µÌ±°)
+
+=
+
+1 Ì†µÌ±õ
+
+‚àëÌ†µÌ†µÌ±ñÌ±õ=0(Ì†µÌ±ãÌ†µÌ±ñ,raw(Ì†µÌ±°))
+
+(3.8)
+
+where Ì†µÌ±õ stands for the size of the raw signal (positive integer). The combination of AC and DC components from a raw PPG signal can be considered as the original PPG signal from which an updated Hb coefficient is derived. Note that real PPG signals often contain a very slowly varying baseline but this can be distinguished from the targeted PPG signal as it is generally of much lower frequency (< 0.5 Hz).
+
+3.4 Summary
+
+In this chapter, the development of non-invasive monitoring technique and the methods for compensation of motion artefact in bio sensor systems are presented. The ANC is newly applied in motion removal in bio sensor devices on the condition that the PPG signal only affected by the factor of motion noise. EMD is a method of breaking down a signal (in this case, the signal is PPG signal) into IMF and a monotonic function. The first IMF usually carries the most oscillating (high-frequency) components with limited motion noise. Finally, the proposed filtering method based on the envelope algorithm was proposed in the study of motion noise removal.
+
+45
+
+46
+
+CHAPTER 4.
+MULTI-SENSOR SYSTEM
+The optical multi-sensor system includes a number of separate wavelengths of light, usually emitted from LEDs, towards specific area of a patient‚Äôs skin. Similar to noninvasive SpO2 monitoring, non-invasive Hb measuring is an example of a PPG derived signal, which is based on the absorption of light in the visible and near infrared range of haemoglobin derivatives and H2O in blood. Through the analysis of the level to which these wavelengths are absorbed whilst passing through the patient‚Äôs skin, the patient‚Äôs diagnostic parameters, such as SpO2 , total Hb concentration and pulse rate can be discerned. In addition to the two wavelengths used in pulse oximetry, 660 nm and 905 nm, two additional wavelengths are employed within this platform, 805 nm and 1300 nm, which allow for the determination of Hb measurement.
+The received optical signal at the photodiode is defined as the PPG signal and its intensity is represented by the PPG amplitude (volts versus time (s)). The detected signal at the output of the receiver amplifier (volts) corresponds to the optical attenuation in that channel which comprises all losses including absorption, scattering and losses due to geometrical transmission. The finger sensor probe in this investigation is attached to the subject using velcro tape in order to make the finger band size adjustable for different finger sizes. It has been widely reported that the local BP at the measuring point potentially introduces variability in measured PPG waveforms [129]. In all the following experiments, the PPG finger probe was placed on the right hand index finger in the same position in order to avoid potential error from external pressure variations between the finger and the probe caused by the need for over tightening or loosening the probe during operation.
+47
+
+4.1 PPG Sensor Device Layout The custom designed multi-sensor system is displayed in Figure 4.1. It is mainly composed of a main sensor board and a finger sensor probe. The background of microcontrollers and digital accelerometers were presented in detail in section 2.4. The interface of the main sensor board contains a mini USB port, a 14 pin socket for microcontroller programming and program debugging for the MCU, extra LEDs intensity resistor group for adjustment of the LEDs‚Äô brightness, and a 12 pin sensor probe bus connected to the finger sensor probe. Specially, the 1300 nm wavelength LED is driven by an extra battery due to the high power (7 V) needed to active it. The main difficulty of this technique is to provide good contact between the skin and the detection units. The dimenstion of the finger sensor is adjustable as described in the previous section.
+Figure 4.1: The custom designed multi-sensor system
+The circuit design and schematic are described in Figure 4.2. The four LEDs are driven by 4 LEDs drivers on the main sensor board and the anodes are connected to the VCC (pin X1-1). LEDs are pulsed sequentially to provide multiplexing of the signal: for example, in first 7.5 Œºs the state of LED1 is on and the other three LEDs are off; in the next 2 Œºs all LEDs are off; and then the LED2 is on for another 7.5 Œºs and the other three LEDs are off, etc. Transmitted signals are amplified and collected by a wide spectral range sensitive photodiode. The signal captured by the photodiode is pre-
+48
+
+amplified (current to voltage) by the operational amplifier circuit. C1 and C3 are two 100 nF capacitors used as capacitors to reduce analog supply noise C2, located between VS and GND, is provided to reduce digital I/O clocking noise. SDA, SDO, CS, INT1, and SCLK are connected to the main sensor board by FH12-12S-0.5SH, a 12-pin cable.
+
+Figure 4.2: Schematic of the probe board
+4.1.1 Main Sensor Board
+
+Figures 4.3 and 4.4 show a top view and bottom view of the main board from the multisensor system, respectively. The board was designed using the EAGLE PCB design package. A processor MSP430F1611 is configured to host the system signal processing and data transition. A digital accelerometer is also included in the sensor finger clip. A 12-pin cable is used for the connection between the main sensor board and the finger sensor probe. There are 5 extra pins defined as P4.3 for SDA (Serial Data Input), P5.0 for SDO (Serial Data Output), P5.4 for CS (Chip Select), P2.5 for INT1 (Interrupt 1 Output), and P3.2 for SCLK (the clock for SPI). More pin configurations are given in Table 4.1. The following provides detail regarding the design of the main sensor board in the aspect of analogue to digital converters (ADC), sampling rate, amplification, filtering and noise analysis.
+
+Table 4.1: The bus pin configuration
+
+From top to bottom 1 2 3
+
+4
+
+5
+
+6
+
+7 8 9 10 11
+
+12
+
+Description
+
+VCC PD SDA SDO CS GND 910 660 805 1300 INT1 SCLK
+
+Pin to main board
+
+P4.3 P5.0 P5.4
+
+nm nm nm nm P2.5 P3.2
+
+49
+
+Figure 4.3: Top view of Optical Bio-Sensor Device_Main Board
+Auxiliary clock (ACLK), sourced from a 32.768 kHz watch crystal or a high frequency crystal (in this case, for watch crystal on pin XIN/XOUT), main clock (MCLK), the system clock used by the CPU, and sub-main clock (SMCLK), the sub-system clock used by the peripheral modules, are three basic clocks in a digital MCU system. In our digital system, MCLK and SMCLK are sourced from XT2, which is driven by an 8 MHz crystal while ACLK sourced from LFXT which is driven by a 32.600 kHz crystal. ACLK can be used as the clock signal for Timer A and Timer B. The MSP430 MCU clock system is shown in Figure 4.5.
+Figure 4.4: Bottom view of Optical Bio-Sensor Device_Main Board
+50
+
+Figure 4.5: MSP430 MCU clock system
+The schematic of the main sensor board is shown in Figure 4.6. FT232RL is an interface IC device for the USB UART (Universal Asynchronous Receiver/Transmitter) convertor. USBDM is short for USB Data Signal Minus as I/O port. USBDP stands for USB Data Signal Minus. VCC is a PWR (power) pin supplied by USB 2.0 to mini B from Laptop. RXD is the receive asynchronous data input and TXD is transmit asynchronous data output. CBUS0 is configurable CBUS I/O pin. The default function of this pin is TXLED# which is the LED drive for transmiting data (pulses low when transmitting data via USB). CBUS1 is also a configurable CBUS I/O pin. The default function of this pin is RXLED# which is the LED drive for receiving data (pulses low when receiving data via USB) [130]. In this case, the pins of CBUS0 and CBUS1 are drived by a low dropout regulator ADP3338 (input voltage 5 V) [131] which provides a stable 3.3 V. The same 3.3 V is also as input of AVCC and DVCC of the processor MSP430F1611. The REF02HCSA provides a stable 5 V output for the VeREF+ as the DAC12 reference selected by DAC12SREF_2 (2*0x2000u) for LED output. AS1102 is chosen as the four LEDs Drivers with DAC function. It has three outputs with up to 40 mA per LED. LTC6910-1 is a digitally controlled programmable gain amplifiers with a ADC function. Its digital inputs (pins 5, 6 and 7) are programmable for gain value. P6DIR= 0xC0 sets P6.3 and P6.5 being the amplifried input and raw input while P6.4, P6.6 and P6.7 being outputs.
+51
+
+Figure 4.6: Schematic of the main sensor board
+52
+
+4.1.2 Development of the Finger Sensor Probe A LED has good performance in directionality and intensity. The newly developed optical sensor system uses four separate LEDs each with their unique wavelengths for the simultaneous measurement of HR, SpO2 and Hb. An additional 3 axis accelerometer brings the possibility of detecting the motion of the sensor probe, providing values for the static (gravity) and dynamic acceleration. The combination of multi-wavelength signals and digital ACC signals makes the non-invasive measurement method of human vitals more robust provides the opportunity to correct for movement artefact. The finger sensor probe consists of a custom designed four LED package, a photodiode, an ADXL345 circuit and amplifier/filter circuits. The finger clip is a custom design whereby the contact force between the sensor and the measurement site applied on the finger can be adjusted, as research results have been found that the level of pressure applied to the finger by the clip also influences the quality of the PPG signal. When the probe is too loose, the PPG signal tends to have low amplitude due to poor optical coupling. On the other hand, when the probe is too tight, apart from the subject not being comfortable, the local pressure at the measuring point tends to introduce variability in the PPG waveforms. Hence, the finger sensor probe is adjusted before each experiment in order to ensure a good baseline reference signal from the device.
+Figure 4.7: First generation of a finger clip with an embedded ADXL345
+The first generation of finger clip is shown in Figure 4.7. It is designed with both a reflective PPG sensor probe (on the top) and a transmission type sensor probe (on the
+53
+
+bottom). For the transition type sensor probe, the accelerometer is embedded with the finger clip and the four LEDs are inserted into an eraser. Compared with the reflective sensor probe, the transmitted type finger clip shows higher amplitude PPG signals received by the photodiode. The second generation of finger sensor probe is shown in Figure 4.8. An ADXL345 package is fully embedded into it and the custom designed four-wavelength LED package is much smaller than the first generation; all these improvements make the sensor probe wearable and potentially more resistant to motion having a better and fully integrated functionality. Figure 4.8a illustrates the finger sensor band using hook&loop (flexible and light proof). The ADXL345 package is fitted along the base with the same direction as the fingertip, as seen in Figure 4.8b. The top view and bottom views of the finger sensor probe are shown in Figure 4.8c and Figure 4.8d, respectively. The length between two bands can be adjusted to fit different sizes of finger.
+Figure 4.8: The second generation of a finger clip with an embedded ADXL345
+The additional circuit is needed to be re-arranged to suit the base board. The acceleration package is required to be accommodated on the same board due to that the LEDs package used in the second generation of the finger sensor probe is factory
+54
+
+printed on the base board. The top and bottom views of the probe PCB board are shown in Figure 4.9 and Figure 4.10, respectively.
+Figure 4.9: Top view of the probe board
+Figure 4.10: Bottom view of the probe board
+Figure 4.11 shows three-dimensional coordinate system of the finger sensor probe with ADXL345EB (REV.1 by Intempco) embedded. The accelerometer measures the static acceleration of gravity and dynamic acceleration caused by motion or shock. It is defined that the normal position of the finger sensor probe to be such that the positive side of the accelerometer reference z-axis points in the upright direction against gravity, the x-axis points along the finger, and y-axis is orthogonal to the x-axis in the horizontal plane. Prior to the experiments described here, the wearer is at rest and relaxing quietly for 3 to 5 minutes in order to ensure that the PPG signal is stable and accurate. The hand on which the finger sensor probe is placed is kept straight and horizontal.
+55
+
+Figure 4.11: Three-dimensional coordinate system: (a) ADXL345EB (REV.1 by Intempco) and (b) PPG finger sensor probe
+The PPG and ACC signals, captured using the hardware described in this section, have been validated through extensive experimentations to get a promising performance. The motion is captured by the embedded accelerometer and is used as the noise reference to the proposed PPG based sensor device. The experimental procedures and resulting measurements to determine the effect of motion on the PPG signal are described in more detail in the following chapters.
+4.1.3 Accelerometer Data Optimization
+The special purpose transmission-type PPG finger probe used in the experiments of this work has been designed and fabricated in order to study PPG signals in conjunction with motion. For this reason, an ADXL345 digital 3-axis MEMS accelerometer has been embedded within the PPG finger probe. It measures the static acceleration of gravity in tilt-sensing applications (for standard gravity, 1 g ‚âà 9.81 m/s2), as well as dynamic acceleration resulting from motion and shock. The PPG finger probe can be divided into four parts: an LED, a photodiode, an acceleration unit and a processing circuit. The ADXL345 accelerometer can measure the motion in the PPG finger probe in three orthogonal directions (corresponding to X, Y and Z axes). The normal orientation of the PPG finger probe has been defined to be such that the positive side of the accelerometer reference Z-axis points in the upright direction (against gravity), the X-axis points along the finger (when held horizontal), and the Y-axis is orthogonal to the X-axis in the horizontal plane. Each experiment was conducted on the condition that the PPG finger probe was in the normal position and the subject had been sitting straight having been relaxed for at least 4 minutes prior to any testing.
+56
+
+4.2 Experimental Setup 4.2.1 Typical Medical Devices for Reference Data Capture The sensor system designed in this project is compared to commercial medical devices. A HemoCue¬Æ201 was used as Hb reference for cross evaluation and comparison, and is shown photographically in Figure 4.12. Microcuvettes are used with lancets to collect blood samples in an invasive manner. The Hb readings are displayed after ten seconds.
+Figure 4.12: A HemoCue¬Æ201 used as Hb monitoring reference
+In Figure 4.13, an OXYGEN SATURATION PULSOX-8 was used as the oxygen saturation and HR monitoring reference. It provides continuous non-invasive measuring of the oxygen saturation and pulse rate readings by optical methods.
+57
+
+Figure 4.13: OXYGEN SATURATION PULSOX-8 used as oxygen saturation and HR monitoring reference
+An inflatable wrist-type cuff BP monitor (SBC 27-wrist blood pressure monitor, Sanitas, Kaunas, Lithuania), as shown in Figure 4.14, was used to record BP. It was used to simultaneously measure the local BP in close proximity to the point of measurement when the subject‚Äôs hand was placed at different height levels. It was also used as an external force generator on the wrist for the research related to PPG signal analysis.
+Figure 4.14: Electronic Blood Pressure Monitor used as HR and BP monitoring reference
+A respiration monitor, (Neulog Respiration Monitor Belt logger NUL-236, Fisher Scientific, Pittsburgh, PA, USA) was also included for monitoring the subject‚Äôs breathing in real time during testing. It is a piezoresistive device used to measure the deformation in a bellows diaphragm when an internal air cavity in the belt is compressed by stress due to abdominal expansion when breathing.
+58
+
+4.2.2 Schematic of the PPG-Based Sensor System The key requirements for designing an optical sensor system have been introduced in the last sections. The implementation of the measurement of HR, SpO2, and SpHb is shown schematically in Figure 4.15. The flow charts can be divided into seven main steps marked by the red blocks. The bio-signal first received by the finger sensor probe is communicated to the PC through a standard USB cable. LabVIEW (National Instruments, Austin, Texas, United States), a digital signal processing software package, is adopted as the data processing tool for the estimation of human vitals. The Data process is described in the diagram structure on the top right.
+Figure 4.15: The PPG sensor system block diagram and the main steps for Hb estimation
+Figure 4.16 portrays a schematic diagram of the current implementation of the biosensor monitoring in two main steps: human information collection state and PC signals processing and output state. The PPG and ACC signals collected from the finger sensor probe are in-real time data arrays. The sketch of blue blocks in Figure 4.16 shows the further analog signal processing. The blocks relating to signal processing represents processing of the bio parameters and optimization with data stored.
+59
+
+Figure 4.16: Experimental setup of the custom sensor system
+The block diagram of the overall process of the motion artefact minimisation algorithm is shown in Figure 4.17. The DSP is running as a LabVIEW Virtual Instrument (VI) programme. The raw PPG signals were collected from the custom built PPG sensor device. During the motion event, PPG signals could be affected from motion artefact, VHD, ANS (respiration variations, reference mine). The proposed filtering method then was adopted to provide minimisation of the noise from motion events.
+Figure 4.17: The block diagram of the overall process of the motion artefact minimisation algorithm
+60
+
+4.3 IAR System (Code on the MCU) and LabVIEW
+The flow diagram of the code on the MCU is shown in Figure 4.18. Since an extra
+accelerometer is embedded in the finger probe, the sample rate of one cycle is increased
+by the ACC data processing. The debug tool of IAR system was used to write code into
+the MSP430 MCU. Timer A is the LEDs flashing intervals used in the sensor device.
+For timer A, in each cycle, TACCR0 = 0x4e stands for 420Hz sampling rate and 105Hz
+for each LED. Timer B is the sub-time array for ADC conversions and PPG and ACC
+signals are saved in a buffer. For timer B, TBCCR0 = 0x06 means 5 Khz sampling rate
+for data process. The ACC signal is collected during LEDs off period, as can be seen as
+follows. The C code for the MCU is attached in Appendix.
+if(n_led == 1) {
+810 nm LED on while the other three LEDs off; // P1.7 ADC data process } if(n_led == 2) { All LEDs off; //offset data process ADXL345_ReadXYZ( , , ); count_acc++; } if(n_led == 3) { 670 nm LED on while the other three LEDs off; // P1.6 ADC data process } if(n_led == 4) { All LEDs off; //offset data process ADXL345_ReadXYZ( , , ); count_acc++; } if(n_led == 5) { 905 nm LED on while the other three LEDs off; // P1.5 ADC data process } if(n_led == 6) { All LEDs off; // offset data process ADXL345_ReadXYZ( , , ); count_acc++;
+61
+
+} if(n_led == 7) {
+1300 nm LED on while the other three LEDs off; // P2.0 ADC data process }
+Parameter n_led is used to select different statues for the four LEDs on-and-off. For example, n_led == 1 tends to set 810 nm wavelength LED on while the other three LEDs off for P1.7 ADC data process. n_led == 2 supposed to set all LEDs off in the offset data process and also the ACC data can be collected and saved in buffer by ADXL345_ReadXYZ (x,y,z) when the ACC_flag is triggered. The value of n_led increases from 1 to 7, and the four LEDs flash in interval sequence. Hence, it is expected to be an easier task to carry out the experiments based on PPG and ACC signals given that the signal strings transmitted to PC terminal synchronously.
+Figure 4.18: The code flow on the MCU
+PPG and acceleration (ACC) signals are collected from the sensor device and later analysed for human vitals monitoring. LabVIEW was used to compute the various
+62
+
+optical absorption parameters, accelerometer coefficients and the derived coefficients (e.g., (SpO2), Hb and HR). A study of the effects of motion of the probe on the PPG signal shows that the PPG signal is potentially corrupted/degraded by movement, and strongly affected by height variation in vertical direction. When the second generation of the finger sensor probe running for the first time, its code written on the chip was not suitable for the new sensor device, especially the time array and the bio reading calibration coefficients. As can be seen in Figure 4.19, the cHb reading is 19.3 g/dL in that moment while pulse and SpO2 readings are relatively in a correct range.
+Figure 4.19: the code for Raw Labview readings required calibration
+The new interface with peak of heart pulse marked by red circle, digital filters used to filter noise, and acceleration in 3-axis can be determined from the accelerometer. The value of cHb is 13.1 g/dL, as shown in Figure 4.20. ACC and motion detection code are added for further application. When there is relatively no distortion in motion corrupting the ACC signal, information about sensors in still is displayed. When distortion is present in any axis direction, information of motion would be warned based upon the indication. ACC signal is used for inferring different movement variations.
+63
+
+4.4 Summary
+
+Figure 4.20: ACC and motion detection interface
+
+This chapter has described the optical-sensor system which includes the finger sensor probe and the main sensor board. The PPG and acceleration (ACC) signals are collected from the sensor device and made available for signal processing and human vitals monitoring. LabVIEW is used to compute the various optical absorption parameters, accelerometer coefficients and the derived coefficients (e.g., (SpO2), Hb and HR). A study of the effects of motion of the probe on the PPG signal shows that the PPG signal is potentially corrupted/degraded by movement, and strongly affected by height variation in vertical direction.
+
+64
+
+CHAPTER 5.
+ANALYSIS OF PPG SIGNALS IN THE CONTEXT OF EXTERNAL PHYSIOLOGICAL PARAMETERS
+5.1 Introduction
+A wide study (a total of 23 human subjects) of the effect of motion on the Photoplethysmographic signals is reported. The investigation includes testing of two separate groups of 5 and 18 subjects who were asked to undertake set exercises whilst simultaneously monitoring a wide range of physiological parameters including breathing rate, HR and localised BP using commercial clinical sensing systems. The unique finger mounted PPG probe equipped with miniature three axis accelerometers for undertaking this investigation was a purpose built in-house version which is designed to facilitate reproducible application to a wide range of human subjects and the study of motion and has been described in Chapter 4. The subjects were required to undertake several motion based exercises including standing, sitting and lying down and transitions between these states. They were also required to undertake set arm movements including arm-swinging and wrist rotation. A comprehensive set of experimental results corresponding to all motion inducing exercises have been recorded and analysed including the BL value (DC component) and the amplitude of the oscillation of the PPG. All physiological parameters were also recorded as a simultaneous time varying waveform. The effects of the motion and specifically the localised BP have been studied and related to possible influences of the ANS and hemodynamic pressure variations. It is envisaged that a comprehensive study of the
+65
+
+effect of motion and the localised pressure fluctuations will provide valuable information for the future minimisation of motion artefact effect on the PPG signals of this probe and allow the accurate assessment of total Hb which is the primary function of the probe.
+The experimental data was initially recorded on five subjects with PPG signals, acceleration data and respiration monitored simultaneously. This was subsequently widened to a test on 18 independent subjects in order to confirm the efficacy of the initial results. Data therefore have been gathered for a total of 23 healthy adults (13 males and 10 females) between the age of 24 and 55 years (mean age 27.5 ¬± 7.5 years) with PPG signals, acceleration data and respiration monitored simultaneously. The room temperature was maintained constant at about 18 ¬∞C, and all subjects had no known cardiovascular diseases, nor recent consumption of caffeine and/or nicotine.
+The study of baseline and pulse amplitude from the viewpoint of local BP variation is provided in Section 5.2. The potential factors affecting the PPG signals are studied in detail e.g., body position, breathing pattern, externally applied pressure and motion at the wrist is discussed in Section 5.3. In particular, the corruption and/or degradation of the PPG signal is investigated when affected by local BP variation induced from motion of the subject. Section 5.4 takes a further step for the measurements of PPG signals in the presence of more vigorous movement e.g., repeated swinging of the arm with long or short resting time intervals. The discussion and conclusions are presented in the last section.
+5.2 BL and Local BP
+5.2.1 The BL of the PPG Signal
+Figures 5.1‚Äì5.3 depict typical time varying PPG signals at a wavelength of 810 nm and ACC signal the accelerometer signals (ACC) signal measurements with predominant acceleration applied in the X, Y, and Z directions respectively, captured with a period of about 40‚Äì50 s and the wearer in a sitting position. The results of Figures 5.1‚Äì5.3 show that the design of the PPG probe in this investigation has been successful and there appears to be minimal effect accruing from motion on the PPG signals in the respective
+66
+
+directions (X, Y and Z) when the acceleration (force) applied in those directions is relatively small (typically less than ¬±1 g). Figure 5.1 corresponds to the case of the motion applied in the X-axis direction, in which case accelerations applied in the Y-axis and Z-axis directions were controlled to be as small as possible. The resulting acceleration signals are shown in Figure 5.1a (X) and Figures 5.1c, 1d (Y and Z respectively). The acceleration in the X direction, Ì†µÌ±éÌ†µÌ±• is 0.963 g (‚âà 9.45 m‚ÅÑs2) whereas Ì†µÌ±éÌ†µÌ±¶ (Y direction) and Ì†µÌ±éÌ†µÌ±ß (Z direction) are 0.398 g (‚âà 3.90 m‚ÅÑs2) and 0.296 g (‚âà 2.90 m‚ÅÑs2). The time varying PPG signal during this motion event is shown in Figure 5.1a and the variation in the signal predominant is a frequency component due mainly to respiration [132]. Nitzan and et al [64] have also stated ‚ÄúPhotoplethysmography (PPG) provides a qualitative measure of the tissue blood volume increase during systole by measuring the light transmission through the tissue as a function of time.‚Äù The time period relating to our study is not fixed (Figures 5.1‚Äì5.3) but is generally in the range of multiples of 10‚Äôs of seconds (usually between 40 and 50 s). In order to introduce a quantitative measure of the PPG signal change (amplitude) and offset from the zero line (analogous to a DC or continuous wave component) during this phase the definition has been applied to each record for the duration that is captured. The peak value in the PPG waveform, defined in terms of BL [64], and AM mark in chart of a PPG signal, are also illustrated in Figure 5.1. Results of acceleration applied mainly along the Y-axis direction are illustrated in Figure 5.2. The acceleration Ì†µÌ±éÌ†µÌ±¶ is 1.330 g (‚âà 13.05 m‚ÅÑs2) whereas Ì†µÌ±éÌ†µÌ±• and Ì†µÌ±éÌ†µÌ±ß are 0.573 g (‚âà 5.62 m‚ÅÑs2) and 0.378 g (‚âà 3.71 m‚ÅÑs2). However, when acceleration in the vertical (Z) direction is dominant, e.g., in Figure 5.3d with the acceleration Ì†µÌ±éÌ†µÌ±ß is 2.059 g (‚âà 20.20 m‚ÅÑs2) whereas Ì†µÌ±éÌ†µÌ±• and Ì†µÌ±éÌ†µÌ±¶ are 0.484 g (‚âà 4.75 m‚ÅÑs2) and 1.018 g (‚âà 9.99 m‚ÅÑs2) respectively. The PPG signal (Figure 5.3a) shows stronger fluctuations than the case in Figure 5.1a or Figure 5.2a. It therefore appears that PPG signals are more greatly influenced by acceleration applied in the Zaxis direction. It is acknowledged that the acceleration values in the case of Figure 5.3a are greater than either Figure 5.1a or Figure 5.2a, but the effect on the waveform of the z axis acceleration is visibly different in the case of Figure 5.3a than either Figure 5.1a or Figure 5.2a, the signal in the former case showing a stronger oscillatory characteristic which broadly correspond the appearance of acceleration pulses and are not as clear or
+67
+
+even present in Figures 5.1a and 5.2a for which the dominant applied acceleration is in the horizontal plane.
+Figure 5.1: (a) PPG and (b-d) AAC signals measurement with main motion acceleration in x-axis
+Figure 5.2: (a) PPG and (b‚Äìd) AAC signals measurement with main motion acceleration in y-axis
+68
+
+Figure 5.3: (a) PPG and (b‚Äìd) AAC signals measurement with main motion acceleration in z-axis
+The PPG waveforms and ACC signals in the interval 990‚Äì1110 s in Figure 5.3 are shown in greater detail in Figure 5.4. Each acceleration event in the positive Z-axis direction, marked by regions of odd numerals (i, iii, and v) in Figure 5.4b, leads to an increase in BL, and meanwhile each acceleration in negative Z-axis direction, marked by regions of even numerals (ii, iv, and vi), represents a decrease in BL. The waveform is therefore most strongly influenced by movement in vertical Z-axis direction compared to motion in the horizontal x-y plane. The research in this investigation is aimed at the exploration and analysis of the properties of the PPG signal affected by physiological parameters associated with motion as described in the following sections.
+69
+
+Figure 5.4: Enlarged portion of Figure 5.3 in the interval 990‚Äì1110 s
+5.2.2 BP Response to VHD
+Inflatable cuff blood pressure monitors are widely available for BP and HR monitoring. An inflatable cuff blood pressure monitor performs well when the monitored subject is in the resting position. The average values of systolic BP, diastolic BP and HR from one of the subjects were collected at different height levels (e.g., the height of the wrist, that the measurement cuff is on, relative to heart level) using the Sanitas SBC 27-wrist blood pressure monitor. The results corresponding to each of these parameters with differing height level are shown in Table 5.1. The instructions provided for the blood pressure monitor direct that measurements should be recorded with the cuff located at the same height as heart level in order to obtain optimum accurate readings, which means the first set of readings in Table 5.1 should be the most accurate. Although increasing VHD is not a recommended way to use the blood pressure monitor, these readings were recorded to provide an indication of variation in local BP variations. The results of Table 5.1 show that BP measurements tend to be influenced by VHD variations. In detail, the systolic BP decreases about 5 mmHg for every 5 cm increase in height above heart level, fall from 112 mmHg to 89 mmHg over the entire recording interval (35 cm). The diastolic BP readings show a similar decrease from 84 mmHg to 45 mmHg over the same height range. In the situation where VHD increases, HR readings remain relatively stable (a second reference for the HR reading was also available from the Oxygen
+70
+

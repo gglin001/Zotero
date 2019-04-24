@@ -1,0 +1,3294 @@
+Chapter 8
+ECG Signal Processing: Heart Rate Variability
+Heart rate variability (HRV) has, in recent years, received widespread research interest since the state of the autonomic nervous system, and related diseases, can be investigated noninvasively using relatively basic signal processing techniques. Despite the seeming simplicity of deriving the series of RR intervals from the ECG signal and defining related measures of dispersion, it is nonetheless essential to assure that HRV is analyzed accurately. Several definitions of signals for representing the heart rhythm have been suggested which characterize variability either in terms of successive RR intervals or instantaneous heart rate. i In particular, spectral analysis of heart rhythm signals has received considerable attention since oscillations embedded in the rhythm, for example, due to respiratory activity or variations in blood pressure, can be quantified from the corresponding peaks in the estimated power spectrum. The oscillations are characterized by low-frequency components which typically are located in the interval below 0.5 Hz. These low-frequency components will remain in the ECG signal despite the inclusion of baseline wander removal based on, for example, a highpass filter with a cut-off frequency at 0.5 Hz. Since HRV is solely characterized by the pattern of heartbeat occurrence times, and baseline wander is related to the morphology of the ECG signal, baseline wander removal does not alter the HRV information.
+The present chapter is dedicated to the analysis of HRV. Following an overview in Sections 8.1 and 8.2 of the demands on data acquisition for HRV analysis, the conditioning of RR intervals, and simple time domain measures, the most important signals for representing the heart rhythm are presented
+iThe term "heart rate variability" here signifies fluctuations in both RR intervals and instantaneous heart rate [I].
+567
+
+568
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+in Section 8.3. These signals form the basis for HRV measures which are more advanced than the time domain measures and which quantify the correlation that usually exists between different RR intervals. Spectral analysis of a heart rhythm signal may, in addition to the straightforward application of Fourier-based analysis, be implemented by techniques which directly account for the fact that the heart rhythm derives from an unevenly sampled signal (Section 8.4). Section 8.6 contains a description of methods developed for the correction of the RR interval series when ectopic beats are present; such correction requires that sinus beats and ectopic beats first be separated into different clusters with respect to their morphologies (Section 8.5). Finally, Section 8.7 discusses briefly the interaction between heart rate and other physiological signals, and how such interaction can be mathematically modeled. We remind the reader that a brief physiological background to HRV is found on page 431.
+8.1 Acquisition and RR Interval Conditioning
+The analysis of HRV is based on the series of occurrence times 00,..., OM,
+originally produced by the QRS detector, but usually refined by an algorithm for time alignment. 2 Since an important purpose of HRV analysis is to investigate the influence of autonomic activity on the sinoatrial node, the onset of the P wave is actually a more appropriate fiducial point of the heartbeat than a fiducial point related to the QRS complex. However, a fiducial point related to the P wave is extremely difficult to determine with sufficient accuracy since the P wave has a low amplitude; sometimes the P wave is completely missing. Therefore, the fiducial point is commonly related to the QRS complex--evidently under the assumption that the QRS fiducial point has been determined by a reliable technique. The use of the RR intervals instead of the PP intervals has been generally accepted because the PR interval can be considered as relatively fixed, and thus, the RR intervals reflect the activity of the sinoatrial node.
+The requirements on data acquisition are primarily concerned with the sampling rate by which the ECG signal should be acquired; subtle beat-tobeat variations in rhythm will be lost if the signal is too coarsely discretized in time. The sampling rate commonly used in resting ECG analysis, i.e., 250-500 Hz, is sufficient for most types of HRV analysis. However, certain clinical HRV investigations have been based on Holter recordings, digitized at a considerably lower sampling rate, i.e., 100-125 Hz. Methodological studies have shown that such low sampling rates are inappropriate and cause,
+2For pedagogical reasons, the indexing of events in this chapter starts from zero rather than from one as otherwise assumed.
+
+Section 8.1. Acquisition and RR Interval Conditioning
+
+569
+
+when spectral analysis of the heart rhythm signal is of interest, exaggeration of the high-frequency components of the power spectrum [2]. Based on a simple statistical model of the RR interval series, the error introduced in the power spectrum for different sampling rates of the ECG signal is discussed in Problem 8.1.
+While HRV analysis is essentially unproblematic when analyzing recordings acquired during rest, artifacts are usually present in Holter recordings which pose some serious limitations on the analysis. For example, noise bursts may cause the QRS detector to produce false detections as well as to miss low-amplitude QRS complexes, thus resulting in an RR interval series with invalid intervals. Hence, the exclusion of non-normal RR intervals represents an important step in conditioning the series in order to make HRV analysis more reliable. The resulting interval series is commonly referred to as the normal-to-normal intervals (NN intervals). Since manual editing of a 24-hour Holter recording, containing approximately 100 000 RR intervals, is extremely laborious, automated exclusion procedures have been developed in order to accomplish rejection of artifacts. A simple approach is to apply an exclusion criterion by which an RR interval is considered abnormal if it deviates more than 20% from the mean length of the preceding RR intervals [3]. Such an approach is based on the assumption that the physiological mechanisms controlling the heart during sinus rhythm do not abruptly change the heart rate. Other, more complex decision criteria for exclusion of nonnormal intervals have been presented in which the shape of the distribution of beat-to-beat differences in interval length is investigated [4, 5]. However, more complex approaches have not necessarily been found to result in a more valid RR interval series, but may rather produce the opposite result [5].
+One particular aspect of artifact rejection is to handle the presence of ectopic beats which interrupt fluctuations in heart rate modulated by changes in autonomic balance. Since an ectopic beat interrupts the sinus rhythm by its premature occurrence, i.e., prior to the time when the next normal beat is expected to occur, it is necessary to correct for both the preceding, shorter than normal RR interval and the subsequent, longer than normal, compensatory pause before HRV analysis can be adequately performed (Section 8.6).
+It should be emphasized that different techniques for HRV characterization are, to varying degrees, sensitive to the presence of artifacts in the RR interval series. Simple time domain measures, derived from the RR interval distribution, are less sensitive to the presence of artifacts than measures derived from the power spectrum. The "brute force" approach, based on minute-length ECG segments completely free of artifacts, may, in fact, be the sole approach when power spectral analysis of HRV is required.
+
+570
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+8.2 Time Domain Measures
+
+Clinical studies of HRV have frequently been synonymous with the use of simple time domain measures such as the standard deviation of the RR intervals. Although a variety of heart rhythm representations may be used, the series of RR intervals is the preferred starting point for the design of time domain measures. An important consideration is whether the measure should reflect long- or short-term HRV so as to convey information primarily related to parasympathetic or sympathetic activity. This consideration is particularly important when Holter recordings are analyzed and may be addressed by calculating the time domain measures from successive segments of shorter lengths or from the entire ECG recording [1]. Figure 8.1 illustrates the large variability in heart rate that may be observed during one day and night.
+A straightforward way to quantify HRV is to calculate the standard deviation of the available NN intervals,
+
+I 1M
+
+SDNN - M - 1 ~ (rk - TI) 2,
+
+(8.1)
+
+k=l
+
+where rk denotes the k th NN interval, see (7.17), and TI denotes the mean
+length of the M intervals rk. For long-term recordings, SDNN only provides a rough characterization of HRV since the mean heart rate changes considerably from the active parts of the day to sleep during the night. Another commonly used measure is the standard deviation of the average length of NN intervals in 5-minute segments, abbreviated to SDANN, which, due to the 5-minute averages, primarily reflects very slow, circadian variations in heart rate. Since the resulting values of SDNN and SDANN depend, to a certain degree, on the length of the ECG recording, such information must also be taken into account to make a comparison of results meaningful.
+Since both SDNN and SDANN reflect long-term variability in heart rate, additional dispersion measures have been suggested which reflect short-term variability through analysis of the difference between successive NN intervals. The effect of the difference operation is to accentuate the high-frequency content of the NN interval series. Hence, the standard deviation of successive NN interval differences is a frequently used dispersion measure in clinical studies; this measure is commonly referred to as the root mean-square of successive differences (rMSSD). The proportion of intervals differing more than a certain limit value from the preceding interval represents another measure which reflects short-term variability. Since the limit value is typically set to 50 ms, this HRV measure is referred to as "pNN50". Comparing
+
+Section 8.2. Time Domain Measures
+
+571
+
+1.5
+,.-.., @
+9~ 0.5 -
+0 17:00 1.5
+
+" i .,,.,L,.,a,,.,,,L._~I,L.,J,J,~L,.,..,..,LLJ,
+
+.
+
+,'" 'T,
+
+18:00
+
+19:00
+
+20:00
+
+21:00
+
+22:00
+
+23:00
+
+~9
+.~ 0.5 c~
+0 23:00 1.5
+or]
+
+24:00
+I
+
+01:00
+
+[.
+
+I
+
+02:00
+I
+
+03:00
+I
+
+04:00
+I
+
+05:00
+
+.~ 0.5
+0 05:00 1.5
+
+I
+06:00
+
+I
+07:00
+
+I
+08:00
+
+I
+09:00
+
+I
+10:00
+
+I
+11:00
+
+09
+9~ 0.5
+
+0 11:00
+
+I
+12:00
+
+I
+13:00
+
+I
+14:00 Time (h)
+
+I
+15:00
+
+I
+16:00
+
+17:00
+
+Figure 8.1: The series of RR intervals observed during almost one day and night. During this time span, the R R intervals vary in length from about 0.3 to 1.5 s.
+
+572
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+T a b l e 8.1: Common time domain measures for characterization of HRV, using the abbreviations which have become generally accepted in clinical studies. The table is a shortened version of the one presented in a task force paper on HRV [1].
+
+Measure SDNN SDANN
+rMSSD
+pNN50
+TINN
+
+Definition Standard deviation of all NN intervals. Standard deviation of the averages of NN intervals in all 5-minute segments of the entire ECG recording. Root mean-square of successive differences of adjacent NN intervals. Percentage of pairs of adjacent NN intervals differing by more than 50 ms. Triangular interpolation index. The base of a triangle fitted to the RR interval histogram (see text and Figure 8.2).
+
+rMSSD and pNN50, it is evident that rMSSD provides a more detailed description of short-term variability, whereas pNN50 is much less vulnerable than rMSSD to artifacts that may be present in the RR interval series [6]. A list of common time domain measures, and their respective definitions, is presented in Table 8.1.
+Time domain measures reflecting long-term variability in heart rate have, in certain patient groups, such as alcoholics and diabetics suffering from netropathy, offered better performance in detecting abnormalities in autonomic function than short-term measures. In a similar fashion, the prediction of mortality in patients who have suffered from an earlier myocardial infarction has improved when the very slow variability in heart rate is investigated. Both these results were found in studies which were based on the analysis of Holter recordings [7].
+Another group of time domain measures that deserves mentioning is that which is derived from the geometrical properties of the RR interval histogram [8]. The main idea behind such measures is the observation that the histogram often contains a dominant peak which can be well-characterized in terms of some simple geometrical shape such as a triangle. After finding the best fit of the triangle to the dominant peak, for example, expressed in the least-squares sense, a robust measure of the variability in heart rate is given by the width of the triangle base; this measure is referred to as the triangular interpolation index (TINN) [9], see Figure 8.2.
+One important motivation for developing histogram-based HRV methods is their relative robustness to inclusion of non-NN intervals caused by ectopic beats or artifacts; such intervals often tend to fall outside the dominant
+
+Section 8.3. Heart Rhythm Representations
+
+573
+
+400
+
+400
+
+300
+
+300
+
+~200
+
+200
+
+100
+
+100
+
+0 0 200 400 600 800 RR interval (ms)
+
+0 0 200 400 600 800 RR interval (ms)
+(b)
+
+Figure 8.2: (a) An RR interval histogram with two dominant peaks, one reflecting the predominant RR interval lengths and the other reflecting the very short intervals due to falsely detected T waves and whose lengths are about 300 ms. (b) The RR interval histogram after removal of the T wave intervals using a criterion based on the triangular index.
+
+peak of the interval histogram. However, the application of these methods is limited to Holter recordings, preferably of 24 hour duration or more, in order to get a sufficient number of intervals to construct a reliable histogram. Since a 24-hour recording contains periods from day activities as well as from rest during night-time, the histogram may become bimodal and sometimes multimodal. As a result, the use of triangular methods is no longer suitable since they tend to overestimate the variability in heart rate [8].
+The use of histogram-based methods is not restricted to the study of variability in normal sinus rhythm, but has also been found valuable for studying mechanisms behind certain arrhythmias. For example, the shape of the RR interval histogram has been analyzed during atrial fibrillation to better understand the random behavior of electrical impulses that occasionally propagate through the atrioventricular node and activate the ventricles [10, 11].
+8.3 Heart Rhythm Representations
+The purpose of a heart rhythm representation is to produce a signal which accurately reflects variations in heart rhythm and which lends itself to differ-
+
+574
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+ent types of HRV analysis. We have already touched upon the representation issue when mentioning that the heart rhythm can be represented in terms of either interval or rate (the latter entity defined by the inverse of the RR intervals). Other representations have also been put forward which take their starting point in the series of occurrence times of the QRS complexes ("event series") rather than in the series of successive RR intervals. The distinction between these two types of series is important from a conceptual viewpoint, although the latter series is easily derived from the former. An overview of the different approaches to represent the heart rhythm is provided in this section.
+The heart rhythm signal is based on the times at which the QRS complexes occur and, consequently, on a process that is "sampled" at unevenly spaced time instants. As a result, it is highly desirable to regularize the sampling rate of the heart rhythm signal in order to make the signal compatible with the multitude of analysis methods which require an evenly sampled signal. It is crucial not to confuse the sampling rate inherent to the heart with the one used for digitizing the ECG signal. The latter sampling rate determines the resolution of the QRS occurrence times 0k and is, in the following, assumed to be sufficiently high so that it can be replaced by its continuous-time counterpart tk [2]. It should be noted that while the ECG is typically sampled at a rate of 500-1000 Hz, the evenly sampled heart rhythm signal has a much lower sampling rate of only a few hertz. This lower rate is not only sufficient to completely characterize HRV, but it also results in a substantial reduction of the number of samples required to perform the analysis.
+The performance requirement mentioned above of a heart rhythm representation that "well reflects variations in heart rhythm" is, unfortunately, not easily expressed in exact terms. However, by developing a mathematical model of HRV, it is possible to not only model the autonomic nervous influence on the heart rate, but also to provide a tool which helps to indicate which representation exhibits the better performance. One such model is the integral pulse frequency modulation (IPFM) model which has gained wide popularity in the field of HRV analysis.
+8.3.1 The Integral Pulse Frequency Modulation Model
+The IPFM model is used to generate an event series, such as the series of heartbeat occurrences, and assumes the existence of a continuous-time input signal with a particular physiological interpretation. Figure 8.3 presents a block diagram of the IPFM model and illustrates the signals as they may appear in different steps of the model. In this model, the input signal is integrated until a threshold R is reached at which an event is generated at
+
+Section 8.3. Heart Rhythm Representations
+
+575
+
+F" . . . . .
+I
+-~0 + .~(t)
+---
+
+Reset
+
+"1
+
+I
+
+I
+
+I
+
+(~)
+
+~(t)
+
+1.5
+§ o 0.5
+00
+
+(b)
+20
+(c)
+
+;IT TTTTT TTTTTTTTT T T TTT (~/
+
+to tl t2 t3 t4 t5 t6 t8 t9 tlOtllt12t13 t14 t15
+
+t16 t17 t18 t19 t20
+
+Time (s)
+
+Figure 8.3: (a) The integral pulse frequency modulation (IPFM) model, (b) the
+input function mo+ re(t) which modulates the variation in interval length, (c) the output y(t) of the integrator assuming a threshold level at R, and (d) the resulting event series d~(t) at occurrence times to, t l , . . . , tM.
+
+576
+
+Chapter 8. ECG Signal Processing: HeartRate Variability
+
+time tk. The integrator is then reset to zero, the procedure is repeated, and
+so on. The threshold R defines the mean interval length between successive events. The input signal, being positive-valued, is the sum of two quantities,
+namely, a DC level m0 and a modulating function re(t) whose DC component is equal to zero and whose amplitude is bounded such that Im(t)l << rn0 to
+assure that the input signal always remains positive. Assuming that the IPFM model is valid, our objective is to design a method which can retrieve
+information on re(t) from the observed series of event times tk, represented
+by the signal
+
+M
+
+d~(t) - ~ (~(t - tk),
+
+(8.2)
+
+k=0
+
+where the superscript "u" denotes that the events occur unevenly in time (and later also denoting uneven sampling). A definition of the unit impulse function 5(t) and the impulse-train sampling in (8.2) can be found in most textbooks covering the fundamentals on signals and systems, see, e.g., [12].
+In physiological terms, the output signal of the integrator in Figure 8.3 can be viewed as the charging of the membrane potential of a sinoatrial pacemaker cell [13]. The membrane potential increases until a certain threshold is exceeded and then triggers off an action potential which, when combined with the effect of many other action potentials, initiates a new heartbeat. The input to the integrator consists of rn0, which defines the mean heart rate, and the modulating signal re(t), which describes the variations in heart rate as modulated by the autonomic activity on the sinoatrial node. In general,
+re(t) is bandlimited such that spectral components above 0.4-0.5 Hz can be neglected during resting conditions. The assumption Im(t)l << m0 is in-
+cluded in order to assure that the HRV is small when compared to the mean heart rate.
+In mathematical terms, the event series is defined by the following equation which is central to the IPFM model,
+
+fl k (too + m(~-))d~- - R, k - 1,..., M. --1
+
+(8.3)
+
+The modulating function m(t) determines the variation in interval length between two successive events occurring at tk-1 and tk. Without any modulation, i.e., for re(t) - 0, the resulting event series is perfectly regular and has a constant interval length equal to R/mo; the corresponding unmodulated mean repetition frequency FI = 1/TI is given by
+
+F ~ - -m~0-.
+
+(8.4)
+
+Section 8.3. Heart Rhythm Representations
+
+577
+
+The constant rn0 is usually set to one, implying that the inversely-related
+threshold R specifies the mean repetition frequency FI in units of hertz; also,
+R is identical to the mean RR interval length TI,
+
+1
+
+R-
+
+= TI.
+
+(8.5)
+
+F1
+
+Hence, the "heart rate" of the IPFM model is equal to 60 events/minute
+when TI is chosen to be 1 s.
+Assuming that the initial event occurs at to - 0, the integral in (8.3) can alternatively be expressed as
+
+fo~(~ + ,~(~))d~ - kTi, k - 0 , . . . , M,
+
+(8.6)
+
+where k is an integer that indexes the kth event. Furthermore, rather than having the IPFM model defined for only those time instants tk when the
+threshold TI is exceeded, it can be generalized to a continuous-time function
+by introducing the following definition [14],
+
+fo~(~ + ,~(r162 - ~(t)Ti.
+
+(8.7)
+
+Here, integration up to a certain time t is proportional to a continuous-valued
+indexing function ~(t), whose value at tk is identical to the integer-valued event index k, i.e., ~(tk) = k. The generalization of the IPFM model in (8.7)
+will later make it possible to develop a heart rhythm representation known
+as the heart timing signal. The behavior of the modulating function re(t) conveys essential infor-
+mation on the HRV. No prior knowledge of re(t) is, however, available, and, therefore, re(t) has to be estimated from the occurrence times of the ob-
+served event series. When evaluating the performance of various methods
+developed for heart rhythm representations, it is commonly assumed that
+re(t) is defined as a sum of P sinusoids with amplitudes mp and frequencies Fp,
+
+P
+
+re(t) -- E mp sin(27rFpt).
+
+(8.8)
+
+p=l
+
+The multiple sinusoid model may account for HRV caused by respiration, changes in blood pressure, and other physiological factors. The amplitudes
+m l , . . . , rnp in (8.8) are commonly assumed to have a value much smaller than one. Naturally, the modulating function re(t) can be assigned other
+structures than the one suggested in (8.8). For example, it may be defined by
+
+578
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+to
+
+tl
+
+t2
+
+t3
+
+t4
+
+t5
+
+t6
+
+I
+
+I
+
+I
+
+I
+
+f
+
+I
+
+I
+
+dIT (1)
+
+dIT (2) dIT (3) dIT (4) dIT (5) dIT (6)
+
+Figure 8.4: Definition of the interval tachogram diw(k), which is identical to the series of RR intervals. Note that indexing of d~w(k) starts at k = 1.
+
+a bandlimited AR process whose spectral peaks correspond to the frequencies F1,..., Fp, introduced in the multiple sinusoid model in (8.8) [14, 15].
+The IPFM model is an important tool for simulation studies and to better understand the mechanisms behind HRV [14, 16-21]. Nonetheless, it should be remembered that this model does not provide an exact description of sinoatrial activity; more sophisticated models may be of interest to consider [22-25]. It should also be pointed out that the IPFM model is, by no means, restricted to the study of HRV, but has been found equally useful in other biomedical applications where an event series is observed, for example, in the area of neurophysiology [26-28].
+
+8.3.2 Interval Series Representions
+A frequently used heart rhythm representation is the interval tachogram diT(k) in which the events, occurring at to,..., tM, are transformed into a discrete-time signal consisting of the successive intervals, i.e., the RR intervals,
+
+dIT(k) = tk -- tk-1, k = 1,..., M,
+
+(8.9)
+
+see Figure 8.4. Hence, the interval tachogram is the heart rhythm representation upon which the simple time domain measures rest (Section 8.2), and it
+has been extensively used in the literature on HRV analysis, see, e.g., [29-31] (note that the interval tachogram diT(k) is identical to rk in (8.1)). The in-
+verse interval tachogram dIIT(k) is the "companion" representation to the
+interval tachogram and is defined by
+
+1
+
+dIIT(k) --
+
+, k = 1,..., M,
+
+tk - tk-1
+
+(8.10)
+
+Section 8.3. Heart Rhythm Representations
+
+579
+
+which thus reflects instantaneous heart rate. A major drawback when using either dIT(k) or diiT(k) is that both these
+signals are indexed by an interval number rather than by a sample number as is commonly the case with the discrete-time signal, evenly sampled in time. Consequently, power spectral analysis of these two signals cannot be expressed in units of "cycles per second" (Hertz), but can be expressed by the far less attractive unit of "cycles per interval".
+Transformation of the tachogram signals into evenly sampled time domain signals is essential not only for obtaining a spectral description in hertz, but also for more advanced variability analysis when the heart rate is cross-correlated with other physiological time domain signals such as blood pressure and respiration. These signals are often sampled at time instants which differ from those of the beat occurrences. Yet another motivation is provided by the situation in which heart rhythm response is studied in relation to certain types of stimulus, such as when solving a mental task or rising from a recumbent to standing position. In such situations, timesynchronized averaging of heart rhythm signals from several successive stimuli may be necessary to establish a reliable response, and, therefore, a signal evenly sampled in time is required.
+In contrast to the above tachogram representations, the interval function diF(t) is defined on a continuous-time basis such that the QRS complex, occurring at time tk, is represented by a unit impulse function 5(t- tk) scaled by the length of the preceding RR interval [32, 33],
+
+M
+d}LF(t) -- ~ (tk -- t k - 1 ) 5 ( t - tk)
+k=l M
+= ~ dxF(t)5(t -- tk).
+k=l
+
+(8.11)
+
+Similar to diiT(k) in (8.10), the inverse interval function diiF(t) is inversely related to the length of the RR interval,
+
+M( 1 ) a(t-
+
+d~iF(t) -- ~ k=l
+M
+
+tk -- tk_ 1
+
+= ~ dlxF(t)(~(t -- tk),
+
+(8.12)
+
+k=l
+
+and reflects instantaneous heart rate [34]. The heart rhythm representations based on the tachogram or the interval function are exemplified in Figure 8.5.
+Since both d~F(t ) and d~iF(t) represent unevenly sampled signals, it is desirable to resample these functions to become evenly spaced. Resampling
+
+580
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+to ' tl 't2 t[~ t4 I t5 ' t6 ' t7 I t ' t91 t'10 ' t l l it 2 ' t13 I t14 q9
+
+<
+
+0
+
+1.5
+
+,
+
+2
+
+i
+
+i
+
+4
+
+i
+
+i
+
+6
+
+8
+
+Time (s)
+
+i
+
+i
+
+i
+
+i
+
+10
+
+i
+
+i
+
+12
+
+i
+
+I
+
+14
+
+i
+
+i
+
+0.5 R2
+
+V
+
+(b)
+
+1.5
+7
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+Beat index k
+
+i
+
+i
+
+i
+
+i
+
+i
+
+i
+
+i
+
+i
+
+i
+
+i
+
+(c)
+0.5
+
+0
+
+1
+
+2
+
+3
+
+-1
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+Beat index k
+
+to tl t2 t3 t4
+
+t5 t6 t7
+
+t8
+
+t9
+
+rio
+
+tll t12 t13 t14
+
+0
+
+_i
+
+I
+
+TTl
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+0
+
+2
+
+4
+
+6
+
+8
+
+l0
+
+12
+
+14
+
+Time (s)
+
+2
+
+t to tl t2 t3 t4
+
+t5 t6 t7
+
+t8
+
+t9
+
+tl0
+
+tll t12
+
+t13 t14 t
+
+1
+
+(e)
+
+R2
+
+0 :I
+
+I
+
+0
+
+2
+
+I
+
+I
+
+I
+
+I
+
+I
+
+4
+
+6
+
+8
+
+Time (s)
+
+I
+
+I
+
+I
+
+I
+
+10
+
+12
+
+14
+
+Figure 8.5: (a) An ECG signal with the beat occurrence times tk. The heart
+rhythm is represented by (b) the interval tachogram diT(k), (c) the inverse interval tachogram diiT(k), (d) the interval function d~F(t), and (e) the inverse interval
+function d~i~(t). The functions displayed in (d) and (e) are unevenly sampled.
+
+Section 8.3. Heart Rhythm Representations
+
+581
+
+can be implemented by employing interpolation between the existing samples, thereby resulting in a signal denoted di(t), where the superscript "i" denotes interpolated. Regular sampling of the interpolated signal is then performed at the desired rate. The simplest approach to interpolation is to hold the interval value at tk until the next occurrence time tk+l, and so on. Such a technique is referred to as zero-order, or sample-and-hold, interpolation. The function that results from zero-order interpolation of the inverse interval function d~iF(t) can be expressed as
+
+M
+
+9 lu(t_tl)+E(
+
+1
+
+dIIF(t) -- ~-1
+
+k=2 tk -- tk -1
+
+1
+
+\
+}
+
+tk-1 -- tk-2 /
+
+tk), (s a)
+
+and its shape is exemplified in Figure 8.6(b). In (8.13), we have assumed that the first beat occurs at to - 0 . The unit step function, denoted u(t), is defined by
+
+1, t >_ 0;
+0, t < 0.
+
+(8 14)
+
+It is obvious from Figure 8.6(b) that a short RR interval, such as the one occurring at about 5 s, causes a disproportionately long, delayed interval with a large value in the interpolated signal d~iF(t ). This undesirable effect can be mitigated by introducing a minor modification to (8.13); by shifting the RR intervals one step such that the interval (tk+l - t k ) is instead used to scale u(t) at time tk, the interpolated function in (8.13) becomes
+
+M-1
+d}IFs(t) -- ~1 -+- E k=l
+
+tk+l --tk
+
+1
+
+\
+}
+
+tk -- tk-1 /
+
+(s.15)
+
+Figure 8.6(c) shows that the use of dii iFs(t), instead of d}iF(t), leads to an instantaneous heart rate with better tracking properties and has therefore been found to be more suitable for power spectral analysis [18, 35]. The advantage of using dxi iFs(t) over d~iF(t ) has also been supported by the use of the IPFM model, with results showing that re(t) is better estimated from
+d~iFs (t)[35]. It is well-known from the design of digital-to-analog converters that the
+staircase signal, resulting from the sample-and-hold operation, contains highfrequency components. Hence, it is necessary to bandlimit the signal before resampling in order to avoid aliasing. Although the bandlimiting operation, strictly speaking, calls for the design and use of a continuous-time lowpass filter, there are filtering approaches which, fortunately, can be implemented digitally.
+
+582
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+1.5
+
+(~)
+
+0.5
+
+I,T, ,l ,
+
+2
+
+4
+
+6
+
+8
+
+10
+
+12
+
+80 ~ 60
+. ~ ~-.~
+6 40
+~- 100
+,.Q
+80 ~ 60
+6 4O
+
+V-- (b)
+
+I
+
+,I
+
+I
+
+2
+
+4
+
+6
+
+8
+
+10
+
+12
+
+I,
+
+I'
+
+(r
+
+I
+
+I
+
+I
+
+I
+
+I
+
+2
+
+4
+
+6
+
+8
+
+10
+
+12
+
+Time (s)
+
+Figure 8.6: (a) The inverse interval function d~iF(t), (b) the corresponding zero-
+order interpolation using (8.13), and (c) the zero-order interpolation using (8.15) with a delay of one RR interval. The functions displayed in (b) and (c) have been multiplied by a factor of 60 to allow for interpretation in terms of "beats per minute" (bpm). The first beat is assumed to occur at to = 0.
+
+Other, more sophisticated interpolation techniques than the zero-order interpolation may also be considered, e.g., involving polynomial fitting. Since the signal is unevenly sampled, the interpolation operation can be interpreted in terms of time-varying filtering, an aspect detailed in Problem 8.7.
+
+8.3.3 Event Series Representation
+
+The heart rhythm representations previously described are redundant since the information on occurrence times tk and scale factors ( t k - tk-1) are closely knit together. This observation may serve as an important motivation for instead considering an event series representation of the heart rhythm, defined by
+
+M
+~(t) - Z 5(t - t~)
+k=0
+
+(8.16)
+
+Section 8.3. Heart Rhythm Representations
+
+583
+
+This expression is identical to the one in (8.2), introduced in connection
+with the IPFM model, but has a different interpretation since tk is now estimated from the heartbeats, whereas tk in (8.2) was produced by the IPFM model. The very low-frequency components of d~(t) contain the informa-
+tion which completely characterizes the variability in heart rate, whereas the
+high-frequency components can be discarded from further analysis. There-
+fore, it has been suggested that a useful heart rhythm representation results
+from lowpass filtering of d~(t) using a linear, time-invariant filter h(t) whose
+cut-off frequency is chosen well below the mean heart rate [33, 36, 37], see
+also [38]. The output signal dEE(t) of h(t) is obtained from the following
+convolution,
+
+dLE(t) -- h ( t - T)d~(~-)dT
+Oo
+M
+= ~ h(t- tk).
+k=0
+
+(8.17)
+
+Hence, dEE(t) is computed for any value of t by simply summing the values
+of the impulse response h(t) at (M + 1) different points in time ( t - tk), see
+Figure 8.7.
+Considering an ideal, continuous-time, lowpass filter, the impulse re-
+sponse h(t) is defined by a sinc function,
+
+h(t)- sin(27rFct)
+7rt , - c ~ < t < c~,
+
+(8.18)
+
+where the cut-off frequency is denoted Fc. The cut-off frequency is usually
+chosen within the interval of 0.4-0.5 Hz in order to comply with heart rates
+being typical at rest. Alternatively, Fc can be related to the prevailing
+heart rate which sometimes allows the use of a higher cut-off frequency and,
+consequently, the analysis of frequency components which describe faster fluctuations in heart rate.
+Since the tails of the sinc function in (8.18) drop off to zero, it is possible to truncate the number of terms in the sum of (8.17) once the distance
+between t and tk has exceeded a certain value. The accuracy of the lowpass
+filtered signal dEE(t) decreases when M is small or when output values close
+to the interval end points to or tM are to be computed. Another property of
+the lowpass filtered event series is its noncausal computation; however, this property does not impose any serious limitation as long as the ECG signal is subjected to off-line analysis which is usually the case.
+When the event series is assumed to be produced by the IPFM model
+and a sinusoidal modulating function re(t) with frequency F1, an ideal lowpass filter can be employed to extract F1, provided that F1 < Fc. As a
+
+584
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+7O T1 T2 5
+
+Ta
+
+% % T7 %
+
+0 TT T T
+
+I
+
+0
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9 10
+
+Time (s)
+
+Figure 8.7: The transformation of an event series d~(t) into a lowpass filtered event series dEE(t) using a filter with impulse response h(t). The computational procedure
+for obtaining output samples at t = 3 and 4 is indicated by the summation networks.
+Note that output samples can be computed at any time.
+
+result, the lowpass filtered event series yields an estimate of the modulating
+function re(t) [13],
+
+~(t) - dEE(t).
+
+(8.19)
+
+The case with re(t) being a sinusoid with frequency F1 is further considered
+on page 596-597 when the power spectrum of the resulting event series is derived.
+Since dEE(t) in practice is computed by digital techniques, we briefly
+summarize its discrete-time version which is based on the occurrence times
+Ok, estimated from an E C G signal x(n) digitized at the sampling rate Fx. The sampling rate of dEE(t), denoted Fd, is, of course, chosen to be much lower than that of x(n) and, without much loss of generality, such that the sampling interval 1/Fd is an integer multiple L of the interval 1/Fx, i.e., 1/Fd = L/F~. Assuming that the impulse response of the discrete-time lowpass filter h(n) is sampled at the rate Fx, the discrete-time version of
+dEE(t) is obtained by
+
+M
+dLE(n) -- ~ h(nL - Ok).
+k=O
+
+(8.2o)
+
+Section 8.3. Heart Rhythm Representations
+
+585
+
+For the special case when h(n) is a truncated version of an ideal lowpass filter with a cut-off frequency that exactly matches the Nyquist frequency, i.e., Fc = Fd/2, an efficient algorithm can be derived for the computation of the evenly spaced sample values of dLE(t) [36]; the algorithm, known as the French-Holden algorithm, is discussed in Problem 8.5. This particular choice of Fc may not, however, provide sufficient attenuation at or above the Nyquist frequency, and, as a result, aliasing distortion may be introduced in dLn (n).
+Another efficient algorithm has been presented in which the signal is oversampled by choosing a sampling rate being a factor of two larger than the maximal frequency of interest, i.e., Fc = Fd/4. Such a choice provides a much better attenuation of frequency components near the Nyquist frequency and thus avoids aliasing [39]. Since straightforward truncation of the impulse response of the ideal lowpass filter does not produce very good attenuation of the stopband, the use of, for example, windowing techniques is warranted to improve the filter design [40]; see also page 461. Like the earlier mentioned problem of baseline wander removal, lowpass filtering of the event series is synonymous with narrowband filtering which may be efficiently implemented using a multirate filter structure.
+
+8.3.4 Heart Timing Representation
+
+The heart timing signal is, in contrast to the previous heart rhythm representations, based on the IPFM model and is aimed explicitly at estimating the modulating function re(t) [14]. The heart timing signal d~iT(t) is an unevenly sampled signal defined as the deviation of the event time tk from the expected occurrence time, related to the mean RR interval length kTI, which in mathematical terms is
+
+M
+d~iT(t) - ~-~.(kTi - t k ) 5 ( t - tk)
+k=0 M
+= ~ dHT(t)5(t -- tk),
+
+(8.21)
+
+k=0
+
+see Figure 8.8. To understand how d~iT(t) is related to the IPFM model, we rewrite the model equation in (8.6) for a particular time tk such that
+
+fOtk m('r)dT -- kTi - tk = dgT(tk).
+
+(8.22)
+
+Hence, dHT(tk) and re(t) are linearly related to each other through integration of re(t) until tk. In order to compute d~iT(t), an estimate of TI is first
+
+586
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+<
+0 1.5
+~[z.] 0.5
+
+2
+
+4
+
+6
+
+8
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+tl t2 t3 t4
+
+t5 t6 t7
+
+t8
+
+t9
+
+10
+
+12
+
+14
+
+I
+
+1
+
+I
+
+I
+
+l
+
+tl0
+
+t l l t12
+
+t13
+
+4
+
+(b)
+
+I
+
+I
+
+I
+
+I
+
+I
+
+2
+
+4
+
+6
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+8
+
+10
+
+12
+
+14
+
+0
+
+(c)
+
+t
+
+0 TI 2TI 3T~ ...
+
+Time (s)
+
+Figure 8.8: (a) An ECG signal and (b) the related event series d~(t) which displays
+the beat occurrence times tk. (c) The heart timing signal d~iT(t) is defined as the
+deviation of the event time tk from the expected occurrence time kTi (dotted vertical
+lines). The deviation's magnitude is indicated by the horizontal bar, as well as by the amplitude of the arrow. The time base of d~HT(t) is shifted so that its origin is t=t0=0.
+
+required from the available data. This parameter can be obtained by simply dividing the occurrence time of the last event with the number of events,
+
+T I - t M - to __ tM
+
+M
+
+M'
+
+(8.23)
+
+where we have assumed that to = 0. Thus, dgT(t) depends on where the
+interval [to, tM] is positioned within the E C G recording. It should be noted that the end point values are such that dHT(t0) = dgT(tM) = 0, see Fig-
+ure 8.8(c). The rationale for using the heart timing signal becomes evident when the
+Fourier transform of its generalization to continuous-time, denoted dgT(t), is determined. To do this, we make use of the generalized I P F M model in
+
+Section 8.3. Heart Rhythm Representations
+
+587
+
+(8.7), by which the heart timing signal can be expressed as
+dHT (t) ~0t m(T)d7 --
+
+m(T)d7.
+-
+(:x:)
+
+(8.24)
+
+Here, the integration interval has been extended to -oc due to the nonrestric-
+tive assumption that m(t) is a causal function, i.e., equal to zero for t < 0.
+The Fourier transform of (8.24)is given by [12]
+
+DHT(a)-/_~ dHT(t)e-3gttdt
+
+(X3
+
+: M(a) + M(0)6(a)
+3f~
+
+M(a)
+2ft '
+
+(8.25)
+
+where DgT(ft) and M(ft) denote the Fourier transform of dHT(t) and re(t),
+respectively, and ft = 27rE. The term 7rM(0)6(ft) is identical to zero since
+re(t) was assumed to have a DC component equal to zero. Consequently, an estimate of the power spectrum Sm(f~) of re(t) can be
+obtained by multiplying DHT(f~), calculated from the event times to,..., tM
+in the observation interval, by j r t,
+
+1
+
+1
+
+= (M -I-1)TI lab"T( )l
+
+(8.26)
+
+The multiplicative factor 1/((M + 1)TI) is included to account for the total
+time interval with events. Once the spectrum of dHT(t) has been computed,
+it is straightforward to estimate the spectrum of re(t) (further details on the spectral computations follow below). The modulating function re(t)
+is assumed to be bandlimited to a maximal frequency lower than half the
+mean heart rate 1/(2TI). As a result, dHT(t) will also be bandlimited, being the integral of m(t), and can therefore be fully retrieved from the time
+instants tk.
+The agreement between m(t) and the different heart rhythm representations, except riLE(t), is illustrated in Figure 8.9, assuming that re(t) is
+sinusoidal. Figures 8.9(a)-(c) show the signals at different stages of the
+IPFM model, namely, the input signal m(t), the output signal of the integrator ~(t), and the resulting event series d~(t). In order to interpret dlT(k)
+
+588
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+Figure 8.9: Different heart rhythm representations for an event series generated by
+the IPFM model assuming that re(t) = 0.4cos(27~Flt), F1 = 0.1 Hz, and T1 = 1 s.
+(a) The modulating function, (b) the indexing function, (c) the resulting event
+series, (d) the interval function, (e) the inverse interval function, (f) the heart timing
+signal, (g) the interval tachogram, and (h) the inverse interval tachogram. Values
+between the event times were obtained by interpolation [14]. For comparison, re(t) (dashed line) is superimposed in (e) and (h); the inverse of re(t) (dashed line) is superimposed in (d) and (g) since dIF(t) and dIT(k) are estimates of lira(t). In (f), re(t) is shifted by 7~/2 in order to account for the y factor which relates dgT(t) to re(t) in (8.25).
+
+Section 8.4. Spectral Analysis of Heart Rate Variability
+
+589
+
+and diF(t) as estimates of m(t), we scale these signals with the mean heart rate 1/TI and subtract the mean, which, after scaling, is equal to one (Figures 8.9(d) and (g)). Similarly, dllT(k) and dIIF(t) are scaled with Tx and
+the mean subtracted (Figures 8.9(e) and (h)).
+Figure 8.9(f) demonstrates, as expected, that dHT(t) is the preferred rep-
+resentation for recovering re(t), although the inverse interval function diiF(t)
+comes close. Another observation is that the representations inversely re-
+lated to the interval length are better in estimating re(t) than those propor-
+tional to the interval length. This observation can be explained by (8.6),
+in which the term (1 + rn(t))/Ti can be interpreted as the instantaneous
+heart rate which, when integrated over time, gives the beat index k. Since
+diIF(t) reflects instantaneous heart rate, dIiF(t)Ti- 1 can be interpreted as an estimate of re(t), thus explaining the better performance than what is
+achieved by diF (t).
+Finally, it seems appropriate to point out that although dHT(t) exhibits superior performance within the context of IPFM modeling than the other representations, model-based studies do not fully account for HRV observed in humans. Hence, the performance improvement achieved by using dHT(t) remains to be demonstrated from a clinical point of view and is possibly embedded in the IPFM modeling error.
+
+8.4 Spectral Analysis of Heart Rate Variability
+The spontaneous variability in heart rate found in healthy subjects during rest usually exhibits an oscillatory behavior. Such variability is influenced by respiratory activity as well as by feedback mechanisms of the systems for regulation of temperature and blood pressure. The different systems oscillate spontaneously at rest with characteristic frequencies in different intervals: a thermoregulatory peak in the interval below 0.05 Hz, a peak related to blood pressure at about 0.1 Hz, and a peak related to respiration in an interval ranging from 0.2 to 0.4 Hz, see Figure 8.10.
+By quantifying the power of the different spectral components, information may be inferred on various pathologies related to cardiac autonomic function. Unfortunately, the oscillations are sometimes poorly pronounced, especially those reflecting changes in thermoregulation and blood pressure, and, therefore, it may be difficult to identify the peaks of the estimated spectrum. This problem is commonly alleviated by instead quantifying the power of low- and high-frequency components in the two intervals 0.040.15 Hz and 0.15-0.40 Hz. The spectral power measured in these two intervals is closely associated with autonomic balance; an increase in sympathetic activity is related to an increase of the low-frequency power, whereas an in-
+
+590
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+0.015
+= 0.01
+~9 0r~
+0.005
+O
+
+0.015 Rest
+0.01
+
+Head-up tilt
+
+0.005 ~ , ~ . . ~
+
+0
+
+' ' ,~-
+
+0 0.1 0.2 0.3 0.4 0.5
+
+Frequency (Hz)
+
+0 0 0.1 0.2 0.3 0.4 0.5 Frequency (Hz)
+
+(a)
+
+(b)
+
+Figure 8.10: Power spectrum of a heart rate signal acquired from a normal subject during (a) resting conditions and (b) a 90~ head-up tilt. The power spectra were obtained by fitting a 7th-order AR model to the signal. The head-up tilt increases sympathetic activity as reflected by the increased peak at 0.1 Hz. The peak at 0.25 Hz can be attributed to respiration as controlled by parasympathetic activity.
+
+crease in parasympathetic activity is primarily related to an increase of the high-frequency power. 3 Hence, the ratio between these two spectral power measures serves as an index of autonomic balance and has, as such, been extensively used in clinical HRV studies [41-43].
+Stationarity is naturally an important consideration when a heart rate signal is subjected to spectral analysis. Although various stationarity tests of a signal have been proposed which, for example, test for deviations from the assumption of a constant mean ("trend shifts"), these tests have rarely found their way into clinical use. Instead, practical tests have been applied on the presence of ectopic beats since such beats clearly violate stationarity; if included for spectral analysis, a false increase in spectral power results which is distributed over the entire frequency interval.
+A crucial insight when investigating the spectral content of a heart rate signal is that frequencies above half the mean heart rate cannot be analyzed because the sampling rate is intrinsically defined by the time instants when the beats occur. In reality, the highest frequency has to be somewhat lower than half the mean heart rate since the heart rate may fluctuate considerably so that the length of the longest RR interval bounds the highest frequency [33, 44]. Nevertheless, fruitless attempts have been made to ana-
+aThese relations have been established through experiments in which, for example, a substance has been injected which is known to block either the sympathetic or the parasympathetic activity.
+
+Section 8.4. Spectral Analysis of Heart Rate Variability
+
+591
+
+IT/lIT
+
+IF/IIF/HT
+
+Event series
+
+Heart rhythm representations
+
+Lowpass filtering
+
+Resampling
+
+Spectral analysis
+
+Classic periodogram
+
+4'
+Lomb's periodogram
+
+Spectrum of counts
+
+Figure 8.11: Interrelationships between different heart rhythm representations and techniques for spectral analysis. The classical periodogram is based on an evenly sampled signal, whereas the other two spectral techniques assume that the samples are unevenly spaced. Note that lowpass filtering and interpolation are represented by a single block since interpolation can be interpreted as a lowpass filtering operation.
+
+lyze frequencies above half the Nyquist frequency despite the fact that this interval only contains aliased frequency components and, therefore, does not carry meaningful information.
+The interrelationships between different heart rhythm representations and techniques for spectral analysis are presented in the block diagram of Figure 8.11. The two tachogram signals dIT(k) and diiT(k) can be analyzed using either classical periodogram-based methods or model-based, parametric methods such as AR modeling; both approaches have been described within the context of EEG signal processing. These two approaches to spectral analysis are relatively straightforward to apply and are not further described. Studies making use of AR modeling in HRV analysis can, for example, be found in [15, 31, 45], and its possibilities and limitations are discussed in [46, 47].
+The interval functions d~F(t) and d~iF(t) or the heart timing d~T(t ) may be interpolated and resampled at evenly spaced times and then processed with the same methods as those used for the tachogram signals. However, since these signals are unevenly sampled, we may alternatively consider spec-
+tral techniques designed to directly handle such sampling. Lomb's periodogram is one such technique which, based on the least-squares criterion, pro-
+duces a nonparametric estimate of the power spectrum; this periodogram
+
+592
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+is identical to the classical definition when an evenly sampled signal is analyzed. Finally, the event series may be spectrally analyzed after lowpass filtering and resampling. Alternatively, the event series may be inserted directly into the definition of the Fourier transform and evaluated to yield the
+spectrum of counts.
+
+8.4.1 Direct Estimation from Unevenly Spaced Samples
+
+We will start the presentation of different spectral techniques by taking a closer look at the Fourier transform of a general, unevenly sampled sig-
+hal dU(t). This signal is conveniently represented by the product of the
+sampling function d~(t), defined by a train of unit impulse functions po-
+sitioned at the event times tk, and the continuous-time signal d(t) to be
+sampled,
+
+d~(t) = d(t)d~(t),
+
+(8.27)
+
+where
+
+(2O
+d~(t) - E 5(t- tk).
+
+(8.28)
+
+Here, the event series is extended to include both negative and positive values
+of the index k. The signal d(t) may be defined by any of the presented heart
+rhythm signals, i.e., diF(t), diiF(t), dHT(t), or dLE(t). Since multiplication in the time domain corresponds to convolution in the frequency domain, the
+Fourier transform of the product d(t)d)(t) in (8.27) is
+1 D(C~)D~(ft _ ~)dC~
+
+where
+
+= D(ft), D~(ft),
+OO
+D~(f~)- E e-Jfitk"
+
+(8.29) (8.30)
+
+Thus, the spectrum DU(ft) is related to a version of D(~) which is modified
+by convolution with D~(f~). Based on a finite-length observation interval
+with M + 1 events, the power spectrum of d~(t) is estimated by the following
+expression,
+
+-
+
+1
+
+(M+I)
+
+M
+d~(tk)e -3~tk
+(M+I)
+k=0
+
+(8.31)
+
+Section 8.4. Spectral Analysis of Heart Rate Variability
+
+593
+
+The Fourier transform/gu(~t) is obtained from the available series of event times to,..., tM, which may be viewed as windowing of dU(t) using a rectangular window. It may be worthwhile to call the reader's attention to the fact that the Fourier transform D~(f~) results from an unevenly sampled, continuous-time signal represented by delta functions and is not a periodic function as the Fourier transform of a discrete-time signal. However, the frequency interval of interest when studying HRV is still limited upwards by half the mean heart rate.
+In general, it is difficult to describe the effect of D~(ft) on the original spectrum D(f~) in (8.29). Certain insight may be gained from the special case when the event times tk are transformed into evenly spaced samples by interpolation and resampling. Assuming that the event times are integer multiples of the interval length TI, i.e., ta = kTI, the convolution in (8.29) becomes
+
+_ m{(n) , (
+
+,
+
+(8.32)
+
+where D{(f~) is the spectrum of the interpolated signal, and De(fit) is the spectrum of the evenly resampled signal. Poisson's formula can be used to express the sum of complex exponentials in (8.32) as a train of equidistantly spaced impulse functions,
+
+o<)
+
+oo
+
+E
+
+e_3knT~ _ 1 - TI Z
+
+6 (a - ka/),
+
+k=-oc
+
+k=-oc
+
+(833)
+
+where fti - 27r/Ti. Inserting (8.33) in (8.32), we obtain the well-known result from sampling theory which states that the spectrum De([~) of the sampled signal is a repetition of the spectrum Di(ft) of the original signal,
+
+1
+
+(9O
+
+D~(f~) - ~ ~ D i ( [ t - kfti).
+
+k=-oc
+
+(8.34)
+
+When the spectrum Di(ft) is bandlimited, such that its highest frequency component does not exceed half the repetition rate of ta, i.e., FI - 1/TI, the sampled signal will not be distorted by aliasing.
+
+8.4.2 The Spectrum of Counts
+The spectrum of the event series d~(t) deserves special mentioning since it has been widely studied in the literature, commonly referred to as the spectrum of counts. From the definition of d~(t) in (8.28), it is straightforward
+
+594
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+to calculate its Fourier transform,
+
+F D~(f~) -
+
+d~(t)e-3atdt
+
+(2O
+
+O0
+
+- ~ ~-~,
+
+k=-oo
+
+(s.35)
+
+by simply inserting the values of the observed event times in the sum. The corresponding power spectrum is obtained by
+
+S^ d~ (f~) -- (M 1+ 1)ID^ ~(~) i~
+
+= (M + 1)
+
+cos(fttk) +
+
+sin(fitk) . (8.36)
+
+From (8.35) it is evident that the spectrum of counts is identical to the term D~(f~) in (8.29) by which the spectrum D(Ft) is convolved. For the event
+series representation, the spectrum D(f~) is equal to 5(ft) since d(t) is a
+constant function with unit amplitude. Considerable insight on the properties of the spectrum of counts can be
+obtained when the event times tk are represented as deviations from the mean heart rate, i.e., described by the heart timing signal dHT(t) [14]. For this particular representation, we can derive an analytic expression of the
+spectrum D~(ft) in terms of the modulating function re(t) which defines
+HRV in the IPFM model. Using the definition of dgT(t) in (8.22), we can
+express tk as
+
+tk -- kTI - dHT(tk)
+
+(8.37)
+
+and, consequently, the event series as
+
+co
+d~(t) - ~ ~(t - kTi + dH~(tk)).
+k=-~
+
+(8.38)
+
+A key step in the derivation of D~(f~) is to use a technique by which tk in (8.38) can be completely eliminated from the impulse functions, thereby making further manipulations tractable. It can be shown that for any func-
+tion g(t) with a single first-order zero at t = r, i.e., g(r) = O, g(t -7/=r) =/=O, and Og(t)/Otlt=~ =fi O, the time-shifted impulse function can be written as [48]
+
+~(t-~)
+
+-
+
+og(t)
+Ot
+
+5(9(t)),
+
+(8.39)
+
+Section 8.4. Spectral Analysis of Heart Rate Variability
+
+595
+
+where the right-hand side is independent of the shift T. Inspired by the appearance of the impulse functions in (8.38), we define
+the function g(t) as
+
+g(t) -- t - kTi + dgT(t),
+
+(8.40)
+
+which can be shown to satisfy the above requirements at T - tk. Insertion of this particular choice of g(t) into (8.39) and setting T -- tk yield
+
+5(t--tk) - 1+ OdgT(t) 5(t - kTI + dHT(t)). Ot
+
+(8.41)
+
+Since dHT(t) is related to re(t) through integration, cf. (8.24), we have that
+
+OdHT(t)
+= rn(t), Ot
+
+(8.42)
+
+which, together with the property of HRV being small in comparison with the mean heart rate (i.e., Im(t)l << 1), enables us to express 5 ( t - tk) as
+
+5 ( t - tk) - (1 + m(t))5(t - kTi + dHT(t)).
+
+(8.43)
+
+Insertion of this result into the definition of the event series yields
+
+(X)
+d~(t) - (1 + rn(t)) ~ 5 ( t - kTi + dHT(t)),
+k----oo
+
+(8.44)
+
+which can be rewritten in a more suitable format using Poisson's formula,
+
+d~(t) -
+
+l+m(t) l+~2cos\
+
+TI
+
+rI
+
+k=l
+
+The Fourier transform of this expression is equal to
+
+(8.45)
+
+(8.46)
+k:l
+where the term DHTk(~) denotes the Fourier transform of a frequency mod-
+ulated (FM) function dsT(t) whose "carrier frequency" is located at k/Ti,
+(2 k (t
+
+596
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+Recalling that we are only interested in spectral components below half
+the mean heart rate, dgT(t) is bandlimited to 1/(2TI), and assuming that dHT(t) < TI, only frequencies represented by the first term DHTI(~) are
+located within the interval of interest [44]. Consequently, the expression of
+D~(Vt) in (8.46) can be well-approximated by
+
+D (a) 1
+1I
+
++ M(~)+ DHT1(Q)+ M(Q)* DHT1(~)). (8.48)
+
+From this expression of the spectrum of counts it can be concluded that, apart from the desired term M(Ft), three unwanted terms exist in (8.48)
+related to the DC component and the term DHT1(~). At a first glance, the
+DC component does not seem to represent a problem since it is outside the frequency interval of interest. However, the DC component turns out to be more problematic since the DC power leaks to adjacent frequencies in the very low-frequency interval of the estimated spectrum; cf. the leakage effect of the periodogram described on page 94. In contrast to the usual situation where the DC component is subtracted prior to spectral analysis in order to avoid this effect, such subtraction is obviously not meaningful when an event series is subjected to spectral analysis. It can be concluded from (8.48)
+that, using suitable lowpass filtering to compute dLE(t), an estimate of re(t)
+is obtained.
+For the case when re(t) = ml sin(27~F1t), the spectrum of the resulting event series d~(t) can be determined analytically [26]. In addition to the
+expected frequency peaks at F1 (the mean heart rate) and F1, it can be shown that the spectrum also contains a number of spurious peaks centered
+around FI at distances which are integer multiples of F1, see Figure 8.12.
+The amplitudes of the spurious peaks depend on the degree of modulation; a large value of ml causes the spurious peaks to interfere significantly with the peak at F1.
+Returning to the Fourier transform of a general, unevenly spaced heart
+rate signal dU(t) in (8.29), we recall that the spectrum DU(~) is the con-
+volution between D(Ft) and D~(~t). Using the approximation of D~(Ft) in (8.48), we obtain the following result,
+
+D~(Vt) = D ( ~ ) , D~(~)
+
+~ 1 (D(a)+ D(a), M(a)),
+TI
+
+1 la[ < 2TI'
+
+(8.49)
+
+where the second step results from neglect of the FM terms since these components are mainly located outside the frequency band of interest. Hence, the term D(~t). M(Ft) in (8.49) provides the explanation as to why D~(~), i.e., the spectrum of an unevenly sampled signal, differs from the desired spectrum D (~).
+
+Section 8.4. Spectral Analysis of Heart Rate Variability
+
+597
+
+1 0.8 0.6 0.4 0.2
+
+0 0.5
+
+1
+
+1.5
+
+2 2.5
+
+3
+
+Frequency F (Hz)
+
+Figure 8.12: The spectrum of the event series generated by the IPFM model with
+the modulating function re(t) chosen to be a sinusoid with frequency F1 - 0.1 Hz. The heart rate is reflected by the peak at FI - 1 Hz.
+
+8.4.3 Lomb's Periodogram
+Lomb's periodogram [49, 50] is useful for estimating the power spectrum directly from an unevenly sampled signal and constitutes an alternative to the classical periodogram combined with interpolation and resampling. Similar to the classical periodogram, Lomb's periodogram is a nonparametric estimation technique which does not make any assumptions on the genesis of the analyzed signal. The main idea behind this approach is the definition of a spectrum that results from minimization of the squared error between
+d(tk) and a sinusoidal model signal s(tk; f~),
+
+where
+
+M
+g - E(d(tk)-
+k=O
+
+s(tk; ft)) 2,
+
+(8.50)
+
+s(tk; ~t) - al cos(~tk) + a2 sin(~ttk).
+
+(8.51)
+
+The energy of s(tk; ~t) is a measure which reflects the degree by which a certain frequency ~t is contained in d(tk). Once estimates of the amplitudes
+
+598
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+a l and a2 have been computed, the energy is obtained by
+
+M
+
+M
+
+E g2(tk; a) -- ~-'~(al (a) cos(ark) -~-a2(a) sin(fttk)) 2,
+
+k=0
+
+k=0
+
+(8.52)
+
+where the dependence on f~ for the two estimates a l ( ~ ) and g~2(f~)is explicitly indicated.
+Instead of solving the least-squares (LS) problem in (8.50) by straightforward minimization of g with respect to a l and a2, we recast the problem in matrix notation and derive the general LS solution and the minimum error. The LS problem can be expressed as
+
+g(a) -- (d- Ha)T(d- Ha),
+
+(8.53)
+
+where
+
+[ cos (ftto) sin (ftto) ] H- [hl h2]- /c~ ~tl) sin(?tl) /
+[cos(~tM) sin( tM)J
+
+(8.54)
+
+and
+
+d - [d(to) d(tl ) "" d(tM)] T , a - - [ a 1 a2] T.
+
+(8.55) (8.56)
+
+The model signal is thus s = Ha. Minimization of g(a) is accomplished by calculating the gradient with respect to a (see Appendix A for differentiation of vectors and matrices),
+
+VaE(a) -- -2HT(d- Ha).
+
+(8.57)
+
+By setting this gradient equal to zero, the LS estimator is obtained as
+
+-- (HTH) -1H Td.
+
+(8.58)
+
+The matrix (HTH) -1 is invertible since H is assumed to have full r a n k an assumption which is fulfilled for the specific choice of H in (8.54). The minimum LS error is found by rewriting (8.53) such that
+
+$(a) -- (d- Ha)T(d- Ha) = dT(d- Ha) - (Ha) T(d- Ha) = dTd -dTHa- aTH T (d- Ha)
+
+(8.59)
+
+Section 8.4. Spectral Analysis of Heart Rate Variability
+
+599
+
+and by making use of the fact that the last term is equal to the gradient in (8.57), equal to zero in order to assure optimality. Hence, the minimum LS error is
+
+~min -- d Td - dTHA.
+
+(8.60)
+
+While it is evident that the first term in (8.60) represents the energy of d, it is probably not equally evident in what way the other term, dTHA, should be interpreted. To shed some light on this, we introduce the rather general assumptions of additive noise, d = s+v, and vTs z 0; for a stochastic model, the latter assumption states that signal and noise are uncorrelated. In this case, the model signal s is the component to be estimated, containing the frequency ft, whereas v represents the remaining signal components which are labeled as "noise". Then, we may interpret the term dTHA as an estimate of the energy of s since
+
+d T H A - (s + v)Tg
+----sTs.
+
+(8.61)
+
+Since this energy interpretation agrees with the spectral measure suggested in (8.52), it is not surprising that Lomb's periodogram is defined as
+
+~d~ (ft) def 1 dTHA ' M+I
+
+(8.62)
+
+where both A and H depend on ft. As we will see later, this definition is also attractive because it will reduce to the classical periodogram when the analyzed signal is evenly sampled. Insertion of the LS estimate A into (8.62) yields an expression of Lomb's periodogram in terms of H and d,
+
+^
+
+[hrh 1 hThl ] -1 [hT]
+
+Sd~(a) -- M 1+ I d r [hi h2] [hlTh2 hTh2j [hTj d
+
+(8.63)
+
+From a computational point of view, however, it would be highly desirable if the expression in (8.63) could be simplified such that the cross-terms
+
+M
+hlTh2 - h2Thl - ~ cos(~tk)sin(Vttk)
+k=l
+
+(8.64)
+
+of the inverted matrix could be made equal to zero (in general, the crossterms are nonzero since the unevenly sampled sine and cosine functions are not orthogonal). Therefore, the question is whether some technique exists by which Lomb's periodogram can be modified to become
+
+S^d~(ft) ," M +1I (hh-T--d~)h2l + h2--~h2
+
+(8.65)
+
+600
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+In order to answer this question positively, Lomb came up with the idea in his original paper [49] to introduce a delay ~- in the model signal,
+
+[ cos(ft(t0 - T)) sin(Ft(t0 - T))]
+
+H~--[hl,r h2,r]- /c~
+
+sin(Ft(tl--T))]
+
+(8.66)
+
+[cos(ft(tM -- T)) sin(ft(tM -- T))J
+
+and choose ~- such that
+
+M
+hiT,r162 -- E cos(ft(tk -- T))sin(Ft(tk -- T)) -- 0.
+k=0
+
+(8.67)
+
+With the help of certain trigonometric identities, it can be shown (see Problem 8.9) that the value of ~- which makes h r h 2 equal to zero is given by
+
+M
+
+1
+
+E sin(2fttk)
+
+~- -- ~-~ arctan k=0M
+
+"
+
+cos(2f tk)
+
+k=0
+
+(8.68)
+
+Another reason for the introduction of ~- is to make Lomb's periodogram translation invariant in time [50]. This crucial property implies that identical periodograms are produced irrespective of where the observed samples are located in time; such translation invariance is not achieved with the matrix H initially proposed in (8.54).
+Thus, Lomb's periodogram in (8.62) is, after modification with the delay parameter T, given by
+
+^
+
+1 ((hlrrd) 2 (h2T~d)2)
+
+S d ~ ( f t ) - - M + l hlT,rhl,r § h~h2,~
+
+2
+
+2-
+
+M+I
+
+M
+
++ M
+
+cos2(ft(tk - T))
+
+E sin2(ft(tk - 7-))
+
+k =0
+
+k =0
+
+(s69i
+
+In contrast to the classical periodogram, Lomb's periodogram is not a periodic function, but may convey information on frequencies which span
+
+Section 8.4. Spectral Analysis of Heart Rate Variability
+
+601
+
+slightly above the Nyquist frequency. These higher frequencies may be analyzed when several samples are much closer in time than the "average" sampling interval. However, such analysis should be exercised with a great deal of caution and not be interpreted such that any frequency above the Nyquist frequency is meaningful to study, because aliasing may be present. Since Lomb's periodogram is associated with a considerable amount of computation, a fast algorithm has been developed, similar to the FFT algorithm [51, 52].
+Lomb's periodogram reduces to the classical periodogram when the event times tk are evenly sampled with the sampling interval TI, i.e., tk = kTI, at the Nyquist rate or higher. Since ~- - 0, we have t h a t
+
+M c~
+k=0
+
+M
+
+M+I
+
+- E sin2(t2kTI) - 2
+
+k=0
+
+(s.z0)
+
+which, when inserted into (8.69), yields the following well-known expression of a Fourier power spectrum,
+
+s^e (a) - M +1 1 d(kTi).
+k=0
+
+cos(akTi)
+M+I
+2
+
++M k=0
+
+M+ 1
+
+Figure 8.13 presents an example where an event series, generated by the IPFM model, is analyzed with different spectral estimation techniques. The input to the IPFM model is a two-tone signal with modulation frequencies at 0.1 and 0.25 Hz. In this particular example, the best agreement with the original spectrum is obtained by the classical periodogram based on the heart timing signal d~IT(t) which follows from interpolation of d~gT(t) and resampling (the interpolation was based on cubic splines and resampling was done at a rate of 2 Hz [14]). Lomb's periodogram, based on either the interval function d~F(t) or the inverse interval function d}~iF(t), contains a number of low-amplitude spurious peaks. The same observation applies to the classical periodogram, based on interpolated and resampled versions of d}~F(t) or d}~IF(t), although the high-frequency components (both expected and spurious ones) are ~more attenuated due to the lowpass effect of interpolation.
+From the example in Figure 8.13, we may conclude that differences in performance between Lomb's periodogram and the classical periodogram are relatively insignificant. Therefore, other aspects such as those related to the amount of computations, e.g., due to interpolation and resampling, and the
+
+602
+
+C h a p t e r 8. ECG Signal Processing: Heart Rate Variability
+
+Ca -30
+
+S.~(F)
+
+Sa~ (F)
+-30 .
+
+(2:rF)2SdhT(F)
+-30I
+
+= -40
+
+-40
+
+-40
+
+~|9 -50
+
+-50
+
+-50
+
+-60
+
+-60
+
+-60
+
+z -70
+
+-70
+
+! -70
+
+0 0.1 0.2 0.3 0.4 0.5 0 0.1 0.2 0.3 0.4 0.5 0 0.1 0.2 0.3 0.4 0.5
+
+Frequency (Hz)
+
+-30
+
+-30
+
+-40
+
+-40
+
+-50
+
+-50
+
+-60
+
+-60
+
+z~ -70
+
+-70
+
+0 0.1 0.2 0.3 0.4 0.5 0 0.1 0.2 0.3 0.4 0.5
+
+Sd~'i F(F)
+
+Sd~IF(F)
+
+-30
+
+-30
+
+= -40
+
+-40
+
+~9 -50
+
+-50
+
+-60
+
+-60
+
+z -70
+
+-70
+
+0 0.1 0.2 0.3 0.4 0.5 0 0.1 0.2 0.3 0.4 0.5
+
+Frequency (Hz)
+
+Frequency (Hz)
+
+Figure 8.13: Spectral analysis of data generated by the IPFM model for the two-
+tone case with modulation frequencies at 0.1 and 0.25 Hz [14]. The original two-tone
+spectrum Sm (F), the related spectrum of counts of d~(t), the classical periodogram
+based on dHi T(t), Lomb ~S periodogram of d~(t), the classical periodogram of d~v(t), Lomb's periodogram of d~e(t), and the classical periodogram of d~iF(t ). The mean R R interval length TI is equal to 1 s, and the mean value was subtracted from diF(t)
+and diir(t) before the corresponding spectrum was computed.
+
+Section 8.5. Clustering of Beat Morphologies
+
+603
+
+handling of gaps due to ectopic beats should be considered when selecting a method for spectral analysis [53, 54].
+We conclude this section on spectral analysis by presenting power spectra of sinus rhythm and atrial fibrillation computed by Lomb's method. While the former rhythm is mainstream to this chapter, the latter rhythm is not considered in traditional HRV analysis due to the fact that the sinus node is no longer in control of atrial activation, see page 434. Still, it is instructive to compare the outcome of spectral analysis for these two rhythms, see Figure 8.14. While the power spectrum of sinus rhythm exhibits a pronounced peak at about 0.2 Hz, corresponding to respiration, no such peak can be discerned from the power spectrum of atrial fibrillation since respiration no longer modulates heart rate. Furthermore, atrial fibrillation has a considerably larger variability than sinus rhythm which spectrally is manifested by a larger area under the spectrum, especially at higher frequencies, see Figure 8.14(b); the flatter power spectrum of atrial fibrillation indicates that this rhythm contains less structured information than sinus rhythm.
+
+8.5 Clustering of Beat Morphologies
+
+Analysis of HRV requires that sinus beats be labeled as such before the
+
+sinus rhythm can be analyzed. Such labeling is typically accomplished by clustering heartbeat morphologies in exactly the same way that motor unit action potentials (MUAPs) are clustered for the purpose of decomposing intramuscular EMG signals, see the discussion in Section 5.6.1. In contrast
+
+to MUAP clustering, where each cluster is equally important, it is only the
+
+cluster containing the sinus beats which matters in HRV analysis. Although no prior knowledge is available on which of the clusters contains the sinus beats, the "sinus" cluster can usually be identified as the cluster with the
+
+largest number of beats. Therefore, in HRV analysis it is not necessary
+
+to find out if, for example, a beat has a P wave and a QRS duration of
+
+about 120 ms or less, two properties characteristic of a sinus beat (such beat
+
+classification is, however, required in certain clinical applications such as
+
+resting ECG analysis and ambulatory monitoring where it is of interest to
+
+assign a label to each cluster with a certain type of ectopic beat).
+
+As described in Section 5.6.1, clustering is based on a set of features
+
+which describe waveform morphology and, possibly, also rhythm properties.
+
+The time domain representation, given in (5.103), has frequently been em-
+
+ployed in ECG signal processing, especially when combined with the cross-
+
+correlation coefficient as a measure of pattern similarity [55-61], defined by
+
+T d2(pi, ttl) _ Pi ttl .
+]]Pi][2[[P,/[[2
+
+(8.72)
+
+604
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+2
+
+1.5
+
+1.5
+
+1
+
+0.5
+
+0.5
+
+0 0
+10 -1
+
+60 120 180 240
+
+0
+
+Time (s)
+
+10
+
+60 120 180 240 Time (s)
+
+10 -2
+
+10 -2
+
+10 -3
+
+10-3
+
+c~ 10 -4
+
+10 -4
+
+10 -5
+
+10-5
+
+10 -2
+
+10-1
+
+10 o
+
+10 -2
+
+10 -1
+
+10 0
+
+Frequency (Hz)
+
+Frequency (Hz)
+
+(b)
+
+Figure 8.14: The inverse interval function and the corresponding power spectrum for (a) sinus rhythm and (b) atrial fibrillation. Note that the power spectra are displayed with log-log scales.
+
+The vector Pi contains the QRS samples of the current beat, and tt 1 is the mean of the cluster (i.e., the "template" beat). The ECG signal is usually bandpass filtered before it is clustered so that the influence of baseline wander and EMG noise is reduced.
+Using the cross-correlation coefficient as a measure of similarity, it is easily shown that clustering becomes invariant to changes in QRS amplitude. Such a situation is exemplified by Figure 7.17(c) where the sinus beats, exhibiting a drastic, short-term change, would all be assigned to the same cluster. Amplitude invariance is an acceptable property in HRV analysis where the information in demand is restricted to the timing of sinus beats. However, amplitude invariance is undesirable when the purpose is to average the sinus beats of a cluster for noise reduction as, for example, required in high-resolution ECG analysis (Section 6.6.5); averaging of similar-shaped beats with widely differing QRS amplitudes produces a nonrepresentative ensemble average.
+
+Section 8.6. Dealing with Ectopic Beats
+
+605
+
+The basis function representation in (5.104) has also been considered for feature extraction when clustering heartbeats, often expressed in terms of the Karhunen-Lo~ve or the Hermite functions [62-72]. In such cases, the Mahalanobi distance, defined in (5.105), is preferable as a measure of pattern similarity.
+Improved accuracy of the occurrence time tk is intimately related to the clustering process because the current beat Pi can be optimally aligned in time to tt I when similarity is measured. The availability of morphologic information through tt l may be used to improve the accuracy of tk, originally determined by the QRS detector which operates at a lower temporal resolution (and determined without considering the morphology of previous beats). When clustering is based on the cross-correlation coefficient, the samples of Pi are correlated to the mean of the cluster ttt and shifted in time until the highest cross-correlation value is obtained; the resulting value is used for cluster assignment. The procedure for aligning two waveforms is actually well-known from latency estimation of evoked potentials and is described in detail in Section 4.3.7. Once clustering is finished, the occurrence times of beats contained in the sinus cluster can be further time improved using Woody's method.
+
+8.6 Dealing with Ectopic Beats
+The presence of ectopic beats perturbs the impulse pattern initiated by the SA node and implies that the RR intervals adjacent to an ectopic beat cannot be used for HRV analysis, see Figure 8.15. In such cases, autonomic modulation of the SA node is temporarily lost, and, instead, an ectopic focus prematurely initiates the next beat. The location of the ectopic focus gives rise to different types of RR interval perturbation; a beat of ventricular origin inhibits the next sinus beat so that a compensatory pause is introduced after the ectopic beat (Figure 6.14(b)), whereas a beat of supraventricular origin discharges the SA node ahead of schedule and causes the following sinus beat to also occur ahead of schedule (Figure 6.14(a)). Another perturbation is that related to an interpolated ectopic beat, manifested by two short RR intervals adjacent to the ectopic beat (Figures 6.14(e)). Perturbations in rhythm may also be due to missed or falsely detected beats; such errors are usually the result of incorrect decisions made by the QRS detector [73, 74].
+Since ectopic beats occur in both normal subjects and patients with heart disease, their presence represents an important error source to be dealt with prior to spectral analysis of the heart rate signal. If not dealt with, the analysis of an RR interval series containing ectopic beats results in a power spec-
+
+606
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+~9
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+to tl t2 t3 t4 t5 te
+
+Time
+
+I
+
+I
+
+I
+
+I
+
+t6 t7 t8 t9
+
+Figure 8.15: A premature ectopic beat occurring at time t~ followed by a compensatory pause. The occurrence times of the sinus beats are denoted to,..., t9.
+
+trum with fictitious frequency components, manifested as a "white noise" level as illustrated by Figure 8.16. The increased spectral level is caused by the impulses produced by the two RR intervals adjacent to the ventricular ectopic beat.
+From a signal processing viewpoint, we need, of course, to know if each beat is of ectopic origin or not before a correction technique can be applied; beat clustering provides this knowledge in most systems for ECG analysis (Section 8.5). Ventricular ectopic beats are relatively easy to algorithmically single out since their morphologies deviate considerably from that of the normal sinus beat; the same observation is also valid for many types of artifacts being falsely detected by the QRS detector. On the other hand, rhythm perturbations primarily manifested by changes in the RR interval pattern, such as those associated with supraventricular ectopic beats, tend to be more difficult to detect since interval-based criteria by necessity are less specific than those which also involve morphology.
+A number of techniques have been developed which deal with the presence of ectopic beats with all techniques conforming to the restriction that
+only ECG segments with occasional ectopic beats should be processed. Seg-
+ments containing frequent ectopic beats or, worse, runs of ectopic beats perturb the underlying sinus rhythm and must therefore be excluded from further analysis [75]. A straightforward approach to correction of an occasional ectopic beat is to delete the aberrant RR intervals from the interval tachogram diT(k). However, interval deletion does not try to fill in the interval variation that should have been present, had no ectopic beat occurred, and, as a result, the "corrected" interval tachogram remains less suitable for further HRV analysis.
+In this section, we describe three vastly different techniques which deal with the presence of ectopic beats by either modifying an existing processing
+
+Section 8.6. Dealing with Ectopic Beats
+
+607
+
+2.5
+
+2.5
+
+2
+
+I
+
+-~ 1.5
+
+1.5
+
+0.5 0
+
+'
+
+'
+
+'
+
+60 120 180 240
+
+Time (s)
+
+0.5
+0
+0
+
+,
+
+,
+
+,
+
+60 120 180 240
+
+Time (s)
+
+0.04
+
+0.04
+
+0.02
+
+0.02
+
+9
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+Frequency (Hz)
+
+0
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+Frequency (Hz)
+
+(b)
+
+Figure 8 916: (a) The presence of an ectopic beat in diiF(t) (top panel)is associated with high-frequency components (bottom panel). (b) The corrected d~iF(t ) (top panel) produces a power spectrum with much less high-frequency content (bottom panel). The mean value of d~iF(t) was subtracted before the power spectrum was computed.
+
+block or inserting an additional processing step in the analysis, see the block diagram presented in Figure 8.17. The main idea behind each of these three techniques is
+1. to modify the very definition of the heart timing signal dHT(tk),
+2. to modify the estimator of the correlation function such that only the NN intervals are included (used in combination with diT(k), diiT(k), dIF(tk), or dIIF(tk)), and
+3. to interpolate over the gap caused by the ectopic beat in order to obtain values of the heart rate signal that align well with the adjacent
+NN intervals (used in combination with dIF(tk) or dIIF(tk)).
+A technique which may be used in combination with the lowpass filtered event series dLn(t) is considered in Problem 8.11. Other techniques
+
+608
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+Figure 8.17: Three different techniques for correction of ectopic beats (marked by the shadowed boxes). Note that the correlation-based technique is developed for use in spectral analysis, while no such restriction applies to the other two techniques. Correction techniques for use with the lowpass filtered event series dLE(t) are not included in the block diagram.
+which deal with ectopic beats have been described in [76, 77], with the latter reference also including a comparison of performance.
+In the presentation below, we will assume that the normal sinus beats
+have occurrence times to, t l , . . . , tM and that only one single ectopic beat occurs at time t~; the time te is not included in the series to, t l , . . . , tM. From
+an indexing point of view, we note that the sinus beat immediately preceding
+the ectopic occurs at tk~, and the one immediately following occurs at tke+l.
+It is assumed that the ectopic beat does not occur at the edges of the signal but is always preceded by, and followed by, a number of sinus beats. Finally, the ectopic beat has been classified as such using some suitable clustering algorithm.
+8.6.1 Correlation-based Correction
+If the aim is to spectrally analyze the heart rate signal using the nonparametric approach described in Section 3.3, the correlation function estimate required for the periodogram in (3.79) can be modified to account for ectopic beats. 4 Here, the derivation of the modified estimator is based on the inter-
+4A model-based, parametric approach to spectral analysis of data with missing observations can also be used, see [78].
+
+Section 8.6. Dealing with Ectopic Beats
+
+609
+
+val tachogram diT(k), or its inverse. However, a similar modification can also be introduced when the interval function, or its inverse, is considered [79].
+The interval tachogram diT(k) reflects the sinus rhythm, here denoted dsR(k), except in intervals with an ectopic beat where the value of d~T(k) is considered missing. In mathematical terms, this property can be expressed by
+
+dIT(k) - o(k)dsR(k),
+
+(8.73)
+
+where o(k) denotes a binary variable which is equal to one when an NN interval occurs, but otherwise zero. In order to proceed, we assume that o(k) and
+dsR(k) are independent random variables characterized by their respective
+correlation functions ro(1) and rdsR(l). Then, we can write
+
+?~diT (/) -- E[dIw(k)dIw(k -l)] = E[o(k)dsR(k)o(k -1)dsR(k -l)] = E[o(k)o(k -l)]. E[dsa(k)dsR(k -l)] = ro(1)rdsR(/),
+
+(8.74)
+
+where the third equality results from the assumption of independence. Hence, the result in (8.74) suggests that an estimate of the correlation
+function for the desired signal dsR(k) can be obtained by [80]
+
+?~dsR (l) -- ?~dIT (l)
+
+§
+
+'
+
+(8.75)
+
+where
+
+1 Mo(1) ?~dIT(/) -- Mo(1) ~ dIT(k)diT(k-1).
+k=l
+
+(8.76)
+
+The parameter Mo(l) denotes the number of terms diT(k)diT(k- l) that are
+nonzero; this number depends on the lag 1. The correlation estimate of the
+binary variables o(k) is obtained in the same way as ~diT(/), but is required to satisfy ~o(1) ~ 0 in order to avoid division by zero in (8.75). For short
+lags, this requirement is usually fulfilled since only ECGs with occasional
+ectopic beats are subject to analysis. For large lags, § may become equal
+to zero, implying that a truncated version of § (1) should instead be used in the periodogram computation.
+
+8.6.2 Interpolation-based Correction
+Another possibility is to use interpolation in the interval function dIF(tk), or its inverse dIIF(tk), over the gap caused by the ectopic beat in order to insert
+
+610
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+<
+
+I
+
+I
+
+I
+
+I
+
+ti ,
+
+to
+
+tl
+
+t2
+
+t3
+
+t4
+
+5 te
+
+ai
+
+,
+
+,
+
+t6
+
+t7
+
+t8
+
+t9
+
+I I I iT I l I
+
+)
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Time (s)
+
+Figure 8.18: Linear interpolation of d~F(t) to correct for the presence of an ectopic
+beat occurring at te. The two RR intervals altered by the ectopic beat are marked with asterisks. The interpolated value is positioned at t6 and is marked with "x".
+
+the samples required for producing an evenly sampled signal, see Figure 8.18. Since the ectopic beat is assumed to occur in the interval tk~ < t~ < tk~+l, it is clear that interpolation must be based on samples up to dlF(tk~) and then
+from dIF(tk~+2) and onwards; the sample diF(tk~+l) cannot be used since it
+involves the two times tk~and tk~+l that define the aberrant RR interval. By means of linear interpolation, the interval function can be interpolated
+over the interval tk~ < t < tk~+2 using the following expression,
+diF(t) -- dIF(tk~)+ dIF(tk~+2)- dIF(tk~) ( t - tk~), tk~ < t < tk~+2,
+tk~+2 -- tk~ (8.77)
+where only two samples, i.e., dIF(tkr and dIF(tkr are required. Higher-
+order polynomial interpolation can also be applied involving additional samples of dlF(tk) from both sides of the ectopic beat.
+Finally, the new samples that result from the interpolation in (8.77) are merged with the existing values of the interval function so as to define the corrected signal which is subjected to further analysis.
+
+Section 8.6. Dealing with Ectopic Beats
+
+611
+
+8.6.3 The Heart Timing Signal and Ectopic Beats
+
+The definition of the heart timing signal in (8.22) can be modified to account for the presence of an ectopic beat occurring at tr [81, 82], see also [83] for a similar IPFM-based approach. In the modified definition, the occurrence times subsequent to the ectopic beat are related to the time basis kTi involving a parameter s such that
+
+kTI - ta,
+
+k - 1,...,ke;
+
+dgT(tk) -- (k + s)TI - tk, k-k~+l,...,M.
+
+(8.78)
+
+The parameter s can be viewed as the jump occurring when the integral in the IPFM model is reset, defined by
+
+1 ftb~ (1 + m(~-))d~-,
+8 -- ~ Jtke
+
+(s.79)
+
+where tb denotes the reset time at which the SA node has been "restarted" by the wave propagating from the ectopic focus. A value of s close to zero indicates that the event at t~ is probably caused by an artifact, whereas a value close to one probably indicates that the event is a premature ectopic beat followed by a compensatory pause. Recalling the generalized IPFM model from (8.7), the continuous-time heart timing signal is defined by
+
+where
+
+d H T ( t ) = (t)Ti - t,
+
+T// (1 +
+With the presence of one ectopic beat, the indexing function ~(t) is, when sampled at the occurrence times tk, given by
+
+~(tk)- kk,+s, kk>_<_k~+l.
+
+(s.so)
+
+In order to use the modified definition of dHT(tk) in (8.78), we need to estimate the parameter s as well as to modify our previous estimator of the mean RR interval length TI such that it now accounts for the presence of the ectopic beat (Figure 8.19). The estimator of s requires most of our attention since the estimation procedure consists of several steps, whereas the estimator of TI, requiring that ~ be available, has a very simple structure.
+Our starting point is the observation that the indexing function ~(t) can be estimated from both the occurrence times preceding the ectopic beat and
+
+612
+
+Chapter 8. E C G Signal Processing: Heart Rate Variability
+
+estimation of 8
+
+estimation of T~
+
+to .... , tM
+
+D,[ dHT(tk)
+
+Figure 8.19: Correction of an ectopic beat using the modified heart timing signal in (8.78). The signal can be determined once the estimates of the jump parameter s and the mean RR interval length T1 are available.
+
+the times following the ectopic beat, with the latter times associated with the offset s. Thus, two different estimators related to n(t) can be based on the samples of (t, n(t)). The "forward estimator", denoted ~f (t), is based on the occurrences at (to, 0 ) , . . . , (tk~, ke) and produces an estimate of n(t). The "backward estimator", denoted ~b(t), is based on (tk~+l, ke + 1 ) , . . . , (tM, M ) and produces, in contrast to ~f (t), an estimate which is offset by s from n(t),
+
+nb(t) -- n(t) - s.
+
+(8.81)
+
+Since the resulting indexing functions gf(t) and gb(t) would differ by an offset equal to the desired parameter s, it is possible to extrapolate these two functions forward and backward in time, respectively, to such an extent that they overlap and, thereby, make it possible to estimate s, see Figure 8.20.
+Extrapolation of the indexing functions is done by first forwardly extending the series of occurrence times t o , . . . , tk~ with a new time t ~+1 under the assumption that the sinus rhythm continues. In the same way, the series of occurrence times t k , + l , . . . , tM is backwardly extended with tab under the assumption that the sinus rhythm precedes tk~+l. For now, we will assume that the new occurrence times tf +1 and [bk~ are located such that the de-
+sired overlap exists, i.e., tlc+1 > t^~ 9 If not, the two series have to be further extended until this requirement is fulfilled. The computation of these two occurrence times is given by
+
+tfk~+l -- tke + d~F(t^kfc+l)
+
+(8.82)
+
+and
+
+~b __ tk~+l -- d~F(tk~+l),
+
+(8.83)
+
+Section 8.6. Dealing with Ectopic Beats
+
+613
+
+k~+2 ...................................................
+
+/
+)-
+/ / /
+
+k~+ 1 . . . . . .
+
+: ...........
+
+.
+
+~ . . . . . . . . . .
+
+/
+
+~,~ 2~ . . . . , , : ~
+
+...................
+
+........... 7
+ke-- 1
+
+.......
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+k ~ - 2 ~/ tk~-2 tk~-i
+
+tk~
+
+t~ t~+l
+
+Time (s)
+
+tk~+l
+
+tk~+2
+
+Figure 8.20: Forward extrapolation of the indexing function ~/(t), based on the
+occurrences at (to, 0),..., (tk~, kc), and backward extrapolation of ~b(t), based on (tk~+l,kc + 1),..., (tM, M). The indexing functions are extrapolated until they
+overlap in time. An estimate of the jump parameter s is given by the shaded area
+divided by its length, cf. (8.88).
+
+where d}F(t) denotes the interpolated interval function. Before interpolation, the interval function is given by
+
+dIF(tk) -- tk -- tk-1, k # ke + 1,
+
+(8.84)
+
+where the intervals adjacent to the ectopic beat have been excluded from
+the computation of dIF(tk). From the expression in (8.84), the interpolated
+function d~F(t) can be obtained. In (8.82), the value of t~+l_ is obtained by solving the equation recursively.
+Next, the two indexing functions kf(t) and kb(t) are both interpolated
+in the interval tab _< t <__ tkfe§ using a suitable interpolation function g(.) that makes use of available occurrence times,
+
+k/(t) - g((to , O), . . . , (tk~, k~) , (t^kfc+l,ke + 1) ), kb(t ) _ g((~b, ke), (tk~+l, ke + 1),..., (tM, M)).
+
+(8.85) (8.86)
+
+Although the occurrence times before and after the ectopic beat have been included in the interpolation functions for the sake of completeness, interpo-
+
+614
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+lation is typically based on only a few occurrence times on each side of the ectopic beat.
+With the estimates of the two indexing functions available, we are now in a position to define an error criterion by which the value of s, which offsets ~f (t) from ~b(t), can be determined. Once again we adopt the LS criterion which, in the present context, is defined by
+
+~s
+
+~7(8) ;'ke+l (~f (t) - (fi;b(t)-4-8)) 2 dt.
+
+(8.87)
+
+-
+
+ke
+
+Differentiation of J(s) with respect to s and setting the result equal to zero
+
+yield the value of s that minimizes J(s),
+
+fis 8-- tfe+l1- tbe Jtbe (kf (t) - (t)) dt.
+
+(8.88)
+
+Hence, the estimator is equivalent to the area enclosed by the two indexing functions within the overlapping time interval and normalized by the length of the overlap interval. In practice, the integral in (8.88) is approximated by summation over a discrete set of times.
+Once g is available, estimation of the mean RR interval length TI can be done in a way similar to that in (8.23), except that the occurrence time of the last event, i.e., tM, must be divided by a factor which accounts for the perturbation introduced by s,
+
+tM
+
+(8.89)
+
+As before, the resulting heart timing signal is finally subjected to interpolation and resampling to become suitable for further HRV analysis.
+It has been reported in [82] that the above correction technique for the heart timing signal avoids the artificial increase in low-frequency components (i.e., <0.05 Hz) which is accompanied by interpolation-based correction techniques. The difference in performance is increasingly pronounced when the degree of ectopy increases [84].
+
+8.7 Interaction with Other Physiological Signals
+The variability in heart rate is influenced by different physiological signals, of which respiration and blood pressure are the most dominant ones and whose presence may be reflected by different peaks in the HRV power spectrum (see page 589). While such spectral information is very valuable, a deeper understanding of the mechanisms which control the cardiovascular system
+
+Section 8.7. Interaction with Other Physiological Signals
+
+615
+
+can be achieved by employing multivariate (multichannel) signal models to characterize the mutual interaction between heart rate and other physiological signals. This characterization is referred to as a closed-loop identification problem since the system of interest must be identified during "operation", based on measurements of the different physiological signals. In this section, we conclude the HRV chapter by very briefly mentioning how the signal interaction can be modeled, while leaving the methods for estimating model parameters to the interested reader.
+The baroreceptor reflex is an essential component to this interaction,
+being the control system of the body for rapidly dealing with changes in blood pressure. Baroreceptors are nerve cells which are specialized to sense changes in blood pressure. If an increase in blood pressure is sensed, the heart rate will, through a negative feedback loop, decrease to compensate; if, on the other hand, a decrease in blood pressure is sensed, the heart rate will increase. Accordingly, it is not entirely surprising that the variabilities observed in heart rate and blood pressure are highly correlated [85, 86]; this observation applies to both low- and high-frequency components in the intervals 0.04-0.15 and 0.15-0.40 Hz, respectively.
+By analyzing the interaction between heart rate and blood pressure, valuable insight into the dynamics of the baroreceptor mechanisms can be obtained [87-90]. Such analysis starts by obtaining simultaneous measurements on heart rate and blood pressure; the latter measurement usually being synonymous to the systolic arterial blood pressure which is measured as the peak amplitude of the pressure signal, see Figure 8.21. Similar to heart rate, the systolic arterial pressure is sampled at uneven points in time, and, therefore, it is necessary to perform interpolation and resampling at even times before cross-analysis of the signals can be performed (unless the tachogram is employed as heart rhythm representation when the blood pressure measurements can be used directly).
+Before describing a model of the interaction between different physiolog-
+ical signals, we will introduce the cross-power spectrum which is a general,
+nonparametric approach to characterize the correlation between two sta-
+tionary processes x(n) and y(n). The cross-power spectrum is defined as the D T F T of the cross-correlation function rxy (k),
+
+CX3
+Sxy(e3~) - ~ rxy(k)e -3~k,
+k----(X)
+
+(8.90)
+
+where
+
+=
+
+k)].
+
+(8.91)
+
+616
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+I
+
+I
+
+I
+
+I
+
+I
+
+o
+
+2
+
+4
+
+6
+
+8
+
+Time (s)
+
+Figure 8.21: Simultaneous recording of the ECG, arterial blood pressure, and abdominal respiration (top to bottom). In each cardiac cycle, the systolic pressure is given by the value of the maximal amplitude (marked by dashed lines). The respiration signal is sampled at the same time instant when a tachogram representation is used, while it is preferable to sample at evenly spaced times when other representations are employed.
+
+The cross-power spectrum Sxy(e3~) can be interpreted as the correlation between x(n) and y(n) at a given frequency. The normalized cross-power
+spectrum is defined by
+
+rxy(e 3w) -
+
+Sxu(e3~)
+
+(8.92)
+
+and is known as the coherence function; normalization is done with the square-root of the two power spectra. However, the magnitude squared coherence, given by
+
+IGy(~ ~) 12- Sx(Ie&3~~,)(G~~(e)132w ) ,
+
+(8.93)
+
+is more often used in practice and has the attractive property of being normalized such that
+
+o < Ir~y(~;~)l~ < 1.
+
+(8.94)
+
+Section 8.7. Interaction with Other Physiological Signals
+
+617
+
+~. 1.5
+7
+
+i
+
+I
+
+i
+
+I
+
+I
+
+i
+
+i
+
+i
+
+i
+
+I
+
+(a)
+
+0.5 0
+| 16o l
+CD 140
+12o
+9
+100 0
+
+I
+
+I
+
+I
+
+40
+
+80
+
+i
+
+I
+
+i
+
+i
+
+120
+
+160
+
+200
+
+(5)
+
+I
+
+I
+
+I
+
+40
+
+1
+Cxl
+0.5
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+I
+
+80
+
+120
+
+160
+
+2O0
+
+Time (s)
+
+(c)
+
+o 0 0.1 0.2 0.3 0.4 0.5 Frequency (Hz)
+Figure 8.22: From the signals displayed in Figure 8.21, (a) the interpolated inverse interval function x(n) -- diiF(n) of the heart rate (sampled at even times) and (b) the systolic arterial blood pressure y(n), also obtained from interpolation, are used to compute (c) the magnitude squared coherence.
+
+The magnitude squared coherence can be viewed as the frequency domain counterpart of the cross-correlation coefficient earlier used, for example, in the context of EP subaveraging, see (4.23). The magnitude squared coherence is exemplified in Figure 8.22 for two signals describing heart rate and systolic arterial pressure. From this example it is obvious that the two signals are strongly correlated around 0.2 Hz since the magnitude squared coherence is almost one; this frequency actually corresponds to the respiratory frequency which can be roughly estimated from the period length of the respiration signal displayed in Figure 8.21.
+Autoregressive modeling is a useful, parametric approach for studying the interaction between blood pressure and heart rate. Since blood pressure variability not only influences HRV but is also influenced by HRV through feedback, a two-channel (bivariate) AR model has been found appropriate for describing how these signals oscillate around their respective mean values [91-93]. The bivariate AR model is defined by the following two coupled
+
+618
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+equations,
+
+p
+
+p
+
+Xl (n) -- - - E all,kXl (n - k)+ E al2,kX2(rt - k)-nt- Vl (n)
+
+k=l
+
+k=l
+
+(8.95)
+
+and
+
+P
+
+P
+
+X2(n) -- --E a22,kX1(n- k)-~- y ~ g21,kX2(n- k)+ v2(n),
+
+k=l
+
+k=l
+
+(8.96)
+
+where xx(n) and x2(n) denote blood pressure and heart rate, respectively.
+It is assumed that the four subsystems, defined by the four parameter sets
+{all,k}, {a12,k}, {a21,k}, and {a22,k}, have the same model order p. The input
+noise sources Vl (n) and v2(n) are assumed to be white and uncorrelated with
+each other. Note that Xl (n) and x2(n) account for variability but not for the
+absolute level since they are both zero-mean. In dealing with this model, it is
+convenient to combine the two equations into a matrix equation, see (3.24),
+
+p
+
+--
+
+Akx(
+
+- k) +
+
+(8.07)
+
+k=l
+
+where
+
+A k - - I all,k --al2,k1 -- a21,k a22,kJ
+
+(8.98)
+
+and
+
+The expression in (8.97) thus clearly demonstrates the feedback structure of the bivariate signal model.
+An alternative way of representing the model is in terms of four scalar transfer functions as illustrated by the block diagram in Figure 8.23. Two
+transfer functions Hii(z) relate vi(n) to xi(n) by
+
+Hii(z) -
+
+1 p
+
+, i - 1, 2,
+
+1 + E aii,kz-k
+
+k=l
+
+and two cross-transfer functions Gij(z) relate xi(n) to xj(n) by
+
+(8.100)
+
+p
+E aij,kZ-k
+
+Gij(z) -- k=lp
+
+~ i , j - 1 2, i -7/=j.
+
+1 + E aii,kz-k
+
+k=l
+
+(8.101)
+
+Section 8.7. Interaction with Other PhysiologicalSignals
+
+619
+
+vi(n) -~l H11(Z)
+
+.
+
+~21(Z)
+
+-,"l H22 (z)
+
+,
+
+Figure 8.23: Block diagram of the bivariate AR model used for modeling of the interaction between blood pressure xl (n) and heart rate x2(n).
+
+In physiological terms, the transfer function G21(z) represents the effect
+of variability in systolic arterial pressure on heart rate mediated through
+the autonomic nervous system (baroreceptor feedback dynamics), whereas
+G12(z) represents the mechanical effect of variability in heart rate on sys-
+tolic arterial pressure [92]. With the availability of G~j(z), the gain and phase relationship between x~(n) and xj(n) can be calculated for different
+frequencies. In order to determine the cross-spectral information related to the bi-
+variate AR model, it is helpful to consider its input-output relation which
+is given by
+
+X(z) - H(z)V(z),
+
+(8.102)
+
+where X(z) and V(z) denote the z-transforms of the two vectors in (8.99). The multichannel transfer function H(z) is defined by
+
+H(Z)-LH[2H1I(1z(z))HlH222(Z()z)]J
+__ [ Hll (z) a12(z)H22(z1)
+LO21(Z)Hll (Z) H22 (z)
+
+(8.103)
+
+where the second step connects H12(z) and/-/21(z) tO the transfer functions
+
+in (8.100) and (8.101). The cross-power spectral matrix contains all the
+
+spectral information of the model,
+
+ISXlXl(CJw)
+Sx(~3co) -- &2Xl (cJco) Sz2x2 (r ,
+
+(8.104)
+
+620
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+and is calculated by the following expression [94, 95],
+
+S~(e3~) - H* (e>~)S~(e>~)HT (e>~).
+
+(8.105)
+
+where H(e 3~) is obtained by evaluating H(z) on the unit circle, i.e., z = e3~, and the diagonal matrix S~(e3~) describes the variance of the input noise,
+
+SV (e3CO) -
+
+~ 1 10. 2 9
+
+10 /
+
+V2
+
+It should be noted that the scalar counterpart to (8.105) has already been introduced in (3.19).
+Parameter estimation in a multichannel AR model can be approached by, for example, modifying the single-channel autocorrelation/covariance method, earlier discussed in Section 3.4, so that a multichannel version of the normal equations results [94, 95]. If, on the other hand, the model parameters are known to vary slowly over time, it may be preferable to employ a recursive estimation technique similar to the ones presented in Section 3.6.5, but modified for the multichannel case; for details on such estimation techniques, see [96].
+Figure 8.24 presents an example of variability in heart rate and systolic arterial blood pressure observed during a tilting maneuver, causing syncope at the end of the recording. Based on the assumption that the data in Figure 8.24(a)-(b) can be adequately modeled by a bivariate AR model, the magnitude squared coherence is estimated using a time-varying, recursive
+approach [88, 97]. It is evident from Figure 8.24(c) that the coherence is
+particularly pronounced at frequencies around 0.4 Hz before the tilting maneuver, but then gradually decreases to much lower frequencies until the syncope occurs. The syncope is accompanied by a sudden drop in systolic blood pressure and a sudden decrease in heart rate, i.e., a prolongation of the RR intervals.
+Finally, we note that the above matrix formulation of the bivariate AR model lends itself well to handle the inclusion of additional physiological signals. For example, a trivariate model should be considered for the interaction between heart rate, blood pressure, and respiration. In doing so, certain cross-transfer functions has to be omitted from the model, i.e., set to zero, since these are not physiologically meaningful. For example, it is well-known that respiration influences heart rate as reflected by respiratory sinus arrhythmia (see page 432), and that respiration has a mechanical effect on systolic blood pressure. However, neither heart rate nor blood pressure has a significant influence on respiration, and, therefore, the corresponding cross-transfer functions are omitted.
+
+Bibliography
+
+621
+
+Figure 8.24: Interaction between heart rate and blood pressure during a tilting maneuver which causes syncope. The tachograms of (a) the RR intervals and (b) the systolic arterial pressure, and (c) the related time-varying magnitude squared coherence, displayed using the isocontour format. The letter "T" marks the time when the subject is tilted from a resting position, and "S" marks the time when syncope occurs. (Reprinted from Cerutti et al. [88] with permission.)
+Bibliography
+[1] Task Force of The European Society of Cardiology and The North Americam Society for Pacing and Electrophysiology, "Heart rate variability: Standards of measurement, physiological interpretation, and clinical use," Circulation, vol. 93, pp. 1043-1065, 1996.
+[2] M. Merri, D. C. Farden, J. G. Mottley, and E. L. Titlebaum, "Sampling frequency of the electrocardiogram for spectral analysis of the heart rate variability," IEEE Trans. Biomed. Eng., vol. 37, pp. 99-105, 1990.
+[3] R. E. Kleiger, J. P. Miller, J. T. Bigger, and A. J. Moss, "Decreased heart rate variability and its association with increased mortality after myocardial infarction," Am. J. Cardiol., vol. 59, pp. 256-262, 1987.
+[4] G. G. Berntson, K. S. Quigley, J. F. Jang, and S. T. Boysen, "An approach to artifact identification: Application to heart period data," Psychophysiology, vol. 27, pp. 586598, 1990.
+
+622
+
+C h a p t e r 8. E C G Signal Processing: Heart Rate Variability
+
+[5] M. Malik, T. Cripps, T. Farrell, and A. J. Camm, "Prognostic value of heart rate variability after myocardial infarction. A comparison of different data processing methods," Med. Biol. Eng. ~ Comput., vol. 27, pp. 603-611, 1989.
+[6] M. A. Garcfa-Gonz~lez and R. Pall/~s-Areny, "A novel robust index assess beat-tobeat variability in heart rate time series analysis," IEEE Trans. Biomed. Eng., vol. 48, pp. 617-621, 2001.
+[7] R. E. Kleiger, P. K. Stein, M. S. Bosner, and J. N. Rottman, "Time-domain measurements of heart rate variability," in Heart Rate Variability (M. Malik and A. J. Camm, eds.), ch. 3, pp. 33-45, Armonk: Futura Publ., 1995.
+[8] M. Malik, T. Farrell, T. Cripps, and A. J. Camm, "Heart rate variability in relation to prognosis after myocardial infarction: Selection of optimal processing techniques," Eur. Heart J., vol. 10, pp. 1060-1074, 1989.
+[9] T. G. Farrell, Y. Bashir, T. Cripps, M. Malik, J. Poloniecki, E. D. Bennett, D. E. Ward, and A. J. Camm, "Risk stratification for arrhythmic events in postinfarction patients based on heart rate variability, ambulatory electrocardiographic variables, and the signal-averaged electrocardiogram," J. Am. Coll. Cardiol., vol. 18, pp. 687697, 1991.
+[10] R. J. Cohen, R. D. Berger, and T. Dushane, "A quantitative model for the ventricular
+response during atrial fibrillation," IEEE Trans. Biomed. Eng., vol. 30, pp. 769-780, 1983.
+[11] N. Cai, M. Dohnal, and S. B. Olsson, "Methodological aspects of the use of heart
+rate stratified RR interval histograms in the analysis of atrioventricular conduction during atrial fibrillation," Cardiovasc. Res., vol. 21, pp. 455-462, 1987.
+[12] A. V. Oppenheim, A. S. Willsky, and S. H. Nawab, Signals and Systems. New Jersey:
+Prentice-Hall, 1997.
+[13] B. W. Hyndman and R. K. Mohn, "A model of the cardiac pacemaker and its use in
+decoding the information content of cardiac intervals," Automedica, vol. 1, pp. 239252, 1975.
+[14] J. Mateo and P. Laguna, "Improved heart rate variability signal analysis from the
+beat occurrence times according to the IPFM model," IEEE Trans. Biomed. Eng., vol. 47, pp. 997-1009, 2000.
+[15] L. T. Mainardi, A. M. Bianchi, G. Baselli, and S. Cerutti, "Pole-tracking algorithms
+for the extraction of time variant heart rate variability spectral parameters," IEEE Trans. Biomed. Eng., vol. 42, pp. 250-259, 1995.
+[16] O. Rompelman, J. B. I. M. Snijders, and C. J. van Spronsen, "The measurement of
+heart rate variability spectra with the help of a personal computer," IEEE Trans. Biomed. Eng., vol. 29, pp. 503-510, 1982.
+[17] R. W. de Boer, J. M. Karemaker, and J. Strackee, "Spectrum of a series of point
+event, generated by the integral pulse frequency modulation model," Med. Biol. Eng. ~J Comput., vol. 23, pp. 138-142, 1985.
+[is] R. D. Berger, S. Akselrod, D. Gordon, and R. J. Cohen, "An efficient algorithm
+for spectral analysis of heart rate variability," IEEE Trans. Biomed. Eng., vol. 33, pp. 900-904, 1986.
+[19] P. Castiglioni, "Evaluation of heart rhythm variability by heart or heart period: Dif-
+ferences, pitfalls and help from logarithms," Med. Biol. Eng. $J Comput., vol. 33, pp. 323-330, 1995.
+
+Bibliography
+
+623
+
+[2o] B. J. TenVoorde, T. J. C. Faes, and O. Rompelman, "Spectra of data sampled at
+frequency modulated rates in application to cardiovascular signals: Part 1 Analytical derivation of the spectra," Med. Biol. Eng. ~ Comput., vol. 32, pp. 63-70, 1994.
+[21] I. P. Mitov, "Spectral analysis of heart rate variability using the integral pulse fre-
+quency modulation model," Med. Biol. Eng. ~ Comput., vol. 39, pp. 348-354, 2001.
+[22] G. B. Stanley, K. Poolla, and R. A. Siegel, "Threshold modeling of autonomic control
+of heart rate variability," IEEE Trans. Biomed. Eng., vol. 47, pp. 1147-1153, 2000.
+[23] S. R. Seydenejad and R. I. Kitney, "Time-varying threshold integral pulse frequency
+modulation," IEEE Trans. Biomed. Eng., vol. 48, pp. 949-962, 2001.
+[24] H. Chiu and T. Kao, "A mathematical model for autonomic control of heart rate
+variation," IEEE Eng. Med. Biol. Mag., vol. 20, pp. 69-76, 2001.
+[25] E. Pyetan and S. Akselrod, "Do the high-frequency indexes of HRV provide a faithful
+assessment of cardiac vagal tone? A critical theoretical evaluation," IEEE Trans. Biomed. Eng., vol. 50, pp. 777-783, 2003.
+[26] E. J. Bayly, "Spectral analysis of pulse frequency modulation in the nervous system,"
+IEEE Trans. Biomed. Eng., vol. 15, pp. 257-265, 1968.
+[27] A. M. Bruckstein and Y. Y. Zeevi, "Analysis of 'integrate to threshold' neural coding
+schemes," Biol. Cybern., vol. 34, pp. 63-79, 1979.
+[2s] G. Giunta and A. Neri, "Neural correlation based on the IPFM model," IEEE Trans.
+Syst. Man Cybernetics, vol. 20, pp. 262-268, 1990.
+[29] B. McA. Sayers, "Analysis of heart rate variability," Ergonomics, vol. 16, pp. 17-32,
+1973.
+[3o] S. Akselrod, D. Gordon, F. A. Ubel, D. C. Shannon, A. C. Barger, and R. J. Cohen,
+"Power spectrum analysis of heart rate fluctuations. A quantitative probe of beat-tobeat cardiovascular control," Science, vol. 213, pp. 220-222, 1981.
+[31] F. Bartoli, G. Baselli, and S. Cerutti, "AR identification and spectral estimate applied
+to the R-R interval measurements," Int. J. Biomed. Comput., vol. 16, pp. 201-205, 1985.
+[32] H. Luczak and W. Laurig, "An analysis of heart rate variability," Ergonomics, vol. 16,
+no. 4, pp. 85-97, 1973.
+[33] O. Rompelman, A. J. R. M. Coenen, and R. I. Kitney, "Measurement of heart-rate
+variability: Part l--comparative study of heart-rate variability analysis methods," Med. Biol. Eng. ~ Comput., vol. 15, pp. 239-252, 1977.
+[34] B. F. Womack, "The analysis of respiratory sinus arrhythmia using spectral analysis
+methods," IEEE Trans. Biomed. Eng., vol. 18, pp. 399-409, 1971.
+[35] R. W. de Boer, J. M. Karemaker, and J. Strackee, "Description of heart rate vari-
+ability data in accordance with a physiological model for the genesis of heart beats," Psychophysiology, vol. 22, pp. 147-155, 1985.
+[36] A. S. French and A. V. Holden, "Alias-free sampling of neuronal spike trains," Ky-
+bernetik, vol. 8, pp. 165-175, 1971.
+[37] A. J. R. M. Coenen, O. Rompelman, and R. I. Kitney, "Measurement of heart-
+rate variability: Part 2--hardware digital device for the assessment of heart-rate variability," Med. Biol. Eng. ~ Comput., vol. 15, pp. 423-430, 1977.
+[3s] O. Rompelman, "Tutorial review on processing the cardiac event series: A signal
+analysis approach," Automedica, vol. 7, pp. 191-212, 1986.
+
+624
+
+C h a p t e r 8. E C G Signal Processing: Heart Rate Variability
+
+[39] R. J. Peterka, A. C. Sanderson, and D. P. O'Leary, "Practical considerations in
+the implementation of the French-Holden algorithm for sampling of neuronal spike trains," IEEE Trans. Biomed. Eng., vol. 25, pp. 192-195, 1978.
+[40] S. R. Seydenejad and R. I. Kitney, "Real-time heart rate variability extraction using
+the Kaiser window," IEEE Trans. Biomed. Eng., vol. 44, pp. 990-1005, 1997.
+[41] M. V. Kamath and E. L. Fallen, "Power spectral analysis of HRV: A noninvasive
+signature of cardiac autonomic functions," Crit. Rev. Biomed. Eng., vol. 21, pp. 245311, 1993.
+[42] S. Cerutti, A. Bianchi, and L. T. Mainardi, "Spectral analysis of the heart rate
+variability signal," in Heart Rate Variability (M. Malik and A. J. Camm, eds.), ch. 6, pp. 63-74, Armonk: Futura Publ., 1995.
+[43] S. Akselrod, "Components of heart rate variability: Basic studies," in Heart Rate
+Variability (M. Malik and A. J. Camm, eds.), ch. 12, pp. 147-163, Armonk: Futura Publ., 1995.
+[44] P. Laguna, G. B. Moody, and R. G. Mark, "Power spectral density of unevenly
+sampled data by least-square analysis: Performance and application to heart rate signals," IEEE Trans. Biomed. Eng., vol. 45, pp. 698-715, 1998.
+[45] G. Baselli, D. Bolis, S. Cerutti, and C. Freschi, "Autoregressive modeling and
+power spectral estimate of R-R interval time series in arrhythmic patients," Comput. Biomed. Res., vol. 18, pp. 510-530, 1985.
+[46] R. L. Burr and M. J. Cowan, "Autoregressive spectral models of heart rate variabil-
+ity," J. Electrocardiol., vol. 25 (Suppl.), pp. 224-233, 1992.
+[47] D. J. Christini, A. Kulkarni, S. Rao, E. Stutman, F. M. Bennett, J. M. Hausdorff,
+N. Oriol, and K. Lutchen, "Uncertainty of AR spectral estimates," in Proc. Computers in Cardiology, pp. 451-454, IEEE Computer Society Press, 1993.
+Ins] A. B. Carlson, Communication Systems. An Introduction to Signal and Noise in Elec-
+trical Comunication. New York: McGraw-Hill, 3rd ed., 1986.
+[49] N. R. Lomb, "Least-squares frequency analysis of unequally spaced data," Astrophys.
+Space Sci., vol. 39, pp. 447-462, 1976.
+[50] J. D. Scargle, "Studies in astronomical time series analysis II. Statistical aspects of
+spectral analysis of unevenly spaced data," Astrophys. J., vol. 263, pp. 835-853, 1982.
+[51] W. H. Press and G. B. Rybicki, "Fast algorithm for spectral analysis of unevenly
+sampled data," Astrophys. J., vol. 338, pp. 277-280, 1989.
+[52] W. H. Press, S. A. Teukolsky, W. T. Vetterling, and B. P. Flannery, Numerical Recipes
+in C: The Art of Scientific Computing. New York: Cambridge Univ. Press, 2nd ed., 1992.
+[53] G. B. Moody, "Spectral analysis of heart rate without resampling," in Proc. Comput-
+ers in Cardiology, pp. 715-718, IEEE Computer Society Press, 1993.
+[54] G. D. Clifford and L. Tarassenko, "Quantifying errors in spectral estimates of HRV
+due to beat replacement and resampling," IEEE Trans. Biomed. Eng., vol. 52, pp. 630-638, 2005.
+[55] G. J. Balm, "Crosscorrelation techniques applied to the electrocardiogram interpre-
+ration problem," IEEE Trans. Biomed. Eng., vol. 14, pp. 258-262, 1967.
+[56] C. L. Feldman, P. G. Amazeen, M. D. Klein, and B. Lown, "Computer detection of
+ectopic beats," Comput. Biomed. Res., vol. 3, pp. 666-674, 1971.
+
+Bibliography
+
+625
+
+[57] J. H. van Bemmel and S. J. Hengevald, "Clustering algorithm for QRS and ST-T
+waveform typing," Comput. Biomed. Res., vol. 6, pp. 442-456, 1973.
+[ss] M. E. Nygs and J. Hulting, "An automated system for ECG monitoring," Comput.
+Biomed. Res., vol. 12, pp. 181-202, 1979.
+[59] J. A. Kors, J. Talmon, and J. H. van Bemmel, "Multilead ECG analysis," Comput.
+Biomed. Res., vol. 19, pp. 28-46, 1986.
+[60] K. M. Strand, L. R. Smith, M. E. Turner, and J. A. Mantle, "A comparison of
+simple and template variable models for discrimination between normal and PVC waveforms," in Proc. Computers in Cardiology, pp. 21-26, IEEE Computer Society Press, 1980.
+[61] S. H. Rappaport, L. Gillick, G. B. Moody, and R. G. Mark, "QRS morphology clas-
+sification: Quantitative evaluation of different strategies," in Proc. Computers in Cardiology, pp. 33-38, IEEE Computer Society Press, 1982.
+[62] T. Y. Young and W. H. Huggins, "On the representation of electrocardiograms,"
+IEEE Trans. Biomed. Eng., vol. 10, pp. 86-95, 1963.
+[63] S. Karlsson, "Representation of ECG records," in Dig. 7th Int. Conf. Med. ~ Biol.
+Eng., (Stockholm), p. 105, 1967.
+[64] A. R. Hambley, R. L. Moruzzi, and C. L. Feldman, "The use of intrinsic components
+in an ECG filter," IEEE Trans. Biomed. Eng., vol. 21, pp. 469-473, 1974.
+[65] L. SSrnmo, P. O. BSrjesson, M. E. Nygs and O. Pahlm, "A method for evaluation
+of QRS shape features using a mathematical model for the ECG," IEEE Trans. Biomed. Eng., vol. 28, no. 10, pp. 713-717, 1981.
+[66] G. Bortolan, R. Degani, and J. L. Willems, "Neural networks for ECG classification,"
+in Proc. Computers in Cardiology, pp. 269-272, IEEE Computer Society Press, 1990.
+[67] L. Senhadji, G. Carrault, J. J. Bellanger, and G. Passariello, "Comparing wavelet
+transforms for recognizing cardiac patterns," IEEE Eng. Med. Biol. Mag., vol. 14, pp. 167-173, 1995.
+[6s] P. Laguna, R. Jan6, S. Olmos, N. V. Thakor, H. Rix, and P. Caminal, "Adaptive
+estimation of QRS complex by the Hermite model for classification and ectopic beat detection," Med. Biol. Eng. ~4 Comput., vol. 34, pp. 58-68, 1996.
+[69] Y. H. Hu, S. Palreddy, and W. J. Tompkins, "A patient-adaptable ECG beat classifier
+using a mixture of experts approach," IEEE Trans. Biomed. Eng., vol. 44, pp. 8919O0, 1997.
+[70] M. Lagerholm, C. Peterson, G. Braccini, L. Edenbrandt, and L. SSrnmo, "Clustering
+ECG complexes using Hermite functions and self-organizing maps," IEEE Trans. Biomed. Eng., vol. 47, pp. 838-848, 2000.
+[71] S. Osowski and T. H. Linh, "ECG beat recognition using fuzzy hybrid neural net-
+work," IEEE Trans. Biomed. Eng., vol. 48, pp. 1265-1271, 2001.
+[72] T. H. Linh, S. Osowski, and M. Stodolski, "On-line heart beat recognition using Her-
+mite polynomials and neuro-fuzzy network," IEEE Trans. Instrum. Measure., vol. 52, pp. 1224-1231, 2003.
+[73] M. N. Cheung, "Detection of recovery from errors in the cardiac interbeat intervals,"
+Psychophysiology, vol. 18, pp. 341-346, 1981.
+[74] M. V. Kamath and E. L. Fallen, "Correction of the heart rate variability signal for
+ectopics and missing beats," in Heart Rate Variability (M. Malik and A. J. Camm, eds.), ch. 6, pp. 75-86, Armonk: Futura Publ., 1995.
+
+626
+
+Chapter 8. E C G Signal Processing: Heart Rate Variability
+
+[75] G. A. Myers, G. J. Martin, N. M. Magid, P. S. Barnett, J. W. Schaad, J. S. Weiss,
+M. Lesch, and D. H. Singer, "Power spectral analysis of heart rate variability in sudden cardiac death: Comparison to other methods," IEEE Trans. Biomed. Eng., vol. 33, pp. 1149-1156, 1986.
+[76] L. J. M. Mulder, "Measurement and analysis methods of heart rate and respiration
+for use in applied environments," Biol. Psychol., vol. 34, pp. 205-236, 1992.
+[77] N. Lippman, K. M. Stein, and B. B. Lerman, "Comparison of methods for removal of
+ectopy in measurements of heart rate variability," Am. J. Physiol., vol. 267, pp. H411H418, 1994.
+ITs] P. J. Brockwell and R. A. Davis, Time Series: Theory and Methods. New York:
+Springer-Verlag, 2nd ed., 1991.
+[79] P. Albrecht and R. J. Cohen, "Estimation of heart rate power spectrum bands from
+real world data: Dealing with ectopic beats and noise data," in Proc. Computers in Cardiology, pp. 311-314, IEEE Computer Society Press, 1988.
+[so] E. Parzen, "On spectral analysis with missing observations and amplitude modula-
+tion," Sankhya, vol. 25, pp. 971-977, 1963.
+Is1] J. Mateo and P. Laguna, "Extension of the heart timing signal HRV analysis in the
+presence of ectopic beats," in Proc. Computers in Cardiology, pp. 813-816, IEEE Press, 2000.
+Is2] J. Mateo and P. Laguna, "Analysis of heart rate variability in the presence of ectopic
+beats using the heart timing signal," IEEE Trans. Biomed. Eng., vol. 50, pp. 334-343, 2003.
+Is3] M. Brennan, M. Palaniswami, and P. Kamen, "A new model-based ectopic beat
+correction algorithm for heart rate variability," in Proc. Conf. IEEE EMBS (CDROM), 2001.
+[84] C. L. Birkett, M. G. Kienzle, and G. A. Myers, "Interpolation of ectopics increases low
+frequency power in heart rate variability spectra," in Proc. Computers in Cardiology, pp. 257-259, IEEE Computer Society Press, 1991.
+[ss] R. W. de Boer, J. M. Karemaker, and J. Strackee, "Relationships between short-term
+blood pressure fluctuations and heart rate variability in resting subjects," Med. Biol. Eng. ~ Comput., vol. 23, pp. 352-364, 1985.
+Is6] G. Baselli, S. Cerutti, S. Civardi, D. Liberati, F. Lombardi, A. Malliani, and M. Pa-
+gani, "Spectral and cross-spectral analysis of heart rate and arterial blood pressure variability signals," Comput. Biomed. Res., vol. 19, pp. 520-534, 1986.
+[87] G. Baselli, A. Porta, and G. Ferrari, "Models for the analysis of cardiovascular vari-
+ability signals," in Heart Rate Variability (M. Malik and A. J. Camm, eds.), ch. 11, pp. 135-145, Armonk: Futura Publ., 1995.
+[ss] S. Cerutti, G. Baselli, A. M. Bianchi, L. T. Mainardi, and A. Porta, "Analysis of
+the interactions between heart rate and blood pressure variabilities," in Dynamic Electrocardiography (M. Malik and A. J. Camm, eds.), ch. 18, pp. 170-179, New York: Blackwell Futura Publ., 2004.
+[sg] M. L. Appel, R. D. Berger, J. P. Saul, J. M. Smith, and R. J. Cohen, "Beat to beat
+variability in cardiovascular variables: Noise or music?," J. Amer. Coll. Card., vol. 14, pp. 1139-1148, 1989.
+[90] R. D. Berger, J. P. Saul, and R. J. Cohen, "Assessment of autonomic response by
+broad-band respiration," IEEE Trans. Biomed. Eng., vol. 36, pp. 1061-1065, 1989.
+
+Bibliography
+
+627
+
+[91] G. Baselli, S. Cerutti, S. Civardi, A. Malliani, and M. Pagani, "Cardiovascular vari-
+ability signals: Towards the identification of a closed-loop model of the neural control mechanisms," IEEE Trans. Biomed. Eng., vol. 35, pp. 1033-1046, 1988.
+[92] R. Barbieri, A. M. Bianchi, J. K. Triedman, L. T. Mainardi, S. Cerutti, and J. P.
+Saul, "Model dependency of multivariate autoregressive spectral analysis," IEEE Eng. Med. Biol. Mag., vol. 16, pp. 74-85, 1997.
+[93] G. Nollo, A. Porta, L. Faes, M. Del Greco, M. Disertori, and F. Ravelli, "Causal linear
+parametric model for baroreflex gain assessment in patients with recent myocardial infarction," Am. J. Physiol. (Heart Circ. Physiol.), vol. 280, pp. 1830-1839, 2001.
+[94] S. L. Marple Jr., Digital Spectral Analysis with Applications. New Jersey: Prentice-
+Hall, 1987.
+[95] S. M. Kay, Modern Spectral Estimation. Theory and Application. New Jersey:
+Prentice-Hall, 1988.
+[96] S. Haykin, Adaptive Filter Theory. New Jersey: Prentice-Hall, 4th ed., 2002. [97] L. T. Mainardi, A. M. Bianchi, R. Furlan, R. Barbieri, V. di Virgilio, A. Malliani,
+and S. Cerutti, "Multivariate time-variant identification of cardiovascular variability signals: A beat-to-beat spectral parameter estimation in vasovagal syncope," IEEE Trans. Biomed. Eng., vol. 44, pp. 978-989, 1997.
+[gs] M. R. Spiegel, Schaum's Mathematical Handbook of Formulas and Tables. New York:
+McGraw-Hill, 1999.
+
+628
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+Problems
+
+8.1 The QRS detector outputs the discrete-valued occurrence times Ok which provide the basis for HRV analysis. Due to the quantization introduced by the sampling process, Ok will fluctuate around an underlying, continuous-
+valued time tk by half the length of the sampling interval T. Determine
+how such quantization-related fluctuations influence the spectrum estimated
+from dlT(k), diiT(k), dUE(t), diF(t), diiF(t), and dHT(t).
+8.2 The so-called triangular index, denoted IT, is used in clinical studies of
+HRV in order to quantify RR interval dispersion from its histogram [1]. The triangular index is defined as the ratio between the area under the histogram, equal to the total number of RR intervals M, and the maximum value of the histogram,
+M
+T -- max (P(r) ) '
+where P(r) denotes the RR interval histogram.
+
+ro
+
+re
+
+400
+
+.......
+
+300
+&c~ 200
+100
+
+9 . . : ..................
+
+II : iI :
+
+/I :
+
+I
+
+I
+
+:
+
+t!
+
+I
+
+"
+
+iIII I i
+
+i
+
+i:
+
+i
+
+i:
+
+/
+
+i:
+
+.
+
+I.
+
+I
+
+I
+
+I
+
+I
+
+0
+
+200
+
+400
+
+600
+
+RR interval r (ms)
+
+800
+
+I000
+
+a. Comment on how different RR interval resolutions (i.e., bin sizes) of the histogram influence IT.
+
+b. The triangular interpolation index, denoted/TINN, mitigates the prob-
+lems of IT by measuring the RR interval dispersion as the base of a
+triangle fitted to the histogram P(r), defined by [1]
+
+/TINN -- re -- to,
+
+Problems
+
+629
+
+ro where and r~ denote the onset and end, respectively, of the hisnot togram (see figure). Note that the onset/end are identical to the
+shortest/longest RR intervals but are to some robustly estimated interval lengths. Propose a procedure to estimate the onset and end required for computing ITINN.
+
+8.3 Many time domain HRV indices are calculated from the interval tachogram dlT(k) such as the variance (i.e., SDNN squared). In a similar way, the variance of the inverse interval tachogram dIIT(k) can be used to quantify variations in heart rate [19]. In order to study the behavior of the variance of these two heart rhythm representations, we assume that diT(k) is a random variable characterized by a uniform PDF with mean mIT,
+
+PIT(X) --
+
+1
+mIT -- A < x < mIT -4- A; 2A' 0, otherwise.
+
+Hint: a. Determine the mean and variance of dIT(k) and dIIT(k).
+
+Start
+
+by expressing the probability distribution function of dIIT(k),
+
+PIIT(X) -- Probability(diiT(k) _< x),
+
+in terms of the probability distribution function of diT(k), and then determine the PDF of dIIT(k).
+b. Compare the variances of diT(k) and diiT(k) that result from the two sets of parameters, (mlT, A) -- (1.0, 0.2) and (mlT, A) -- (0.7,0.1), where both parameters have the unit "seconds".
+
+8.4 Show that the output of the IPFM model for a single sinusoidal input with modulating frequency F1 is given by
+
+d (t) - T1/ / + ml cos(27rF1t)
+
+2 f i yc~~. ( 1 + ~1FiTi ) jl ( Fkm1TlI)c~
+-Jr- ~ / / k = l l = - c ~
+
++lF1)t ) 9
+
+\ The function Jl kin1) is a Bessel function of the first kind of order l; for a
+/
+definition of this function, see, e.g., [98].
+
+8.5 The computation of the lowpass filtered event series can be made more efficient for certain sampling rates.
+
+630
+
+Chapter 8. ECG Signal Processing: Heart Rate Variability
+
+a. Assuming that an ideal lowpass filter is used, show that sampling of the lowpass filtered event series at exactly the Nyquist sampling rate, i.e., Fa = 2F~ with F~ being the highest frequency component of the signal, is given by [36]
+
+M
+dEE(n) -- 2Fc ~ (-1)n+1 sin(27rFctk) 7r(n- 2Fctk)
+k=0
+Explain why this expression is computationally more efficient than the one valid for a general cut-off frequency F~.
+
+b. Show that the following expression can be derived for dEE(n) when the sampling rate is twice that of the Nyquist rate, i.e., Fd -- 4F~ [39],
+
+dLE( ) -
+
+M
+
+n+2
+
+2F~ ~ (-1)-Y- sin(27rF~tk) , n even;
+
+k = 0 7r ~ - 2 F ~ t k
+
+M
+
+n+3
+
+2F~ ~ ( - 1) -5- cos(27rF~tk)
+
+k=0 7c -~ - 2F~t k
+
+n odd.
+
+8.6 A physiologist has questioned the validity of the IPFM model and the way it accounts for the influence of the autonomic nervous system on the heart rhythm. Instead, the double integrator is suggested as a more appropriate model (see below).
+
+Reset
+
+[
+
+r
+
+1
+
+i
+
+i
+
+i
+
+i
+
+I
+
+i
+
+a. Supposing that the physiologist's suggestion is correct, how should the heart timing signal dHT(t) be modified to produce an estimate of the power spectrum of re(t)?
+b. How can the power spectrum be estimated from the new heart timing signal?
+
+Problems
+
+631
+
+8.7 For various heart rhythm representations, interpolation is used to obtain a regularly sampled signal suitable for the Fourier-based estimation of the power spectrum. In this problem, linear interpolation is used in combination with the requirement that the frequency content below 0.4 Hz be essentially unaltered, i.e., the attenuation of these frequency components should be less than 3 dB. What is the maximal RR interval length acceptable for this property to hold true?
+
+8.8 In the derivation of the spectrum of the event series signal, denoted D~(ft), we made use of the relation
+= og(t) 5(g(t)),
+Ot
+valid when g(t) is any function with a first-order zero at t = T, (g(T) = 0, g(t ~ ~-) ~ 0), and Og(t)/Otlt=~ ~ O. Prove that this is true by making use of a Taylor series expansion of the function g(t) around ~-.
+
+8.9 Derive the delay ~- in (8.68) of Lomb's method.
+8.10 Generalize the estimator of the mean RR interval length TI in (8.89) to
+account for multiple ectopics.
+
+8.11 Propose an approach for handling the presence of a single ectopic beat when the lowpass filtered event series dLE(t) is considered.
+
+8.12 For two stochastic signals x and y, the cross-correlation coefficient p is defined as
+E[x r]
+p _.__
+v/E[x x] v/E[y r]
+Show that p can be expressed in terms of the coherence function Fxy(e3~) as
+
+1F 2~r 71"
+
+)v/Sx( V/S
+
+p-
+
+v/E[xTxlv/E[yTy ]
+
+'
+
+where Sx(e3W)and Sy(e 3~) denote the power spectra of x and y, respectively.
+
+8.13 Express the magnitude squared coherence Pzlz2(e aw) for the bivariate AR model as a function of Hii(e 3~) and Gij(e 3~~ given in (8.100) and (8.101),
+respectively; see also the block diagram in Figure 8.23.
+

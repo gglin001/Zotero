@@ -1,0 +1,1204 @@
+MEASURING PULSE RATE VARIABILITY DURING MOTION ARTIFACT WITH A NON-CONTACT, MULTI-IMAGER PHOTOPLETHYSMOGRAPHY SYSTEM
+A thesis submitted in partial fulfillment of the requirements for the degree of
+Master of Science in Biomedical Engineering
+By
+Zachary Adam Kiehl B.S., Wright State University, 2014
+2015 Wright State University
+
+WRIGHT STATE UNIVERSITY GRADUATE SCHOOL
+
+Date: 4/15/2015
+
+I HEREBY RECOMMEND THAT THE THESIS PREPARED UNDER MY SUPERVISION BY Zachary Adam Kiehl ENTITLED Measuring Pulse Rate Variability During Motion Artifact with a Non-Contact, Multi-Imager Photoplethysmography System BE ACCEPTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS FOR THE DEGREE OF Master of Science in Biomedical Engineering
+
+Committee on Final Examination
+______________________________ Mary Fendley, Ph.D.
+______________________________ Nasser H. Kashou, Ph.D.
+______________________________ Phani Kidambi, Ph.D.
+______________________________ Robert E.W. Fyffe, Ph.D. Vice President for Research and Dean of the Graduate School
+
+______________________________ Mary Fendley, Ph.D. Thesis Director
+______________________________ Thomas N. Hangartner, Ph.D., FAAPM
+Department Chair
+
+ABSTRACT
+Kiehl, Zachary A. M.S.B.M.E., Department of Biomedical and Human Factors Engineering, Wright State University, 2015. Measuring Pulse Rate Variability During Motion Artifact with a Non-Contact, Multi-Imager Photoplethysmography System.
+Non-contact imaging photoplethysmography is an exciting new field based on the principles of traditional photoplethysmography where viable signals can now be acquired without the use of contact equipment. Recent advances regarding non-contact imaging photoplethysmography have permitted a wide range of new possibilities focused on sensing the cardiopulmonary system. Physiological metrics such as pulse rate, respiration rate, and pulse rate variability can be obtained by current photoplethysmographic imaging methods. Although previous systems were challenged by head-motion artifacts, the mitigation of rigid head-motion artifacts has been demonstrated with a multi-imager design. This study investigated the feasibility and accuracy of pulse rate variability utilizing a multi-imager recording system. Parameters such as sampling rate, image resolution, and number of imagers utilized were examined in an attempt to minimize overall system data bandwidth. Accurate pulse rate variability metrics where found within the frequency and temporal domains, along with promising results regarding the aforementioned input parameters.
+iii
+
+TABLE OF CONTENTS
+TABLE OF CONTENTS ................................................................................................... iv 1.0 INTRODUCTION & LITERATURE REVIEW ..................................................... 1
+1.1 Introduction to Photoplethysmography ................................................................ 1 1.2 Other Methods of Non-Contact Vital Sign Monitoring ....................................... 4 1.3 Introduction to Heart and Pulse Rate Variability ................................................. 7 1.4 Methods and Analyses Typically Associated with HRV/PRV ............................ 9 1.4.1 Temporal Domain ............................................................................................. 9 1.4.2 Frequency Domain.......................................................................................... 10 1.5 Using PRV as a Surrogate of HRV .................................................................... 13 2.0 METHODS OF PREVIOUS STUDY ................................................................... 16 3.0 CURRENT METHODS FOR THESIS ................................................................. 20 3.1 Optimization of the Existing Nc-iPPG System .................................................. 24 3.1.1 Methods for Sampling Rate Comparison ....................................................... 26 3.1.2 Methods for Reduction in Image Resolution .................................................. 27 3.1.3 Methods for Optimizing Number of Imagers Utilized ................................... 28 3.2 PRV for Reduced Datasets ................................................................................. 30 4.0 RESULTS .............................................................................................................. 32 4.1 Model Order Reduction of Dataset .................................................................... 32 4.2 Results for Sampling Rate Comparison ............................................................. 35 4.3 Results for Image Resolution Comparison......................................................... 38 4.4 Results for Trial Type......................................................................................... 40 4.5 Results for using Source as a Factor .................................................................. 41 4.6 Correlation/Density Plots ................................................................................... 46 5.0 DISCUSSION ........................................................................................................ 67 6.0 CONCLUSIONS & FUTURE RESEARCH ......................................................... 72 7.0 APPENDIX ............................................................................................................ 77 7.1 JMP Output Utilized for PRV Sampling Rate Comparison............................... 78 7.2 JMP Output Utilized for PRV Image Resolution Comparison .......................... 84 7.3 Residual Analysis for Image Resolution/Source of Signal Comparison ............ 90
+iv
+
+7.4 JMP Output Utilized for Image Resolution/Signal Source Comparison............ 99 7.5 Residual Analysis for Sampling Rate/Source of Signal Comparison .............. 102 7.6 JMP Output Utilized for Sampling Rate/Source of Signal Comparison .......... 111 7.7 Original Study that Provided the Data for Analysis ......................................... 114 8.0 REFERENCES .................................................................................................... 116
+v
+
+LIST OF FIGURES
+Page
+Figure 1: Depiction of Typical Pulse Transit Time (PTT) Scenario................................. 14 Figure 2: Experimental Setup for Data Collection Utilizing Nc-iPPG System ................ 17 Figure 3: Processing Pipeline Utilized for nc-iPPG Signal Extraction............................. 19 Figure 4: Number of Data Trials in Each Bin ................................................................. 21 Figure 5: Data Trials That Produced Useable Data, Sorted by Number of Imagers Utilized.............................................................................................................................. 22 Figure 6: Data Trials with Exact Same Number of Beats Detected when Compared to Contact Signals, Sorted by Number of Imagers Utilized .................................................. 22 Figure 7: Trials with Exact Same Number of Beats Detected when Compared to Contact Signals, Sorted by Trial Type............................................................................................ 23 Figure 8: Trials That Produced Useable Data, Sorted by Number of Imagers Utilized... 23 Figure 9: Data That Produced Useable Data, Sorted by Background Type ...................... 24 Figure 10: Figure Depicting Image and Sampling Rate Resolution ................................. 28 Figure 11: Flow Chart Depicting the Steps to Reduce the Model .................................... 31 Figure 12: JMP Output Showing Effect of Background and Number of Imagers ............ 34 Figure 13: Connecting Letters Report Showing Non-Significance for the First HRV/PRV Metric for Different Signal Sources .................................................................................. 42 Figure 14: Connecting Letters Report Showing Significant Differences for the Second HRV/PRV Metric Between Different Signal Sources ...................................................... 43 Figure 15: Connecting Letters Report Showing Significant Differences for the Third HRV/PRV Metric Between Different Signal Sources ...................................................... 43 Figure 16: Connecting Letters Report Showing Non-Significance for the Fourth HRV/PRV Metric for Different Signal Sources ............................................................... 44 Figure 17: Connecting Letters Report Showing Significant Differences for the Fifth HRV/PRV Metric Between Different Signal Sources ...................................................... 44 Figure 18: Connecting Letters Report Showing Significant Differences for the Sixth HRV/PRV Metric Between Different Signal Sources ...................................................... 45
+vi
+
+Figure 19: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 120 Hz. and Full Image Resolution ..................................................... 47 Figure 20: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 120 Hz. and Full Image Resolution ..................................................... 48 Figure 21: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 120 Hz. and Full Image Resolution ............................................... 48 Figure 22: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 120 Hz. and Full Image Resolution ..................................................... 49 Figure 23: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 120 Hz. and Full Image Resolution ..................................................... 49 Figure 24: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 120 Hz. and Full Image Resolution ............................................... 50 Figure 25: Density Plot Depicting Densities of LF PRV Measurements for Data Processed at 120 Hz. and Full Image Resolution.............................................................. 50 Figure 26: Density Plot Depicting Densities of HF PRV Measurements for Data Processed at 120 Hz. and Full Image Resolution.............................................................. 51 Figure 27: Density Plot Depicting Densities of SDNN PRV Measurements for Data Processed at 120 Hz. and Full Image Resolution.............................................................. 51 Figure 28: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 120 Hz. and Quarter Image Resolution ............................................... 52 Figure 29: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 120 Hz. and Quarter Image Resolution ............................................... 53 Figure 30: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 120 Hz. and Quarter Image Resolution.......................................... 53 Figure 31: : Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 120 Hz. and Quarter Image Resolution.......................................... 54 Figure 32: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 120 Hz. and Quarter Image Resolution ............................................... 54 Figure 33: : Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 120 Hz. and Quarter Image Resolution ................................. 55 Figure 34: Density Plot Depicting Densities of LF PRV Measurements for Data Processed at 120 Hz. and Quarter Image Resolution ........................................................ 55 Figure 35: Density Plot Depicting Densities of HF PRV Measurements for Data Processed at 120 Hz. and Quarter Image Resolution ........................................................ 56 Figure 36: Density Plot Depicting Densities of SDNN PRV Measurements for Data Processed at 120 Hz. and Quarter Image Resolution ........................................................ 56 Figure 37: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 60 Hz. and Full Image Resolution ....................................................... 57
+vii
+
+Figure 38: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 60 Hz. and Full Image Resolution ....................................................... 58 Figure 39: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 60 Hz. and Full Image Resolution ................................................. 58 Figure 40: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 60 Hz. and Full Image Resolution ....................................................... 59 Figure 41: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 60 Hz. and Full Image Resolution ....................................................... 59 Figure 42: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 60 Hz. and Full Image Resolution ................................................. 60 Figure 43: Density Plot Depicting Densities of LF PRV Measurements for Data Processed at 60 Hz. and Full Image Resolution................................................................ 60 Figure 44: Density Plot Depicting Densities of HF PRV Measurements for Data Processed at 60 Hz. and Full Image Resolution................................................................ 61 Figure 45: Density Plot Depicting Densities of SDNN PRV Measurements for Data Processed at 60 Hz. and Full Image Resolution................................................................ 61 Figure 46: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 30 Hz. and Full Image Resolution ....................................................... 62 Figure 47: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 30 Hz. and Full Image Resolution ....................................................... 63 Figure 48: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 30 Hz. and Full Image Resolution ................................................. 63 Figure 49: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 30 Hz. and Full Image Resolution ....................................................... 64 Figure 50: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 30 Hz. and Full Image Resolution ....................................................... 64 Figure 51: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 30 Hz. and Full Image Resolution ................................................. 65 Figure 52: Density Plot Depicting Densities of LF PRV Measurements for Data Processed at 30 Hz. and Full Image Resolution................................................................ 65 Figure 53: Density Plot Depicting Densities of HF PRV Measurements for Data Processed at 30 Hz. and Full Image Resolution................................................................ 66 Figure 54: Density Plot Depicting Densities of SDNN PRV Measurements for Data Processed at 60 Hz. and Full Image Resolution................................................................ 66
+viii
+
+LIST OF TABLES
+Page Table Table 1: Summary of Conducted Trials ............................................................................ 17 Table 2: HRV/PRV Metrics to be Investigated ................................................................ 36 Table 3: Correlation and R2 Values for Nc-iPPG and Contact Metrics for Data Processed at 120 Hz. and Full Image Resolution............................................................................... 47 Table 4: Correlation and R2 Values for Nc-iPPG and Contact Metrics for Data Processed at 120 Hz. and Quarter Image Resolution ......................................................................... 52 Table 5: Correlation and R2 Values for Nc-iPPG and Contact Metrics for Data Processed at 60 Hz. and Full Image Resolution................................................................................. 57 Table 6: Correlation and R2 Values for Nc-iPPG and Contact Metrics for Data Processed at 30 Hz. and Full Image Resolution................................................................................. 62
+ix
+
+ACKNOWLEDGEMENTS This research was completed in conjunction with the Air Force Research Laboratory (AFRL), 711th Human Performance Wing, Applied Neuroscience Branch located at Wright-Patterson AFB. Therefore, with the utmost appreciation, I thank them for their support and collaboration throughout the duration of this project. Specifically, I would like to thank Mr. Justin Estepp and Mr. Ethan Blackford for their technical expertise. Also, I would like to recognize and thank my thesis and graduate advisor, Dr. Mary Fendley, for her ongoing direction and support throughout my time as a graduate student. Lastly, I would like to thank my beautiful wife, Tory, for her patience and constant encouragement.
+x
+
+1.0 INTRODUCTION & LITERATURE REVIEW
+1.1 Introduction to Photoplethysmography
+The fields and associated devices of photoplethysmography and pulse oximetry have roots the date back into the 1930’s and since this time, many exciting and revolutionary advancements have been made (Hertzman, 1937). Photoplethysmography (PPG) and pulse oximetry are both governed by the characteristics of oxygenated and deoxygenated hemoglobin with regards to their associated absorption characteristics within the visible (i.e., typically red light) and infrared ranges on the electromagnetic spectrum (Allen, 2007; Wu, Blazek, & Schmitt, 2000; Wukitsch, Petterson, Tobler, & Pologe, 1988). Basic PPG sensors only require a few components; these components consist of a light source to illuminate the tissue, and some sort of photodetector to measure the small changes in light that were either absorbed, reflected, transmitted, scattered, or subjected to fluorescence by the tissue (Anderson & Parrish, 1981). In fact, Shi et al. (2009) have recently demonstrated a noncontact photoplethysmography (nc-PPG) system using nothing but an infrared LED illumination source in conjunction with a simple photodiode. The associated typical PPG signal can be derived based off of these principles and is generally described as having both an alternating current (AC) and direct current (DC) component. The AC component of a photoplethsymographic signal is generated by the pulsatile component of the pulse waveform and typically has a frequency between 1 - 1.5 Hz. when resting; however, this frequency varies depending on the heart rate of the participant (Allen, 2007). The DC
+1
+
+component of a PPG signal is imbedded within the AC component and varies slowly due to natural respiration and other parasympathetic bodily functions that occur to aid in homeostasis; this component of a typical PPG signal occurs at a much lower frequency.
+Due to the aforementioned principles and the fact that the PPG was already being utilized for pulse oximetry/oxygen saturation, a relatively simple and inexpensive method for detecting the blood volume and oxygenation changes in the pulsatile microvascular tissue bed was soon developed (Challoner, 1979). Pulse oximetry and PPG began to be accepted as a method for acquiring important information about the cardiovascular and cardiopulmonary system. These systems first began to be implemented into clinical settings as a sensor that could be clipped onto a patient’s finger or ear to measure oxygen saturation (Aoyagi, Kobayashi, & Sasaki, 1989). Although, it was discovered not long after that respiratory and cardiac activity could be derived from the same PPG signal that was used for pulse oximetry.
+Although impressive, these previously discussed types of devices were still somewhat cumbersome and impractical for certain patients, such as preterm infants or those with burns or wounds covering the placement area for a typical PPG sensor (Martinez, Paez, & Strojnik 2011). Therefore, the idea of being able to remotely and non-invasively monitor the cardiopulmonary system state (e.g. respiration rate, pulse rate, and pulse rate variability) of an individual became a growing area of interest for researchers. The early work of Wu et al. (2000) demonstrated that pulsatile components and their associated frequencies and harmonics could be derived from monochromatic imagery of the finger-tip. The data collected by Wu et al. (2000) closely matched the concurrent PPG signal leading to the first
+2
+
+imaging photoplethysmographic system despite limitations and closely controlled experimental conditions. Thus, the concept of non-contact, imaging photoplethysmography (nc-iPPG) soon arose and there has since been a vast amount of associated studies regarding this area of research (Wieringa, Mastik, & Vand der Steen, 2005; Takano & Ohta, 2007; Garbey, Sun, Merla, & Pavlidis, 2007; Verkruysse, Svaasand, & Nelson, 2008; Poh, McDuff, & Picard, 2010; Martinez et al., 2011; Poh, McDuff, & Picard, 2011; Lempe, Zaunseder, Wirthgen, Sipzer, & Malberg, 2013; Sun, Hu, Asorin-Peris, Kalawsky, & Greenwald, 2013; McDuff, Gontarek, & Picard, 2014).
+Despite the reasonably large amount of publications with regards to iPPG, many different methods and apparatuses have been utilized and thus far, no gold-standard for a non-contact PPG system has come to fruition. Current systems range from simple webcambased systems to sophisticated and expensive digital cameras; although recent work by Sun et al. (2012) has shown that there were no statistical differences between nc-iPPG signals collected by a high-performance digital camera and those of a simple webcam with ambient lighting as the only source of illumination. The regions of interest (ROI) for nc-iPPG systems also vary significantly, with some of the early studies imaging the palm of the hand, forearm, or fingertip (Wu et al., 2000; Wieringa et al., 2005; Humphreys, Ward, & Markham, 2007; Sun et al. 2012). Meanwhile, some of the more modern studies have been focusing their ROI on the cheeks or forehead of the participant (Takano & Ohta, 2007; Martinez et al. 2011; Poh et al. 2011; McDuff et al. 2014; Estepp, Blackford, & Meier, 2014). All of these systems have produced meaningful results and can detect cardiopulmonary function ranging from reasonable to superior accuracy.
+3
+
+Regardless of the fact that these aforementioned systems are becoming more accurate and practical, they also have a few significant limitations such as lighting configurations and movement artifacts that will need to be further addressed before significant advances such as telemedicine and home healthcare can be made. However, there are a fair number of research teams that have been attempting to solve some of these outlined limitations and recent publications have shown success in using ambient lighting as an adequate lighting source for nc-iPPG studies (Verkruysse et al. 2008; Poh et.al 2010; Poh et al. 2011; Sun et al., 2012; Tarassenko et al., 2014). Although it appears that valuable and viable advances have been made concerning lighting requirements, the persistent dilemma of motion artifact still exist and only a few of the previously discussed research studies have allowed any sort of movement into their experimental design, let alone the kind of movement that would occur in typical scenarios that this technology would likely be employed. Thus, the conclusion can be drawn that the largest obstacle for nc-iPPG research that still remains is the associated movement/motion artifacts that arise within a typical environment.
+1.2 Other Methods of Non-Contact Vital Sign Monitoring
+Although PPG systems seem to be the forerunner regarding the realm of non-contact vital sign affirmation, there have been other methods proposed with wide ranges of success rates. These methods are often divided up into two categories based on their associated governing principle. The methods are electromagnetic-based monitoring systems and image-based monitoring systems, which is the category that nc-iPPG falls into.
+4
+
+Electromagnetic-based systems are more commonly referred to as microwave Doppler radar systems. This category of electromagnetic-based systems for non-contact heart rate monitoring also include laser-based methods such as the laser Doppler vibrometer. The underlying principle behind these types of systems consists of transmitting a microwave signal towards a target and then using the Doppler Effect as a means of gathering the associated backscattered signal (Scalise & Morbiducci, 2008). Basically stated, the Doppler Effect detects a target with a quasi-periodic movement and then reflects the transmitted signal with a modulated phase by the time-varying position of the target (Lin, 1992).
+The two variants of microwave radar technologies that are typically employed for heart rate monitoring consist of continuous wave and wide band pulsed radar. Without going into extensive detail, both of these systems on a fundamental level look for changes in the displacement of the chest caused by both respiration and the mechanical contraction of the heart. Although Lu, Yang, Tian, Jing, & Wang (2009) and Obeid, Zaharia, Sadek, & El Zein (2011) have shown that relatively accurate cardiopulmonary data could be derived from microwave based systems; there are still a few significant limitations. According to Lu et al. (2009), the microwave sensors that are commonly utilized are susceptible to significant motion artifacts that can be difficult or nearly impossible to remove without distorting the underlying signal. Another prevalent issue is that the associated microwave sensors are governed by the inverse-square law in which the loss in signal is proportional to the square of the distance. Thus, acquiring meaningful cardiopulmonary data may be difficult or ineffective for situations requiring a distance between the antenna and the subject that is greater than a few meters.
+5
+
+The other common method of non-contact heart rate monitoring is the image-based monitoring systems. Although nc-iPPG is the most common and widely accepted method of image-based systems, the use of thermal imagery has also been investigated in recent years. Thermal imagery is typically recorded using an infrared camera that captures the thermal radiation that is emitted from the surface of the human body. These cameras can capture a range of infrared radiation depending on the quality of the imager varying from near infrared (i.e., 0.75-3 µm) to extreme infrared (i.e., 15-100 µm) on the electromagnetic spectrum (Chekmenev, Rara, & Farag, 2005). The ROI’s for thermal imagery pulse recovery systems typically focus on the arterial pulses generated by either the carotid artery or superficial temporal arteries (Chekmenev, Farag, & Essock, 2007). These systems then often operate similar to that of nc-iPPG systems with regards to selecting a ROI and extracting a signal that contains viable pulse data. Although the method and associated signal-processing pipeline used to extract the pulse rate signal varies, the overall results tend to produce meaningful and comparable data in both the temporal and frequency spectrums.
+Regardless of the successes of using thermal imagery systems for pulse and respiration rate recovery, PPG systems often produce similar or better results with significantly less expensive equipment. For example, in 2007, Garbey et al. claimed that to the best of their knowledge, the first time that a cardiac pulse was measured several feet away by passive means was accomplished by their described system. Although relatively successful, the accuracy ranged from 88.52 to 90.33% using sophisticated equipment costing thousands of dollars. Thus, thermal imagery was no longer a sought-after method of non-contact heart rate monitoring (Garbey et al., 2007). PPG systems especially began to
+6
+
+take over the field of non-contact heart rate monitoring when successful nc-iPPG systems began to be created using nothing more than an ordinary webcam (Poh et al., 2010; Poh et al., 2011; Sun et al., 2012). In fact, Poh et al. (2011), made note that although impressive advancements have been made with regards to the aforementioned methods of non-contact measurement of vital signs, these systems are typically very expensive and require specific hardware configurations. Thus, PPG systems are often considered the gold-standard for non-contact monitoring of heart and respiration rate.
+1.3 Introduction to Heart and Pulse Rate Variability Vital signs such as pulse and respiration rate, blood oxygen saturation, temperature,
+and arterial blood pressure are known to be of the utmost importance in clinical settings; however, many researchers would like to reach beyond these metrics and find a means for accessing other useful metrics without the use of obtrusive electrodes or bands. One of these proposed metrics would consist of accurate heart rate or pulse rate variability data that could be acquired through a non-contact system. While a few attempts for this specific type of system have been hypothesized and tested without incorporating natural motion (McDuff et al., 2014), there is still considerable room for improvements such as a system capable of tolerating head motion along with various types of lighting conditions.
+Heart rate and heart rate variability (HRV) are well-known physiological metrics that have been extensively studied, leading to a large number of publications showing the wide-ranging applications of HRV data. HRV data is typically recorded by an electrocardiogram ((ECG), also will be utilized as an abbreviation of electrocardiography)
+7
+
+and analyzed by computer software that characteristically contains specialized filters and algorithms developed specifically for HRV studies. Some beneficial applications of heart rate and HRV data include cognitive monitoring (Delaney & Brodie, 2000), stress reactions and the long-term consequences of stress (Porges, 1992), detection of cardiovascular diseases, which is currently the leading causes of deaths world-wide (Kleiger, Miller, Bigger, & Moss, 1987), and even infant monitoring (Aarts, et al. 2013). However, it is important to mention that this study is specifically examining pulse rate and pulse rate variability (PRV) instead of heart rate and HRV. Although these two metrics are exceedingly similar, they have fundamental differences, which will be discussed in greater detail throughout the body of this introduction.
+At this point, it may be beneficial to actually investigate what the metrics of HRV and PRV really incorporate being that there are many different definitions and methods of analysis for these metrics. On a fundamental level, HRV can basically be defined as the naturally occurring fluctuations in heart rate, which are typically measured on a beat-to-beat basis by means of a fiducial point such as the R-wave found within the QRS complex of the heart beat detected by an ECG. Acharya, Joseph, Kannathal, Lim, and Suri (2006) defined HRV as the consistent variation over time of the period between consecutive heartbeats. These types of definitions are generally accepted by most scholars; however, the point of contention with regards to HRV is often the associated methods of analysis. Although legitimate disagreements do exist, most HRV experts agree that the investigation of HRV can typically be broken down into two main domains, most commonly referred to as the temporal and frequency spectrums of HRV.
+8
+
+1.4 Methods and Analyses Typically Associated with HRV/PRV
+1.4.1 Temporal Domain The temporal domain is relatively straightforward to analyze and interpret as the time
+between the heartbeats is directly measured and recorded. These associated time stamps are commonly referred to as interbeat-intervals (IBI) or interpulse-intervals (IPI) and are often plotted out and visually inspected by subject matter experts (SME). The values for IBI’s typically range from about 600 to 1000 milliseconds for resting heart rates (i.e., 60 to 100 beats per minute (bpm)) but can be as smaller or larger depending on extenuating circumstances such as exercise, athletes that participate in distance running, extreme stress, or cases of bradycardia and tachycardia due to underlying physiological issues (Laskowski, 2012). A healthy individual typically will have periodic variations in the temporal spectrum of HRV; although, these variations should contain specific patterns that are often somewhat observable within the data.
+There are many different metrics for measuring HRV within the temporal domain and a few of the most common will be identified within this section. With respect to HRV in the temporal domain, it is imperative to understand the concept of an N-N interval being that many metrics are based off of this principle. Basically stated, an N-N interval is the time in-between two fiducial points (e.g., R peaks in an ECG or maximum points of a PPG signal) in a signal that should be representing cardiac function. N-N intervals, or IBI/IPI’s for the purpose of this study, are essentially a more general classification of the standard R-R interval of an ECG, except that N-N intervals can be used for other types of signals.
+9
+
+Recording the standard deviation of the N-N intervals (SDNN) is perhaps the most common and universal metric of HRV within the temporal domain; and for this reason, will be one of the HRV metrics investigated within this thesis. Some of the other common temporal domain HRV metrics are the average of the standard deviation of the N-N intervals (SDANN), the root-mean-square of successive differences (RMSSD), and the standard deviation of successive differences (SDSD). Two other temporal metrics that are very popular incorporate N-N intervals that have a variability of more than 50 milliseconds from successive beats; these are the number of successive N-N intervals that are greater than 50 milliseconds (NN50 count), and the percentage of successive N-N intervals that are greater than 50 milliseconds (pNN50 count) (Berntson et al., 1997). Although there are a number of other HRV metrics within the temporal domain, these aforementioned metrics are some of the most popular.
+1.4.2 Frequency Domain The associated frequency spectrum is much more complex to analyze and interpret
+being that it can be difficult to observe the underlying frequency characteristics. The method of frequency analysis that will be discussed and utilized for this thesis follows that of the Polyvagal Theory and Perspective developed by Stephen W. Porges (Porges, 2009; Porges, 2007). As previously mentioned, there are periodic variations in the IBI’s and thus, associated frequencies that will be further discussed. The first and perhaps most prominent rhythm in HRV data is that of the respiratory sinus arrhythmia, commonly abbreviated to RSA. The RSA rhythm coincides with respiration and is consequently characterized by relatively fast oscillations (e.g., approximately 12-20 times a minute or about 3 or 5 seconds
+10
+
+a cycle). RSA was defined by Sahar, Shalev, & Porges (2001) as the heart rate variability that occurs within the frequency band of 0.12 to 0.40 Hz. This is the frequency band that will be utilized for the RSA computation in this thesis being that the work found within the aforementioned study (Sahar et al. (2001)) was patterned after the time series analysis developed by Porges and Bohrer (1990). This method of analysis later produced widely accepted methods used for computing RSA within the realm of HRV analysis. Basically stated for the purpose of this thesis, when inhalation occurs within healthy individuals, the instantaneous heart rate tends to rise and the associated IBI will become shorter; meanwhile, the exact opposite effect occurs for exhalation.
+The second prominent rhythm typically observed in HRV data is the low frequency component, also commonly referred to as the Traube-Hering-Mayer wave (THM). This rhythm is also somewhat commonly referred to as the 0.10 Hz. rhythm, as it typically oscillates every 10-15 seconds, resulting in typical frequencies that range from 0.06 to 0.10 Hz (Hatch, Klatt, Porges, Schroeder-Jasheway, & Supik, 1986; Porges & Byrne, 1992). This rhythm is known to have a significant effect on blood pressure adjustments being that similar oscillations have been observed in blood pressure recordings (Sahar et al., 2001). This rhythm is another method of deriving a quantitative measurement of HRV which will be utilized within this thesis.
+Although the last rhythm will not be a sought after HRV metric within this research due to the fact that it is commonly recommended that the duration of the data acquisition period be at least ten times as long as the oscillation period of the lowest-frequency wavelength (Camm et al., 1996), the associated concept is important to discuss when
+11
+
+developing a clear picture of the underlying rhythms associated with HRV data. This aforementioned last rhythm is slower than both the RSA and THM wave and is typically called the very low frequency (VLF) wave. The VLF wave typically oscillates about once every 60 to 90 seconds resulting in frequencies around 0.016 and 0.011 Hz. This wave is often believed to be associated with basic metabolic processes that aid in homeostasis.
+Generally speaking, many scholars typically assign the following ranges for each frequency domain:
+High Frequency (i.e., RSA or HF) = 0.15 – 0.4 Hz.
+Low Frequency (i.e., THM or LF) = 0.04 – 0.15 Hz.
+Very Low Frequency (VLF) = 0.001 to 0.04 Hz.
+Although heart rate and HRV, along with pulse rate and PRV, are recorded by different methods, many of the same anatomical and physiological functions are responsible for governing their associated characteristics and the resulting data is typically quite similar. In fact, recent work by Schäfer and J. Vagedes (2013) has shown that as long as heart rate/HRV and pulse rate/PRV are accurately recorded and analyzed during a resting state (as in this present study), there should be minimal differences and favorable agreement observed between these metrics. Work by Lu, Yang, Taylor, and Stein (2009) has also shown that within healthy subjects, there should be high degrees of agreement for both temporal and frequency domains when the associated HRV/PPG data is derived from ECG and PPG systems.
+12
+
+1.5 Using PRV as a Surrogate of HRV Regardless of the similarities, the main difference between HRV and PRV should be
+understood as this relationship is a crucial element in the presented research. Perhaps the largest difference between HRV and PRV is a phenomenon known as pulse transit time (PTT), which is the time that it takes for the arterial pulse pressure wave generated by the contraction of the left ventricle of the heart to reach the arterial measurement site. PTT is therefore dependent on parameters such as age, arterial compliance, blood pressure, peripheral resistance, dimensions of the vascular system, and measurement sites (Gil et al., 2010). Typical measurement sites consist of the face, ear, finger, and toes in which the associated PTT usually increases at each measurement site, respectively.
+The occurrence of PTT would obviously obstruct the possibility of pulse rate and heart rate being exactly the same with regards to the temporal spectrum being that the mechanically dependent pulse rate generated by a photoplethysmographic signal will lag slightly behind the electronically recorded heart rate. The associated lapse of time can often be significant since typical PTT times range from 100 to 500 milliseconds depending on the measurement site (Hey et al. 2009). However, the timing in between the pulse rate and heart rate beats (i.e. inter-beat intervals) can theoretically match up perfectly with each associated beat producing accurate readings for PRV and HRV. An example of both a typical ECG and PPG signal with regards to the temporal spectrum can be viewed in Fig. 1. It is important to note that although there is an associated lag in the continuous running time, the resulting time in between beats or peaks can be identical.
+13
+
+Figure 1: Depiction of Typical Pulse Transit Time (PTT) Scenario
+Relatively recent work by E Gil et al. (2010) validated the postulation that although there are will likely be some small anomalies in the time-varying spectral data extracted from PRV and HRV, PRV can typically be used as a surrogate for HRV during nonstationary conditions such as the tilt table test that was utilized within the identified study. Although the current work in this study incorporates both stationary trials and trials incorporating varying amounts of head movement, it can generally be accepted that PRV and HRV measurements will be more accurate during stationary trials. Although, Gil et al. (2010) has not provided any reason as to why this aforementioned theory would not hold true for moderate amounts of movement.
+14
+
+One practical issue that has not been investigated in great detail is validating the use of PRV data extracted from nc-iPPG data and comparing it to HRV data collected by an electrocardiogram and PRV data collected by a fingertip reflectance PPG sensor. Even more specific to this study, could this aforementioned PRV data from an nc-iPPG system be validated when the associated data is subjected to various amount of motion artifact as seen in the parent study of this research (Estepp, Blackford, and Meier, 2014). Mcduff et al. (2014) recently mentioned that a quantitative comparison between the measurements made by an nc-iPPG system and the measurements made by an ECG system for heart rate and pulse rate along with HRV/PRV would be a valuable extension. If the previously alluded to PRV data can be validated, how large of effects do experimental parameters such as image resolution, capture rate (e.g. [fps] or [Hz]), and number of imagers needed for accurate pulse rate/PRV measurements have on overall performance of a nc-iPPG system capable of tolerating motion artifact. Being that each participant in this study typically produced one to two terabytes of data, having the ability to lower capture rate, image resolution, number of cameras, or possibly implement new compression algorithms would inherently lead to a more practical system capable of future advancements. Therefore, this study aims to investigate these notions in greater detail and validate the ability of accurate detection and necessary input parameters of PRV during motion artifact through the utilization of a nciPPG system.
+15
+
+2.0 METHODS OF PREVIOUS STUDY
+A recent publication by Estepp et al. (2014) took a revolutionary step forward in correcting the unavoidable motion artifacts that would likely occur if the proposed system was transitioned into an operational setting. Being that the work that was performed in this study was in conjunction with Estepp et al. (2014) study and the same data was used, it is imperative to briefly describe the design of the study along with the associated methods and procedures as to how the data was recorded. However, for an extensive description, it is recommended to refer to Estepp et al. (2014), which information has been provided for in Appendix section 7.7.
+Basically stated, video-imagery data from 25 participants was collected through the utilization of an array consisting of 9 cameras. The cameras were placed 20 degrees apart equating to a total span of 160 degrees (shown in Figure 2). There were 6 trials that ranged from stationary trials to random head motion that required the participant to re-orient their head every second; these trials can be summarized in Table 1. Two different static background types were utilized with one background being black and the other background consisting of patterned color. Thus, there were a total of 12 trials in which each participant was recorded for 5 minutes, not including 15 second pre- and post- buffers. While the data from the nc-iPPG system was being collected, a biopotential measurement system was utilized to record ECG and fingertip reflectance PPG. These contact signals served as a baseline and point of comparison for the nc-iPPG signals derived from the described system.
+16
+
+Figure courtesy of Estepp et al. (2014)
+Figure 2: Experimental Setup for Data Collection Utilizing Nc-iPPG System
+Table 1: Summary of Conducted Trials
+17
+
+With regards to the collected data, the contact signals (i.e., ECG and PPG) were windowed and filtered through the use of Matlab so that time series consisting of IBI’s and IPI’s could be generated. The video imagery data was transformed from the raw images that were generated from the video data to sources signals that would allow power spectral density (PSD) estimates, likely representing cardiac function, to be made. The frames derived from the video data were demosaiced to derive red, green, and blue (RGB) values across the image array. The values were then averaged and filtered to produce an RGB time series. The data was then run through the process of independent component analysis (ICA) to produce a range of 3 to 27 channel space signals. The signals were then windowed and filtered to produce both pulse rate estimation over the 5 minute trial and a IPI time series that could be further analyzed post-hoc. The aforementioned process can be shown and summarized in Figure 2. As mentioned previously, the descriptive paragraphs found within this section only give a summary of the methodology and techniques that were utilized within the parent study of this research.
+18
+
+Figure courtesy of Estepp et al. (2014)
+Figure 3: Processing Pipeline Utilized for nc-iPPG Signal Extraction
+19
+
+3.0 CURRENT METHODS FOR THESIS
+The previously discussed data that was collected by Estepp’s research team will be the same dataset that is utilized post hoc in this present study. The first step in investigating the feasibility of non-contact, motion tolerant PRV determination is to validate that accurate PRV data can be derived from the current dataset. Basically stated, the nc-iPPG system that was utilized first had to be able to accurately record pulse rate before the associated timing in-between the pulses could be investigated. This process was accomplished by using custom software written in MATLAB R2011b to compare the IBI time series generated by the ECG system and the IPI time series generated by both the contact and non-contact PPG system.
+The hand-corrected (when needed) data that was used as a starting point was recorded at 120 fps and then consequently divided up into three bins. The first bin held trials that contained the exact same amount of beats (i.e., 0 missed beats) as the ground truth ECG and PPG data. The second bin contained trials that only differed from the ground truth data by one beat either resulting from timing issues associated with start/stop times and/or PTT. Some of the signals in the second bin also contained low to moderate amounts of noise or artifacts that could have attributed to the missed beat. The last bin (i.e., bin 3) consisted of the remaining trials that missed two or more beats when compared to the ground truth signals; this bin contained data that often had copious amounts of noise or artifact. The associated number of trials for each bin can be viewed in the figure below. It is also noteworthy that even utilizing all three bins of data, only 1210 out of the possible 1500 trials
+20
+
+were kept for data analysis being that the remaining 290 data trials did not contain recoverable data. The data that was used to produce the following figure was recorded with a resolution of 658 x 492 pixels and sampled at 120 frames per second. The exact cause or causes of some of the unrecoverable data is not known at this current time and will likely be a focal point for future research endeavors.
+The following figures (pp. 27-30) summarize some of the classifications of the original 1210 trials (i.e., trials sample at 120 Hz. with a resolution of 658 x 492 pixels) that have been divided up into one of the three aforementioned bins. These figures will be further examined and discussed in the results section of this thesis.
+
+Number of trials
+
+Trials Contained within Each Bin
+
+800
+
+BIN 1 = 822
+
+BIN 2 = 278
+
+BIN 3 = 110 700
+
+600
+
+500
+
+400
+
+300
+
+200
+
+100
+
+0
+
+1
+
+2
+
+3
+
+Bin Number
+
+Figure 4: Number of Data Trials in Each Bin
+
+21
+
+Useable Data by Camera Combination 300
+
+Trials Used for HRV Analysis
+
+250
+
+200
+
+150
+
+1
+
+3
+
+5
+
+7
+
+9
+
+Number of Cameras Used
+
+Figure 5: Data Trials That Produced Useable Data, Sorted by Number of Imagers Utilized
+
+Number of Trials
+
+Trials with Same Number of Beats Detected as Ground Truth Signals 200
+
+190
+
+180
+
+170
+
+160
+
+150
+
+140
+
+130
+
+120
+
+110
+
+100
+
+1
+
+3
+
+5
+
+7
+
+9
+
+Numbers of Cameras Used
+
+Figure 6: Data Trials with Exact Same Number of Beats Detected when Compared to Contact Signals, Sorted by Number of Imagers Utilized
+
+22
+
+CHR = Chinrest Trial STA = Stationary Trial R10, R20, R30 = Sweep Speed Trials RAN = Random Motion Trial
+Figure 7: Trials with Exact Same Number of Beats Detected when Compared to Contact Signals, Sorted by Trial Type
+CHR = Chinrest Trial STA = Stationary Trial R10, R20, R30 = Sweep Speed Trials RAN = Random Motion Trial
+Figure 8: Trials That Produced Useable Data, Sorted by Number of Imagers Utilized
+23
+
+Figure 9: Data That Produced Useable Data, Sorted by Background Type
+3.1 Optimization of the Existing Nc-iPPG System
+Although the results shown in Estepp et al. (2014) are promising and certainly opened a door to a new realm of possibilities, there are still a lot of questions and revisions that may need to be investigated. Perhaps the two most prevalent areas of investigation are the previously alluded to 290 data trials that did not produce recoverable data along with the immense amount of data storage, processing time, and hardware specifications that are required to utilize the nc-iPPG system outlined in the parent study of this research. Although the first area will certainly be examined in future research, the second mentioned area has been selected to be investigated in greater detail within this thesis. Basically stated, there
+24
+
+are many effects within the nc-iPPG system that could possibly be revised and/or modified to aid in system optimization.
+The two main branches of modifications can be stated as either hardware modifications, or software/processing modifications. It is also important to mention that although there are many other factors that could have had a significant effect on the accuracy of the system, factors that were able to go through post hoc modification were first chosen to ensure that data collection did not have to be repeated. As a result, the amount of hardware modifications that could be implemented were minimal. Thus, with regards to the limited aspect of hardware modification, it appears that the number of cameras used may have a significant effect on the resulting accuracy and data recording bandwidth required for proper performance.
+With regards to the software/processing modifications, it appears that aspects such as the sampling rate at which the videos were processed, resolution of the images, and possible implementation of compression algorithms could be viable targets for system optimization. However, after an initial examination of the chosen compression algorithms, the initial results were not promising and will not be investigated in greater detail within this thesis. Thus, the overall objective of this thesis could be stated as the investigation of the feasibility and accuracy of PRV analysis from data subjected to rigid head motion artifacts through the use of the aforementioned nc-iPPG system. The second phase of this thesis could then be stated as the optimization of the total system for PRV analysis through input parameters such as number of cameras utilized, sampling rate, and image resolution. The
+25
+
+following methods for the optimization and associated analysis of the aforementioned input parameters are outlined in the following sections.
+3.1.1 Methods for Sampling Rate Comparison
+After most of the data derived from the nc-iPPG system was determined to be suitable for PRV analysis at a sampling rate of 120 fps, the sampling rate at which the data was acquired was re-processed and lowered to determine if accurate PRV data could still be generated using lower sampling rates (e.g., 60 Hz. and 30 Hz.). Although Camm et al. (1996) clearly stated that the gold-standard sampling rate for HRV/PRV studies is typically 100 Hz. or greater if accurate results are desired, Sun et al. (2013) has shown that stationary nc-iPPG signals resulting from imagery of the hand can produce accurate PRV data with sampling rates as low as 20 fps if the appropriate interpolation methods are employed. Being that the baseline data (i.e., hand-corrected data by SME’s) for lower sampling rates had already been generated; the newly created datasets were then compared to the original data that was sampled at 120 Hz and subsequently upsampled to 1200 Hz. The method of interpolation that was chosen for this investigation was cubic spline interpolation based on previously successful results and current literature (Gil et al. 2010). The datasets with lower sampling rates were then used to compute PRV data and contrasted with the contact signals and original dataset sampled at 120 fps. The results from this section will later be presented and discussed in the results section of this thesis.
+26
+
+3.1.2 Methods for Reduction in Image Resolution The methods for the reduction of the image resolution took a similar approach to the
+sampling rate reduction shown above. As stated in the experimental setup section, the original image resolution was 658 x 492 pixels; which was also the default image resolution that the aforementioned imagers recorded. Being that the size and associated resolution of the image was certainly a factor that influenced the resulting processing time and data size, it was identified as modifiable factor. Thus, the image resolution was downsampled through bilinear interpolation and reduced to a quarter of the original resolution (i.e., 329 x 246 pixels). Bilinear interpolation was chosen for this image resizing based on its optimal balance between minimal unwanted noise (i.e., increased sharpness of the image) and required processing time. The results from the image downsampling will later be presented and discussed in the results section of this thesis.
+27
+
+Figure 10: Figure Depicting Image and Sampling Rate Resolution
+3.1.3 Methods for Optimizing Number of Imagers Utilized
+The methods for optimizing the number of cameras needed/utilized for the presented nc-iPPG system will be outlined as follows. As stated previously, an array of nine imagers was chosen for this study and the governing reason for this decision was due to the hardware limitations of the current system. Being that pulse rate recovery resulting from nc-iPPG data subjected to rigid head motion had not been successfully attempted up until this current time, there was no current gold standard as to how many imagers the array should contain. Thus, nine imagers were selected as the upper limit for this study and subsequently placed 20 degrees away from each other within the semi-circular array.
+28
+
+Although nine imagers represented the upper limit of data acquisition capabilities, data files were also produced from one camera along with sets of three, five, and seven cameras to aid in system optimization at a later point. With these aforementioned data files, the method for determining which setup of imagers within the array that would produce optimal results would be accomplished by statistical techniques. The overall accuracy of the imager array setup (i.e., number of cameras utilized within the array) would be calculated by looking at the heart/pulse rate and associated number of heartbeats within the trial along with the temporal accuracy derived from the time in-between the detected beats (i.e., IBI intervals).
+Another method of selecting the optimal number of cameras consisted of using the PSD-based estimations for all 1500 of the original trials. This method ensured that all trials and camera combinations would have the same sample size as pulse estimates were still generated for the 290 trials that did not have hand corrected data. The PSD-based pulse rate estimates were then compared to the contact ECG and PPG measurements for five, oneminute epochs. The associated absolute differences between pulse rate estimates for each of the five epochs were then averaged to produce a mean difference for each trial. This process was repeated for all of the trials and camera combinations; resulting in a dataset that contained an equal number of samples for future statistical investigation. The statistical techniques and associated results from this section of the system optimization will be presented and discussed within the results section of this thesis.
+29
+
+3.2 PRV for Reduced Datasets
+The PRV studies and metrics that were investigated within this study were produced and analyzed by specialized software entitled CardioBatch (Porges & Brain-Body Center, 2007) that was developed by Stephen Porges and his research team (Porges, 1985, Porges & Bohrer, 1990). Although this software was specifically developed for studying HRV metrics, the analysis portion of the software will accept the aforementioned IXI time series and thus will produce significant PRV data regardless of the instrumentation that was utilized to collect the data. The data that can be derived from the CardioBatch (Porges & Brain-Body Center, 2007) program is the RSA (i.e., HF) rhythm, THM (i.e., LF) rhythm, heart rate mean before and after sampling, heart rate standard deviation before and after sampling, heart period mean before and after sampling, and heart period standard deviation before and after sampling. However, being that the data submitted to the CardioBatch (Porges & Brain-Body Center, 2007) program had already been sampled and aspects such as heart rate had already been computed, the only output metrics that will be utilized are the low and high frequency rhythms of HRV/PRV. As mentioned previously, the SDNN metric within the temporal domain of HRV/PRV will be analyzed and computed using the aforementioned IXI time series and custom-written software in MATLAB R2011b.
+Due to the large amount of datasets that were generated and described in the previous sections, the process of model order reduction needed to be utilized. Figure 11 shows a flow chart that depicts the process that was followed for our model order reduction, thus resulting in system optimization for the nc-iPPG system for PRV analysis. An extensive description of this process and the underlying rationale will be outlined in section 4.1.
+30
+
+Figure 11: Flow Chart Depicting the Steps to Reduce the Model
+31
+
+4.0 RESULTS
+4.1 Model Order Reduction of Dataset
+This section will entail a detailed overview of the results along with the statistical techniques and the associated methodology that was utilized to produce the presented results. This work was performed through the use of MATLAB R2011b and the statistical software, JMP (JMP®, Version 11. SAS Institute Inc., Cary, NC, 1989-2007).
+After the datasets for reduced sampling rate, image resolution, and number of cameras utilized were generated, the resulting number of trials was 6000 (25 participants x 5 camera combinations x 12 trial types x 4 different sampling rate/image resolution combinations). These 6000 trials consisted of 1500 trials with a sampling rate of 120 Hz. and full resolution (i.e., 658 x 492 pixels), 1500 trials with a sampling rate of 60 Hz. and full resolution, 1500 trials with a sampling rate of 30 Hz. and full resolution, and lastly, 1500 trials with a sampling rate of 120 Hz. and a quarter of the original image resolution (i.e., 329 x 246 pixels). However, for the purposes of PRV analysis, it was determined that it would not be advantageous to analyze data that was known to be noisy with a higher than preferred number of missed heartbeats. Thus, bins one and two (i.e., trials with either 0 or 1 missed beats when compared with the ground truth signals) were selected to undergo PRV analysis. As a result of this decision, the remaining number of trials in bins one and two that would be subjected to analysis was 4,609.
+32
+
+However, due to the remaining sheer volume of data that still was selected to undergo PRV analysis, it was determined that certain factors could likely be refined/eliminated before analysis. For example and as mentioned previously, it had already been postulated that an array consisting of three or five imagers produced the best quality data; thus, if this well-grounded hypothesis could be validated using statistical methods, analyzing trials containing one, seven, or nine imagers (i.e., trials of lesser quality) would be unnecessary. The other factor that was meticulously controlled in the original study produced by Estepp et al. (2014) was background type; which was suspected to not have a significant effect on the outcome of the data. Thus, the background type and number of imagers utilized were subjected to preliminary statistical testing to see if the resulting model could be reduced.
+Using the method described earlier that included all 1500 of the original trials (i.e., 120 Hz. and full 658 x 492 resolution), a multifactor analysis of variance (ANOVA) table was generated for background and camera combination. As expected in the original study, no significant differences were shown for background type (F = 0.2853, p < 0.5933). Thus, since the background types are the statistically indifferentiable, only the trials using a black background were selected for PRV analysis and the number of trial tested were significantly reduced. With regards to the number of cameras and the associated difference in pulse rate, there were significant differences for number of cameras utilized (F = 6.4955, p < 0.0001) as expected. The following figure shows traditional letter-coded reports where the means that are not sharing a letter can be considered statistically different for an alpha level of 0.05.
+33
+
+The level is the number of cameras utilized and the mean is the mean difference from the contact heart/pulse rate. This report was also generated for background type.
+Figure 12: JMP Output Showing Effect of Background and Number of Imagers
+34
+
+As a result of this statistical test, camera combinations of one, seven, and nine were removed from the dataset that was to be subjected to PRV analysis. Although a camera combination of seven was not statistically different when compared with three and five, the resulting difference in pulse rate was higher and thus it was also removed from the analysis. This process is often referred to as model order reduction and is generally recommended for large and computationally complex datasets. The governing research question behind this process could basically be stated as: Why should data be analyzed if it is known to be of inferior quality? As a result of these processes, the emerging dataset was significantly reduced to 774 trials out of the possible 6000.
+4.2 Results for Sampling Rate Comparison Now that the dataset has undergone model order reduction, the results of the PRV
+analysis derived from the CardioBatch (Porges & Brain-Body Center, 2007) program can be presented. There are six PRV metrics for sampling rate and image resolution comparisons that can be identified in Table 2. The first metric is the difference between the nc-iPPG system and the contact PPG system’s measure of power [units: ln(ms2)] in the LF band of a typically HRV frequency spectrum. The second metric is the difference between the nciPPG system and the contact PPG system’s measure of power in the HF band of a typical HRV frequency spectrum. The third metric is the difference between the nc-iPPG system and the contact PPG system’s measure of the SDNN within the temporal domain of HRV. The fourth, fifth, and sixth metrics are the exact same as the first, second, and third, except that the nc-iPPG PRV data is now compared to the contact ECG system’s measure of HRV
+35
+
+metrics. Table 2 gives a visual representation of the aforementioned PRV/HRV classification metrics.
+
+Table 2: HRV/PRV Metrics to be Investigated
+
+HRV/PRV Metric
+Metric 1
+
+Description
+Absolute Δ LF power measurements between nc-iPPG and PPG
+
+Metric 2
+
+Absolute Δ HF power measurements between nc-iPPG and PPG
+
+Metric 3
+
+Absolute Δ SDNN time measurements between nc-iPPG and PPG
+
+Metric 4
+
+Absolute Δ LF power measurements between nc-iPPG and ECG
+
+Metric 5
+
+Absolute Δ HF power measurements between nc-iPPG and ECG
+
+Metric 6
+
+Absolute Δ SDNN time measurements between nc-iPPG and ECG
+
+36
+
+With regards to the sampling rate comparison, the six aforementioned HRV/PRV metrics were computed using a combination of MATLAB and CardioBatch (Porges & Brain-Body Center, 2007) for all 774 trials; the resulting output was then analyzed in JMP. Reiterating from the previous paragraph, the first, second, and third HRV/PRV metrics are all computed from comparing the nc-iPPG system and PPG system measurements. For the first metric, there were no significant differences between sampling rates of 120 fps, 60 fps, and 30 fps (F = 0.0072, p = 0.9929) in LF power measurements between the nc-iPPG and PPG signal (Figure 1 in the appendix, subsequently described JMP output can be found within the Appendix). For the second metric, there were again no significant differences between sampling rates of 120 fps, 60 fps, and 30 fps (F = 2.0351, p = 0.1314) although the associated effect of sampling rate on the model appeared to be approaching significance. The third HRV/PRV metric showed statistically significant differences with regards to the sampling rate that was utilized (F = 3.2549, p = 0.0391). A student’s t-test was then computed to analyze the difference between each of the possible sampling rates. The results from this test showed statistical difference between 30 and 60 fps with 60 fps provided superior performance for the nc-iPPG system that was utilized. A sampling rate of 120 fps could not statistically be distinguished from either 60 or 30 fps for the third metric.
+The fourth, fifth, and sixth metrics of HRV/PRV (i.e., comparisons between ECG and nc-iPPG) were computed with methods analogous to metrics one, two, and three. For the fourth metric, statistically significant differences were observed between the investigated sampling rates (F = 5.1785, p = 0.0058). Again using a student’s t-test to compare pairs of sampling rates, datasets utilizing 60 and 30 fps were both statistically
+37
+
+closer to the contact ECG signal when compared with the 120 fps data. However, the 60 and 30 fps data could not be distinguished from each other for the fourth metric. The fifth metric displayed results that were very similar to the fourth metric; statistically significant differences were observed between sampling rates (F = 5.0060, p = 0.0069). Using a student’s t-test, optimal results for the previously discussed nc-iPPG system were seen when a sampling rate of 60 fps was used. Although the dataset using a sampling rate of 60 fps was statistically different when compared with the 120 and 30 fps data, no differences were observed between the 120 and 30 fps data. Lastly, the sixth metric did not show statistical significance for any of the tested sampling rates. Basically stated, it did not appear that one sampling rate would be advantageous to use over another with regards to the HRV/PRV metric of SDNN when comparing the aforementioned nc-iPPG system and associated ECG signal. A detailed summary and conversation regarding possible implementation of the newly discovered results will be discussed with the discussion and/or conclusion section of this thesis.
+4.3 Results for Image Resolution Comparison
+The results for the reduction in image resolution will be presented within this section. It is important to mention that since the only dataset that had been reprocessed with a reduction in image size was recorded at 120 fps, the resulting trials either consist of data recorded at 120 fps with full resolution or data recorded at 120 fps with a quarter of the original resolution (i.e., 658 x 492 pixels and 329 x 246 pixels, respectively). Thus, the resulting number of trials for this statistical investigation totaled 518 trials. The
+38
+
+method for the model order reduction was analogous to the flowchart shown previously, except that there are currently no datasets that have been subjected to both a reduction in sampling rate and image resolution. With this information in mind, the following results were computed through the use of CardioBatch (Porges & Brain-Body Center, 2007) and MATLAB for all six of the aforementioned HRV/PRV metrics with the associated statistics being computed through the use of JMP. Lastly, although there were only two levels of image resolutions, an ANOVA approach was still utilized for this dataset being that other factors such as the trial type were included within the model.
+For the first HRV/PRV metric that was examined, there were no statistically significant differences between the full and quarter image resolutions (F = 1.1016, p = 0.2944). The second metric showed similar results to the first; showing no statistically significant difference between the two image resolution sizes that were under investigation (F = 0.2445, p = 0.6212). Rounding out the comparisons between the nc-iPPG system and the PPG system, the third metric also showed no statistical differences between image resolution datasets (F = 1.8899, p = 0.1698). Basically stated, there were no observable differences between the full and reduced-resolution datasets that could be supported by statistical methods when HRV/PRV data was derived and compared from the nc-iPPG and PPG systems.
+Now transitioning into the comparison between the nc-iPPG system and associated ECG, the fourth metric showed statistically significant differences between image resolutions (F = 24.1184, p < 0.0001). Interesting enough, the quarter resolution consisting of 329 x 246 pixels showed optimal performance for our nc-iPPG system when contrasted
+39
+
+with the full resolution. Similar results were also shown when investigating the fifth HRV/PRV metric with statistically significant differences being shown between image resolutions (F = 8.8814, p = 0.0030). Lastly, the sixth metric under investigation showed no statistical differences between the two image resolutions with regards to the absolute difference in SDNN for the nc-iPPG system compared with the associated ECG (F = 0.0312, p = 0.8599). Once again, a detailed summary and conversation regarding possible implementation of the newly discovered results will be covered within the discussion and conclusion section of this thesis.
+4.4 Results for Trial Type
+As mentioned in the previous section, trial type was also included as a factor in all of the models that were generated through the use of JMP. This concept of including trial type as a factor is consistent with the experimental design presented by Estepp et al. (2014) and thus, it is important to also briefly discuss the results observed across all relevant analyses. However, these results are not a focal point of the presented thesis and will therefore not be discussed in great detail. The results shown, including trial type as a factor, within the computed analyses are consistent with Estepp et al. (2014) findings that trials subsequently resulted in more error and artifact as the amount of motion increased. Basically stated, there was significantly less error in trials with little or no motion (i.e., trials 1 through 3) when compared to trials with moderate to severe amounts of head-motion artifact (i.e., trials 4 through 6). Although there was a certain degree of variability in some of the cases analyzed along with analyses that did not produce statistically significant results, the aforementioned
+40
+
+underlying pattern was still prevalent. Most analyses showed either trials 1 and/or 2 as being statistically optimal and trials 5 and/or 6 as being statistically suboptimal for the proposed nc-iPPG system. However, this outcome was expected and the results for the trials with moderate to severe amounts of head motion artifact still appeared to produce reputable and relatively accurate PRV/HRV data.
+4.5 Results for using Source as a Factor
+The previous analyses mainly were focused on the effect of the aforementioned input parameters, thus leading to the conclusion that from the analyzed datasets, a system consisting of 3 or 5 imagers, quarter image resolution, and a sampling rate of 120 or 60 Hz. is the best setup for the proposed nc-iPPG system. Although these previously discussed results are promising and give way for future research endeavors, they are focused on optimizing the current nc-iPPG system and do not directly concentrate on the similarities of the nc-iPPG’s system measurements of HRV/PRV and the associated contact signals. This statement and associated idea triggered an analysis which considered the source of the signal under investigation (e.g., nc-iPPG, PPG, ECG) as a factor for the model. It is also important to mention that the factors of image resolution and sampling rate are the two input factors that were used for this model. Lastly, only the original three HRV/PRV metrics will be investigated being that source has now been incorporated as a factor. The following results associated with the source of the signal used for HRV/PRV analysis are presented within this section of the presented thesis.
+41
+
+The first metric to be investigated with regards to image resolution is the power values in the LF band (e.g., ln(ms2)) computed by CardioBatch (Porges & Brain-Body Center, 2007). The statistics computed by JMP for HRV/PRV metric one showed statistically significant differences for the nc-iPPG and PPG signals when compared with ECG signal (F = 5.7954 p = 0.0007). The following figure also shows the results of a student’s t-test where each factor is compared to another factor (i.e., six paired comparison are made). The full JMP output from which the following figure was taken from can be viewed within the appendix section.
+Figure 13: Connecting Letters Report Showing Non-Significance for the First HRV/PRV Metric for Different Signal Sources
+The second metric consisting of the power values in HF band (e.g., ln(ms2)) computed by CardioBatch (Porges & Brain-Body Center, 2007) showed statistical significance between the sources of the signal and associated IXI time series (F = 57.1834 p < 0.0001). Once again, a student’s t-test was computed and the accompanying connecting letters report can be viewed below.
+42
+
+Figure 14: Connecting Letters Report Showing Significant Differences for the Second HRV/PRV Metric Between Different Signal Sources
+We can see from this figure that both the full and quarter-resolution nc-iPPG measurements were statistically different than the sought-after PPG and ECG measurements; however, the contact PPG signal was also statistically different than the ECG. Lastly, somewhat similar results were seen when the SDNN of the data was examined. Statistically significant differences were observed between the source signals and the linking IXI time series (F = 32.2821 p < 0.0001). The connecting letters report derived from analogous previous methods can also be viewed below.
+Figure 15: Connecting Letters Report Showing Significant Differences for the Third HRV/PRV Metric Between Different Signal Sources
+This same process was then completed for sampling rate with methods similar to that shown above for image resolution. The statistics computed by JMP for HRV/PRV metric one showed statistically significant differences between the PPG’s and the ECG’s
+43
+
+measurements (F = 4.3118 p = 0.0019). The associated student’s t-test and connecting letter’s report can also be viewed below.
+Figure 16: Connecting Letters Report Showing Non-Significance for the Fourth HRV/PRV Metric for Different Signal Sources
+The second metric consisting of the power values in HF band (e.g., ln(ms2)) computed by CardioBatch (Porges & Brain-Body Center, 2007) showed statistical significance between the sources of the signal and associated IXI time series (F = 52.9034 p < 0.0001). Once again, a student’s t-test was computed and the accompanying connecting letters report can be viewed below.
+Figure 17: Connecting Letters Report Showing Significant Differences for the Fifth HRV/PRV Metric Between Different Signal Sources
+This report shows that all the HRV/PRV measurements recorded by non-contact and contact PPG methods were statistically different when compared with the ECG. Lastly,
+44
+
+somewhat similar results were seen when the SDNN of the data was examined. Statistically significant differences were observed between the source signals and the linking IXI time series (F = 30.8105 p < 0.0001). The connecting letters report derived from analogous previous methods can also be viewed below.
+Figure 18: Connecting Letters Report Showing Significant Differences for the Sixth HRV/PRV Metric Between Different Signal Sources
+45
+
+4.6 Correlation/Density Plots
+Staying in the realm of using the source of the signal as a factor to be investigated, correlation and density plots were generated for the original dataset (i.e., full resolution and 120 Hz.). Table 3 shows the Pearson product-moment correlation coefficient (i.e., r) and the coefficient of determination (i.e., R2) for the aforementioned six PRV metrics to be investigated. Generally speaking, high levels of correlation were present for all of the PRV metrics; this observation is indicative of a successful nc-iPPG system. The density figures shown within figures 25-54 validate the aforementioned result being that they show similar distributions for both the contact and non-contact signals. Although the distributions contained within the density plots are similar, there does appear to be slight offsets present (especially in the HF plot) within the figures. The underlying rationale for this observation will be discussed in greater detail within the discussion section of this thesis.
+The following tables and figures show the correlation and density distributions for the data that was recorded with 3 and 5 cameras at 120 Hz. with full image resolution.
+46
+
+Table 3: Correlation and R2 Values for Nc-iPPG and Contact Metrics for Data Processed at 120 Hz. and Full Image Resolution
+
+Comparison
+
+Correlation
+
+LF PPG vs. nc-iPPG HF PPG vs. nc-iPPG SDNN PPG vs. nc-iPPG LF ECG vs. nc-iPPG HF ECG vs. nc-iPPG SDNN ECG vs. nc-iPPG
+
+0.9462 0.8684 0.8919 0.9562 0.8745 0.9062
+
+R2
+0.8953 0.7541 0.7955 0.9143 0.7648 0.8212
+
+PPG LF Measurements [ln(ms2)]
+
+LF Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 9
+
+y = 1.01*x - 0.0865 8
+
+data
+
+7
+
+lin
+
+6
+
+5
+
+4
+
+3 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 Nc-iPPG LF Measurements [ln(ms2)]
+Figure 19: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 120 Hz. and Full Image Resolution
+
+47
+
+PPG SDNN Measurements [s]
+
+PPG HF Measurements [ln(ms2)]
+
+HF Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 10
+
+9 y = 0.975*x - 0.167
+
+8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG HF Measurements [ln(ms2)]
+
+Figure 20: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 120 Hz. and Full Image Resolution
+
+SDNN Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 0.18
+
+0.16 y = 0.907*x - 0.00114 0.14
+
+0.12
+
+0.1
+
+0.08
+
+0.06
+
+0.04
+
+0.02
+
+0
+
+0
+
+0.05
+
+0.1
+
+0.15
+
+0.2
+
+0.25
+
+Nc-iPPG SDNN Measurements [s]
+
+Figure 21: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 120 Hz. and Full Image Resolution
+48
+
+data 1 linear
+
+LF Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 9
+y = 1.02*x - 0.354 8
+
+ECG LF Measurements [ln(ms2)]
+
+7
+
+6
+
+5
+
+4
+
+ECG HF Measurements [ln(ms2)]
+
+3 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 Nc-iPPG LF Measurements [ln(ms2)]
+Figure 22: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 120 Hz. and Full Image Resolution
+HF Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 10
+
+9 y = 1.04*x - 0.946
+
+8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG HF Measurements [ln(ms2)]
+
+Figure 23: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 120 Hz. and Full Image Resolution
+49
+
+ECG SDNN Measurements [s]
+
+SDNN Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 0.18
+0.16 y = 0.868*x - 0.00361
+0.14
+
+0.12 0.1
+0.08 0.06 0.04 0.02
+0 0
+
+0.05
+
+0.1
+
+0.15
+
+0.2
+
+0.25
+
+Nc-iPPG SDNN Measurements [s]
+
+Figure 24: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 120 Hz. and Full Image Resolution
+
+data 1 line
+
+Figure 25: Density Plot Depicting Densities of LF PRV Measurements for Data Processed at 120 Hz. and Full Image Resolution
+50
+
+Figure 26: Density Plot Depicting Densities of HF PRV Measurements for Data Processed at 120 Hz. and Full Image Resolution
+Figure 27: Density Plot Depicting Densities of SDNN PRV Measurements for Data Processed at 120 Hz. and Full Image Resolution
+51
+
+The following tables and figures show the correlation and density distributions for the data that was recorded with 3 and 5 cameras at 120 Hz. with quarter image resolution.
+
+Table 4: Correlation and R2 Values for Nc-iPPG and Contact Metrics for Data Processed at 120 Hz. and Quarter Image Resolution
+
+Comparison
+
+Correlation
+
+LF PPG vs. nc-iPPG HF PPG vs. nc-iPPG SDNN PPG vs. nc-iPPG LF ECG vs. nc-iPPG HF ECG vs. nc-iPPG SDNN ECG vs. nc-iPPG
+
+0.9525 0.8716 0.9134 0.9778 0.8984 0.9333
+
+R2
+0.9073 0.7596 0.8342 0.9561 0.8071 0.8711
+
+PPG LF Measurements [ln(ms2)]
+
+LF Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 9
+y = 1.02*x - 0.0571 8
+7
+6
+5
+4
+3 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 Nc-iPPG LF Measurements [ln(ms2)]
+Figure 28: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 120 Hz. and Quarter Image Resolution
+52
+
+HF Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 10
+
+9 y = 0.983*x - 0.0933
+
+PPG HF Measurements [ln(ms2)]
+
+8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+PPG SDNN Measurements [s]
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG HF Measurements [ln(ms2)]
+
+Figure 29: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 120 Hz. and Quarter Image Resolution
+
+SDNN Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 0.18
+
+0.16 y = 0.99*x - 0.00343 0.14
+
+0.12
+
+0.1
+
+0.08
+
+0.06
+
+0.04
+
+0.02
+
+0 0.02 0.04 0.06 0.08 0.1 0.12 0.14 0.16 0.18 0.2
+Nc-iPPG SDNN Measurements [s]
+
+Figure 30: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 120 Hz. and Quarter Image Resolution
+53
+
+LF Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 9
+y = 1.05*x - 0.42 8
+
+ECG LF Measurements [ln(ms2)]
+
+7
+
+6
+
+5
+
+4
+
+ECG HF Measurements [ln(ms2)]
+
+3 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 Nc-iPPG LF Measurements [ln(ms2)]
+Figure 31: : Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 120 Hz. and Quarter Image Resolution
+HF Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 10
+
+9 y = 1.07*x - 1.03
+
+8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG HF Measurements [ln(ms2)]
+
+Figure 32: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 120 Hz. and Quarter Image Resolution
+54
+
+ECG SDNN Measurements [s]
+
+SDNN Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 0.18 0.16 y = 0.948*x - 0.00584 0.14 0.12
+0.1 0.08 0.06 0.04 0.02
+0 0.02 0.04 0.06 0.08 0.1 0.12 0.14 0.16 0.18 0.2
+Nc-iPPG SDNN Measurements [s]
+Figure 33: : Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 120 Hz. and Quarter Image Resolution
+Figure 34: Density Plot Depicting Densities of LF PRV Measurements for Data Processed at 120 Hz. and Quarter Image Resolution
+55
+
+Figure 35: Density Plot Depicting Densities of HF PRV Measurements for Data Processed at 120 Hz. and Quarter Image Resolution
+Figure 36: Density Plot Depicting Densities of SDNN PRV Measurements for Data Processed at 120 Hz. and Quarter Image Resolution
+56
+
+The following tables and figures show the correlation and density distributions for the data that was recorded with 3 and 5 cameras at 60 Hz. with full image resolution.
+
+Table 5: Correlation and R2 Values for Nc-iPPG and Contact Metrics for Data Processed at 60 Hz. and Full Image Resolution
+
+Comparison
+
+Correlation
+
+LF PPG vs. nc-iPPG HF PPG vs. nc-iPPG SDNN PPG vs. nc-iPPG LF ECG vs. nc-iPPG HF ECG vs. nc-iPPG SDNN ECG vs. nc-iPPG
+
+0.9378 0.8657 0.9001 0.9628 0.8909 0.9178
+
+R2
+0.8795 0.7495 0.8102 0.9271 0.7937 0.8423
+
+PPG LF Measurements [ln(ms2)]
+
+LF Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 9
+y = 1.01*x - 0.0106 8
+7
+6
+5
+4
+3 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 Nc-iPPG LF Measurements [ln(ms2)]
+Figure 37: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 60 Hz. and Full Image Resolution
+57
+
+data 1 linear
+
+PPG SDNN Measurements [s]
+
+PPG HF Measurements [ln(ms2)]
+
+HF Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 10
+
+9 y = 0.972*x - 0.0449
+
+8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG HF Measurements [ln(ms2)]
+
+Figure 38: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 60 Hz. and Full Image Resolution
+
+SDNN Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 0.18
+
+0.16 y = 0.967*x - 0.0023 0.14
+
+0.12
+
+0.1
+
+0.08
+
+0.06
+
+0.04
+
+0.02
+
+0 0 0.02 0.04 0.06 0.08 0.1 0.12 0.14 0.16 0.18 0.2 Nc-iPPG SDNN Measurements [s]
+
+Figure 39: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 60 Hz. and Full Image Resolution
+58
+
+data 1 linear
+
+ECG HF Measurements [ln(ms2)]
+
+ECG LF Measurements [ln(ms2)]
+
+LF Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 9
+y = 1.04*x - 0.38 8
+
+7
+
+6
+
+5
+
+4
+
+3 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 Nc-iPPG LF Measurements [ln(ms2)]
+Figure 40: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 60 Hz. and Full Image Resolution
+HF Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 10
+
+9 y = 1.05*x - 0.952
+
+8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG HF Measurements [ln(ms2)]
+
+Figure 41: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 60 Hz. and Full Image Resolution
+59
+
+data 1 linear
+
+ECG SDNN Measurements [s]
+
+SDNN Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 0.18 0.16 y = 0.929*x - 0.00487 0.14 0.12
+0.1 0.08 0.06 0.04 0.02
+0 0 0.02 0.04 0.06 0.08 0.1 0.12 0.14 0.16 0.18 0.2 Nc-iPPG SDNN Measurements [s]
+Figure 42: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 60 Hz. and Full Image Resolution
+Figure 43: Density Plot Depicting Densities of LF PRV Measurements for Data Processed at 60 Hz. and Full Image Resolution
+60
+
+Figure 44: Density Plot Depicting Densities of HF PRV Measurements for Data Processed at 60 Hz. and Full Image Resolution
+Figure 45: Density Plot Depicting Densities of SDNN PRV Measurements for Data Processed at 60 Hz. and Full Image Resolution
+61
+
+The following tables and figures show the correlation and density distributions for the data that was recorded with 3 and 5 cameras at 60 Hz. with full image resolution.
+
+Table 6: Correlation and R2 Values for Nc-iPPG and Contact Metrics for Data Processed at 30 Hz. and Full Image Resolution
+
+Comparison
+
+Correlation
+
+LF PPG vs. nc-iPPG HF PPG vs. nc-iPPG SDNN PPG vs. nc-iPPG LF ECG vs. nc-iPPG HF ECG vs. nc-iPPG SDNN ECG vs. nc-iPPG
+
+0.9324 0.8286 0.8631 0.9553 0.8371 0.8802
+
+R2
+0.8693 0.6865 0.7449 0.9125 0.7008 0.7748
+
+PPG LF Measurements [ln(ms2)]
+
+LF Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 9
+y = 1.02*x - 0.144 8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG LF Measurements [ln(ms2)]
+
+Figure 46: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 30 Hz. and Full Image Resolution
+
+62
+
+HF Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 10
+
+9 y = 0.985*x - 0.286
+
+PPG HF Measurements [ln(ms2)]
+
+8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+PPG SDNN Measurements [s]
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG HF Measurements [ln(ms2)]
+
+Figure 47: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 30 Hz. and Full Image Resolution
+
+SDNN Pulse Rate Variability Correlation for Nc-iPPG and PPG Measures 0.18
+
+0.16 y = 0.922*x - 0.00289 0.14
+
+0.12
+
+0.1
+
+0.08
+
+0.06
+
+0.04
+
+0.02
+
+0 0.02 0.04 0.06 0.08 0.1 0.12 0.14 0.16 0.18 0.2
+Nc-iPPG SDNN Measurements [s]
+
+Figure 48: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 30 Hz. and Full Image Resolution
+63
+
+LF Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 9
+y = 1.06*x - 0.561 8
+
+ECG LF Measurements [ln(ms2)]
+
+7
+
+6
+
+5
+
+4
+
+ECG HF Measurements [ln(ms2)]
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG LF Measurements [ln(ms2)]
+
+Figure 49: Correlation Between Non-Contact and Contact Measurements of LF PRV for Data Processed at 30 Hz. and Full Image Resolution
+
+HF Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 10
+
+9 y = 1.05*x - 1.11
+
+8
+
+7
+
+6
+
+5
+
+4
+
+3
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+Nc-iPPG HF Measurements [ln(ms2)]
+
+Figure 50: Correlation Between Non-Contact and Contact Measurements of HF PRV for Data Processed at 30 Hz. and Full Image Resolution
+64
+
+ECG SDNN Measurements [s]
+
+SDNN Pulse Rate Variability Correlation for Nc-iPPG and ECG Measures 0.18 0.16 y = 0.898*x - 0.00618 0.14 0.12
+0.1 0.08 0.06 0.04 0.02
+0 0.02 0.04 0.06 0.08 0.1 0.12 0.14 0.16 0.18 0.2
+Nc-iPPG SDNN Measurements [s]
+Figure 51: Correlation Between Non-Contact and Contact Measurements of SDNN PRV for Data Processed at 30 Hz. and Full Image Resolution
+Figure 52: Density Plot Depicting Densities of LF PRV Measurements for Data Processed at 30 Hz. and Full Image Resolution
+65
+
+Figure 53: Density Plot Depicting Densities of HF PRV Measurements for Data Processed at 30 Hz. and Full Image Resolution
+Figure 54: Density Plot Depicting Densities of SDNN PRV Measurements for Data Processed at 60 Hz. and Full Image Resolution
+66
+
+5.0 DISCUSSION
+This section will include a detailed discussion and summary of the aforementioned results with regards to the goals of this research. This section will also follow a layout similar to that of the results section, except the discussion will be focused more on practical application instead of the governing statistical tests that were utilized to produce the results. The first set of factors that were investigated consisted of the type of background and the number of imagers within the array that would lead to optimal performance of the previously described nc-iPPG system. With regards to background, there were no observable differences between the patterned, color fabric and the black fabric backgrounds that could be supported by statistical techniques. Thus, although only two different types of static backgrounds were tested, it appears that the background type does not have a significant effect on system performance and should not be an area of concern for future studies. This observation was consistent with the expected result being that the background does not serve as a focal point for the development of the channel space densities.
+The next factor that was investigated was the number of imagers that resulted in the most accurate representation of the true underlying heart rate. According to the recorded data, an array containing three or five imagers consistently performed most accurately with regards to the desired contact ECG. Essentially, this effect likely occurs because utilizing only one imager will not result in enough channel space densities; meanwhile, using more than five imagers basically adds more noise to the data by having too many channel space densities. Results indicate having an array of three or five imagers appears to be the optimal combination for our proposed nc-iPPG system; however, arrays of four and six cameras
+67
+
+have not been tested at this current time. Lastly, being that there were no statistical differences observed between arrays of three and five imagers, it would be beneficial to continue to test both setups for future studies as one arrangement may emerge as superior if different factors are investigated.
+The investigation of the ideal sampling rate for our proposed nc-iPPG system yielded some somewhat surprising but promising results. Although it was not as clear as previously expected, trials sampled with 120 Hz. and 30 Hz. were occasionally of inferior quality when compared with the trials that were sampled at 60 Hz. While data sampled at 60 Hz. always resulted in the lowest amount of error, the results were not always statistically different (e.g., no statistical differences were observed for measures of SDNN between the three presented sampling rates when comparing the nc-iPPG system to the ECG). However promising these results may be, it is important to remember that these results were produced with only one nc-iPPG system and one experimental model; thus, the associated results may vary if other experimental factors were modified. Regardless of this cautionary statement, it appears that a reasonable reduction in sampling rate will have no adverse effect on the resulting system accuracy, and an improvement in system performance may be observed if a sampling rate of 60 Hz. is utilized. However, this result may be specific for our proposed nc-iPPG system; thus, it may be beneficial to conduct further testing to validate the current hypothesis.
+With regards to adequate and/or preferred image resolution, the investigation of the two different image resolutions also produced exciting results for optimization of the presented nc-iPPG system. In every HRV/PRV metric, the results were either that there
+68
+
+were no statistical differences between the full and quarter resolutions (i.e., 658 x 492 and 329 x 246 pixels, respectively), or there were statistical differences between the image resolutions with the quarter resolution emerging as superior for the optimization of our nciPPG system. These observed results are likely due to the aforementioned averaging of all RGB pixel values across the entire video frame. Fundamentally, a larger image would result in a need for more averaging sequences across the frame and would be apt to result in a higher level of error. On the other end of the spectrum, reducing the image size could result in less sequences of averaging and less associated error. Although this postulation elucidates the presented results and can be supported on a theoretical basis, it would again be beneficial if further testing was conducted to validate the current hypothesis. However, these results also look promising with regards to the necessary bandwidth and storage requirements for future applications of the proposed nc-iPPG system.
+Trial type appeared to have a significant effect on the accuracy of the nc-iPPG system but this observation was expected being that trials ranged from no motion to trials containing rapid head-motion resulting in unavoidable artifacts. Unsurprisingly, trials with little to no motion were the most accurate when compared with the ground truth signals, and trials with moderate to severe amounts of motion contained the most error. However, there were many trials with copious amounts of motion that detected the exact number of heartbeats along with accurate HRV/PRV data. Thus, it appears that the investigated nc-iPPG system can serve as a viable method of detecting HRV/PRV data even when moderate to severe amounts of head motion are present.
+69
+
+The results concerning the source (e.g., nc-iPPG, PPG, ECG) of the investigated signal also produced somewhat predictable results. There were a few cases where the source of the signals and the resulting HRV/PRV data could not be distinguished; but in general, the nc-iPPG signals were always statistically different than the corresponding ECG data. However, there were also cases where the nc- iPPG signals could not be statistically distinguished from the contact PPG signal. This observation would ultimately be the end goal although certain barriers will likely remain present. For example, although comparing the nc-iPPG measures of HRV/PRV to an ECG measures is useful, it is theoretically improbable that the measures will ever be exactly the same since the underlying principles are governed by the characteristics of a PPG. Essentially, the ECG will always record more accurate HRV/PRV data due to the fact that the ECG is measuring the direct electrical activity of the heart. Thus, it is more reasonable to aim for a system that can reproduce the measures recorded by the contact PPG as that is what the nc-iPPG system is truly recording.
+A PPG/nc-iPPG measurement will inherently include more noise than the associated ECG and thus often overestimate the amount of HRV/PRV occurring within the individual. This phenomenon is prevalent in the presented work and can be easily viewed when the density plots in the results section are investigated in greater detail. The overestimation of HRV/PRV appears to have been the highest in the HF data, coinciding with the aforementioned theoretical relationships. Although acknowledging the consistent overestimation and its associated effect on accuracy is important, it can often be considered to be of minimal importance for many practical applications due to the high
+70
+
+levels of correlation between derived HRV/PRV data. As witnessed in the results section, high levels of positive correlation (i.e., all correlation coefficients > 0.8) between an ECG, PPG and nc-iPPG signals should be prevalent if the employed nc-iPPG/PPG system is accurate. Fundamentally, although the PRV data that is computed from a nc-iPPG system may never be as accurate as the data computed from and ECG, the resulting high levels of correlation show that PRV data can often be used as a surrogate for HRV data. In fact, prediction equations, as shown in the correlation plots within the results section, can be generated and provide a means of estimating the associated HRV data from an nc-iPPG system.
+Lastly, it appears that important strides have been made regarding the optimization of the nc-iPPG system that was utilized for this study. Based on the tentative results presented within this thesis, it appears that optimal system configuration with regards to performance and hardware/bandwidth requirements for the existing nc-iPPG system would consist of an array of three to five imagers, a static background chosen by the user, a sampling rate of 60 or 120 Hz. (being that 60 Hz. with quarter resolution has not been investigated yet), and an associated image resolution of 329 x 246 pixels. This listed combination should provide an optimal balance of system performance paired with reduced hardware/bandwidth requirements when contrasted with the original system.
+71
+
+6.0 CONCLUSIONS & FUTURE RESEARCH
+The conclusions and possible future research endeavors stemming from the presented thesis will be outlined within this section. Although the preliminary results contained within this thesis are promising, there are many remaining research areas that should be investigated in further detail. A brief discussion on possible areas of implementation for this system will also be outlined within this section of the presented thesis.
+The results shown within this thesis give way to more research endeavors that should be investigated with greater detail. One of the desired future investigations would include a thorough examination of the participants and their associated factors that could have led to the higher and lower quality data that was observed within the experiment. Factors such as skin tone, facial hair, amounts of makeup worn, and/or other underlying skin conditions could have attributed to the performance of nc-iPPG system. This area is perhaps one of the most important being that out of the original 1500 trials, only 80.67% of them were able to have an accurate pulse rate derived from the associated signal. In summary, most of these factors are believed to have an effect on the performance of the nc-iPPG system; the question is whether the effect is significant or if it is negligible for our examined system.
+Another one of the possible areas of future research is the comparison between stationary (i.e., static) and moving (i.e., dynamic) backgrounds. Although the color and pattern of background has already been investigated and it appears the neither of these factors have a significant resulting effect on the performance of the nc-iPPG system, it
+72
+
+would be interesting and beneficial if the system’s performance could be studied with dynamic backgrounds incorporated into the experimental design. This realm of research would be particularly useful if the system was to be transitioned into real-world scenarios as currently intended being that many prospective uses for this system would include such a background. A few of the conceivable areas of implementation will be identified in the subsequent paragraphs.
+Another apparent area of future research for the identified nc-iPPG system would consist of validating and optimizing our current hypotheses (e.g., sampling rate, image resolution, and especially number of cameras) for different situations. Basically stated, would the empirically found results presented in this thesis be able to be replicated if the experiment was to be completed again and would the results be similar if other types of movement were investigated (e.g., talking, exercising, or other natural movements). Although the presented results were often significant in this investigation, the associated research question would likely be; what kind of effects would the number and placement of associated imagers, sampling rate, and image resolution have if other experimental conditions were implemented? This postulation is why it was previously stated that both arrays of three and five imagers should be included in future studies although there were no significant differences between the two in all of the current investigations. Perhaps significant differences would be observed if a study was run where subjects were asked to read or speak throughout the trial. Although many of these factors would probably show similar effects on the experimental model, these logical conjectures have not been investigated and should be to complete system optimization.
+73
+
+Lastly, attempting to reduce the resulting bandwidth/hardware requirements ought to be investigated due to its immense importance with regards to developing a deployable and dependable system. Although the problem would somewhat already be improved if the current results of reducing the sampling rate, image resolution, and number of imagers utilized are viable optimization parameters, there would certainly still be room for improvement. The aforementioned possible application of compression algorithms could also be re-examined and further examined as a method of bandwidth and storage reduction. While there are still other areas and factors that could be investigated, these abovementioned ideas will likely be the first and most productive areas to be studied in the overall optimization of the proposed nc-iPPG system for HRV/PRV analysis.
+Though there are still a reasonable number of improvements and optimizations that would have to be made, there have been some proposed ideas for possible future applications of the discussed nc-iPPG system and its associated ability to measure HRV/PRV without touching the subject. However, it is important to mention that the development of this system was supported by the Air Force Office of Scientific Research (AFOSR) under AFRL Task # 14RH07COR, ‘Non-Contact Cardiovascular Sensing and Assessment’. This essentially means that although potential applications of this system and the accompanying technology will be discussed, the final implementation will be decided upon by the United States of America’s Air Force. Due to this implication, the first future area of operation that will be mentioned is cognitive and stress monitoring; particularly with regards to HRV/PRV. As discussed previously, it is a known fact that HRV/PRV data can be used for stress and cognitive monitoring; both of which are of great interest in military
+74
+
+applications being that there is an ever-increasing workload demand from remote-piloted aircraft (RPA) operators and intelligence analyst (IA). Methods of detecting such identifiers non-invasively and without contacting the subject have been a long-sought-after goal within the military. This technology has also been proposed as an interviewing tactic to aid/validate current methods such as micro-facial expressions and voice-stress analysis.
+The other prominent area for implementation of the proposed nc-iPPG system and associated analysis of HRV/PRV is that of vital sign monitoring. Although respiration rate can often be derived from nc-iPPG, it was not for this particular investigation but it can generally be included in the capabilities of nc-iPPG systems. Vital sign monitoring requiring contact electrodes often works well without many complications; however, certain patients such as infants, burn victims, or patients with other underlying skin conditions and/or poor hygiene may not be able to be fit with traditional contact sensors. Certain studies also require subjects to move and the associated wires with contact sensors can be problematic. Because of these aforementioned dilemmas, there is an obvious need for the continuation of research with regards to non-contact vital sign monitoring.
+In summary, it appears that there is a large domain of possible implementations if the presented nc-iPPG system can continue to make promising advances. However, the work of this thesis has shown that for the examined nc-iPPG system, accurate PRV data can be derived even when the system is subjected to moderate to severe amounts of head-motion artifact. This is believed to be the first nc-iPPG system capable of achieving such a feat. Hopefully this potential research will continue and open a door to a new realm of possibilities within the domains of non-contact vital sign monitoring and HRV/PRV
+75
+
+analysis. This thesis also served as a method of augmenting and evaluating the robustness of the discussed nc-iPPG system and the associate necessary parameters for optimal performance.
+76
+
+7.0 APPENDIX
+The following sections of the appendix show the extended JMP output that was summarized in the aforementioned results.
+77
+
+7.1 JMP Output Utilized for PRV Sampling Rate Comparison 78
+
+79
+
+80
+
+81
+
+82
+
+83
+
+7.2 JMP Output Utilized for PRV Image Resolution Comparison 84
+
+85
+
+86
+
+87
+
+88
+
+89
+
+7.3 Residual Analysis for Image Resolution/Source of Signal Comparison 90
+

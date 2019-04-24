@@ -1,0 +1,2013 @@
+Monitoring Sleep and Sleep Breathing Disorders Using Pulse Oximeter Photoplethysmogram
+by Parastoo Kheirkhah Dehkordi
+M.A. Sc., Simon Fraser University, 2012 M.A. Sc., Tehran Azad University , 2005
+B.A. Sc., University of Isfahan, 2001
+A THESIS SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS FOR THE DEGREE OF Doctor of Philosophy in
+THE FACULTY OF GRADUATE AND POSTDOCTORAL STUDIES
+(Biomedical Engineering)
+The University of British Columbia (Vancouver) July 2018
+c Parastoo Kheirkhah Dehkordi, 2018
+
+The following individuals certify that they have read, and recommend to the Faculty of Graduate and Postdoctoral Studies for acceptance, the thesis entitled:
+Monitoring Sleep and Sleep Breathing Disorders Using Pulse Oximeter Photoplethysmogram
+submitted by Parastoo Kheirkhah Dehkordi in partial fulﬁllment of the requirements for the degree of Doctor of Philosophy in Biomedical Engineering. Examining Committee: Guy A Dumont, Biomedical Engineering Supervisor J Mark Ansermino, Anesthesia, Pharmacology and Therapeutics Co-supervisor John Fleetham, Experimental Medicine University Examiner Purang Abolmaesumi, Electrical and Computer Engineering University Examiner Additional Supervisory Committee Members: Matthew J Yedlin, Electrical and Computer Engineering Supervisory Committee Member
+ii
+
+Abstract
+We developed novel algorithms for monitoring sleep, sleep breathing disorder (SBD) and instantaneous respiratory rate (IRR) in children using the characterization of pulse oximetry photoplethysmogram (PPG). To evaluate the algorithms, we recorded the oxygen saturation (SpO2) and PPG signals from 160 children using a phonebased oximeter consisting of a microcontroller-based pulse oximeter module interfacing a smartphone. This mobile oximeter was further developed to perform all processing on the smartphone through the audio interface.
+We evaluated the relative impact of SBD on sympathetic and parasympathetic activity in children through the characterization of PPG and concluded that sympathetic activity was higher in 30-second epochs with apnea/hypopnea event(s). We later characterized the SpO2 pattern in SDB and then combined SpO2 pattern characterization and PPG analysis to design a model with two binary logistic classiﬁers to identify the epochs with apnea/hypopnea events.
+We developed a novel model for identifying the cycles of random eye movement (REM) and non-REM of the overnight sleep based on the activity of cardiorespiratory system using the overnight PPG. We extracted the features associated with pulse rate variability (PRV), respiratory rate (RR), vascular tone and movement from PPG to build a model with two binary classiﬁers to identify wakefulness from sleep (wake/sleep classiﬁer) and REM from non-REM sleep (non-REM/REM classiﬁer).
+We also developed a novel algorithm for extracting the instantaneous respiratory rate (IRR) from PPG. The algorithm was performed in three steps: extraction of three respiratory-induced variation signals from PPG, estimation of IRR from each extracted respiratory-induced variation signal and fusion of IRR estimates.
+iii
+
+A time-frequency transform called synchrosqueezing transform (SST) was used to extract the respiratory-induced variation signals from PPG. Later, a second SST was applied to estimate IRR from respiratory-induced variation signals. To fuse IRR estimates, a novel algorithm was proposed.
+This study would expand the functionality of conventional pulse oximetry beyond the measurement of heart rate and SpO2 to monitor sleep, to screen SBDs and measure the respiratory rate continuously and instantly.
+iv
+
+Lay Summary
+Sleep apnea is deﬁned as a short pause of breathing during a normal overnight sleep. Each pause typically lasts from 10 to 90 seconds. In children with sleep apnea syndrome, these pauses can be repeated several times during a night, resulting in a low level of oxygen in the blood and a low quality of sleep. Untreated sleep apnea in children can be linked to impairments in memory, attention, learning, and behavior. Polysomnography, also called a sleep study, is a common test used to diagnose sleep apnea syndrome. Polysomnography is a very complicated and expensive test and requires an overnight stay at a very equipped sleep laboratory.
+In this study we designed and developed a simple and low cost mobile technology for screening sleep and sleep apnea in children using a pulse oximeter connected to a smartphone.
+v
+
+Preface
+Chapter 2 is based on the work conducted in UBC’s Electrical & Computer Engineering for Medicine (ECEM) group by Parastoo Dehkordi, Dr. Ainara Garde, Dr. J. Mark Ansermino, and Dr. Guy A. Dumont. I was responsible for developing an algorithm for extracting pulse rate variability from the Phone oximeterTM photoplethysmogram (PPG) to assess the cardiac modulation in children with sleep breathing disorders. Some aspects of Chapters 2 have been published:
+-Dehkordi P et al., ”Evaluation of Cardiac Modulation in Children in Response to Apnea/Hypopnea using the Phone Oximeter,” Physiological Measurement. 2016. 37(2): 187-202.
+-Dehkordi P et al., ”Pulse rate variability in children with sleep disordered breathing in different sleep stages,” Proceeding of International Conference of Computing in Cardiology. 2015: 1015-18.
+-Dehkordi P et al., ”Detrended Fluctuation Analysis of Photoplethysmogram Pulse Rate Intervals in Sleep Disordered Breathing,” Conference Proceeding of IEEE Health Innovations and Point-of-Care Technologies. 2014: 323-6.
+-Dehkordi P et al., ”Pulse Rate Variability Compared with Heart Rate Variability in Children with and without Sleep Disordered Breathing,” Conference Proceeding of IEEE Engineering in Medicine and Biology Society. 2013: 6563-6.
+I performed all of the data analysis and wrote the manuscripts. Chapter 3 is based on the work conducted in UBC’s Electrical & Computer Engineering for Medicine (ECEM) group by Parastoo Dehkordi, Dr. Ainara Garde, Dr. Behnam Molavi, Dr. J. Mark Ansermino, and Dr. Guy A. Dumont. I was responsible for proposing and developing an algorithm for extracting instantaneous respiratory rate from the Phone oximeterTM PPG. Some aspects of Chapters 3 have
+vi
+
+been published: -Dehkordi P et al., ”Estimating Instantaneous Respiratory Rate from the Phone
+Oximeter Photoplethysmogram using the Synchrosqueezing transform”, Accepted to the Frontier in physiology - Computational Physiology and Medicine journal.
+-Dehkordi P et al., ”Estimating Instantaneous Respiratory Rate from the Photoplethysmogram”, Proceeding of IEEE Engineering in Medicine and Biology Society Conference. 2015: 6150-3.
+I performed all of the data analysis and wrote the manuscripts. Chapter 4 is based on the work conducted in UBC’s Electrical & Computer Engineering for Medicine (ECEM) group by Parastoo Dehkordi, Dr. Ainara Garde, Dr. J. Mark Ansermino and Dr. Guy A. Dumont. I proposed to monitor overnight sleep using the PPG recordings. I was responsible for designing and developing a model for classifying different sleep stages using the features extracted from the Phone oximeterTM PPG. Some aspects of Chapters 4 have been published: -Dehkordi P et al., ”Extracting Paediatric Hypnogram from Photoplethysmogram,” (in preparation). -Dehkordi P et al., ”Sleep/Wake Classiﬁcation Using Cardiorespiratory Features Extracted from Photoplethysmogram,” Proceeding of International Conference of Computing in Cardiology. 2016: 294-147. -Dehkordi, P et al., ”Sleep-Wake Classiﬁcation Using Photoplethysmogram Pulse Interval Variability,” Proceeding of International Conference of Computing in Cardiology. 2014: 297-300. I performed all of the data analysis and wrote the manuscripts. Chapter 5 is based on the work conducted in UBC’s Electrical & Computer Engineering for Medicine (ECEM) group and BC children’s hospital by Parastoo Dehkordi, Dr. Ainara Garde, Dr. J. Mark Ansermino and Dr. Guy A. Dumont. I was responsible for designing and developing a model for identifying the sleep apnea/hypopnea events in children using the features of PPG and SpO2. I was responsible for extracting and analysing the PPG features and Dr. Ainara Garde was responsible for extracting and analysing the SpO2 features. Some aspects of Chapters 5 have been published: -Dehkordi, P et al., ”Screening Sleep and Sleep Disordered Breathing in Children Using the Phone Oximeter,” (in preparation).
+vii
+
+-Garde, A., Dehkordi, P., et al., ”Development of a Screening Tool for Sleep Disordered Breathing in Children Using the Phone Oximeter,” PloS One. 2014: 9(11).
+-Garde, A., Dehkordi, P., et al., ”Identifying individual Sleep Apnea/Hypopnea Epochs Using Smartphone-based Pulse Oximetry,” Proceeding of IEEE Engineering in Medicine and Biology Society Conference. 2016: 3195-98.
+To evaluate the proposed algorithms, we designed and conducted a study to recorded the SpO2 and PPG signals from 160 children using the Phone OximeterTM in the standard setting of overnight polysomnography (PSG) in BC Children’s hospital in Vancouver. This research was approved by the University of British Columbia and Children’s & Womens Health Centre of British Columbia Research Ethics Board (H11-01769). I was responsible for part of designing and running the study, part of recruiting patients and collecting data and the all of the post hoc data cleaning and storing. I developed an algorithm for detecting the PPG pulse peak and PPG segmentation and also an algorithm to automatically reject the segments of PPG contaminated by noise or motion artifact.
+viii
+
+Table of Contents
+Abstract . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . iii Lay Summary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . v Preface . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . vi Table of Contents . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ix List of Tables . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xiii List of Figures . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xv List of Abbreviations . . . . . . . . . . . . . . . . . . . . . . . . . . . . xx Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xxii Dedication . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xxiii 1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+1.1 Sleep . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1 1.2 Sleep Breathing Disorder . . . . . . . . . . . . . . . . . . . . . . 2 1.3 Pulse Oximetry . . . . . . . . . . . . . . . . . . . . . . . . . . . 7 1.4 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10 1.5 Objectives . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12 1.6 Contribution . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12 1.7 Organization of the Dissertation . . . . . . . . . . . . . . . . . . 13
+ix
+
+2 Evaluation of Cardiac Modulation in Children in Response to Apnea/Hypopnea . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 2.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 2.2 Materials and methods . . . . . . . . . . . . . . . . . . . . . . . 17 2.2.1 Participants . . . . . . . . . . . . . . . . . . . . . . . . . 17 2.2.2 Data collection . . . . . . . . . . . . . . . . . . . . . . . 17 2.2.3 Pre-processing . . . . . . . . . . . . . . . . . . . . . . . 18 2.2.4 Sleep and apnea analysis . . . . . . . . . . . . . . . . . . 19 2.2.5 Parameter extraction . . . . . . . . . . . . . . . . . . . . 19 2.2.6 Data analysis . . . . . . . . . . . . . . . . . . . . . . . . 21 2.3 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 2.3.1 Intra-individual event analysis . . . . . . . . . . . . . . . 23 2.3.2 Inter-groups analysis . . . . . . . . . . . . . . . . . . . . 23 2.4 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26 2.4.1 Intra-individual event analysis . . . . . . . . . . . . . . . 28 2.4.2 Inter-groups analysis . . . . . . . . . . . . . . . . . . . . 30 2.4.3 Limitations and future work . . . . . . . . . . . . . . . . 34 2.4.4 Clinical relevance . . . . . . . . . . . . . . . . . . . . . . 34
+3 Extracting Instantaneous Respiratory Rate from Photoplethysmogram . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36 3.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36 3.1.1 Background . . . . . . . . . . . . . . . . . . . . . . . . . 37 3.2 Algorithm Description . . . . . . . . . . . . . . . . . . . . . . . 39 3.2.1 Instantaneous Frequency (IF) . . . . . . . . . . . . . . . 39 3.2.2 Synchrosqueezing Transform (SST) . . . . . . . . . . . . 40 3.3 Material and Methods . . . . . . . . . . . . . . . . . . . . . . . . 41 3.3.1 Data sets . . . . . . . . . . . . . . . . . . . . . . . . . . 41 3.3.2 Estimation of IRR from PPG . . . . . . . . . . . . . . . . 42 3.3.3 Algorithm Evaluation . . . . . . . . . . . . . . . . . . . . 47 3.4 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 48 3.4.1 Capnobase data base . . . . . . . . . . . . . . . . . . . . 48 3.4.2 Sleep database . . . . . . . . . . . . . . . . . . . . . . . 50
+x
+
+3.5 Discussion and Conclusion . . . . . . . . . . . . . . . . . . . . . 52
+4 Extracting the Pediatric Hypnogram from Photoplethysmogram . . 55 4.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 55 4.2 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57 4.2.1 Pulse Rate Variability . . . . . . . . . . . . . . . . . . . . 57 4.2.2 Vascular tone . . . . . . . . . . . . . . . . . . . . . . . . 57 4.2.3 Respiratory rate . . . . . . . . . . . . . . . . . . . . . . . 57 4.2.4 Movement . . . . . . . . . . . . . . . . . . . . . . . . . 58 4.3 Materials and Methods . . . . . . . . . . . . . . . . . . . . . . . 58 4.3.1 PPG Preprocessing . . . . . . . . . . . . . . . . . . . . . 58 4.3.2 Sleep Labelling . . . . . . . . . . . . . . . . . . . . . . . 58 4.3.3 Feature extraction . . . . . . . . . . . . . . . . . . . . . . 59 4.4 Statistical Learning . . . . . . . . . . . . . . . . . . . . . . . . . 62 4.4.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . 62 4.4.2 Multivariate model development and validation . . . . . . 66 4.5 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 68 4.5.1 Wake/sleep classiﬁer . . . . . . . . . . . . . . . . . . . . 68 4.5.2 non-REM/REM classiﬁer . . . . . . . . . . . . . . . . . 69 4.6 Discussion and Conclusion . . . . . . . . . . . . . . . . . . . . . 71 4.6.1 Limitation of study and future work . . . . . . . . . . . . 73
+5 Development of a Monitoring Tool for Sleep Disordered Breathing in Children Using the Phone Oximeter . . . . . . . . . . . . . . . . . 74 5.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 74 5.2 Materials and Methods . . . . . . . . . . . . . . . . . . . . . . . 76 5.2.1 Apnea/Hypopnea Labelling . . . . . . . . . . . . . . . . 76 5.2.2 PPG Features Extraction . . . . . . . . . . . . . . . . . . 77 5.2.3 SpO2 Features Extraction . . . . . . . . . . . . . . . . . . 79 5.2.4 Data Analysis . . . . . . . . . . . . . . . . . . . . . . . . 82 5.3 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 85 5.3.1 Univariate Analysis . . . . . . . . . . . . . . . . . . . . . 85 5.3.2 Multivariate Model Validation . . . . . . . . . . . . . . . 85
+xi
+
+5.4 Discussion and Conclusion . . . . . . . . . . . . . . . . . . . . . 87 6 Conclusion and Future Work . . . . . . . . . . . . . . . . . . . . . . 93
+6.1 Future Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 94 6.1.1 Sleep Solution . . . . . . . . . . . . . . . . . . . . . . . 94
+6.2 Limitation of the research . . . . . . . . . . . . . . . . . . . . . . 94 Bibliography . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 97
+xii
+
+List of Tables
+
+Table 1.1 Rules for scoring obstructive apnea/hypopnea events in adults and children deﬁned by American Academy of Sleep Medicine (AASM) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+
+Table 2.1
+Table 2.2 Table 2.3 Table 2.4
+
+Demographics and AHI index of studied population expressed as mean ± standard deviation. In this table: 1Rapid Eye Movement; 2Body Mass Index; 3Total Sleep Time; 4Total Bed Time; ∗p < 0.001; ∗∗p < 0.0001 comparing SDB and non-SDB; †pvalue < 0.001 comparing AHI in REM and non-REM sleep stages 18 Descriptive results (median) of estimated parameters for children with and without SDB during the entire sleep period . . . 27 Descriptive results (median) of estimated parameters for children with and without SDB during non-REM sleep . . . . . . . 27 Descriptive results (median) of estimated parameters for children with and without SDB during REM sleep . . . . . . . . . 28
+
+Table 3.1 The performance of different method for estimation IRR from PPG . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+
+Table 4.1 Description of the features extracted from PPG . . . . . . . . . 63 Table 4.2 The performance of a binary classiﬁer is summarized by a 2 ×
+2 confusion matrix for a given decision threshold τ. TN: number of true negative, FP: number of false positive, FN: number of false negative, TP: number of true positive, PN: number of predicted negative, PP: number of predicted positive . . . . . . 66
+
+xiii
+
+Table 4.3 Estimated coefﬁcient and error for 15 features selected with LASSO as the signiﬁcant features for wake/sleep model . . . . 69
+Table 4.4 Estimated coefﬁcient and error for 16 features selected with LASSO as the signiﬁcant features for non-REM/REM model . 71
+
+Table 5.1 Table 5.2 Table 5.3 Table 5.4 Table 5.5
+Table 5.6
+Table 5.7
+
+Description of the features extracted from PPG . . . . . . . . . 81 Description of the features extracted from SpO2 . . . . . . . . 82 Distribution of features extracted from PPG and SpO2 for A/H and non-A/H epochs . . . . . . . . . . . . . . . . . . . . . . . 86 Distribution of features extracted from SpO2 for A/H and nonA/H epochs . . . . . . . . . . . . . . . . . . . . . . . . . . . 87 Estimated coefﬁcient and error for 12 features selected with LASSO as the signiﬁcant features for A/H model trained over database1 (including PPG and SpO2 features) . . . . . . . . . 88 Estimated coefﬁcient and error for 5 features selected with LASSO as the signiﬁcant features for A/H model trained over database2 (including SpO2 features) . . . . . . . . . . . . . . . . . . . . 88 Classiﬁcation results from test set represented by the mean and 95% CI of the quartiles of Accuracy(Acc), Sensitivity (Sn), Speciﬁcity(Sp)and the area of the ROC curve (AUC) . . . . . . 89
+
+xiv
+
+List of Figures
+
+Figure 1.1 Figure 1.2
+Figure 1.3 Figure 1.4 Figure 1.5 Figure 1.6 Figure 1.7
+
+Hypnogram, provided by PSG, depicts the structure of an overnight sleep, organization of cycles and timing of different sleep stages. 3 A conventional transmitted pulse oximeter sensor has two lightemitting diodes (LEDs) and a light detector mounted on the opposite side of the LEDs (inspired by [75]) . . . . . . . . . . 8 Light transmitted through the living tissue (inspired by [75]) . 8 Absorption spectra of hemoglobin (from [75]) . . . . . . . . . 9 The Phone OximeterTM interfacing a microcontroller-based pulse oximeter module with a smartphone. . . . . . . . . . . . . . . 10 (a) Sensor and (b) the user interface of iOS App of Kenek O2 Pulse Oximeter . . . . . . . . . . . . . . . . . . . . . . . . . 11 Organization of the Dissertation. . . . . . . . . . . . . . . . . 14
+
+Figure 2.1
+
+In double logarithmic plot, the ﬂuctuation function of PPIs, F(n), is plotted as a function of n (the number of pulses) for a child without SDB during non-REM (blue squares) and REM sleep (red stars). The slopes of the curves correspond to the ﬂuctuation scaling exponent α. For n > 100, the ﬂuctuation function of PPI during REM and non-REM are distinguishable. 22
+
+xv
+
+Figure 2.2 Figure 2.3 Figure 2.4
+
+Comparison of spectral parameters in segments with and without apnea/hypopnea events for children with SDB (AHI > 5) during the entire period of sleep. Blue (thin) and red (thick) lines show the mean increase and decrease of parameters, respectively. The nLF parameter increased in apnea/hypopnea events for 96% of the children with SDB (Blue lines). The LF/HF ratio increased in apnea/hypopnea events for 96% of the children with SDB (Blue lines), while nHF decreased in 94% of children with SDB during apnea/hypopnea events (Blue lines). The VLF parameter increased during apnea/hypopnea events for almost 92% of the children with SDB (Blue lines). . 24 Comparison of spectral parameters in segments with and without apnea/hypopnea events for children with SDB (AHI > 5) during the non-REM sleep. Blue (thin) and red (thick) lines show the mean increase and decrease of parameters, respectively. For 95% of children with SDB, higher nLF, higher LF/HF ratio, and lower nHF were recognized in segments with apnea/hypopnea events compared to segments without SDB. The VLF parameter increased during apnea/hypopnea events for almost 90% of the children with SDB. . . . . . . . . . . . 25 Comparison of spectral parameters in segments with and without apnea/hypopnea events for children with SDB (AHI > 5) during the REM sleep. Blue (thin) and red (thick) lines show the mean increase and decrease of parameters respectively. During REM sleep, for 73% of the children with SDB, the nLF and LF/HF ratio increased in apnea/hypopnea events. In addition, for 68% of the children with SDB, nHF decreased in the apnea/hypopnea events. The VLF parameter increased during apnea/hypopnea events for almost 90% of the children with SDB. 26
+
+xvi
+
+Figure 2.5 Frequency domain parameters in children with and without SDB during (a) the entire sleep period, (b) non-REM sleep and (c) REM sleep. Signiﬁcant differences between the SDB and non-SDB groups are marked by one star (*) when p-value < 0.05 and by two stars (**) when p-value < 0.01. Quartile values are displayed as the bottom, middle and top horizontal line of the boxes. Whiskers are used to represent the most extreme values within 1.5 times the interquartile range from the median. Outliers (data with values beyond the ends of the whiskers) are displayed as (+). . . . . . . . . . . . . . . . . . 29
+Figure 2.6 The ﬂuctuation function F(n) during non-REM sleep for children with SDB children (blue squares) and non-SDB children (red stars) . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30
+Figure 2.7 The ﬂuctuation function F(n) during REM sleep for children with SDB children (blue squares) and non-SDB children (red stars) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+Figure 2.8 αS and αL in children with and without SDB during (a) entire sleep period, (b) non-REM sleep and (c) REM sleep. Signiﬁcant differences between SDB and non-SDB group are represented by one star (*) when p-value < 0.05 and by two stars (**) when p-value < 0.01. . . . . . . . . . . . . . . . . . . . 32
+Figure 3.1 From top, PPG with no modulation, Respiratory-Induced Intensity Variation (RIIV), Respiratory-Induced Amplitude Variation (RIAV), and Respiratory-Induced Frequency Variation (RIFV) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+Figure 3.2 To extract IRR from PPG, the ﬁrst SST was applied to PPG to extract RIIV, RIAV and RIFV. Later, the second SST was performed to estimate IIR from a respiratory-induced variation signals. The peak-conditioned fusion algorithm was then used to fuse simultaneous IRR estimates . . . . . . . . . . . . . . 43
+xvii
+
+Figure 3.3 In the STT surface of PPG, two components are identiﬁed: a strong cardiac component in the cardiac band (0.5-3 Hz, 30180 beats/minute) and a respiratory component in the respiratory band (0.14-0.9 Hz, 8-54 breaths/minute) . . . . . . . . . 44
+Figure 3.4 The peak-conditioned fusion method combined the IRR estimates from three respiratory-induced variations to provide the ﬁnal IRR . . . . . . . . . . . . . . . . . . . . . . . . . . . . 48
+Figure 3.5 Distribution of respiratory rates extracted from the capnography waveform (IRRCO2) in the capnobase data set. The respiratory rates ranged from the lowest value of 3.6521 bpm to the highest value of 44.22 bpm. The mean rate was 15.02 bpm with standard deviation of 7.66 bpm. . . . . . . . . . . . . . . 49
+Figure 3.6 Distribution of the respiratory rates extracted from the nasal/oral airﬂow waveform (IRRnas) in the sleep data set. The respiratory rates ranged from the lowest value of 9.561 bpm to the highest value of 50.85 bpm. The mean rate was 18.64 bpm with standard deviation of 5.66 bpm. . . . . . . . . . . . . . . 50
+Figure 3.7 Bland-Altman plot for comparison of IRRCO2 to IRRre f for all subjects. The bias and 95% LOA are shown as solid lines. The bias was 0.28 and the limits of agreement -3.62 to 4.17 . . . . 51
+Figure 3.8 Bland-Altman plot for comparison of IRRnas to IRRre f for all subjects. The bias and 95% LOA are shown as solid lines. The bias was 0.04 and the limits of agreement -5.74 to 5.82 . . . . 52
+Figure 4.1 The multi-class classiﬁer has two binary classiﬁers: sleep/wake classiﬁer and non-REM/REM classiﬁer. The epochs corresponding to the subjects in the training set were used to train these two classiﬁers, and the epochs corresponding to each subject in the test set were fed to the trained models. . . . . . 67
+Figure 4.2 The area under the curve (AUC) of the receiver operating characteristic (ROC) curve of a) the wake/sleep classiﬁer and b) the non-REM/REM classiﬁer . . . . . . . . . . . . . . . . . . . . 70
+xviii
+
+Figure 5.1 The proposed model has two binary classiﬁers. The epochs corresponding to the subjects in the training set were used to train these two classiﬁers, and the epochs corresponding to each subject in the test set were fed to the trained classiﬁers. . 84
+Figure 5.2 The area under the curve (AUC) of the receiver operating characteristic (ROC) curve of a) A/H classiﬁer (PPG + SpO2 features) and b) A/H classiﬁer (SpO2 features) . . . . . . . . . . 91
+Figure 5.3 The estimated and observed A/H epochs for a subject with (a) high accuracy (79%), (b)low speciﬁcity with low number A/H events, and (c) low speciﬁcity with high number A/H events. . 92
+Figure 6.1 Sleep report provides the valuable information about the quality of sleep, variation of heart rate and oxygen saturation during an overnight sleep . . . . . . . . . . . . . . . . . . . . . 95
+xix
+
+List of Abbreviations
+AHI apnea/hypopnea Index A/H apnea/hypopnea DFA detrended ﬂuctuation analysis ECG electrocardiogram EEG electroencephalography EMG electromyography EOG electrooculography IRR instantaneous respiratory rate HRV heart rate variability OSA obstructive sleep apnea PPG photoplethysmogram PRV pulse rate variability RIAV respiratory-induced amplitude variation RIFV respiratory-induced frequency variation RIIV respiratory-induced intensity variation RIP respiratory inductance plethysmography
+xx
+
+REM random eye movement RR respiratory rate SBD sleep breathing disorder SPO2 oxygen saturation SST synchrosqueezing transform SQI signal quality index
+xxi
+
+Acknowledgements
+To my senior supervisor Dr. Guy A. Dumont who gave me the wings to ﬂy and to my supervisor, Dr. J. Mark Ansermino who showed me the way. I offer my endless gratitude for their leadership, understanding, and support. And thanks for all their inspiration as the successful researchers, excellent teachers, and brilliant people.
+Many thanks to Dr. Matthew Yedlin for his help and input to this research. Special thanks to Dr. Ainara Garde as she made her help and support available in a number of different ways to this research. Many thanks to Dr. David Wensley for his consultation and input to this research. Many thanks to Dr. Walter Karlen and Dr. Christian L. Peterson for all help, support, and innovation they brought to this research. Many thanks to Dr. Kouhyar Tavakolian and Dr. Farzad Khosrow-khavar for their help and support. Special thanks to my friends and colleagues in Electrical & Computer Engineering for Medicine (ECEM) group at the University of British Columbia for their endless help and support. I would like to thank the clinical staff of the sleep laboratory at British Columbia Children’s Hospital for their collaboration and assistance with this study. And ﬁnally, I am eternally grateful to Nick Langroudi for his unwavering patience and support. This dissertation is the least I can dedicate to him.
+xxii
+
+Dedication
+To my husband, for twenty years of love and support To my girls, instead of all bedtime stories and lullabies
+xxiii
+
+Chapter 1
+Introduction
+1.1 Sleep
+The basic structure of human sleep has three major stages: wakefulness, random eye movement (REM) and non-REM. Later, non-REM sleep is divided into N1, N2, and N3 stages, progressing from stage N1 (light sleep) to stage N3 (deep sleep). non-REM sleep forms about 75 to 80 percent of the total time of sleep and REM sleep forms the remaining 20 to 25 percent.
+In a regular overnight sleep, non-REM and REM occur cyclically (Figure 1.1). Each cycle, taking about 90 to 120 minutes, starts with stage N1 (light sleep) of non-REM sleep, progresses to stage N2 and then to stage N3, repeats stages N2 and N3 backward and then proceeds to REM sleep. The ﬁrst half of an overnight sleep is dominated by deep sleep (stage N3) while the second half is dominated by REM sleep.
+Polysomnography (PSG) is the gold standard for assessing and scoring sleep. In an overnight PSG, the brain activity (electroencephalography (EEG)), eye movement (electrooculography (EOG)) and muscle activity (electromyography (EMG)) are recorded according to the recommendation of American Academy of Sleep Medicine (AASM).
+Later the EEG, EOG and EMG recordings are subdivided into 30-epochs. A sleep stage is assigned to each epoch by a sleep technician according to the AASM criteria:
+1
+
+- Stage W represents alert wakefulness to drowsiness. The EEG signal consists of Alpha waves (8 - 13 Hz), the EOG activity shows irregular peaked eye movements with the frequency of 0.5-2 Hz, and the EMG activity shows normal or high chin muscle tone.
+- Stage N1 forms 5% of total sleep time. The EEG consists of Theta waves (4-7 Hz), the EOG shows slow eye movements, and the EMG is irregular but is often less variable than wakefulness.
+- Stage N2 makes up 50% of total sleep time. The EEG consists of Theta waves mixed with K-complexes 1 and sleep spindles 2. The EOG recording doesn’t show signiﬁcant eye movement. The EMG has variable amplitude, but usually lower than wakefulness.
+- Stage N3 forms 20-25% of total sleep time. The EEG wave consists of a frequency of a 0.5-3 Hz with high amplitudes (> 75 µV). The EMG has variable amplitude, often lower than in Stage N2 and sometimes as low as in REM sleep.
+- During REM sleep, the EEG consists of low voltage mixed frequency Theta waves (4-7 Hz). Alpha waves may be present but will be 1-2 Hz slower than Alpha during wakefulness. The EOG shows the presence of rapid eye movements. The EMG is signiﬁcantly reduced compared to non-REM sleep.
+For an overnight sleep, PSG provides detailed information about the structure and pattern of sleep stages, overall sleep time, the time spent in different sleep stages and timing and structure of cycles. This information is simpliﬁed in a graph called hypnogram (Figure 1.1).
+1.2 Sleep Breathing Disorder
+sleep breathing disorder (SBD) is characterized by abnormalities of respiration during sleep. The International Classiﬁcation of Sleep Disorders, second edition (ICSD-2) published by the American Academy of Sleep Medicine further categorized SBDs into obstructive sleep apnea/hypopnea syndromes, central sleep apnea
+1K-complex consists of a brief negative high-voltage peak, usually greater than 100 µV, followed by a slower positive complex around 350 and 550 ms and at 900 ms a ﬁnal negative peak
+2A burst of oscillatory brain activity visible on an EEG
+2
+
+Figure 1.1: Hypnogram, provided by PSG, depicts the structure of an overnight sleep, organization of cycles and timing of different sleep stages.
+syndromes, sleep related hypoventilation 3/hypoxemia 4 disorders [4]. Some patients may have a combination of these disorders, particularly many patients have a combination of obstructive and central sleep apnea.
+American Academy of Sleep Medicine (AASM) Manual for the Scoring of Sleep and Associated Events [5] provides the terminology and scoring rules for sleep related respiratory events and disorders. It also provides the technical speciﬁcation for evaluation of a standard sleep test conducted in a sleep laboratory as well as home sleep testing.
+Apnea is deﬁned as the complete cessation of breathing during sleep while hypopnea is deﬁned as the reduction in airﬂow. In sleep apnea/hypopnea disorders, apnea/hypopnea (A/H) events happen intermittently during an overnight of sleep. apnea/hypopnea Index (AHI) is estimated as the number of A/H events happen in one hour of sleep and is used as a metrics of the severity of sleep apnea/hypopnea syndromes. Based on the AHI, the severity of sleep apnea syndrome in adults is classiﬁed as follows:
+3Breathing at an abnormally slow rate 4An abnormally low concentration of oxygen in the blood
+3
+
+- None/Minimal: AHI < 5 - Mild: AHI ≥ 5, but < 15 - Moderate: AHI ≥ 15, but < 30 - Severe: AHI ≥ 30
+Obstructive Sleep Apnea Disorder
+In obstructive sleep apnea (OSA) disorder, A/H events are caused by the complete/partial closure of upper airway during sleep. In these events, the airﬂow is completely ceased or dramatically reduced in the presence of respiratory efforts [51]. According to the deﬁnition provided by AASM, A/H events last for a minimum of 10 s. Most A/H events take 10 s to 30 s. However, some of them may last to more than one minute. The frequent occurrence of obstructive A/H events may reduce the blood oxygen saturation which leads to a brief or complete arousal from sleep to resume respiration. A/H events may occur in different sleep stages but more frequently happen in stage N1, stage N2, and REM sleep than in stage N3. Frequent arousals and sleep fragmentations may cause daytime symptoms like extensive sleepiness and fatigue which affect the quality of life.
+In adults, the prevalence of obstructive sleep apnea associated with daytime sleepiness has been estimated at 3% to 7% for males and 2% to 5% for females. However, OSA without daytime sleepiness may occur in 24% of adult men and 9% of adult women. Obesity, enlarged adenotonsillar tissue and structural informality of upper airway are the main risk factors of OSA in adults. In adult patients, OSA is a risk factor of development of systematic hypertension and diabetes type 2.
+The prevalence of obstructive sleep apnea in children has been estimated at 1% to 4%. In children younger than 13 years old, the disorder occurs equally among boys and girls but among adolescents, the provenance is higher in boys. Obesity and the enlarged tonsils and adenoids are the main cause of obstructive sleep apnea in children. Excessive sleepiness happens more in older children and less in younger ones. Left untreated, OSA in children may have serious consequences including developmental, behavioral and learning issues including concentration problems, hyperactivity and, moodiness [64].
+AASM has different criterion for deﬁning obstructive A/H events in adults and
+4
+
+Table 1.1: Rules for scoring obstructive apnea/hypopnea events in adults and children deﬁned by American Academy of Sleep Medicine (AASM)
+
+Adults
+
+Children
+
+Obstructive Apnea
+
+-A drop in airﬂow by ≥ 90% of pre-event baseline -Drop lasts for ≥ 10 s
+
+-A drop in airﬂow by ≥ 90% of pre-event baseline -Drop lasts for ≥ 2 breaths
+
+Obstructive Hypopnea
+
+-A drop in airﬂow by ≥ 30% of pre-event baseline -Drop lasts for ≥ 10 s -An oxygen desaturation ≥ 3% from pre-event baseline or -the event is associated with an arousal
+
+-A drop in airﬂow by ≥ 30% of pre-events -Drop last for at least 2 breaths -An oxygen desaturation ≥ 3% from pre-event baseline or -the event is associated with an arousal
+
+children summarized in Table 1.1.
+Central Sleep Apnea Disorder Central sleep apnea/hypopnea events are caused by complete or partial reductions in central neural outﬂow to the respiratory muscles during sleep that leads to complete or partial cessation of airﬂow for at least 10 seconds, respectively [10]. In contrast to obstructive apneas, in which respiratory efforts are observable, no respiratory effort is generated during central apnea/hypopnea events due to the cessation of respiratory drive. Thus central apneas are distinguished from obstructive apneas by the absence of respiratory effort.
+In the general population, the prevalence of central sleep apnea is less than 1%. However, central sleep apnea/hypopnea disorder has been reported in 25-40% of patients with heart failure and in 10% of patients who have had a stroke.
+Polysomnography (Sleep Study) A sleep study or polysomnography (PSG) is currently known as the gold standard for diagnosis sleep-related disorders, especially SBDs. In an overnight PSG, the physiological activity of body that occur during sleep are monitored in order to diagnose a wide range of respiratory and non-respiratory disorders of sleep.
+
+5
+
+PSG involves the measurement of several physiologic recordings including the EEG, EOG, electrocardiogram (ECG), submental and leg EMG, body position, pulse oximetry, measurements of airﬂow, and measurements of thoracic and abdominal respiratory effort.
+EEG records neural activity from electrodes placed on the patient’s scalp. As mentioned in the previous section (section 1.1), EEG is performed to identify the state of wakefulness and sleep and also to determine the different sleep stages, in addition to recording arousals from sleep that may or may not be associated with respiratory events. Recording of EOG and submental EMG are also necessary for distinguishing wakefulness and REM sleep from other sleep stages.
+Monitoring the cardiorespiratory activity is essential for the diagnosis of sleep breathing disorders. One lead-ECG is recommended by AASM to detect cardiac rhythm and identiﬁcation of nocturnal arrhythmias. Nasal and oral airﬂow is measured using a thermistor and/or a nasal-cannula pressure transducer. The results of one study showed that the use of a nasal pressure transducer in conjunction with a thermistor was more sensitive than the thermistor alone in detecting hypopnea events in adults and children [63]. So it is recommended by AASM to use the pressure transducer and thermistor together for measuring airﬂow. Beside measuring nasal/oral airﬂow measurement, monitoring the respiratory effort is also essential for assessing SBDs, especially for discrimination between obstructive and central sleep apnea. In standard PSG, thoracic and abdominal respiratory effort is measured using the respiratory inductance plethysmography (RIP) belts fasten around chest and abdomen. Pulse oximetry is used to detect reductions in blood oxygen saturation as a result of A/H events.
+PSG is highly resource-intensive [13] and requires a specialized sleep laboratory, expensive equipment and an overnight stay in the facility, conﬁning PSG monitoring to centralized specialist facilities. For example, in British Columbia, all PSG studies in children are performed at the British Columbia Children’s Hospital (BCCH) in Vancouver. This greatly limits access, especially for those who live in remote locations. The capacity to perform PSG at BCCH is limited to fewer than 250 cases per year, resulting in a waitlist of six months. Beside the limited access, the high cost (approximately $800 per night in direct health care costs at BCCH) of PSG has generated a great interest in alternative techniques to simplify
+6
+
+the standard procedure.
+
+1.3 Pulse Oximetry
+A pulse oximeter is a photoelectric device which non-invasively detects the blood volume changes, or photoplethysmogram (PPG), by measuring the light reﬂected or transmitted through the body tissue (e.g ﬁnger, ear, forehead or nose lobe).
+A conventional transmitted pulse oximeter sensor has two light-emitting diodes (LEDs) and a light detector mounted on the opposite side of the LEDs. The LEDs alternatively emit red and infra-red light through the body and the light detector captures the amount of transmitted light (Figure 1.2). The light intensity decreases as the red and infrared beams pass through the body (e.g. skin, bones, tissue, arterial and venous blood). According to the Beer-Lambert low, the light intensity decreases exponentially with the concentration and length of the light path as explained by:
+
+I = I0e−lα
+
+(1.1)
+
+where I and I0 represent the intensity of transmitted and incident lights, respectively, l is the path length light traveled and α is the absorption coefﬁcient of blood.
+Based on the Beer-Lambert’s law, the density of transmitted light decreases during systole when the peripheral arterial blood volume is at its maximum value and increases during diastole when the blood is minimum at the arteries. The PPG signal generated by the light detector, then, has a pulsatile waveform (AC) whose peaks and troughs reﬂect light transmitted through the tissue when blood volume is minimal and maximal, respectively (Figure 1.3). AC offsets by a large baseline component (DC) mainly rises because of constant absorption of light travelling through constant components e.g. skin, bones, and tissues. A small variation observed in DC is mostly due to venous blood variation which changes the intensity of the light captured by the light detector.
+
+7
+
+Figure 1.2: A conventional transmitted pulse oximeter sensor has two lightemitting diodes (LEDs) and a light detector mounted on the opposite side of the LEDs (inspired by [75])
+Figure 1.3: Light transmitted through the living tissue (inspired by [75]) Estimation of SpO2 The absorption coefﬁcient of oxyhemoglobin (oxy Hb) and deoxyhemoglobin (deoxy Hb) is different at different wavelengths. The oxy Hb absorbs more infra-red light than red light while deoxy Hb absorbs more red light than infra-red light. By comparing the amount of light absorbed by oxy Hb and deoxy Hb at two different wavelengths, the pulse oximetry calculates oxygen saturation (SPO2) as explained by [75]:
+8
+
+S = 1−R
+
+(1.2)
+
+R is called the Ratio of Ratios and is calucated as
+
+R
+
+=
+
+ln(AC+DC/DC )|λ1 ln(AC+DC/DC )|λ2
+
+(1.3)
+
+where λ1 and λ2 are the wavelengths of the red (660nm typ.) and infrared (890nm typ.) light, respectively.
+
+Figure 1.4: Absorption spectra of hemoglobin (from [75])
+Phone OximeterTM To increase the accessibility of pulse oximeter and to take advantage of the prevalence of mobile phones, a clinical pulse oximeter sensor can be interfaced to a mobile phone. The commercially available pulse oximeter sensors have a microcontroller module featuring low power supply requirements and a communication unit which are compatible with smart phones.
+The researchers in the Electrical & Computer Engineering in Medicine group in the University of British Columbia, Vancouver, Canada developed a mobile device, named Phone Oximeter TM, which interfaces a commercial micro controller-based
+9
+
+pulse oximeter module with a smart phone [39] (Figure 1.5).
+Figure 1.5: The Phone OximeterTM interfacing a microcontroller-based pulse oximeter module with a smartphone.
+The use of the smartphone as the pulse oximeter display and power source overcomes pertinent challenges of distributing the technology. The Phone OximeterTM improves accessibility of pulse oximetry, enables the acquisition, monitoring and analysis of vital signs and provides intuitive display of information to health care providers [62]. Usability studies of the Phone OximeterTM prototype previously undertaken both in Canada and Uganda have shown overall usability scores of 82% and 78% respectively, indicating that a smartphone can be a functional oximeter interface [32].
+Phone Oximeter TM has been further developed to perform all processing on the mobile device through the audio interface [62] (Figure 1.6).
+For the purpose of this study, Phone Oximeter TM has been used for collecting the PPG recordings.
+1.4 Motivation
+In children with sleep apnea/hypopnea syndrome, the frequent cessation of breathing during sleep results in oxygen desaturations (a low level of oxygen in the blood), frequent arousal from sleep to resume breathing, fragmented sleep cycles
+10
+
+(a)
+
+(b)
+
+Figure 1.6: (a) Sensor and (b) the user interface of iOS App of Kenek O2 Pulse Oximeter
+
+and ultimately sleep deprivation. Untreated sleep apnea in children has been linked to cognitive and behavioral deﬁcits, growth disorders, metabolic disorders, systemic inﬂammation, and serious cardiovascular consequences. Thus, it is clear that sleep apnea has serious developmental consequences for children, highlighting the importance of prompt diagnosis and treatment.
+PSG is the commonly used technique for sleep apnea diagnosis. Using PSG data, sleep technicians visually identify apnea/hypopnea events, associated oxyhemoglobin desaturations and arousals to estimate the sleep apnea severity. The sleep states, sleep quality, sleep quantity and the number of non-REM-related and REM-related A/H events are also measured.
+PSG is highly resource-intensive [13] and requires an overnight stay at a highly equipped sleep laboratory with an overnight attending sleep technician. This complexity conﬁnes the PSG test to the centralized facilities. For example, in British Columbia, all PSG studies in children are performed at the British Columbia Chil-
+
+11
+
+dren’s Hospital (BCCH) in Vancouver. This greatly limits access, especially for those who live in remote locations. The capacity to perform PSG at BCCH is limited to fewer than 250 cases per year, resulting in a waitlist of six months. In recently developed clinical practice guidelines for the diagnosis and management of SDB in children and adolescents [52], the American Academy of Pediatrics concluded that all children/adolescents should be screened for snoring and OSA symptoms (deﬁned in the guidelines [52]) and PSG should be performed in those with regular snoring and signs of OSA.
+The complexity and cost of PSG (approximately $800 per night in direct health care costs at BC Children Hospital) [53] and limited access of PSG have generated a great interest in alternative techniques to simplify the standard procedure.
+The ultimate goal of this study was to develop a simple mobile screening tool for sleep and SBD in children using the Phone Oximeter TM . The characterization of the SpO2 and PPG signals both obtained by the Phone Oximeter TM were used to detect the A/H epochs, different sleep stages and respiratory rate during sleep.
+1.5 Objectives
+The objectives of this study are deﬁned as: - to investigate the relative impact of SBD on sympathetic and parasympathetic
+activity in children through spectral analysis and detrended ﬂuctuation analysis (DFA) of pulse rate variability (PRV) extracted from PPG.
+- to develop a novel method for extracting the instantaneous respiratory rate (IRR) from PPG.
+- to extract the different states of the overnight sleep based on the activity of cardiorespiratory system using the pulse oximeter PPG.
+- to propose a model to use the SpO2 pattern characterization and PPG analysis to identify the epochs with A/H events using the Phone OximeterTM .
+1.6 Contribution
+We have made three signiﬁcant contributions to the ﬁeld: -To estimate the instantaneous respiratory rate (IRR) during sleep, we pro-
+posed and developed a novel algorithm for extracting the (IRR) from the PPG. The
+12
+
+method extracts the three respiratory-induced variation signals from PPG and estimates the IRR from them using a time-frequency transform called synchrosqueezing transform (SST). A novel algorithm, called peak-conditioned fusion, is proposed to fuse the IRR estimates and produce the ﬁnal estimate of IRR. The novelty mostly was in designing and developing the peak-conditioned fusion algorithm. The details are described in Chapter 3.
+-To measure the sleep staging and to be able to determine the REM-related and non-REM-related A/H epochs, we designed and develop a novel model for identifying the cycles of REM and non-REM of the overnight sleep based on the activity of cardiorespiratory system using the overnight PPG signals. We build a multivariate model with two binary classiﬁers to identify wakefulness from sleep (wake/sleep classiﬁer) and REM from non-REM sleep (non-REM/REM classiﬁer). The developed classiﬁers were assessed epoch-by-epoch for each subject individually and provided a detailed epoch-by-epoch sleep analysis, similar to the hypnogram provided by PSG. The novelty was to use the characterization of PPG for identifying sleep from wakefulness and furthermore, detecting the REM and nonREM stages of sleep. The details are presented in Chapter 4.
+- To screen apnea/hypopnea syndrome, we combined the SpO2 pattern characterization and PPG analysis to design and develop a model with two binary multivariante logistic classiﬁers to automatically reject the 30-s PPG epochs contaminated with the artifact and later identify the epochs with the A/H events. The developded model was assessed epoche-by-epoch for each subject and provided a detailed epoch-by-epoch A/H monitoring, similar to the one provided by PSC. The novelty was to combine the characterization of PPG and SpO2 for training two different models for detecting the A/H events and rejecting aftifact. The details were presented in Chapter 5.
+1.7 Organization of the Dissertation
+This dissertation is organized in 6 chapters (Figure 1.7). Chapter 1 provides an introduction to sleep, sleep breathing disorders and the
+technology of the pulse oximetry. Chapter 2 discusses how the analysis of PPG can be used to assess the cardiac
+13
+
+Figure 1.7: Organization of the Dissertation. modulation in children in response to sleep breathing disorders in different sleep stages.
+Chapter 3 presents a novel approach for extracting instantaneous respiratory rate from PPG using the synchrosqueezing transform (SST)
+Chapter 4 discusses the application of PGG analysis for identifying different sleep stages and presents a novel method for extracting sleep structure using the PPG features.
+Chapter 5 discusses the design and development a stand-alone tool for monitoring and screening sleep breathing disorders at home using the Phone OximeterTM
+Chapter 6 concludes the dissertation and presents suggestions for future work in monitoring sleep and sleep breathing disorders.
+14
+
+Chapter 2
+Evaluation of Cardiac Modulation in Children in Response to Apnea/Hypopnea
+2.1 Introduction
+The autonomic nervous system (ANS) and circulating hormones play a signiﬁcant role in regulating cardiovascular function. Regulation of heart rate is driven mainly by interaction between the sympathetic and parasympathetic branches of the ANS. To increase heart rate, the ANS increases sympathetic outﬂow to the sinoatrial (SA) node, and concurrently reduces parasympathetic tone. Depression of parasympathetic activity is necessary for the sympathetic nerves to increase heart rate because parasympathetic activity reduces the action of sympathetic nerve activity [44]. Since the regulation of heart rate is mainly controlled by the ANS, heart rate variability (HRV) has received signiﬁcant attention as a promising non-invasive indicator of cardiac autonomic function.
+HRV is deﬁned as the variation in the inter-beat intervals (RRIs) conventionally obtained from an electrocardiogram (ECG). RRIs time series are typically nonstationary and exhibit short and long-range ﬂuctuations that occur in irregular and complex patterns, even during rest [59], [60], [33]. Short-range ﬂuctuations cor-
+15
+
+respond to fast changes of heartbeat intervals associated with breathing and the regulation of blood pressure, whereas long-range ﬂuctuations correspond to slow changes of heartbeat intervals and reﬂect the effort of the ANS to limit heart rate [60].
+Power spectral analysis of HRV has been extensively used to study the frequency distribution of heart rate. Measured in short segments of RRIs time series, the power in the frequency range of 0.15 to 0.4 Hz, referred to as the high frequency power (HF), is commonly utilized to quantify parasympathetic activity. The power of HRV in the frequency range of 0.04 to 0.15 Hz, referred to as the low frequency power (LF), can be related to both sympathetic and parasympathetic activity. The ratio of LF to HF (LF/HF ratio) is deﬁned as an index that represents the sympathetic/parasympathetic balance; a higher LF/HF ratio implies a shift toward sympathetic activity [33].
+Power spectral analysis assumes that the studied signal is stationary, and may produce inaccurate results when applied to non-stationary signals. This makes power spectral analysis inappropriate for quantifying the long-range ﬂuctuation of heart rate. To overcome this limitation, Peng et al introduced the Detrended Fluctuation Analysis (DFA)[59]. DFA determines the short- and long-range correlations in a time series, expressed as scaling exponents. Peng et al showed that it is possible to distinguish healthy subjects from those with severe heart failure by looking at the short and long-range correlations in heartbeat intervals [60]. Later, Penzel et al. investigated the short- and long-range correlation of heart rate intervals measured by DFA in individuals with SDB in different sleep stages and found that DFA improved sleep apnea severity rating compared to spectral analysis [61].
+Traditionally, HRV is measured from the RRIs of the ECG. However, it is possible to use pulse rate variability (PRV) extracted from the photoplethysmography signal (PPG) as an alternative measurement of HRV. More recent studies have shown that in stationary conditions PRV could be used as an estimate of HRV [18], [43]. During non-stationary conditions, Gil et al[29] reported that there was a positive bias, due to pulse time transit variability, in the estimation of PRV, especially in respiratory band. They showed that these differences were sufﬁciently small to allow the use of PRV as an alternative measurement of HRV.
+In individuals with SDB, intermittent sleep fragmentation and disturbance in
+16
+
+normal respiration and oxygenation that accompany most apnea/hypopnea events cause changes in cardiac autonomic regulation [36]. These changes are reﬂected by reduced parasympathetic activity and enhanced sympathetic activity that persists during wakefulness [36]. Previous studies based on HRV analysis have demonstrated cardiac autonomic modulation due to SDB, and have shown that both the LF power and the LF/HF ratio are more pronounced in subjects with SDB, while the HF power is reduced [57], [74]. Cardiac sympathetic and parasympathetic modulation in response to apnea/hypopnea has been well studied in adults, but is less extensively studied in children.
+In this study, we investigated the relative impact of SDB on sympathetic and parasympathetic activity in children through spectral analysis and DFA of PRV. We estimated PRV from the pulse-to-pulse intervals of the PPG signal. The PPG signals were recorded from 160 children using the Phone OximeterTM in the standard setting of overnight polysomnography (PSG).
+2.2 Materials and methods
+2.2.1 Participants
+Following approval by the University of British Columbia Clinic Research Ethics Board (H11-01769) and informed parental consent, 160 children were recruited for this study. The children were suspected of having SDB and had been referred to the British Columbia Children’s Hospital for overnight PSG. Children with a cardiac arrhythmia or abnormal hemoglobin were excluded from the study. The recordings of 14 subjects were removed from the dataset due to inadequate length of sleep (less than 3 hours). The children were divided into two groups using the PSG outcomes and diagnostic report of the respiratory specialist: subjects with an AHI greater than 5 apnea/hour (SDB group) and children with an AHI less than 5 apnea/hour (non-SDB group) (table 2.1).
+2.2.2 Data collection
+Standard PSG recordings were performed with the Embla Sandman S4500 (Embla Systems, ON, Canada) and included overnight measurements of ECG, elec-
+17
+
+Table 2.1: Demographics and AHI index of studied population expressed as mean ± standard deviation. In this table: 1Rapid Eye Movement; 2Body Mass Index; 3Total Sleep Time; 4Total Bed Time; ∗p < 0.001; ∗∗p < 0.0001 comparing SDB and non-SDB; †p-value < 0.001 comparing AHI in REM and non-REM sleep
+stages
+
+Dataset
+Number Age (y) AHI AHI in REM1 † AHI in non-REM BMI2 (kg/m2) Sleep efﬁciency (%) TST3 (min) TBT4 (min) non-REM (%) REM (%) Awakenings Respiratory arousals
+
+SDB
+
+non-SDB
+
+56 (18, 38)
+8.8 ± 4.6 19.7 ± 19.5∗∗ 34.8 ± 27.8∗∗ 15.8 ± 22.8∗∗ 23.2 ± 8.3∗
+75.1 ± 16.2
+362.1 ± 82.6
+479.9 ± 40
+78.7 ± 9.3
+20.2 ± 8
+21.2 ± 10.6 13.6 ± 13.9∗∗
+
+90 (41, 49) 9.3 ± 4 1.4 ± 1.1 4.4 ± 5.1 0.8 ± 1.0
+19.6 ± 6.6 76.6 ± 15.3 368.0 ± 73.8 481.4 ± 24.1 81.7 ± 7.6 18.2 ± 6.1 18.6 ± 9.3 1.0 ± 0.9
+
+troencephalography (EEG), oxygen saturation (SpO2), PPG, chest and abdominal movement, nasal and oral airﬂow, left and right electrooculography (EOG), electromyography (EMG) and video capture. The PSG was later annotated by a sleep technician with sleep phases and events (apneas, hypopneas, and arousal).
+In addition to PSG, PPG, heart rate, and SpO2 were recorded simultaneously with the Phone OximeterTM . The SpO2 and PPG signals were sampled at 1 Hz and 62.5 Hz, respectively, with 32-bit resolution.
+2.2.3 Pre-processing
+After baseline removal and smoothing with a Savitzky-Golay FIR ﬁlter (order 3, frame size 11 samples), all PPG signals recorded using the Phone OximeterTM were divided into one-minute segments with a 30-second shift. These one-minute segments were used to assess autonomic cardiac modulation during the A/H events
+
+18
+
+for each subject with SDB (intra-individual event analyses). In addition, the PPG signals were divided into ﬁve-minute segments with 30 seconds shift and used to assess autonomic cardiac modulation in subjects with and without SDB (intergroups analyses).
+Each segment was assigned a signal quality index between 0 and 100 based on a cross correlation method [40] and segments with low signal quality index (less than 50) were excluded from further analysis even if a very small part of segment was contaminated by artifact. In order to obtain the PPIs time series, a peak detection algorithm based on zero-crossing was used to locate the pulse peaks in the PPG signal, and the intervals between successive peaks were computed. PPIs shorter than 0.33 s and greater than 1.5 s were considered artifacts [61] and consequently deleted from the time series.
+2.2.4 Sleep and apnea analysis
+All segments were scored as wakefulness, REm or non-REM based on the labels in the PSG event log ﬁle. Segments with any sleep state transition containing multiple sleep state labels were removed from the data set.
+One-minute segments with any period of SDB, such as obstructive or central sleep apnea were labelled as A/H. According to the AASM 2012 standard criteria [5], obstructive apneas in children are deﬁned as complete cessation of airﬂow (on airﬂow cannula) in the presence of respiratory effort lasting for more than 10 s. When respiratory effort partially or totally ceased, apneas were scored as mixed apnea or central apnea, respectively. Hypopneas were deﬁned as a 30% airﬂow reduction for the duration of two breaths (Table 1.1).
+2.2.5 Parameter extraction
+Time-domain parameters Three time domain parameters were extracted from the PPIs time series, including the mean of the PPIs (meanPP), the standard deviation of the PPIs (SDPP) and the root mean square of difference of the successive PPIs (RMSSD).
+19
+
+Power spectral analysis
+PPIs were resampled into the equivalent, uniformly spaced time series (so called PRV) at a sampling rate of 4 Hz using the Berger algorithm [8]. PRV was characterized in the spectral domain using power spectral density (PSD). To provide a better frequency resolution a parametric power spectral estimation was performed through an autoregressive modeling with 1024 points and an order of 16. The power in each of the following frequency bands was computed by determining the area under the PSD curve bounded by the band of interest: Very Low Frequency (VLF; 0.01-0.04 Hz), Low Frequency (LF; 0.04-0.15 Hz) and High Frequency (HF; 0.15-0.4 Hz). Normalized LF (nLF) and normalized HF (nHF) powers were determined by dividing LF and HF powers by the total spectral power of PRV between 0.04 and 0.4 Hz, respectively. The ratio of low-to-high frequency power (LF/HF ratio) was also computed.
+
+Detrended Fluctuation Analysis (DFA)
+To quantify the short and long-range ﬂuctuation of heart rate, we applied DFA to the PPIs time series. DFA detects the internal correlation of signal expressed by scaling properties. To calculate DFA, we followed a four-step procedure [60]:
+Step 1: An integrated version of the original PPIs time series was calculated as
+
+k
+y(k) = ∑[PPI(i) − PPIavg] i=1
+
+(2.1)
+
+where PPI(i) was the ith PPIs, PPIavg was the mean of PPIs and k = 1,...,N. N was the total number of pulses.
+Step 2: The time series y(k) was divided into equally spaced Nn = int(N/n) non-overlapping windows with length n (number of pulses in each window).
+Step 3: For each window, the local trend yn(k) was separately calculated by a quadratic least-squares ﬁt. Then the variance was determined for each window by
+
+∑ σn2(v)
+
+=
+
+1 n
+
+n
+[y((v −
+k=1
+
+1)
+
+∗
+
+n
+
++
+
+k)
+
+−
+
+yn(k)]2
+
+(2.2)
+
+where v=1,...,Nn.
+
+20
+
+Step 4: Finally, to obtain F(n), the ﬂuctuation function, the root-mean-square of all variances was calculated by
+
+∑ F(n) =
+
+1 Nn
+
+Nn v=1
+
+σn2(v)
+
+(2.3)
+
+In order to determine how F(n) depends on the time scale n, the process was re-
+
+peated for several time scales n. Typically, F(n) increases as a power law when n
+
+increases,
+
+F(n) ∼ nα
+
+(2.4)
+
+In a double logarithmic plot, the scaling exponent α shows the slope of a line that ﬁts log(F(n)) to log(n) (Figure 2.1). An α = 0.5 corresponds to an uncorrelated time series. 0 < α < 0.5 is indicative of anti-correlation time series, which means that short and large intervals are more likely to alternate. 0.5 < α < 1 represents correlation in the time series which means short intervals are more likely to be followed by short intervals and vice versa [60].
+In short-range correlations, α differs from 0.5 for small ns but will approach 0.5 for large ns. In long-range correlations α is greater than 0.5 and less than 1 for large ns.
+To determine the short and long-range correlation in PPIs sequences, we deﬁned αS and αL respectively, as the slopes of log(F(n)) as a function of log(n) for the range 10 < n < 40 and for the range 70 < n < 200 [61].
+
+2.2.6 Data analysis
+The Lilliefors test showed that the extracted parameters were not normally distributed. The Wilcoxon Signed Rank test was therefore performed to evaluate the differences between the the segments with and without A/H events. The Wilcoxon Sum Rank test was also used to assess the differenced between the parameters of the two groups with and without SDB. A probability of p < 0.05 was considered signiﬁcant and no multiple-comparison correction method was used.
+To distinguish children with and without SDB during the entire sleep, a logistic regression model was ﬁtted to the data set. Least absolute Shrinkage and Selection Operator (LASSO) method was used to select the signiﬁcant features [35]. λ was
+21
+
+103 non−REM REM
+102
+
+F(n)
+
+101
+
+100
+
+100
+
+101
+
+102
+
+103
+
+Interval n (pulses)
+
+Figure 2.1: In double logarithmic plot, the ﬂuctuation function of PPIs, F(n), is plotted as a function of n (the number of pulses) for a child without SDB during non-REM (blue squares) and REM sleep (red stars). The slopes of the curves correspond to the ﬂuctuation scaling exponent α. For n > 100, the ﬂuctuation function of PPI during REM and non-REM are distinguishable.
+
+tuned by stratiﬁed 10-fold cross validation; signiﬁcant features were selected based on the chosen λ . The LASSO model predicted the probability of having SDB for each subject. To classify subjects into SDB and non-SDB groups based on the predicted probabilities, instead of using a default threshold of 0.5, we calculated a risk threshold based on the maximum weighted classiﬁcation score [67].
+
+2.3 Results
+In the following subsections, the estimation of different parameters during A/H events for the individual children with SDB (intra-individual event analyses) and also in groups with and without SDB (inter-groups analysis) have been presented.
+22
+
+2.3.1 Intra-individual event analysis
+For the whole group, totalling 70856 one minute segments, 32574 were included in the analysis, with 38282 excluded due to artifacts. Of a total of 5040 segments labelled as apnea/hypopnea, 3267 were included in the analysis, with 1377 excluded for artifacts and 326 excluded due to multiple sleep labels.
+Based on Wilcoxon Signed Rank test, spectral domain parameters differed signiﬁcantly (p-value < 0.0001) in apnea/hypopnea events.
+For the duration of the entire sleep, the nLF increased in apnea/hypopnea events for 96% of the children with SDB. Similarly, the LF/HF ratio increased in apnea/hypopnea events for 96% of the children with SDB, while nHF decreased in 94% of children with SDB during apnea/hypopnea events(Figure 2.2).
+During non-REM sleep, for 95% of children with SDB, higher nLF, higher LF/HF ratio, and lower nHF were recognized in segments with apnea/hypopnea events compared to segments without SDB (Figure 2.3).
+During REM sleep, for 73% of the children with SDB, the nLF and LF/HF ratio increased in apnea/hypopnea events. In addition, for 68% of the children with SDB, nHF decreased in the apnea/hypopnea events (Figure 2.4).
+The VLF increased during apnea/hypopnea events for almost 90% of the children with SDB during non-REM sleep and REM sleep (Figure 2.3 and Figure 2.4).
+Time domain parameters differed in apnea/hypopnea events but the differences were not statistically signiﬁcant.
+2.3.2 Inter-groups analysis
+The meanPPIs were signiﬁcantly shorter in children with SDB during whole sleep, non-REM and REM sleep. SDPP and RMSSD did not vary signiﬁcantly between the two groups (Table 2.2, Table 2.3 and Table 2.4).
+The VLF was higher in children with SDB compared to the group without SDB. The differences were greater during non-REM sleep. Compared to children without SDB, in the SDB group, the nLF and LF/HF ratio were signiﬁcantly higher during non-REM sleep, but did not differ signiﬁcantly during REM sleep. The nHF was lower in children with SDB relative to children without. This difference was greater during non-REM sleep compared to REM sleep (Figure 2.5, Table 2.2,
+23
+
+1
+
+1
+
+1
+
+0.9
+
+0.9
+
+0.9
+
+2.5
+
+0.8
+
+0.8
+
+0.8
+
+0.7
+
+0.7
+
+0.7
+
+2
+
+VLF Normalized LF Normalized HF
+LF/HF Ratio
+
+0.6
+
+0.6
+
+0.6
+
+0.5
+
+0.5
+
+0.5
+
+1.5
+
+0.4
+
+0.4
+
+0.4
+
+1
+
+0.3
+
+0.3
+
+0.3
+
+0.2
+
+0.2
+
+0.2
+
+0.5
+
+0.1
+
+0.1
+
+0.1
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+Figure 2.2: Comparison of spectral parameters in segments with and without apnea/hypopnea events for children with SDB (AHI > 5) during the entire period of sleep. Blue (thin) and red (thick) lines show the mean increase and decrease of parameters, respectively. The nLF parameter increased in apnea/hypopnea events for 96% of the children with SDB (Blue lines). The LF/HF ratio increased in apnea/hypopnea events for 96% of the children with SDB (Blue lines), while nHF decreased in 94% of children with SDB during apnea/hypopnea events (Blue lines). The VLF parameter increased during apnea/hypopnea events for almost 92% of the children with SDB (Blue lines).
+
+Table 2.3 and Table 2.4). In a double logarithmic representation, the function F(n) in the range of 10 < n
+< 200, was clearly distinct between the SDB group and the non-SDB group, during non-REM sleep (Figure 2.6). However, during REM sleep these two functions were not clearly demarcated (Figure 2.7).
+Greater αS and αL values were observed for children with SDB compared to children without. However, αL varied much more signiﬁcantly than αS and the
+
+24
+
+1
+
+1
+
+0.9
+
+0.9
+
+1
+
+2.5
+
+0.8
+
+0.8
+
+0.8
+
+0.7
+
+0.7
+
+2
+
+VLF Normalized LF Normalized HF
+LF/HF Ratio
+
+0.6
+
+0.6
+
+0.6
+
+0.5
+
+0.5
+
+1.5
+
+0.4
+
+0.4
+
+0.4
+
+1
+
+0.3
+
+0.3
+
+0.2
+
+0.2
+
+0.2
+
+0.5
+
+0.1
+
+0.1
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+Figure 2.3: Comparison of spectral parameters in segments with and without apnea/hypopnea events for children with SDB (AHI > 5) during the non-REM sleep. Blue (thin) and red (thick) lines show the mean increase and decrease of parameters, respectively. For 95% of children with SDB, higher nLF, higher LF/HF ratio, and lower nHF were recognized in segments with apnea/hypopnea events compared to segments without SDB. The VLF parameter increased during apnea/hypopnea events for almost 90% of the children with SDB.
+
+differences were greater during non-REM sleep (Figure 2.8). By applying the LASSO method to the data set to classify children with and
+without SDB during the entire sleep, a model with three signiﬁcant features (meanPPIs, VLF, and αL) was selected. Based on a calculated risk threshold of 0.36, an AUC of 78% was obtained for this model, providing accuracy, sensitivity and speciﬁcity of 71%, 76% and 68%, respectively.
+
+25
+
+1
+
+1
+
+1.2
+
+0.9
+
+0.9
+
+2.5
+
+1
+
+0.8
+
+0.8
+
+0.7
+
+0.7
+
+2
+
+0.8
+
+0.6
+
+0.6
+
+0.5
+
+0.5
+
+1.5
+
+0.6
+
+0.4
+
+0.4
+
+1
+
+0.4
+
+0.3
+
+0.3
+
+VLF Normalized LF Normalized HF
+LF/HF Ratio
+
+0.2
+
+0.2
+
+0.2
+
+0.5
+
+0.1
+
+0.1
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+0 non−A/H A/H
+
+Figure 2.4: Comparison of spectral parameters in segments with and without apnea/hypopnea events for children with SDB (AHI > 5) during the REM sleep. Blue (thin) and red (thick) lines show the mean increase and decrease of parameters respectively. During REM sleep, for 73% of the children with SDB, the nLF and LF/HF ratio increased in apnea/hypopnea events. In addition, for 68% of the children with SDB, nHF decreased in the apnea/hypopnea events. The VLF parameter increased during apnea/hypopnea events for almost 90% of the children with SDB.
+
+2.4 Discussion
+The results of this study showed that the cardiac sympathetic indices of PRV were higher during A/H events for more than 95% of children with SDB (AHI > 5). These indices were also higher in children with SDB compared to children without. In addition, heart rate was higher and the short- and long-range ﬂuctuations of heart rate were more strongly correlated in children with SDB. Also, we found that cardiac sympathetic indices were modulated by sleep stages.
+Although many studies have been conducted in adults, few studies have in-
+
+26
+
+Table 2.2: Descriptive results (median) of estimated parameters for children with and without SDB during the entire sleep period
+
+mean
+
+95% CI
+
+non-SDB SDB differences (Low, High) p-value
+
+meanPPIs SDPP RMSSD VLF nLF nHF Ratio
+αS αL
+
+0.800 0.050 0.052 0.100 0.280 0.710 0.443 0.700 0.600
+
+0.710 0.054 0.052 0.190 0.340 0.650 0.560 0.820 0.680
+
+0.070 0.007 0.004 0.083 0.050 0.050 0.130 0.090 0.078
+
+(0.012 , 0.124) (-0.004, 0.017) (-0.008, 0.014) (0.024 , 0.145) (0.005 , 0.098) (0.004 , 0.098) (0.022 , 0.258) (0.015 , 0.164) (0.032 , 0.122)
+
+0.005 0.100 0.29 0.0001 0.001 0.001 0.010 0.010 0.0005
+
+Table 2.3: Descriptive results (median) of estimated parameters for children with and without SDB during non-REM sleep
+
+mean
+
+95 % CI
+
+non-SDB SDB differences (Low, High) p-value
+
+meanPPIs SDPP RMSSD VLF nLF nHF Ratio
+αS αL
+
+0.819 0.046 0.049 0.089 0.251 0.749 0.394 0.688 0.539
+
+0.715 0.050 0.054 0.174 0.314 0.685 0.542 0.777 0.621
+
+0.072 0.007 0.004 0.067 0.041 0.041 0.100 0.077 0.065
+
+(0.011 , 0.126) (-0.003, 0.017) (-0.007, 0.015) (0.012 , 0.120) (0.000 , 0.091) (0.000 , 0.091) (0.000 , 0.220) (-0.007, 0.153) (0.022 , 0.108)
+
+0.005 0.10 0.23 0.005 0.050 0.050 0.040 0.030 0.005
+
+vestigated the effects of SDB on the autonomic cardiac regulation in children. In particular, few studies have examined autonomic function in children through the analysis of the PPG obtained from a pulse oximeter, and none have used a mobile device for this purpose. In the rest of this section, we compare our ﬁndings with the results of studies based on HRV.
+Gil et al showed that during non-stationary conditions there were some small differences between HRV and PRV, mainly in the respiratory band, which were
+27
+
+Table 2.4: Descriptive results (median) of estimated parameters for children with and without SDB during REM sleep
+
+mean
+
+95% CI
+
+non-SDB SDB differences (Low, High) p-value
+
+meanPPIs SDPP RMSSD VLF nLF nHF Ratio
+αS αL
+
+0.761 0.049 0.047 0.233 0.408 0.591 0.704 0.884 0.817
+
+0.697 0.059 0.044 0.338 0.430 0.569 0.874 0.96 0.873
+
+0.070 0.004 0.002 0.048 0.026 0.026 0.096 0.044 0.032
+
+(0.017 , 0.120) (-0.005, 0.015) (-0.008, 0.012) (-0.044, 0.144) (-0.035, 0.087) (-0.035, 0.087) (-0.086, 0.301) (-0.053, 0.134) (-0.043, 0.105)
+
+0.005 0.21 0.35 0.14 0.2 0.2 0.15 0.18 0.18
+
+related to the pulse transit time variability [29]. However, they concluded that these differences were sufﬁciently small to suggest the use of PRV as an alternative measurement of HRV.
+2.4.1 Intra-individual event analysis
+During non-REM sleep, the segments with apnea/hypopnea events were characterized by higher values of the nLF and LF/HF ratio and lower values of nHF for 95% of children with SDB. This may show that sympathetic modulation was predominant during apnea/hypopnea events while parasympathetic activity was diminished.
+During REM sleep, we found that for 73% of SDB children, the nLF and LF/HF ratios increased in apnea/hypopnea events and for 68% of children, the nHF power decreased in the apnea/hypopnea events. These results indicate that the predominance of sympathetic activity (increase in the nLF and LF/HF ratios) in apnea/hypopnea events is suppressed by cardiac sympathetic modulation during REM sleep.
+The VLF was higher in apnea/hypopnea events for 90% of the children with SDB, during non-REM, consistent with an increase in the slow regulation of cardiac function [36]. However, longer signal segments (>1-minute) are required to further validate these results.
+
+28
+
+VLF
+
+normalized HF
+
+normalized LF
+
+1
+**
+0.5
+
+1
+**
+0.5
+
+1
+**
+0.5
+
+0 non−SDB SDB
+
+0 non−SDB SDB
+(a)
+
+0 non−SDB SDB
+
+LF/HF Ratio
+
+2.5
+2 **
+1.5 1
+0.5 0 non−SDB SDB
+
+VLF
+
+normalized HF
+
+normalized LF
+
+1
+**
+0.5
+
+1
+*
+0.5
+
+1
+*
+0.5
+
+0 non−SDB SDB
+
+0 non−SDB SDB
+(b)
+
+0 non−SDB SDB
+
+LF/HF Ratio
+
+2.5
+2*
+1.5 1
+0.5 0 non−SDB SDB
+
+VLF
+
+1
+
+1
+
+1
+
+normalized HF
+
+normalized LF
+
+0.5
+
+0.5
+
+0.5
+
+0 non−SDB SDB
+
+0 non−SDB SDB
+(c)
+
+0 non−SDB SDB
+
+LF/HF Ratio
+
+2.5 2
+1.5 1
+0.5 0 non−SDB SDB
+
+Figure 2.5: Frequency domain parameters in children with and without SDB during (a) the entire sleep period, (b) non-REM sleep and (c) REM sleep. Signiﬁcant differences between the SDB and non-SDB groups are marked by one star (*) when p-value < 0.05 and by two stars (**) when p-value < 0.01. Quartile values are displayed as the bottom, middle and top horizontal line of the boxes. Whiskers are used to represent the most extreme values within 1.5 times the interquartile range from the median. Outliers (data with values beyond the ends of the whiskers) are displayed as (+).
+
+Bahavaret et al employed HRV spectral analysis to assess autonomic cardiac regulation in children with SDB in overnight sleep studies [6]. They also found that epochs containing obstructive sleep apneas had higher values of the nLF and LF/HF ratios and lower nHF than the epochs without the respiratory events.
+
+29
+
+103 SDB non−SDB
+102
+
+f(n)
+
+101
+
+100
+
+101
+
+102
+
+103
+
+interval n (beats)
+
+Figure 2.6: The ﬂuctuation function F(n) during non-REM sleep for children with SDB children (blue squares) and non-SDB children (red stars) .
+
+2.4.2 Inter-groups analysis
+During both REM and non-REM sleep, the PPIs appeared shorter in children with SDB (decreased meanPPIs). Since the meanPPIs did not signiﬁcantly vary in apnea/hypopnea events, we would argue that heart rate was generally higher in children with SDB compared to those without, which may indicate higher sympathetic modulation in children with SDB. Khandoker et al who investigated PPIs during sleep apnea in adults also reported a signiﬁcant higher heart rate [43].
+During non-REM sleep, we found that the nLF and LF/HF ratios were signiﬁcantly higher and nHF was lower in the SDB group, relative to the non-SDB group. The same trend was observed in children with SDB during REM sleep, although these differences were not statistically signiﬁcant. These ﬁndings showed an enhanced sympathetic activity and a diminished parasympathetic activity in children with SDB in response to sleep apnea. However, during REM sleep, this cardiac modulation was also provoked by the sleep state. Furthermore, we discovered that
+
+30
+
+103 SDB non−SDB
+102
+
+f(n)
+
+101
+
+100
+
+100
+
+101
+
+102
+
+103
+
+interval n (beats)
+
+Figure 2.7: The ﬂuctuation function F(n) during REM sleep for children with SDB children (blue squares) and non-SDB children (red stars) .
+
+the decrease in the nHF in children with SDB was more signiﬁcant than the increase in the nLF. This may indicate that children with SDB exhibit a stronger decrease of parasympathetic activity rather than an increase of sympathetic activity, as conﬁrmed by Chouchou et al [14].
+Baharavet et al also showed that the nLF and LF/HF ratios were higher for children with SDB during non-REM and REM sleep [6]. They reported statistically signiﬁcant differences in nHF and LF/HF ratios during non-REM sleep between two groups, in agreement with our ﬁndings.
+Our ﬁndings from DFA analysis suggest that the short- and long-range ﬂuctuation of heart rate are more strongly correlated in children with SDB compared to children without SDB. We found that in children with SDB, both αS and αL were larger, relative to the children without SDB, during both non-REM and REM sleep stages. Since the short-range correlation is associated with the effects of breathing on heart rate, this large αS value may indicate that the control of heart rate in the range of respiratory related time scales (10 < n < 40) is much tighter in chil-
+
+31
+
+αS
+
+αL
+
+1.2
+
+**
+
+**
+
+1
+
+0.8
+
+0.6
+
+0.4
+
+0.2 non−SDB SDB non−SDB SDB
+(a)
+
+αS
+
+αL
+
+1.2
+
+*
+
+**
+
+1
+
+0.8
+
+0.6
+
+0.4
+
+non−SDB SDB non−SDB SDB
+(b)
+
+αS
+
+αL
+
+1.2 1
+
+0.8 0.6
+
+0.4
+non−SDB SDB non−SDB SDB
+(c)
+Figure 2.8: αS and αL in children with and without SDB during (a) entire sleep period, (b) non-REM sleep and (c) REM sleep. Signiﬁcant differences between SDB and non-SDB group are represented by one star (*) when p-value < 0.05 and by two stars (**) when p-value < 0.01.
+
+32
+
+dren with SDB. Furthermore, as mentioned by Khoo et al [36], in subjects with SDB respiratory modulation is not limited to the high frequency band (0.15 - 0.4 Hz). In SDB, respiratory modulation of heart rate takes the form of a large cyclical variation that correlates with episodic apnea or hypopnea and mostly elevates the components of VLF band. These results, showing greater values of αL in children with SDB, are consistent with an elevated VLF band.
+Penzel et al investigated the short and long range correlations of heart rate intervals measured by DFA in adults during different sleep stages [61]. They found αS = 1.00 and αL = 0.67 for adults without SDB (age = 33.0 ± 6.4 years) during the whole sleep. These values are larger than our values calculated for children without SDB (age = 9.1 ± 4.2 years). This suggests that the ﬂuctuation in the RRIs of adults without SDB is more strongly correlated than the ﬂuctuation in PPIs of children without SDB.
+We analysed the different features of PRV in different sleep stages. We found that in non-REM sleep, the features of PRV varied signiﬁcantly in apnea/hypopnea events. However, during REM sleep, the same features extracted from segments with apnea/hypopnea events were not distinguishable from segments without apnea/hypopnea events. Nevertheless, the results obtained from the PRV analysis applied to the whole sleep recording, showed that even without considering the stage of sleep, PRV features were signiﬁcantly different in segments with apnea/hypopnea events. This means that even when the sleep stage information is not available, it is possible to distinguish apnea/hypopnea events through PRV.
+To classify children with and without SDB based on only the PRV features across the entire sleep, we achieved an accuracy of 71% using a ﬁtted model with the three selected features (meanPPIs, VLF, and αL). This is comparable to the results of a study by Penzel et al [61] which showed an accuracy of 72.9% classifying adults based on their apnea severity using eight spectral and DFA features of HRV.
+In intra-individual event and inter-group analyses we characterized PRV using 1- and 5-minute sliding windows respectively, to answer two different questions. In the intra-individual event analysis we compared the extracted temporal and spectral parameters between the segments with and without apnea/hypopnea events. We considered 1-minute segments to ensure that the segments are small enough
+33
+
+to contain only the apnea/hypopnea event(s) and/or the arousal(s) accompanying them. In the inter-individual analysis, to assess the cardiac modulation in SDB, we divided the children into two groups; those with and without SDB. According to a study by Penzel et al [61], the DFA parameters extracted from segments with a duration of 5 minutes or more are more distinguishable between children with and without SDB in different sleep stages (Figure 2.1). So, we estimated PPIs and extracted parameters for each group using a 5-minute sliding window.
+2.4.3 Limitations and future work
+We found that A/H events induced cardiac modulation; however, we did not investigate whether this modulation was inﬂuenced by arousal, hypoxia or the duration of A/H events.
+In this study, we considered the AHI >= 5 as the criteria for SDB. However, there is no discrete deﬁnition of SDB based on AHI alone, but rather a continuum from normal to abnormal. We recognize that some studies consider an AHI >= 2 as mild SDB. Therefore, we will further investigate the characterization of PRV for monitoring children with SDB based on different AHI thresholds (AHI >= 1, AHI >= 2).
+In this study, to characterize PRV in intra-individual event and inter-group analyses, we chose two sliding windows with different lengths, which may be considered as a study limitation.
+2.4.4 Clinical relevance
+The ﬁndings of this study conﬁrm that SDB affects the regulation of cardiac function, suggesting that it would be possible to use the effects of SDB on cardiac modulation to detect apnea/hypopnoea events in children. Furthermore, we have previously shown that the characterization of overnight SpO2 pattern measured by the Phone OximeterTM successfully identiﬁes children with signiﬁcant SDB [25]. Hence, combining the characterization of SpO2 and PRV, both recorded by Phone OximeterTM holds promise as a low-cost approach to automatically assess SDB at home [26]. This can greatly increase the accessibility to sleep apnea screening and improve the quality of life for the many children currently affected by SDB related
+34
+
+disorders. 35
+
+Chapter 3
+Extracting Instantaneous Respiratory Rate from Photoplethysmogram
+3.1 Introduction
+Respiratory rate (RR), along with other vital signs like heart rate and blood pressure, is monitored for primary or continuous assessment of patient wellness. There is signiﬁcant evidence that an abnormal respiratory rate is an important predictor of serious illness. For example, in children aged 1-5 years old, an elevated RR (> 40 breaths/min) is an important criterion for the diagnosis of pneumonia [76]. Furthermore, Fieselmann et al analyzed the measurements of vital signs during the 72 hours prior to cardiac arrest and showed that a high respiratory rate (> 27 breaths/min) was a signiﬁcant predictor of cardiac arrest in hospitals [22]. In addition, Subbe et al showed that relative changes in respiratory rate are much more significant than changes in heart rate or systolic blood pressure in unstable patients and therefore the respiratory rate is more likely to be a better predictor for identifying the patient at risk [69].
+RR can be measured by a nurse counting the number of times the chest rises in one minute [47]. Continuous monitoring of RR, though, needs a monitoring device
+36
+
+and can be performed using capnography, transthoracic impedance pneumography, nasal/oral pressure transducers and abdominal/thoracic respiratory inductance plethysmography belts, among others. However, recent studies have found that neither the nurses nor the monitoring devices provide accurate and reliable measurements of RR [47]. Therefore, there is a clear need for a robust, automatic, reliable and non-invasive measure of RR for performing a spot-check and for continuous monitoring.
+Analysis of the PPG recorded using a pulse oximeter could offer an alternative method for monitoring RR. The PPG waveform contains information about a wide range of physiological parameters such as heart rate (HR), heart rate variability (HRV), oxygen saturation (SpO2), vascular tone, blood pressure, cardiac output and respiration [65]. However, most conventional pulse oximeters only provide HR and SpO2. In this study, we present a novel algorithm for robust estimation of instantaneous respiratory rate (IRR) from PPG with the aim of developing a portable solution based on pulse oximetry, suitable for both continuous monitoring and spot-check applications.
+3.1.1 Background
+Respiration may induce variation in PPG in three different ways [54] (Figure 3.1): 1) respiratory-induced intensity variation (RIIV): Changes in venous return due
+to changes in intra-thoracic pressure throughout the respiratory cycle cause a baseline (DC) modulation of the PPG signal. During inspiration, decreases in intrathoracic pressure result in a small decrease in central venous pressure increasing venous return. The opposite occurs during expiration. As the venous bed at probing site cyclically ﬁlls and drains, the baseline is modulated accordingly.
+2) respiratory-induced amplitude variation (RIAV): During inspiration, left ventricular stroke volume decreases due to changes in intra-thoracic pressure leading to the decreased pulse amplitude. The opposite happens during expiration.
+3) respiratory-induced frequency variation (RIFV): Heart rate varies throughout the respiratory cycle; heart rate increases during inspiration and decreases during expiration. This phenomenon well-known as respiratory sinus arrhythmia (RSA) is mainly due to the autonomic regulation of heart rate during respiration.
+37
+
+Figure 3.1: From top, PPG with no modulation, Respiratory-Induced Intensity Variation (RIIV), Respiratory-Induced Amplitude Variation (RIAV), and Respiratory-Induced Frequency Variation (RIFV)
+Respiration may induce variation in PPG differently among different individuals in health and disease. For instance, RIFV, as an indicator of autonomic activity, may be affected by diseases and disorders (e.g. myocardial infarction, diabetic neuropathy or sleep breathing disorders [20]). RIAV and RIIV are also very sensitive to dehydration and hypovolemia. In addition, respiratory-induced variations are different for women and men (For men, when the respiratory rate was not more than 10 breaths/min, the frequency variation has the strongest correlation to the respiratory signal; whereas up to or above 15 breaths/min, in the sitting position, the intensity variation has the strongest correlation to the respiratory signal and in the supine position, amplitude variation has the strongest. For women, the frequency variation correlates with respiration more strongly than the other variations, nearly independent of the respiratory rate or posture)[34]. As such, estimation of IRR by combining the information from three respiratory-induce waveform variations, improves the algorithm performance and increases the robustness of results [41].
+Many algorithms have been proposed to estimate RR from PPG. Auto-regression
+38
+
+[71], Fourier transform analysis [41], correntropy spectral density [26], digital ﬁlters [56] and empirical mode decomposition [24] were successfully used, among others. These algorithms have mostly focused on estimating average RR from a PPG segment. For example, [41] and [26] estimated RR every second using 16, 32, 64-second segments of PPG data.
+Few algorithms, however, have proposed to estimate RR instantaneously, mostly performed by time-frequency approaches based on a continuous wavelet [3] , [16], variable frequency complex demodulation methods (VFCDM) [42] and short-time Fourier analysis (STFT) [66].
+In this study, we have proposed a novel method for extracting IRR from PPG. The method is performed in three main steps: extraction of RIIV, RIAV and RIFV signals from PPG, estimation of IRR from each extracted respiratory-induced variation signals and fusion of IRR estimates. A time-frequency transform called synchrosqueezing transform (SST) [17] is used to extract RIIV, RIAV and RIFV from PPG. Later, a second SST is applied to estimate IIR from respiratory-induced variation in signals [2]. To fuse IRR estimates corresponding to each respiratoryinduced variation signal, a novel method, called peak-conditioned fusion algorithm is proposed.
+
+3.2 Algorithm Description
+
+3.2.1 Instantaneous Frequency (IF)
+The instantaneous frequency is the frequency at a given time. Consider a multicomponent signal f that can be modelled as
+
+K
+
+K
+
+f (t) = ∑ fk(t) = ∑ Ak(t) cos(2πφk(t))
+
+k=1
+
+k=1
+
+(3.1)
+
+where Ak(t) and φk(t) are the time-varying amplitude and phase of kth frequency component, respectively.
+The instantaneous frequency (IF) is deﬁned as the derivative of the phase func-
+
+39
+
+tion with respect to time as IFf = {φk(t)}1≤k≤K
+
+(3.2)
+
+3.2.2 Synchrosqueezing Transform (SST)
+The SST was ﬁrst introduced by Daubechies et al. [17] in 1996 and then implemented by Thakur et al. [70]. SST is a combination of wavelet analysis and a reallocation method which sharpens a time-frequency representation by allocating its points to another locations in the time-frequency plane. SST can provide an accurate estimation of IF.
+As deﬁned in [17], SST involves three steps: Step 1: Estimation of the continuous wavelet transform (CWT) The CWT of f is calculated as
+
+Wf (a, b) =
+
+f (t)a−1/2 ψ(t − b )dt a
+
+(3.3)
+
+where ψ is a wavelet with ψˆ (ξ ) = 0 for ξ ≤ 0 and a and b are scale and location variables, respectively. ψ(ξ ) is the complex conjugate of ψ(ξ ) and ψˆ (ξ ) is the Fourier transform of ψ(ξ ) estimated as
+
+ψˆ (ξ ) = ψ(ξ )e−i(2πξ )t dt
+
+(3.4)
+
+Step 2: Estimation of the instantaneous frequency If ψˆ (ξ ) is concentrated around ξ = ω0, then Wf (a, b) will be spread out around the horizontal line a = ω0/ω on the time-scale presentation for a given frequency of ω. However, Daubechies et al. [17] showed that the oscillation of Wf (a, b) around b tends to the original frequency ω, irrespective of the value of a. Therefore, for any (a, b) where Wf (a, b) = 0, the instantaneous frequency ω f (a, b) for signal f can be deﬁned as
+
+ω
+
+f
+
+(a,
+
+b)
+
+=
+
+−
+
+i 2π
+
+((W
+
+f
+
+(a,
+
+b))−1
+
+∂W ∂b
+
+f
+
+(a,
+
+b))
+
+(3.5)
+
+Step 3: Transfer to the time-frequency plane
+
+40
+
+In this step, each point on the time-scale plane is allocated to a point on the
+
+time-frequency plane using the map (a, b) → (ω f (a, b), b). The frequency variable
+
+ω and the scale variable a are both binned: Wf (a, b) is computed only at discrete
+
+values ak, with ak − ak−1 = (∆a)k and its SST, Tf (ω, b) is estimated only at the cen-
+
+ters
+
+ωl
+
+of
+
+the
+
+successive
+
+bins
+
+[ωl
+
+−
+
+1 2
+
+,
+
+ωl
+
++
+
+1 2
+
+],
+
+with
+
+ωl
+
+−
+
+ωl−1
+
+=
+
+∆ω ,
+
+by
+
+summing
+
+different points:
+
+Tf (ωl, b) = (∆ω)−1
+
+∑
+
+−3
+Wf (ak, b)ak2 (∆a)k.
+
+ak
+
+:|ω
+
+(ak
+
+,b)−ωl
+
+|≤
+
+∆ω 2
+
+(3.6)
+
+3.3 Material and Methods
+
+3.3.1 Data sets
+
+Capnobase data set
+The Capnobase contains test and calibration data sets [38]. The test data set contains forty-two 8-min segments of recordings obtained from 29 pediatric and 13 adults receiving general anesthesia at the British Columbia Childrens Hospital and St. Pauls Hospital, Vancouver, BC, respectively. Calibration data set contains one hundred twenty-four 2-min segments of recordings used for tuning the parameters of the proposed algorithm.
+In both data sets , the recordings included ECG, capnometry, and PPG (sampled at 300 Hz, 300 Hz and 100 Hz, respectively) obtained with S/5 collect software (Datex-Ohmeda, Finland). The capnography waveform was used as the reference gold standard recording for RR. A research assistant manually labelled each breath in the capnogram. The beginning and end of all artifacts in the PPG waveforms were also manually labelled. Both datasets can be downloaded from the on-line database, CapnoBase.org.
+Sleep data set
+The Sleep database contains forty-three 20-min segments of recording from 43 children referred to the British Columbia Children’s Hospital for overnight stan-
+
+41
+
+dard polysomnography (PSG). The children had been recruited following approval by the University of British Columbia Clinic Research Ethics Board (H11-01769) and informed parental consent. Children with a cardiac arrhythmia or abnormal hemoglobin were excluded from the study.
+Standard PSG recordings included overnight measurements of ECG, electroencephalography (EEG), oxygen saturation (SpO2), PPG, chest and abdominal movement, nasal and oral airﬂow, left and right electrooculography (EOG), electromyography (EMG) and video capture. The PSG recordings were performed with the Embla Sandman S4500 (Embla Systems, ON, Canada).
+In addition to PSG, the PPG was recorded simultaneously using the Phone OximeterTM sampled at 62.5 Hz with 32-bit resolution.
+The nasal/oral airﬂow waveform was used as the reference gold standard recording for RR. Two expert manually labelled each breath in nasal/oral airﬂow waveform. The beginning and end of all artifacts in the oral/nasal waveforms were also manually labelled.
+3.3.2 Estimation of IRR from PPG
+To perform IRR estimation, after a preprocessing stage, a ﬁrst SST was applied to PPG to extract RIIV, RIAV and RIFV. Later, a second SST was performed to estimate IIR from the respiratory-induced variation signals. The peak-conditioned fusion algorithm was then used to fuse simultaneous IRR estimates. This procedure, inspired by the method known as secondary wavelet feature decoupling (SWFD) [2], involves the following steps (Figure 3.2):
+1) The ﬁrst SST is applied to the PPG signal. 2) In the STT surface plot, two components are identiﬁed: a strong cardiac component in the cardiac band (0.5-3 Hz, 30-180 beats/minute) and a respiratory component in the respiratory band (0.14-0.9 Hz, 8-54 breaths/minute) (Figure 3.3). In this study, reference ranges of cardiac and respiratory bands were extracted from a review of observational studies that used HR from 143,346 children and RR data from 3,881 children (from 6 months to 18 years old) [22]. Based on 99th and 1st centiles for children and young adults, the HR could range from 30 to 180 beats/min (0.50 to 3 Hz, respectively) and RR from 8 to 54 breaths/min (0.14 to
+42
+
+Figure 3.2: To extract IRR from PPG, the ﬁrst SST was applied to PPG to extract RIIV, RIAV and RIFV. Later, the second SST was performed to estimate IIR from a respiratory-induced variation signals. The peakconditioned fusion algorithm was then used to fuse simultaneous IRR estimates
+0.9 Hz, respectively). The range in adults is much more restricted, thus it would be included in this range.
+3) The respiratory component in the SST surface plot shows RIIV and its ridge in the frequency-time plane represents RIIV-derived IRR (IRRriiv) (Figure 3.3).
+4) The ridge of the cardiac component is followed either in the amplitudetime plane to get RIAV or in the frequency-time plane to get RIFV. This is done by projecting the cardiac ridge points onto the amplitude-time or frequency-time planes, respectively.
+5) The second SST applied to RIAV results in a dominant single component in the respiratory band (0.14-0.9 Hz, 8-54 breaths/minute) whose ridge represents RIAV-derived IRR (IRRriav)
+6) A second SST is applied to the RIFV signal as well to get a dominant single component in the respiratory band whose ridge represents RIFV-derived IRR (IRRri f v).
+7) Estimation of ﬁnal IRR (IRRppg) is performed using a proposed peak frequency tracking method (so-called peak-conditioning fusion) which combines the instantaneous frequency information from (IRRriiv), (IRRriav) and (IRRri f v).
+43
+
+Figure 3.3: In the STT surface of PPG, two components are identiﬁed: a strong cardiac component in the cardiac band (0.5-3 Hz, 30-180 beats/minute) and a respiratory component in the respiratory band (0.14-0.9 Hz, 8-54 breaths/minute)
+Preprocessing
+The PPG signals were lowpass ﬁltered by a lowpass Chebyshev Type I IIR ﬁlter of order 8 and down sampled to 10 Hz.
+Estimation of IRRriiv Consider a PPG signal as a vector ppg ∈ Rn, n = 2L+1 where L is a nonnegative integer. The CWT of ppg, Wppg, was calculated using the Morlet wavelet, ψ, where its Fourier transform was concentrated around 1.25 Hz. The Wppg was sampled at the location (a j, b), where a j = 2 j/nv, j = 1, ..., Lnv, nv = 32 and b = 1, ..., n. The result is a Lnv × n matrix denoted W˜ ppg.
+When W˜ ppg > 0, ω˜ ppg was implemented as follow
+44
+
+ω˜ ppg
+
+=
+
+−
+
+i 2π
+
+DbW˜ ppg(a
+
+j,
+
+b)W˜ ppg(a
+
+j,
+
+b)−1
+
+(3.7)
+
+where DbW˜ ppg was the ﬁnite differences of W˜ ppg with respect to b.
+
+Then frequency variable, ω, was binned into frequency division ωl = 2l ω ω,
+
+l = 0, ..., Lnv − 1, where
+
+ω=
+
+1 Lnv−1
+
+l
+
+og2
+
+(
+
+n 2
+
+),
+
+ω
+
+=
+
+1 n
+
+t
+
+and ω¯ =
+
+21 t .
+
+ω¯
+
+and ω,
+
+were maximum and minimum frequencies respectively and were chosen based on
+
+Nyquist sampling theorem.
+
+The SST of PPG was calculated as
+
+∑ Tppg(ωl, b) =
+
+a
+
+j
+
+:|ω
+
+(a
+
+j
+
+,b)−ωl
+
+|≤
+
+∆ω 2
+
+log2 Lnv
+
+W˜ p
+
+pg
+
+(a
+
+j
+
+,
+
+b)a
+
+−1
+2
+j
+
+.
+
+(3.8)
+
+Tppg over time shows both cardiac and respiratory bands (Figure 3.3). A ridge ﬁtting the dominant area of Tppg in the respiratory band (0.14 Hz - 1 Hz) represented IRRriiv and was extracted by tracking the local maximum values in this region.
+
+Estimation of IRRriav Consider RIAV as a vector riav ∈ Rn, where n is the length of ppg. In the amplitudetime plane of Tppg, riav estimated as a ridge ﬁtting the dominant area of Tppg in the cardiac band (0.5 Hz - 3 Hz, 30 - 180 beats/minute). The ridge extracted by ﬁnding the local maximum values which minimize the following cost function [1]:
+
+n
+
+Cost = ∑ [−|Tppg(riav(b), b)|2 + |riav(b) − riav(b − 1)|2]
+
+(3.9)
+
+b=1
+
+The SST of riav, Triav was calculated using the same implementation described in the previous section, .
+A ridge ﬁtting the dominant area of Triav in the respiratory band (0.14 Hz - 1 Hz) represented the RIAV-derived IRR (IRRriav) and can be extracted by tracking the local maximum values in this region.
+
+45
+
+Estimation of IRRri f v Consider RIFV as a vector ri f v ∈ Rn, where n is the length of ppg. In the frequencytime plane of Tppg, rifv estimated as a ridge ﬁtting the dominant area of Tppg in the cardiac band (0.5 Hz - 3 Hz, 30 - 180 beats/minute). The ridge extracted by ﬁnding the local maximum values which minimize the following cost function [1]:
+
+n
+Cost = ∑ [−|Tppg(ri f v(b), b)|2 + |ri f v(b) − ri f v(b − 1)|2] b=1
+
+(3.10)
+
+The SST of riav, Triav was calculated using the same implementation described in the section 3.3.2.
+A ridge ﬁtting the dominant area of Triav in the respiratory band (0.14 Hz - 1 Hz) represented the RIFV-derived IRR (IRRrifv) and can be extracted by tracking the local maximum values in this region.
+
+Peak-Conditioned Fusion
+The peak-conditioned fusion method, inspired by [45], was proposed to combine the IRR estimates from three respiratory-induced variations to provide the ﬁnal IRRppg.
+The calculated Tppg, Triav and Trifv are two-dimensional matrices ∈ RLnvn, n = 2L+1 where L is a nonnegative integer and nv = 32. Each column of Tppg, Triav and Trifv matrices shows the frequency distribution of PPG, RIAV and RIFV signals at each time instance, respectively. To reduce the variance, each matrix is averaged in time dimension using a moving window of length Tm = 16s every ts = 5 s. The averaged matrix is denoted as Tˆk, where k refers to ppg, riav or rifv (Figure 3.4).
+At instant b, the location of the largest peak in respiratory band of each Tˆk(:, b) column (for k = ppg, riav or rifv) is detected and denoted as irkI (b). Then, a reference frequency interval, Ωk(b), was deﬁned as
+
+Ωk(b) = [ f (b − 1) − δ , f (b − 1) + 2δ ]
+
+(3.11)
+
+where (b − 1) was a respiratory rate reference estimated from the b − 1 previous step.
+All peaks larger than 85% of irkI (b) inside Ω(b) were detected and irkII(b) was
+
+46
+
+chosen as the nearest to f(b−1). By reaching to this point, irrIIiiv(b), irrIIiav(b) and irrIIifv(b) were available simultaneously.
+The ﬁnal respiratory peak at instant b, IIRppg((b)), was then chosen among irrIIiiv(b), irrIIiav(b) and irrIIifv(b) estimates with the largest Pk. Pk is a measure of the peakness and was deﬁned as the ratio of power contained in an interval centred
+around the largest peak to the power of Ωk(b). P mathematically calculated as
+
+pk(b)
+
+=
+
+∑mmianx{{iiffkIkIII((bb))+−00..66δδ,,ff((bb))+−2δδ}} Tk(ˆ:, b)
+
+∑
+
+f f
+
+(b)+2δ (b)−δ
+
+Tˆk
+
+(:,
+
+b)
+
+(3.12)
+
+Estimation of respiratory rate as the largest peak in the respiratory band would
+
+increase the risk of choosing the location of false peaks. To decrease this risk, the
+
+search for the largest peak was limited to the reference frequency interval, Ωk(b) [45]. This is an asymmetric interval of 3δ centred around a reference frequency.
+
+At each step the respiratory rate reference was updated using
+
+f (b + 1) = β ∗ f (b) + (1 − β ) ∗ IRRppg(b)
+
+(3.13)
+
+where f (b) = arg max(Tˆk(:, 1)) in the frequency band of [0.2Hz, 0.7Hz]. Value of δ was set as 0.1 and the value of a was tuned as 0.6 over the calibration data set.
+
+3.3.3 Algorithm Evaluation
+To evaluate the performance of SST-based algorithms, agreement between reference IRR and estimated IRR (using peak-conditioned fusion, simple fusion, single respiratory-induce variation) was assessed using the limits of agreement (LOA) technique. The bias and 95% LOA were estimated using the Bland-Altman plot. Since for each subject multiple measurement were observed, the Bland-Altman method for multiple observations per individual [79] was used instead of the standard Bland-Altman method. The bias was calculated as mean of IRRest - IRRre f and the 95% LOAs as mean bias 1.95 standard deviations. Two standard deviations (2SD) were also estimated in the purpose of ranking the proposed algorithm in this study based on the statistical analysis reported by [11].
+
+47
+
+Figure 3.4: The peak-conditioned fusion method combined the IRR estimates from three respiratory-induced variations to provide the ﬁnal IRR
+The coverage probability (CP2) was also reported as the probability of measurement error falling within pre-deﬁned bounds, set as 2 breaths per minute (bpm) in this study [7].
+3.4 Results
+3.4.1 Capnobase data base
+IRR extracted from the capnography waveform (IRRCO2) was used as the reference gold standard. The distribution of the respiratory rates contained 3542 data points estimated every 5 second from IRRCO2 for the 16 second moving windows over the whole dataset (Figure 3.5). The respiratory rates ranged from the lowest value of 3.6521 bpm to the highest value of 44.22 bpm. The mean rate was 15.02 bpm with
+48
+
+Figure 3.5: Distribution of respiratory rates extracted from the capnography waveform (IRRCO2) in the capnobase data set. The respiratory rates ranged from the lowest value of 3.6521 bpm to the highest value of 44.22 bpm. The mean rate was 15.02 bpm with standard deviation of 7.66 bpm.
+standard deviation of 7.66 bpm. About 7.7% of the data points were excluded from the further analysis due to to poor signal quality of the capnography signals.
+For each algorithm, the measures of agreement between the estimated IRR from PPG (IRRest) and IRRCO2 were estimated (Table 3.1). For peak selection algorithm, bias was estimated as 0.28 bpm with the 95% LOAs from -3.62 to 4.17 (Figure 3.7). The value of 2SD was estimated as 3.97 bpm.
+The values of 2SD of the other algorithms ranged from 8.32 bpm to 16.00 bpm.
+49
+
+Figure 3.6: Distribution of the respiratory rates extracted from the nasal/oral airﬂow waveform (IRRnas) in the sleep data set. The respiratory rates ranged from the lowest value of 9.561 bpm to the highest value of 50.85 bpm. The mean rate was 18.64 bpm with standard deviation of 5.66 bpm.
+3.4.2 Sleep database
+IRR extracted from the nasal/oral airﬂow waveform (IRRnas) was used as the reference gold standard in the sleep dataset. The distribution of the respiratory rates contained 10553 data points estimated every 5 second from IRRnas over the 16 second moving window for all subjects. The respiratory rates ranged from the lowest value of 9.561 bpm to the highest value of 50.85 bpm. The mean rate was 18.64 bpm with standard deviation of 5.66 bpm. About 0.66% of the data points were excluded from the further analysis due to to poor signal quality of the nasal/oral airﬂow signals (Figure 3.6).
+The measures of agreement between the estimated IRR from PPG (IRRest) and
+50
+
+Table 3.1: The performance of different method for estimation IRR from PPG
+
+Different IRR estimation Method
+
+2SD Bias
+
+95% LOA
+
+Proportion of windows with CP2 IRR estimate (%)
+
+RIIV
+
+8.80 0.35 -8.29 to 8.98 88
+
+100
+
+RIAV
+
+16.00 1.27 -14.47 to 16.89 60
+
+100
+
+Capnobase RIFV
+
+9.22 0.04 -9.00 to 9.10 74
+
+100
+
+dataset Simple Fusion
+
+8.32 0.55 -7.62 to 8.69 63
+
+100
+
+Peak-Conditioned Fusion 3.97 0.28 -3.62 to 4.17 89
+
+100
+
+RIIV
+
+11.00 0.66 -10.11 to 11.42 80
+
+100
+
+RIAV
+
+21.34 5.56 -15.36 to 26.49 31
+
+100
+
+Sleep RIFV
+
+8.44 -0.11 -8.40 to 8.16 79
+
+100
+
+dataset Simple Fusion
+
+9.51 2.03 -7.29 to 11.35 41
+
+100
+
+Peak-Conditioned Fusion 5.90 0.04 -5.74 to 5.82 85
+
+100
+
+Figure 3.7: Bland-Altman plot for comparison of IRRCO2 to IRRre f for all subjects. The bias and 95% LOA are shown as solid lines. The bias was 0.28 and the limits of agreement -3.62 to 4.17
+51
+
+Figure 3.8: Bland-Altman plot for comparison of IRRnas to IRRre f for all subjects. The bias and 95% LOA are shown as solid lines. The bias was 0.04 and the limits of agreement -5.74 to 5.82
+IRRnas were estimated for each algorithm (Table 3.1). For peak selection algorithm, bias was estimated as 0.04 bpm with the 95% LOAs from -5.74 to 5.82 (Figure 3.8). The value of 2SD was estimated as 5.90 bpm.
+The values of 2SD of the other algorithms ranged from 8.32 bpm to 16.00 bpm.
+3.5 Discussion and Conclusion
+In this study, we presented an algorithm to extract IRR from PPG. We extracted RIIV, RIAV and RIFV from PPG using SST, a sharpening time-frequency method which provides instantaneous frequency rate. The peak-conditioned fusion was proposed to combine the extracted information from three respiratory induced variations waveforms to estimate respiratory rate at each instance. We validated the implemented method with capnography and nasal/oral airﬂow as the reference RR. Compared to simple fusion and single respiratory-induced variation estimations, peak-conditioned fusion shows better performance (Table 3.1). It provided a bias
+52
+
+of 0.28 bpm with the 95% LOAs ranging from -3.62 to 4.17, validated against capnography (in the Capnobase dataset) (Figure 3.7) and a bias of 0.04 bpm with the 95% LOAs ranging from -5.74 to 5.82, validated against nasal/oral airﬂow (in the Sleep dataset) (Figure 3.8).
+In this study, the proposed method estimated IRR from three sources of respiratoryinduced variation and fused the estimated rates to measure the ﬁnal IRR. Our ﬁndings showed that fusion of estimation rates would increase the accuracy and robustness of RR estimation. Even the simple fusion compared to single respiratoryinduced variation estimations showed higher rank (narrower 2SD and greater CP2). It is consistent with the ﬁndings of [34] that respiratory activity may induce variation in PPG differently in different individuals. As discussed by [41], ventilatory conditions (spontaneous or mechanical ventilation) can change the behaviour of respiratory induced variations.
+In this study, we applied the proposed algorithm to two different data sets to include a broad range of subjects into the study. The Capnobase data set includes children adults, under controlled ventilation or spontaneously breathing over a wide RR range. The subjects were under general anesthesia and were continuously monitored. The sleep data set includes children from 1-month to 17 years old spontaneously breathing during two hours of overnight sleeping in a sleep lab. During recording, respiratory rates might change signiﬁcantly while sleep progressed during different stages of light sleep, deep sleep or REM sleep. Some of the children may have experienced periods of breathing cessation, or obstructive sleep apnea, as well. Relate the ﬁnding to those of similar studies
+A recent study [11] represented a very comprehensive assessment of RR estimation using PPG. A wide range of available techniques for estimation of respiratoryinduced variations from PPG, estimation of RR from respiratory-induced variations, and fusion of RR estimates were identiﬁed and then more than 300 algorithms were implemented by assembling all possible combinations of available techniques. The algorithms were ranked based on 2SD. The ﬁrst ten top ranked algorithms had the 2SD values ranging from to 6.2 to 7.9. Compared to the ten top ranked algorithms, our proposed method showed the best performance with the 2SD values of 3.9 and 5.9 for Capnobase and Sleep datasets, respectively. In addition, for the top ranked algorithms, the value of CP2 was reported as 71.5 while
+53
+
+we obtained a CP2 of 88 applying our proposed algorithm. It is important to note that all top ranked algorithm reported in [11] estimated
+RR using 32-second windows while our method can estimate RR instantaneously. It suggests that our algorithm shows better performance compared to methods that extract IRR based on time-frequency analysis [3], [34].
+In the [11], the methods for extracting RR from ECG were assessed as well. The ﬁndings of that study showed that algorithms performed better when using ECG than PPG. The best algorithm had 95% LOAs of 4.7 to 4.7 bpm and a bias of 0.0 bpm when using the ECG.
+In the [11], the performance of thoracic Impedance Pneumography(IP) were assessed as well providing a bias of 0.2 bpm with 95% LOAs of 5.6 to 5.2 bpm. Thoracic IP is a commonly-used technique for continuous monitoring of RR that measures changes in the electrical impedance of the persons chest during respiration. Our results showed that the performance of our algorithm is comparable with the performance of thoracic IP.
+Several studies based on the continuous wavelet transform (CWT) [3], [16], the short-time Fourier transform (STFT) [66], and empirical mode decomposition (EMD) [26] have been proposed to detect RR from PPG. The results of a study conducted by Thakur et al [70] to compare SST to CWT, STFT and EMD showed the superior precision of SST at identifying components of complicated oscillatory signals. Moreover, the study showed that time-varying instantaneous frequencies could be clearly distinguished in the SST while there is much more smearing and distortion in the CWT and STFT.
+This study introduces a new method to estimate IRR from pulse oximetry. This would expand the functionality of a conventional pulse oximetry beyond the measurement of HR and SpO2 to measure the respiratory rate continuously and instantly in the clinical setting and at home. Importantly, these are all achievable with a simple, cheap, single-sensor solution.
+54
+
+Chapter 4
+Extracting the Pediatric Hypnogram from Photoplethysmogram
+4.1 Introduction
+As was mentioned in chapter 1 , sleep is divided into REM and non-REM sleep. A regular overnight sleep occurs in cycles of non-REM and REM, usually four or ﬁve such cycles per night. The hypnogram is a graph which depicts the basic structure of an overnight sleep (Figure 1.4)).
+The brain activity, eye movements and muscle tensions change during nonREM and REM stages. Also, sleep staging induces variation in heart rate, blood pressure, respiration and vascular tone, mainly regulated by sympathetic and parasympathetic branches of the autonomic nervous system. The activity of the sympathetic nervous system decreases during non-REM sleep compared to wakefulness which results in a reduction in heart rate, blood pressure, respiratory rate and vascular tone. However, there might be some brief increase in heart rate and blood pressure due to respiratory events, arousals or body movements. Compared to the non-REM, during REM sleep, there is a rise in the activity of sympathetic nervous system which leads to faster changes in heart rate, blood pressure, and respiratory
+55
+
+rate. As mentioned before, PSG is the gold standard for assessing sleep. In PSG,
+the recordings of brain activity (EEG), eye movement (EOG) and muscle activity (EMG) during sleep are used for sleep scoring. PSG requires an overnight stay of patients in the sleep laboratory with specialized equipment and all night attending sleep technicians. The high cost and complicated procedure conﬁne the PSG test to specialized sleep centres, and it can rarely be used at any ambulatory environments when the several days of monitoring of sleep behavior and circadian rhythm are needed. Besides, the complex set-up and overnight stay in the hospital may affect sleep structure, resulting in inaccurate outcomes. As such, a less complex and less expensive ambulatory solution has been explored extensively.
+In recent years, activity of the cardiorespiratory system has been monitored for sleep staging. HR, HRV and respiration have recently been used as the reliable tools for identifying sleep and wake in adults [9], [61], [46], [37]. Penzel et al investigated different linear and non-linear features of HRV in subjects with and without sleep apnea [61] in various sleep stages. Lisenby et al classied REM and non-REM states by analyzing heart rate in time and frequency domain [46]. Karlen et al used spectral analysis of ECG and respiratory signals recorded by a wearable sensor to classify sleep from wakefulness [37]. These studies showed that sleep classiﬁcation by monitoring the variation of heart and respiratory rate could attain results similar to sleep scoring achieved by the technicians using PSG recordings.
+The purpose of this study is to extract the cycles of non-REM and REM of the overnight sleep based on the activity of cardiorespiratory system using the pulse oximeter PPG. We extracted the relevant features associated with PRV, RR, vascular tone and movement from the PPG signal to build a multivariate model with a minimum set of features to identify wakefulness from REM and non-REM sleep. The PPG signals were recorded by Phone OximeterTM.
+56
+
+4.2 Background
+4.2.1 Pulse Rate Variability
+PRV shows the variation of heart rate extracted from the pulse-to-pulse time intervals of PPG. Heart rate is mainly regulated by the inputs from the sympathetic and parasympathetic nervous systems. As such, power spectrum analysis of HRV has been extremely used to verify the activity of the autonomic nervous system. In our previous studies, presented in chapter 2, we have assessed PRV as an estimate of HRV during wakefulness, non-REM, and REM sleep. The results showed that the temporal and spectral features of PRV were signiﬁcantly different in wakefulness, non-REM and REM sleep [20].
+4.2.2 Vascular tone
+The arterial vessels experience a level of contraction that determines their diameter, and therefore their tone [72]. The vascular tone can inﬂuence the morphology of the PPG signal remarkably, involving the amplitude and area of each pulse; the amplitude of the PPG pulse is directly proportional to the vascular tone [65]. During vasoconstriction, the pulse amplitude decreases, while during vasodilatation, the amplitude increases. Some studies show that non-REM sleep is associated with a decrease in sympathetic vascular tone and as a result a peripheral vasodilation while this condition is reversed in REM sleep. In this study, to identify REM from non-REM sleep, we measured the amplitude, width, and other characteristics of pulse shape as the features of vascular tone induced variation during different sleep stages.
+4.2.3 Respiratory rate
+As was mentioned in chapter 3, respiration may modulate the PPG in three different ways: 1) Respiratory-Induced Intensive Variation (RIIV), 2) Respiratory Induced Amplitude Variation (RIAV), and 3) Respiratory Induced Frequency Variation (RIFV).
+Since the respiratory rate changes during non-REM and REM, in this study, we estimated RIIV, RIAV and RIFV from the PPG signal and then estimated the
+57
+
+respiratory rates from respiratory-induced variation signals and used them as the features for sleep staging.
+4.2.4 Movement
+In actigraphy, the gross motor activity involved in movement and coordination of the arms, legs, and other large body parts is monitored to determine the sleep patterns. The PPG signal is usually corrupted very easily by motion artifacts due to movement during data recording. In this study, in the absence of body acceleration measures, we used the motion artifacts in the PPG signal as the signs of body movement and being restless. We estimated the degree of signal corruption to locate the motion artifact in the PPG signal using a signal quality index measure. Also, in most cases of movement, the cardiac synchronous pulsatile component of arterial blood is corrupted by the random ﬂuctuation of arterial blood, which induces changes in the morphology of PPG. Therefore, we also computed some randomness measures of the PPG such as skewness and kurtosis, as important features of the PPG signal contaminated by motion artifact.
+4.3 Materials and Methods
+4.3.1 PPG Preprocessing
+The same data set deployed for evaluation of cardiac modulation in children in response to apnea/hypopnea was used for this study (2.2.1). After baseline removal and smoothing with a Savitzky-Golay FIR ﬁlter (order 3, frame size 11 samples), all PPG signals recorded using the Phone Oximeter were divided into 30-second epochs. A peak detection algorithm based on zero-crossing was used to locate the pulse peaks in the PPG signal segments. The accuracy of the peak detector was estimated at approximately 99.2%. No attempt was made to distinguish normal pulses from others.
+4.3.2 Sleep Labelling
+All epochs were scored as wakefulness, REM or non-REM, based on the labels in the PSG event log ﬁle. The REM and non-REM epochs were scored as sleep as
+58
+
+well.
+4.3.3 Feature extraction
+For each 30-second epoch of the PPG signal, the following features have been extracted (Table 4.1):
+PRV Features The pulse-to-pulse intervals time series (PPIs) were computed as the intervals between successive peaks. In the time domain, three parameters were extracted from the PPIs time series, including the mean of the PPIs (meanPP), the standard deviation of the PPIs (SDPP) and the root mean square of the difference of the successive PPIs (RMSSD).
+The PPIs were resampled into the equivalent, uniformly spaced time series (socalled PRV) at a sampling rate of 4 Hz using the Berger algorithm [8]. Then the power spectral density of PRV was estimated using a parametric autoregressive model with 1024 points and an order of 7. The power in each of the following frequency bands was computed by determining the area under the power spectral density curve bounded by the band of interest: Very Low Frequency (VLF; 0.010.04 Hz), Low Frequency (LF; 0.04-0.15 Hz) and High Frequency (HF; 0.15-1 Hz). Normalized LF (nLF) and normalized HF (nHF) powers were determined by dividing LF and HF powers by the total spectral power of PRV between 0.04 and 0.4 Hz, respectively. The ratio of low-to-high frequency power (LF/HF ratio) was also computed.
+Vascular tone features Several morphology features were extracted from each PPG pulse to characterize the vascular tone during different sleep stages.
+-meanAmp and stdAmp: the amplitude of each pulse was measured as the difference between the maximum of a pulse (peak) and the previous minimum (trough). meanAmp and stdAmp were calculated as the average and standard deviation of the amplitude of all pulses within the epoch, respectively.
+-meanWidthhal f and stdWidthhal f : the widthhal f of each pulse was calculated
+59
+
+as the width at 50% of pulse height; later, meanWidthhal f and stdWidthhal f were calculated as the average and standard deviation of widthhal f of all pulses within the epoch, respectively.
+-meanWidth and stdWidth: the widthpulse of each pulse was calculated as the width at 10% of pulse height; later, meanWidth and stdWidth were calculated as the average and standard deviation of widthpulse of all pulses within the epoch, respectively.
+-meanTimerising and stdTimerising: the mean and standard deviation of Timerising (the time for a pulse takes to reach its peak) of all pulses within the epoch were computed.
+-meanTime f alling and stdTime f alling: the mean and standard deviation of Time f alling (the time for a pulse takes to reach its trough) of all pulses within the epoch were computed.
+-meanSlope and stdSlope: the mean and standard deviation of rising slope of all pulses within the epoch
+-pwv: For each epoch, pulse wave variability (pwv) was estimated as:
+
+max(amp) − min(amp)
+
+pwv =
+
+(4.1)
+
+(max(amp) + min(amp))/2
+
+Respiratory rate
+First, three respiratory-induced variations (RIAV, RIIV and RIFV) were estimated from each 30-second epoch of PPG and then the respiratory rates were estimated as the maximum value peak frequencies in respiratory bands of the power spectrum of RIAV, RIIV and RIFV (0.15-1 Hz).
+-Respiratory Rate from RIAV (RRriav): To extract RIAV from the PPG signal, the pulse amplitude time series were resampled into the equivalent, uniformly spaced time series at a sampling rate of 4 Hz using the linear interpolation method. The power spectral density of RIAV was computed using a parametric autoregressive model with 1024 points and an order of 7. RRriav was estimated as the maximum value peak frequency in the respiratory band of the RIAV power spectrum (0.15-1 Hz)
+-HFriav: the power within the respiratory band (0.15-1 Hz) of the RIAV power
+60
+
+spectrum. -Respiratory Rate from RIIV (RRriiv): for each epoch, ﬁrst the intensity time
+series were estimated as the trend which connects the peaks of consequent pulses. The intensity time series were resampled into the equivalent, uniformly spaced time series at a sampling rate of 4 Hz to get RIIV. The power spectral density of RIIV was computed using a parametric autoregressive model with 1024 points and an order of 7. RRriiv was estimated as maximum value peak frequency in the respiratory band of the RIIV power spectrum (0.15-1 Hz).
+- HFriiv: the power within the respiratory band (0.15-1 Hz) of the RIIV power spectrum.
+-Respiratory Rate from RIFV (RRri f v): RRri f v was estimated as maximum value peak frequency in the respiratory band of the RIFV power spectrum (0.15-1 Hz).
+-HFri f v: the power within the respiratory band (0.15-1 Hz) of the RIFV power spectrum.
+-RRmean: the mean of RRriav, RRriiv and RRri f v
+Movement Features
+-artifactepoch: for each pulse of PPG, a signal quality index (SQI) was estimated using the cross-correlation of consecutive pulses [40], ranging from 0 to 100 (from low to high quality). Later, artifactepoch feature was assigned to each epoch according the following rules:
+artifactepoch = 0, if all pulses of the epoch have an SQI higher than 80. artifactepoch = 1, if less that four pulses of the epoch have an SQI lower than 80 (less than four pulses of the epoch contaminated with artifact). artifactepoch = 2, if more than four pulses of the epoch have an SQI lower than 80 (more than four pulses of the epoch contaminated with artifact). -bRatioepoch: in each epoch, PPIs shorter than 0.33 s and greater than 1.5 s were considered artifacts and labelled as the abnormal intervals. bRatioepoch was estimated as the ratio of the number of normal intervals over the number of all intervals. -skewepoch: a measure of the symmetry of each PPG epoch (or the lack of it)
+61
+
+around the mean, deﬁned as:
+
+skewepoch
+
+=
+
+µ3
+
+/
+σ
+
+3/2
+
+(4.2)
+
+where µ3 and σ are the third central moment and the standard deviation of each PPG epoch.
+-kurtosisepoch: a measure of the peakedness (or ﬂatness) of each PPG epoch distribution, relative to the normal distribution, deﬁned by:
+
+kurtosisepoch = µ4/σ4 − 3
+
+(4.3)
+
+where µ4 and σ are the forth central moment and the standard deviation of each PPG epoch.
+
+4.4 Statistical Learning
+
+4.4.1 Introduction
+
+Least absolute shrinkage and selection operator (LASSO)
+Linear regression is a method for modelling the relationship between a response variable Y and one or more predictor variable(s), X. Linear regression assumes that there is approximately a linear relationship between X and Y, mathematically, modelled as
+
+Y = β0 + β1X1 + β2X2 + · · · + βpXp + ε,
+
+(4.4)
+
+where Xj shows the jth predictor, p represents the number of predictors and β j is a constant quantifying the association between the predictor Xj and the response Y [35].
+β values, known as the model coefﬁcients, are estimated using least square ﬁtting over the training data set. Consider yˆi = βˆ0 + βˆ1x1 + βˆ2x2 + · · · + βˆpxp be the prediction for Y based on the ith value of X. Then ei = yi − yˆi represents the ith residual which is the difference between the ith observed response value and the ith response value that is predicted by the linear model. The residual sum of squares
+
+62
+
+Table 4.1: Description of the features extracted from PPG
+
+Feature
+meanPP SDPP RMSSD powprv VLF nLF nHF LF/HF
+meanAmp stdAmp meanWidthhal f stdWidthhal f meanWidth stdWidth meanTimerising stdTimerising meanTime f alling stdTime f alling meanSlope stdSlope PWV
+RRriav RRriiv RRri f v RRmean HFriiv HFriav
+artifactepoch
+bRatioepoch
+skewepoch kurtosisepoch
+
+Description Pulse Rate Variability
+The mean of the PPIs The standard deviation of the PPIs The root mean square of the difference of the successive PPIs Total spectral power of PRV Power of PRV in very low frequency band (0.01-0.04 Hz) Normalized power of PRV in low frequency (0.04-0.15 Hz) Normalized power of PRV in high frequency (0.15-1 Hz) The ratio of low-to-high frequency power (nLF/nHF ratio)
+Vascular Tone The average of the amplitude of all pulses within the epoch The standard deviation of the amplitude of all pulses within the epoch The average of the width at 50% of height of all pulses within the epoch The standard deviation of the width at 50% of height of all pulses within the epoch The average of the width at 10% of height of all pulses within the epoch The standard deviation of the width at 10% of height of all pulses within the epoch The mean of Timerising (the time for a pulse takes to reach its peak) The standard deviation of Timerising (the time for a pulse takes to reach its peak) The mean of Timefalling (the time for a pulse takes to reach its trough The standard deviation of Timefalling (the time for a pulse takes to reach its trough The mean of the rising slope of all pulses within the epoch The standard deviation of the rising slope of all pulses within the epoch Pulse Wave Variability
+Respiratory Rate Respiratory rate obtained from respiratory-induced amplitude variation (RIAV) Respiratory rate obtained from respiratory-induced intensity variation (RIIV) Respiratory rate obtained from respiratory-induced frequency variation (RIFV) The mean of RRriav, RRriiv and RRri f v The power within the respiratory band (0.15-1 Hz) of the RIIV power spectrum The power within the respiratory band (0.15-1 Hz) of the RIAV power spectrum
+Movement artifactepoch = 0, if all pulses of the epoch have an SQI higher than 80 artifactepoch = 1, if less than four pulses of the epoch have an SQI lower than 80 artifactepoch = 2, if more than four pulses of the epoch have an SQI lower than 80 The ratio of the number of normal intervals over the number of all intervals within each epoch The measure of the symmetry of each PPG epoch (or the lack of it) around the mean The measure of the peakedness of each PPG epoch relative to the normal distribution
+63
+
+(RSS) is deﬁne as or
+
+n
+
+n
+
+RSS = ∑ e2i = ∑(yi − yˆi)2
+
+i=1
+
+i=1
+
+(4.5)
+
+n
+
+n
+
+p
+
+∑ ∑ ∑ RSS = (yi − β0 − β1xi1 − β2xi2 − · · · − βpxip)2 = (yi − β0 − β jxi j)2 (4.6)
+
+i=1
+
+i=1
+
+j=1
+
+where p is the number of the predictors and n is the number of the labelled samples used for training the model.
+The least squares approach chooses β0, β1, . . . , βp to minimize RSS. Often it happens that in a regression model, some of the p predictors are irrelevant. It means that they are not associated with the response. Including such predictors leads to unnecessary complexity in the resulting model. To obtain a model that is more easily interpreted, it is required to exclude the irrelevant predictors from the ﬁnal model. In shrinkage (or regularization) approach a model is ﬁtted involving all p predictors using least squares but later the coefﬁcient of irrelevant predictors are estimated as zero. Least Absolute Shrinkage and Selection Operator (LASSO) is a shrinkage method that estimates the coefﬁcients, β , by minimizing
+
+n
+
+p
+
+p
+
+p
+
+∑(yi − β0 − ∑ β jxi j)2 + λ ∑ |β j| = RSS + λ ∑ |β j|
+
+i=1
+
+j=1
+
+j=1
+
+j=1
+
+(4.7)
+
+where λ ≥ 0 is a tuning parameter needed to be estimated separately [35].
+
+LASSO uses the least squares ﬁt to estimates the coefﬁcients to get smaller RSS.
+
+The
+
+second
+
+term,
+
+λ
+
+p
+∑ j=1
+
+|β
+
+j |,
+
+known
+
+as
+
+LASSO
+
+penalty,
+
+is
+
+small
+
+when
+
+some
+
+of
+
+β js are zero. When λ = 0, the penalty term has no effect, and LASSO regression
+
+will produce the least squares estimates. When λ > 0 the impact of the penalty
+
+grows, and some of the coefﬁcients will be estimated as zero to reduce the effect
+
+of penalty term on RSS.
+
+For each value of λ , LASSO regression will produce a different set of coefﬁ-
+
+cients. So it is essential to tune λ sufﬁciently.
+
+64
+
+Logistic regression
+Logistic regression is a speciﬁc type of regression where the response variable, Y , is a categorical variable falling into one of two classes, 1 or 0, for instance. Logistic regression models the probability that Y belongs to a particular class, using the logistic function:
+
+eβ0+β1X1+β2X2+···+βpXp
+
+p(X) =
+
+,
+
+1 + eβ0+β1X1+β2X2+···+βpXp
+
+(4.8)
+
+where p(X) = Pr(Y = 1|X).
+
+Generally, a logistic regression model is ﬁtted using a method called Maximum
+
+likelihood based on the available training data. In this method, β coefﬁcients are estimated such that the predicted probability p(xi) of xi corresponds as closely as possible to the observed yi. Maximum likelihood is mathematically formalized as:
+
+l(β0, β1, β2, . . . , βp) = ∏ p(xi) ∏ (1 − p(xi ))
+
+i:yi=1
+
+i :yi =0
+
+(4.9)
+
+The estimates of β0, β1, β2, . . . , βp are chosen to maximize this likelihood function.
+
+Decision threshold estimation
+As mentioned in the previous section, Logistic regression estimated the probability that Y belongs to a speciﬁc class. Later, the estimated probability is tested against a decision threshold, τ, to assign Y into one of two classes, 0 or 1 (negative or positive). The sensitivity, speciﬁcity, and accuracy of the model depend on the threshold τ .
+For a given decision threshold, the performance of a classiﬁer can be summarized by a 2 × 2 confusion matrix (Table 4.2). For each decision threshold, the sensitivity, speciﬁcity, and accuracy are estimated as
+
+SN (τ )
+
+=
+
+T
+
+P(τ ) n1
+
+SP(τ )
+
+=
+
+T
+
+N (τ ) n0
+
+(4.10) (4.11)
+
+65
+
+Table 4.2: The performance of a binary classiﬁer is summarized by a 2 × 2 confusion matrix for a given decision threshold τ. TN: number of true negative, FP: number of false positive, FN: number of false negative, TP: number of true positive, PN: number of predicted negative, PP: number of predicted positive
+
+Predicted Predicted total
+
+0
+
+1
+
+True 0 TN(τ) FP(τ) n0 True 1 FN(τ) TP(τ) n1
+
+Total PN(τ) PP(τ) n
+
+ACC(τ )
+
+=
+
+T
+
+P(τ ) n0
+
++ T N(τ) + n1
+
+(4.12)
+
+where n0 denotes the number of 0 samples (negative samples) and n1 denotes
+
+the number of 1 samples (positive samples). TP(τ) and TN(τ) are the numbers of
+
+correct predictions for the 1 and 0 samples, respectively.
+
+The default value of the decision threshold is 0.5. When the class sample sizes
+
+(n0 and n1) are almost equal, a classiﬁer using the default threshold provides an
+
+unbiased estimate of the sensitivity, speciﬁcity, and accuracy. But, when the class
+
+sizes are different, a classiﬁer using the default threshold may provide an unac-
+
+ceptably low sensitivity (or speciﬁcity). So it is essential to estimate the decision
+
+threshold for each classiﬁer properly.
+
+4.4.2 Multivariate model development and validation
+
+Model development
+Subjects were randomly divided into training and test sets. The epochs corresponding to the subjects in the training set were used to train the classiﬁers, and the epochs corresponding to each subject in the test set were fed to the trained models to the validate the performance of classiﬁers.
+In the training phase, to classify each epoch into one of the three classes of awake, REM and non-REM (known as multi-class classiﬁcation problem), a hierarchical binary classiﬁer with two nodes was developed (Figure 4.1). Each node
+66
+
+Figure 4.1: The multi-class classiﬁer has two binary classiﬁers: sleep/wake classiﬁer and non-REM/REM classiﬁer. The epochs corresponding to the subjects in the training set were used to train these two classiﬁers, and the epochs corresponding to each subject in the test set were fed to the trained models.
+corresponding to a binary multivariate logistic regression classiﬁer trained using the training set: 1) the wake/sleep classiﬁer to determine whether an epoch would be scored as sleep or wake, and 2) the non-REM/REM classiﬁer to determine the sleep epoch whether would be scored as REM or non-REM.
+LASSO was employed to select the relevant features and to develop the ﬁnal wake/sleep and non-REM/REM classiﬁers (using the glmnet R package). The tuning parameter was adjusted through a stratied 10-fold cross validation. For each epoch, the ﬁnal models estimated the probability of belonging to a certain class.
+Decision threshold determination The decision thresholds were separately chosen for two classiﬁers to maximize a weighted classiﬁcation score deﬁned as (TP(τ) + TN(τ)). The weighted classiﬁcation score was computed for various previously established ratios of false positive cases to false negative cases (3:1, 5:1 and 10:1).
+Model classiﬁcation performance In the validation phase, all the epochs of a subject from the test dataset were ﬁrst fed to the wake/sleep classiﬁer. Later, the epochs scored as sleep by wake/sleep
+67
+
+classiﬁer were fed to the REM/non-REM classiﬁer to distinguish between REM and non-REM epochs (Figure 4.1). By combining the results from sleep/wake and REM/non-REM classiﬁers, each epoch of individual subject in the testing dataset was scored as wake, REM and non-REM. The scored epochs were aligned together to predict a hypnogram for each subject.
+To validate the performance of wake/sleep and REM/non-REM classiﬁers, the accuracy, sensitivity and speciﬁcity measures were calculated. In addition, the predicted hypnogram for each subject was compared with the hypnogram extracted from PSG event log ﬁle and an individual accuracy measure was calculated for each subject as the percentage of true classiﬁcations of wake, REM and non-REM of total epochs according to:
+
+true wake + true REM + true non − REM
+
+accuracyindividual =
+
+totalwake + totalsleep
+
+(4.13)
+
+The general performance of the model was then assessed using the distribution of the accuracy individual of all subjects in the testing dataset through the mean and 95% conﬁdence intervals (CI) of the median. These estimations were performed using the bootstrap method; 100 bootstrap samples were generated using the original accuracy, sensitivity, and speciﬁcity data through sampling with replacing.
+
+4.5 Results
+The data set of 146 subjects was randomly divided into the training and test data sets with 46 and 100 subjects, respectively.
+
+4.5.1 Wake/sleep classiﬁer
+The wake/sleep classiﬁer was trained using the training set including 38,098 epochs scored as sleep (27,885) and wake (10,213) based on the PSG event log ﬁle.
+For each epoch, 31 features were extracted from the PPG signal (Table 4.1); among them, 15 features were selected as signiﬁcant by LASSO method based on λ = 9.408e-05 (Table 4.3). To choose the best λ , the cross-validation error for each value of λ was estimated.We then selected the λ value for which the cross-
+
+68
+
+Table 4.3: Estimated coefﬁcient and error for 15 features selected with LASSO as the signiﬁcant features for wake/sleep model
+
+wake/sleep Model
+
+Model
+
+Feature (Intercept) meanTime f alling stdWidthhal f pwv HFriav nHF meanWidthhal f RMSSD stdRRI meanTimerising meanRRI skewepoch RRri f v HFriiv RRriiv stdTime f alling
+
+Estimated Coefﬁcient
+-6.70 0.15 -0.10 -0.41 -0.64 3.90 0.16 -6.87 10.01 0.07 -3.36 0.11 -0.04 0.93 -0.03 -0.06
+
+Estimated Error 1.28 0.03 0.01 0.10 0.11 0.22 0.01 1.71 2.50 0.03 1.63 0.04 0.004 0.12 0.005 0.016
+
+p-value 1.80e-07 8.96e-06 7.34e-12 4.82e-05 1.03e-08 < 2e-16 < 2e-16 5.68e-05 6.10e-05
+0.01 0.04 0.003 < 2e-16 5.39e-14 2.33e-12 0.000266
+
+validation error was smallest. This model presented an AUC of 0.85 wih the 95% conﬁdence interval from
+0.84 to 0.87 (Figure 5.2a). The decision threshold was estimated as τ = 0.725. The accuracy, sensitivity
+and speciﬁcity values were estimated 0.82, 0.85 and 0.79, respectively, in training data set for estimated τ.
+The accuracy, sensitivity and speciﬁcity values were estimated 0.77, 0.77 and 0.79, respectively, in test data set for τ = 0.725.
+4.5.2 non-REM/REM classiﬁer
+The training data set contained 27,885 epochs scored as sleep. Among these epochs, 22,590 and 5,295 entries were scored as non-REM and non-REM, respectively, based on the PSG event log ﬁle.
+Each epoch contains 31 features extracted from the PPG signal (Table 4.1).
+
+69
+
+(a)
+(b)
+Figure 4.2: The area under the curve (AUC) of the receiver operating characteristic (ROC) curve of a) the wake/sleep classiﬁer and b) the nonREM/REM classiﬁer
+The REM/non-REM classiﬁer selected 16 signiﬁcant features (Table 4.4). This model presented an AUC of 0.77 wih the 95% conﬁdence interval from 70
+
+Table 4.4: Estimated coefﬁcient and error for 16 features selected with LASSO as the signiﬁcant features for non-REM/REM model
+
+non-REM/REM Model
+
+Model
+
+Feature
+(Intercept) meanTime f alling HFriiv RRmean meanWidthhal f stdTime f alling HFriiv bRatioepoch meanAmp meanSlope pwv kurtosisepoch RRriiv skewepoch HFriav stdWidthhal f stdWidth
+
+Estimated Coefﬁcient
+5.04 -0.03 -0.31 -0.02 0.02 -0.02 -1.70 -4.50 -11.20 94.26 0.78 -0.02 0.02 0.1 0.22 0.05 -0.12
+
+Estimated Error 0.8 0.004 0.006 0.008 0.005 0.01 0.11 0.81 3.58 30.10 0.06 0.005 0.005 0.03 0.06 0.01 0.011
+
+p-value 1.77e-09 1.26e-12 3.18e-06 0.000254 1.33e-06 0.049398 < 2e-16 3.50e-08 0.000948 0.002171 < 2e-16 0.000168 8.58e-05 0.0004 0.0013 9.17e-06 < 2e-16
+
+0.74 to 0.79 (Figure 5.2b). The decision threshold was estimated as τ = 0.19. The accuracy, sensitivity
+and speciﬁcity values were estimated 0.72, 0.70 and 0.73, respectively, in training data set for estimated τ.
+The accuracy, sensitivity, and speciﬁcity values were estimated 0.73, 0.71 and 0.73, respectively, in test data set for τ = 0.19.
+4.6 Discussion and Conclusion
+The results of this study show that extracting the pediatric hypnogram, similar to the one provided by PSG, based on the characterization of cardiovascular activity performed using the overnight Phone Oximeter PPG will be practical, achievable and reliable.
+The most discriminant features for sleep staging were automatically selected
+71
+
+by a shrinking method, LASSO, which forces the coefﬁcient estimates to be exactly equal to zero. During training, two different sets were selected with 15 and 16 discriminant features out of 33 features, for wake/sleep and non-REM/REM classiﬁers, respectively (Table 4.3 and Table 4.4). These two models were validated separately: the classiﬁcation of sleep from wake showed the mean accuracy of 73% while the non-REM/REM model reached the mean accuracy of 69%. Later, these two classiﬁers were combined together as a hierarchy model to classify epochs into three classes of wake, REM and non-REM. In the validation phase, all the epochs were ﬁrst fed to the wake/sleep classiﬁer and then, the epochs scored as sleep were fed to the REM/non-REM classiﬁer. It implies that the misclassiﬁed epochs would transfer from wake/sleep classiﬁer to the non-REM/REM classiﬁer, which would degrade the overall performance of the model.
+About 38 of children participated in this study were diagnosed with SBDs with the AHI more than ﬁve. In our previous study performed on the same dataset, we showed that SBD modulates the sympathetic cardiac activity in both REM and nonREM sleep. However, our results indicate that the predominance of sympathetic activity in A/H events is suppressed by cardiac sympathetic modulation during REM sleep. Besides, the children with SBD are more prone to frequent arousals, most of the time associated with movement, which affects the cardiac regulation of the autonomic nervous system. These all cause sleep staging more challenging in children with SBD.
+Our results, obtained with the Phone OximeterTM, are comparable with previous studies with more sophisticated approaches or devices for sleep staging based on monitoring the activity of the cardiorespiratory system. In a recent study, Ucar et al [73] extracted 86 features from PPG recorded from 10 adult patients and used k-nearest neighbors classiﬁcation and support vector machines to identify sleep from wakefulness. The accuracy, sensitivity, and speciﬁcity of trained model were reported as 73.36 %, 0.81% and 0.77%, respectively.
+Yilmaz et al [77] successfully extracted the hypnogram for 17 adult individuals with SBD using the features extracted from ECG. The total accuracy of 73% was reported for the one-vs-rest approach whose classiﬁers trained by the support vector machines. However, in this study, a separate model has been trained for each subject, which reduces the feasibility of this approach in real clinical applications.
+72
+
+4.6.1 Limitation of study and future work
+The most challenging part of classiﬁcation was choosing the decision thresholds for wake/sleep and non-REM/REM classiﬁers. The decision thresholds were calculated to maximize the accuracy of classiﬁers based on the percentage of the epochs scored as wake, REM and non-REM in the training dataset. During validation, the same decision threshold used for all subjects. Since each subject has a unique pattern of sleep with the different shares of the wake, REM and nonREM stages, using the same threshold for all subjects decreases the performance of classiﬁcation. Therefore, we will further investigate the possibility of estimating a separate risk threshold for each subject based on the quality and patterns of their sleep by measuring sleep latency, sleep duration, habitual sleep efﬁciency, sleep disturbances through self-assessment questionnaires.
+73
+
+Chapter 5
+Development of a Monitoring Tool for Sleep Disordered Breathing in Children Using the Phone Oximeter
+5.1 Introduction
+As mentioned in chapter 1, the high prevalence of A/H syndrome among children and adolescents and the compexity and hight cost of PSG have generated a great interest in alternative techniques to simplify the standard procedure. Already part of the standard PSG, pulse oximetry is a simple non-invasive method of measuring SpO2 and recording PPG. Numerous groups have studied the use of overnight oximetry as a potential standalone method to diagnose SDB. Nixon et al. developed a severity scoring system using overnight oximetry and validated the score as a tool to prioritize adenotonsillectomy surgeries [31], [58]. A´lvarez et al. demonstrated that the characterization of overnight oximetry provided signiﬁcant information to identify adults [49], [50] with signiﬁcant OSA. Both studies focused on SpO2 alone; however, there are some SDB events that occur in the absence of SpO2 desaturation [78]. It has been reported that SDB affects the normal variation
+74
+
+of heart rate [55], [14], [20] suggesting that combining SpO2 and HRV analysis might provide a more robust SDB detector. Based on this concept, Heneghan et al. proposed a portable, automated OSA assessment tool with a Holter-Oximeter [30], [12].
+In our previous research, we showed that the characterization of overnight SpO2 pattern, measured by the Phone OximeterTM , successfully identiﬁes children with signiﬁcant SDB [25]. We also investigated the inﬂuence of SpO2 resolution (0.1%, 1%) on the SpO2 pattern characterization and demonstrated that it had a great inﬂuence in regularity measurements and therefore should be considered when studying SDB [27]. In addition, we calculated PRV from the Phone Oximeter’s PPG and compared it with HRV computed from simultaneous electrocardiogram (ECG) [18], [20]. In the time domain, PRV provided accurate estimates of HRV, while some differences were found in the frequency domain. Gil et al. also showed that during non-stationary conditions there are some small differences between HRV and PRV, mainly in the respiratory band, which were related to the pulse transit time variability [29]. However, they also concluded that these differences are sufﬁciently small to suggest the use of PRV as an alternative measure of HRV. We also conducted an additional investigation of the effects of SDB on PRV during different sleep stages and concluded that the modulation of PRV might be helpful in improving the assessment of SDB in children [19].
+In our recent study, therefore, we combined the SpO2 pattern characterization and PRV analysis to identify the epochs with A/H events using the Phone OximeterTM [28]. We recorded overnight SpO2 and PPG using the Phone OximeterTM , simultaneously with standard PSG from 160 children at the British Columbia Childrens hospital. The sleep technician manually scored all apnea/hypoapnea events during the PSG study. Based on these scores we labeled each epoch as A/H epochs or non-A/H epochs. We randomly divided the subjects into training data, used to develop the model applying the LASSO method, and the test data, used to validate the model. The developed model was assessed epoch-by-epoch for each subject. The model provided a median accuracy of 74%, sensitivity of 75%, and speciﬁcity of 73% when using a risk threshold similar to the percentage of A/H epochs.
+However, we realized that more than 32% of epochs from the original database
+75
+
+had been excluded from the further analysis due to the poor quality of SpO2 or PPG. Among the total number of 134389 epochs labelled by a sleep technician, more than 30% had the low-quality PPG while only less than 2% had the lowquality SpO2. The purpose of study, presented in this chapter, is then to reduce the number of the excluded epochs. To reach this goal, we propose a method for identifying the A/H epochs based on two trained models: one model is trained to identify A/H epochs using the combined characteristic of SpO2 and PPG where both PPG and SpO2 epochs have high quality and the second model uses the SpO2 characteristics for epochs with the low-quality PPG but the high-quality SpO2. The results of these two models in predicting the A/H epochs would be combined to get the ﬁnal prediction.
+5.2 Materials and Methods
+5.2.1 Apnea/Hypopnea Labelling
+The same data set described in Chapter 2 (2.2.1) was used for this study. A sleep technician visually scored the PSG in 30-second epochs according to AASM 2007 standard criteria [5]. Hypnograms were differentiated into rapid eye movement (REM) and non-REM sleep. According to the standard criteria, obstructive apneas were deﬁned as complete cessation of airﬂow in the presence of respiratory effort lasting seconds. Hypopneas were deﬁned as a airﬂow reduction relative to the 2 preceding breaths. Blood oxygen desaturations were deﬁned as a decrease in arterial oxygen saturation. When respiratory effort partially or totally ceased, apneas were scored as mixed or central sleep apnea, respectively. The number of A/H events was counted hourly to compute the average apneas/hypopnea index (AHI), which was speciﬁed also for REM and non-REM (NREM) sleep stages. The total bed time (TBT), total sleep time (TST) and the percentage of time spent in the different sleep stages were also analyzed (Table 2.1).
+The Phone OximeterTM recordings (SpO2 and PPG signals) were segmented into epochs of 30-seconds duration. All epochs were labelled as the A/H or nonA/H epochs using the scores performed by the sleep technician based on the PSG study.
+76
+
+5.2.2 PPG Features Extraction
+For each 30-second epoch of the PPG signals, the following features were extracted (Table 5.1):
+Signal Quality Index of PPG
+A simple peak detection algorithm based on zero-crossing was applied the PPG signals to locate the pulse peaks. The peak locations were used to segment the PPG into the pulses. An algorithm iteratively calculated a signal quality index (SQI) ranging from 0 to 100 for each pulse. Cross-correlation of consecutive pulse segments is used to estimate signal quality. In the presence of artifacts and irregular signal morphology, the algorithm outputs a low SQI number.
+If all pulses of an epoch have an SQI higher than 80, the feature artppg was set as 0. If less than four pulses of the epoch have an SQI lower than 80, the artppg was set as 1 and if more than four pulses of the epoch have an SQI lower than 80, the artppg was set as 2 (Table 5.1).
+PRV Features
+To analyze PRV, in each epoch, the pulse-to-pulse intervals time series (PPIs) were computed as the intervals between successive peaks. In the time domain, three features were extracted from the PPIs time series:
+-meanPP: the mean of the PPIs -SDPP: the standard deviation of the PPIs, -RMSSD: the root mean square of the difference of the successive PPIs to get PRV, the PPIs were resampled into the equivalent, uniformly spaced time series at a sampling rate of 4 Hz using the Berger algorithm [8]. Then the power spectral density of PRV was estimated using a parametric autoregressive model with 1024 points and an order of 7. The power in each frequency band was computed by calculating the area under the PSD curve bounded by the band of interest and the following features were extracted: -Pow: the total spectral power of the PRV -VLF: power in the very low frequency (0.01-0.04 Hz) -nLF: the LF power was estimated as the power in the low frequency band
+77
+

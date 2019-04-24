@@ -1,0 +1,891 @@
+JOURNAL OF IEEE TRANSACTIONS ON BIOMEDICAL CIRCUITS AND SYSTEMS, VOL. , NO. , OCTOBER 2015
+
+1
+
+Photoplethysmography-Based Method for Automatic Detection of Premature Ventricular Contractions
+Andrius Solosˇenko, Andrius Petre˙nas, Vaidotas Marozas, Member, IEEE
+
+Abstract—This work introduces a method for detection of premature ventricular contractions (PVCs) in photoplethysmogram (PPG). The method relies on 6 features, characterising PPG pulse power, and peak-to-peak intervals. A sliding window approach is applied to extract the features, which are later normalized with respect to an estimated heart rate. Artiﬁcial neural network with either linear and non-linear outputs was investigated as a feature classiﬁer. PhysioNet databases, namely, the MIMIC II and the MIMIC, were used for training and testing, respectively. After annotating the PPGs with respect to synchronously recorded electrocardiogram, two main types of PVCs were distinguished: with and without the observable PPG pulse. The obtained sensitivity and speciﬁcity values for both considered PVC types were 92.4 / 99.9% and 93.2 / 99.9%, respectively. The achieved high classiﬁcation results form a basis for a reliable PVC detection using a less obtrusive approach than the electrocardiography-based detection methods.
+Index Terms—PVC, PPG, MIMIC, Arrhythmia, Adaptive Filter, Extrasystoles, Artiﬁcial Neural Network (ANN)
+
+of multiple frequent PVCs, i.e., bigeminy (every 2nd beat is premature) and trigeminy (every 3rd beat is premature), such condition may lead to a dizziness or a temporal loss of consciousness [10–12]. In addition, PVCs are common in patients with chronic kidney disease [13], being a consequence of electrolyte shifts (e.g., low blood potassium and calcium), resulting in electrolyte imbalance during procedures such as hemodialysis.
+In most cases, PVCs have a distinctive morphology, thus are relatively easy detectable in electrocardiogram (ECG). Hence, PVC characterising properties, such as frequency and morphology, are usually evaluated using conventional Holter monitors. However, the electrodes used to record ECG are attached to the patient’s chest, resulting in discomfort, limited freedom of movement, and increased feeling of unhealthiness, especially after wearing the device for several days [14].
+
+I. INTRODUCTION
+P REMATURE ventricular contractions (PVCs) are the most commonly encountered cardiac disorder in humans. PVCs are initiated by the secondary pacemakers – the ectopic foci, located in the ventricles, therefore causing them to contract prematurely. It is well known that PVCs may occur even in healthy hearts with no signiﬁcant impact on overall well-being. Accordingly, early studies have suggested that PVCs could be considered as benign in the absence of structural heart disease [1]. However, more recent studies have denied the benignity of PVCs, linking them to various health abnormalities. For example, increased frequency of PVCs has been associated with heart failure and sudden death if a heart disease was suspected [2, 3]. PVCs have also been found to be a trigger of other serious heart arrhythmias such as a ventricular ﬁbrillation [4], and atrial ﬁbrillation [5, 6].
+Several studies have shown, e.g., [7], that PVCs have a potential to be used as a predictor of sudden cardiac death in men even without recognized heart disease. This particularly applies if frequent PVCs occur during physical exercise [2, 8], and especially during the phase of recovery [2, 9]. Since PVCs usually cause inefﬁciency in blood circulation, notably in cases
+Manuscript submitted on Jan 15, 2015; revised Apr 29, 2015 and May 31, 2015; accepted Sep 6, 2015. Date of publication October ??, 2015; date of current version ???? ??, 2015. Asterisk indicates corresponding author.
+∗Andrius Solosˇenko is with the Biomedical Engineering Institute, Kaunas University of Technology, Kaunas, Lithuania (e-mail: andrius.solosenko@ktu.lt).
+Andrius Petre˙nas is with the Biomedical Engineering Institute, Kaunas University of Technology, Kaunas, Lithuania.
+Vaidotas Marozas is with the Dept. of Electronics Engineering and Biomedical Engineering Institute, Kaunas University of Technology, Kaunas, Lithuania.
+
+On the contrary to Holter monitors, photoplethysmography– based devices offer a cheaper and a more convenient way for a daily life screening, since no electrodes are needed [15]. Photoplethysmography is a non-invasive technique commonly applied for monitoring of hemodynamic changes in the cardiovascular system by illuminating tissue with a certain wavelength (e.g., infrared, red, yellow, green light). In contrast to ECG electrodes, the photoplethysmographic sensors are more patient–friendly since the sensor can be attached to a ﬁnger [16], to be integrated into the ear-phones [17, 18], implemented in a forehead band [18, 19] or used as a wrist sensor [18–20]. Somehow surprisingly, only a few studies have been dedicated to PVC detection using photoplethysmography technique [16, 21, 22].
+In this study, we propose a method that involves PPG pulse power-derived features in addition to the temporal features that have been explored in earlier works. An important property of the proposed method is that the temporal features are normalized according to a preceding heart rate, estimated by combining temporal preprocessing and spectral analysis. Hence, differently from the previous studies, this solution allows to detect PVCs even during the episode of bigeminy. In addition, an artifact detector was implemented in order to reduce the number of false alarms.
+The paper is organized as follows: PPG waveforms together with a signal database are described in Section II, followed by a description of the proposed method in Section III. The results of PVC detection are presented in Section IV.
+Preliminary results of this study were presented in a shorter conference publication [23].
+
+JOURNAL OF IEEE TRANSACTIONS ON BIOMEDICAL CIRCUITS AND SYSTEMS, VOL. , NO. , OCTOBER 2015
+
+2
+
+PP G ECG PP G ECG PP G ECG PP G ECG
+
+(a )
+
+N
+
+N
+
+(b)
+
+N
+
+N
+
+P1
+
+N
+
+N
+
+N
+
+N
+
+N
+
+N
+
+N
+
+N
+
+P2
+
+N
+
+N
+
+N
+
+(c)
+
+N
+
+N
+
+N
+
+N
+
+P1
+
+P1
+
+P1
+
+P1
+
+N NNNNNNN
+
+(d )
+
+N
+
+P1
+
+P1
+
+P1
+
+N P2
+
+N P2
+
+P1
+
+N P2
+
+N P2
+
+N
+
+N
+
+N
+
+0.25 0.5 0.75 1
+
+1.25 1.5 1.75 2
+
+2.25 2.5 2.75 3
+
+3.25 3.5 3.75 4
+
+4.25 4.5 4.75 5
+
+5.25
+
+time, s
+
+Fig. 1. Examples of PVC pulse types in PPG together with reference ECG: (a) PPG pulses during normal sinus rhythm (labelled as N ) with a single PVC that is not followed by any observable pulse (labelled as P 1), (b) a single PVC characterized by a small pulse amplitude (labelled as P 2), (c), consecutive type P 1 pulses (bigeminy), (d) bigeminy with both PVC pulse types. In this particular example, ECGs and PPGs were preprocessed with zero-phase band-pass
+ﬁlters having cut-off frequencies of 0.05-150 Hz and 0.4-15 Hz, respectively
+
+II. PPG WAVEFORMS AND DATASET A. Waveforms
+
+TABLE I TEST PPGS OBTAINED FROM THE MIMIC DATABASE (NO. 1-25) AND
+RECORDED IN KTU BME INSTITUTE (NO. 26)
+
+It is well-known that the alternating part of the PPG is proportional to the peripheral blood volume changes [24]. Premature contractions result in a reduced ventricular ﬁlling, diminishing the peripheral pulse amplitude [25]. Therefore, the PPG pulses during PVC may become hardly recognizable (Fig. 1 (a)), or may still have a sufﬁcient amplitude for peak detection (Fig. 1 (b)). These two types of premature pulses in the PPG are denoted as P 1 and P 2, respectively.
+B. Dataset
+The algorithm was developed on 18 PPGs (training set), sampled at 125 Hz, which were taken from the PhysioNet MIMIC II database [26, 27]. Twenty-ﬁve 1-2 h PPGs, sampled at 250 Hz (the MIMIC database [28]), and 1 signal sampled at 250 Hz of 100 min (recorded in Kaunas Biomedical Engineering Institute, labelled as BMEI) were used for testing. To reduce the errors that may occur during feature extraction, all signals were resampled to 500 Hz.
+PVCs in the PPG were annotated with respect to a synchronously recorded reference ECG. At ﬁrst, PVCs in the ECG were detected by using an automated RR interval detection algorithm [29]. Then, RR intervals were used for manual evaluation of ECG morphology to ensure that the particular beat is PVC. Finally, PVC-related PPG pulses were labelled
+
+No. Signal #P 1
+
+#P 2
+
+No. Signal #P 1 #P 2
+
+name
+
+name
+
+1 039m 0 2 041m 0 3 055m 1 4 211m 0 5 212m 159 6 218m 0 7 221m 11 8 224m 0 9 225m 0 10 230m 0 11 237m 40 12 252m 0 13 253m 0
+Total: 211
+
+0
+
+14 404m 0
+
+268
+
+0
+
+15 408m 9
+
+2
+
+0
+
+16 439m 12
+
+3
+
+0
+
+17 442m 1288 366
+
+30
+
+18 444m 7
+
+10
+
+0
+
+19 449m 7
+
+2
+
+0
+
+20 466m 3
+
+4
+
+0
+
+21 471m 1
+
+0
+
+11
+
+22 474m 2
+
+4
+
+4
+
+23 482m 48
+
+88
+
+14
+
+24 484m 69
+
+20
+
+0
+
+25 485m 754 16
+
+0
+
+26 BMEI 25
+
+2
+
+59
+
+Total: 2225 785
+
+as P 1 or P 2 according to the previously described procedure. The remaining PPG pulses were assigned to normal N .
+Since the signals in both databases (MIMIC and MIMIC II) contain severe signal corruptions or various pathologies, several of them were excluded from the study. The criteria for discarding the signals was the absence of usable information in either ECG or PPG, therefore resulting in difﬁculties to correctly annotate the signals. The list of the test signals is presented in Table I.
+
+JOURNAL OF IEEE TRANSACTIONS ON BIOMEDICAL CIRCUITS AND SYSTEMS, VOL. , NO. , OCTOBER 2015
+
+3
+
+Preprocessing
+
+PPG
+
+1 0.4 Hz 5 Hz
+
+s
+
+bp n
+
+2 12 s sliding window
+
+Feature extraction
+
+6 Variable
+filter
+
+7 Adaptive filter
+
+4 fNHR estimation
+
+3 Peak detector
+
+5
+
+PP
+
+calculation &
+
+normalization
+
+∑
+
++
+
+s
+
+af n
+
+s
+
+bp n
+
+8 PR
+
+Classification
+
+ANN Grouping into Super-Classes
+
+z-1
+
+9 C1 10
+
+C2 z-1
+P1
+
+z-1
+
+z-1
+
+P2
+
+z-1
+
+N
+
+z-1
+
+C10
+
+Fig. 2. Block diagram of the proposed method. Here fNHR is a normal heart rate, P P is a peak-to-peak interval, P R is a power ratio, ANN is an artiﬁcial neural network, sbp is a preprocessed PPG, saf is a PPG with higher frequency components removed
+
+III. METHOD
+The proposed method for PVC detection and classiﬁcation exploits temporal (peak-to-peak intervals, P P s) and powerderived (the power ratios, P Rs) features, obtained for each PPG pulse. The method is composed of 3 major parts: PPG preprocessing, feature extraction, and classiﬁcation (see Fig. 2).
+
+A. Preprocessing and feature extraction
+To minimize high frequency noise and baseline wandering, PPGs are preprocessed by using low-pass and high-pass ﬁnite impulse response (FIR) ﬁlters with 5 Hz and 0.4 Hz cutoff frequencies, respectively, thus resulting in a signal sbp (Fig. 2 block 1). These cut-off frequencies correspond to approximal maximal and minimal physiological heart rates. A 12 s sliding analysis window with 50% overlap is used for feature extraction (Fig. 2 block 2). Positive peaks of the preprocessed PPG are detected by using threshold crossing technique (Fig. 2 block 3). Then, series of operations are applied (Fig. 2 block 4) for estimation of a normal heart rate (fNHR) (see Fig. 3).
+
+s
+
+bp n
+
+Clip & smooth
+
+1st deri-
+
+PSD
+
+vative function
+
+Max PSD
+
+Median filter
+
+fNHR
+
+Fig. 3. Block diagram of the normal heart rate estimator. Here sbp is a 12 s segment of the preprocessed PPG
+When estimating fNHR, it is crucial to reduce the inﬂuence of impulse noise, i.e., noise of higher amplitude than PPG, which may be falsely associated to fNHR during spectral analysis. First, PPG is clipped in the empirically determined range of ±0.7std of the preprocessed PPG, and smoothed by applying a moving average ﬁlter. Then, the 1st derivative of the resulting PPG is calculated. The 1st derivative acts as a high pass ﬁlter that emphasizes higher frequency components of the PPG. In addition, the 1st derivative is particularly useful when PPG segments contain bigeminy episodes, which result in nearly 2 times lower PPG pulse rate compared to a normal rhythm (see Fig. 1 (c)). Next, fNHR is estimated by taking the frequency at the maximal amplitude of the power spectral density (PSD) function. Finally, outliers are removed by ﬁltering the array of fNHR using a 3rd order median ﬁlter.
+
+Normally, heart rate is inversely related to P P intervals. However, for a speciﬁc PVC type (cf. Fig. 1 (a) and (c)), the length of P P can be approximately twice the length of the interval between the subsequent PPG pulses occurring during normal rhythm. Therefore, in order to make P P s heart rate independent, P P -related features are normalized before applying them to classiﬁer. One way to normalize P P intervals is to calculate the ratio of the current and the mean values of the intervals [22]. However, the former normalization principle is sensitive to erroneously detected P P value, i.e., during bigeminy or artifacts. Hence, P P -related features are normalized (Fig. 2 block 5) with respect to fNHR:
+
+P Pj =
+
+p j − p j−1 fNHR , fs
+
+(1)
+
+where j is a P P number, pj is an array of index value of detected positive peaks, fs is a sampling frequency (Hz), and fNHR is a normal heart rate (Hz). Normalized P P intervals are close to 1 during normal heart rhythm, whereas take either lower or higher values during PVCs.
+The second high-pass FIR ﬁlter is characterized by a variable cut-off frequency (Fig. 2 block 6), and is employed for the purpose to extract higher frequency components of PPG (from fNHR to 5 Hz). The cut-off frequency is adjusted according to the current value of fNHR. Then, the resulting signal is used as a reference input to a pre-whitened recursive least squares (RLS) adaptive ﬁlter (Fig. 2 block 7) [30]. The order and the forgetting factor of RLS ﬁlter were set to 10 and 0.999, respectively. Given that PPG pulses during PVCs are composed of lower frequency components compared to normal rhythm, subtraction of higher frequencies produce a signal saf , which consists solely of premature pulses. Therefore, the amplitude of PVCs is not affected, while the PPG pulses are suppressed considerably during a normal heart rate (Fig. 4 (c)).
+The power ratios (P Rs) are computed in segments between two adjacent PPG pulses by involving both preprocessed PPG sbp and the signal saf :
+
+N
+
+2
+
+sanf − saf
+
+P Rk
+
+=
+
+n=1 N
+
+, sbnp − sbp 2
+
+(2)
+
+n=1
+
+JOURNAL OF IEEE TRANSACTIONS ON BIOMEDICAL CIRCUITS AND SYSTEMS, VOL. , NO. , OCTOBER 2015
+
+4
+
+Normal N PVC type P 1 PVC type P 2
+(a)
+
+(b)
+
+(c)
+
+2
+
+2
+
+(d)
+
+<1
+
+<1
+
+1
+
+1
+
+(e)
+
+0
+
+0
+
+Fig. 4. Example of detected PVCs in the PPG: (a) reference ECG, (b) preprocessed PPG with PVCs (sbp), (c) output of the adaptive ﬁlter (saf ), (d) normalized peak-to-peak intervals (P P s), and (e) power ratios (P Rs). The vertical lines in (d) and (e) denote the ranges of the normalized P P and P R values, respectively.
+
+where k is a segment number, N is a segment length (total samples in P P interval), saf is a mean amplitude of samples in saf , and sbp is a mean amplitude of samples in sbp. Since
+PPG amplitude is markedly suppressed in normal beats, the power ratios P R take lower values than in PVCs.
+
+TABLE II PPG PULSE CLASSIFICATION INTO (a) 10 CLASSES AND (b) 3
+SUPER-CLASSES
+
+Feature vector
+C1 (N ormal) C2 (N ormal before P 1) C3 (N ormal after P 1) C4 (N ormal before P 2) C5 (N ormal after P 2) C6 (Bigeminy start) C7 (Bigeminy) C8 (Bigeminy end) C9 (Single P 1) C10 (Single P 2)
+
+B. Classiﬁcation
+Feed-forward artiﬁcial neural network (ANN) with either linear or non-linear outputs was investigated for classiﬁcation (a) of individual PPG pulses (Fig. 5).
+
+Input Layer
+
+PP1 PP2 PP3 PR1 PR2 PR3
+
+I1
+V1,i
+
+V1,1 V1,2
+
+V2,1
+I2 V2,2|
+V2,i
+
+Vj,1
+Ij
+
+Vj,2 Vj,i
+
+... ...
+... ...
+
+Hidden Layer
+
+V
+
+b 1
+
+Output Layer Outputs
+
+W
+
+b 1
+
+W1,1
+
+∑
+
+∑
+
+W1,2
+
+C1
+
+V
+
+b 2
+
+W1,m
+
+W
+
+b 2
+
+C2
+
+W2,1
+
+∑
+
+W2,2|
+
+∑
+
+V
+
+b i
+
+W2,m Wn,1
+
+W
+
+b m
+
+Wn,2
+
+∑
+
+∑
+
+C10
+
+Wn,m
+
+Fig. 5. Block diagram of the ANN-based PPG pulse classiﬁer. Here I stands for ANN inputs, V are input and hidden layers connecting weights, V b are
+biases of hidden neurons, W are hidden and output layers connecting weights, W b are biases of the neurons in the output layer, and C are the outputs of
+the ANN (classes)
+
+Since each individual PPG pulse is described by 3 intervals (preceding, current and subsequent), various interval combinations are feasible, therefore it is reasonable to distinguish many classes (i.e., 10, see Table II) in order to reduce a misclassiﬁcation rate. These 10 classes (Fig. 1 block 9) are further grouped into 3 super-classes, denoted by P 1, P 2 and N , respectively (Fig. 1 block 10). The full list of classes and super-classes is presented in Table II.
+The number of neurons in a hidden layer of ANN was chosen empirically, and was set to 40. A back-propagation method was used for training [31]. To cope with the overﬁtting, a small random noise was added to each of the input [32]. Both ANN and back-propagation learning method were implemented in Matlab environment.
+
+(b)
+
+N
+
+P1
+
+P2
+
+C. Artifact detection
+Motion and tissue deformation induced artifacts is a crucial issue hindering the development of arrhythmia detectors that are based on the PPG. To reduce the number of false alarms due to falsely detected pulses, an artifact detector is implemented.
+The process of artifact detection is illustrated in Fig. 6. In the analysis window, artifacts are ﬂagged with respect to the ratio, obtained by dividing the clipped PPG by the preprocessed (Fig. 6 (a)). Since the clipped PPG has lower amplitude, the ratio approaches to 0 when artifacts occur. PPG is ﬂagged as an artifact whenever the empirically determined threshold exceeds 0.3. In addition, 4 pulses before and after the artifact are excluded from classiﬁcation.
+D. Performance evaluation
+The performance of the method was evaluated in terms of sensitivity (Se), speciﬁcity (Sp) and accuracy (Acc). Due to the a considerable difference in a number of normal pulses and PVCs, the Matthews correlation coefﬁcient was employed as an additional performance measure (M CC) [33].
+The method was tested by using ANN with either linear and non-linear outputs. The full feature set (3 P P and 3 P R) was applied for training the ANN. In addition, the performance was also tested with a reduced feature set, consisting of just
+
+JOURNAL OF IEEE TRANSACTIONS ON BIOMEDICAL CIRCUITS AND SYSTEMS, VOL. , NO. , OCTOBER 2015
+
+5
+
+Artifact (a)
+(b)
+
+Artifact Detected peaks
+
+1
+(c)
+<0.1
+
+Treshold
+
+Fig. 6. Example of artifact detection in the PPG: (a) the clipped PPG, (b) the preprocessed PPG, and (c) the ratio of the signals in (a) and (b). Vertical line denotes the ranges of ratio values
+
+3 P P inputs. Since, the weights in the ANN are initialized randomly, the training process has been repeated 3 times, and then the averaged performance values were taken as the overall performance measure.
+It should be noted that the initial testing was carried out without involving artifact detection. Then, both the best performing, and the most computationally efﬁcient (with P P features, linear outputs, and the blocks 6, 7 and 8 excluded in Fig. 2) conﬁgurations were used for a repeated testing but with the artifact detector involved.
+IV. RESULTS
+The results are presented in Tables III–VI. Table III shows that the performance of ANN does not depend on the type of neurons in the output layer, although slightly better results are obtained when an ANN with the linear outputs is used. On the other hand, ANN that employs only P P feature set is associated with a higher accuracy when non-linear outputs are used (Table IV).
+The ANN with linear outputs and full feature set was further reinvestigated but with the artifact detector included. The inclusion of the artifact detector allowed to reduce a number of false positives by approximately 60%. Thus, the Sp for PVC types P 1 and P 2 increased from 99.6 / 99.8% to 99.9 / 99.9%, respectively. However, the inclusion of the artifact detector resulted in a slight decrease in Se from 94.2 / 93.1% to 93.2 / 92.4%, respectively (Table V). The decrease in sensitivity can be explained by the fact that some of premature pulses have similar morphology to artifacts, and therefore have been removed from further analysis.
+The most computationally efﬁcient conﬁguration is associated with a slightly worse performance compared to the best performing conﬁguration (see Tables V and VI). By combining this conﬁguration with the artifact detector, a number of false positives decreased by approximately 63% compared to that without the artifact detector. Moreover, Sp for the P 1 PVC type increased from 99.6% to 99.9%. In contrast, Sp for P 2 PVC type remained unchanged. According to previous explanation, a slight decrease in Se is observed for both PVC pulse types, i.e., from 90.5 / 84.0% to 89.5 / 83.2% for P 1 and P 2, respectively.
+
+TABLE III THE CLASSIFICATION RESULTS OBTAINED USING BOTH P P AND P R FEATURES AS AN INPUT TO ANN: (a) PERFORMANCE MEASURES, (b)
+CONFUSION MATRICES
+
+Linear output ANN
+
+Class ⇒ N
+
+P1
+
+P2
+
+Se, % 99.4 94.2 93.1
+
+Sp, % (a)
+
+94.2 99.6 99.8
+
+Acc, % 99.3 99.5 99.8
+
+M CC, % 78.3 79.3 75.2
+
+Class ⇒ N
+
+P1
+
+P2
+
+N
+
+255002 133 57
+
+(b) P 1
+
+1122 2295 1
+
+P2
+
+496 8
+
+786
+
+Non-linear output ANN
+
+N
+
+P1
+
+P2
+
+99.3 93.2 91.6
+
+93.1 99.5 99.8
+
+99.3 99.5 99.8
+
+78.0 77.5 75.2
+
+N
+
+P1
+
+P2
+
+254867 156
+
+70
+
+1236 2271
+
+1
+
+468 9
+
+773
+
+TABLE IV THE CLASSIFICATION RESULTS OBTAINED USING SOLELY P P -BASED FEATURES: (a) PERFORMANCE MEASURES, (b) CONFUSION MATRICES
+
+Linear output ANN
+
+Class ⇒ N
+
+P1
+
+P2
+
+Se, % 99.3 90.5 84.0
+
+Sp, % (a)
+
+89.1 99.6 99.8
+
+Acc, % 99.2 99.5 99.7
+
+M CC, % 74.4 77.1 66.8
+
+Class ⇒ N
+
+P1
+
+P2
+
+N
+
+255069 222 134
+
+(b) P 1
+
+1134 2205 1
+
+P2
+
+610 9
+
+709
+
+Non-linear output ANN
+
+N
+
+P1
+
+P2
+
+99.0 91.2
+
+91.0
+
+92.6 99.4
+
+99.7
+
+99.0 99.3
+
+99.7
+
+71.7 73.5
+
+66.5
+
+N
+
+P1
+
+P2
+
+253302 186
+
+53
+
+1499 2237
+
+0
+
+768 13
+
+746
+
+V. DISCUSSION
+The goal of this work was to develop a method for detection of premature ventricular contractions by relying solely on photoplethysmography signal analysis. Our ﬁrst attempt to detect premature contractions by using PPG was presented in an earlier study [34]. Besides that the pilot study was performed on the basis of just 9 PPG signals, the previous algorithm, in contrast to the proposed, had limited capabilities of detecting successive premature pulses such as bigeminy.
+In contrast to ECG, the PPG can be acquired in a single spot of the body, let alone the fact that no adhesive electrodes are required. Considering these points, PPG-based arrhythmia detection is an attractive solution for both short-term screening and long-term arrhythmia monitoring when unobtrusiveness for the user is of special importance.
+The proposed PVC detector, thanks to the blocks of adaptive feature extraction and artifact detection, allowed to achieve better performance than that obtained by Gil et al. [22]. Even though, Gil et al. excluded PVCs that had occurred within 5 previous or 20 subsequent beats, our method was more accurate (99.8 vs. 99.3%).
+The study revealed that the main challenge is to distinguish PVCs from artifacts, since the distorted PPG pulse can be
+
+JOURNAL OF IEEE TRANSACTIONS ON BIOMEDICAL CIRCUITS AND SYSTEMS, VOL. , NO. , OCTOBER 2015
+
+6
+
+TABLE V THE CLASSIFICATION RESULTS OBTAINED USING LINEAR OUTPUT ANN CLASSIFIER, BOTH P P AND P R FEATURES AND ARTIFACT DETECTOR: (a)
+PERFORMANCE MEASURES, (b) CONFUSION MATRICES
+
+Class ⇒ N
+
+P1
+
+P2
+
+Se, % 99.8
+
+93.2
+
+92.4
+
+Sp, % 93.3
+
+99.9
+
+99.9
+
+(a)
+
+Acc, % 99.7
+
+99.8
+
+99.8
+
+M CC, % 87.7
+
+91.3
+
+78.7
+
+Class ⇒ N
+
+P1
+
+P2
+
+N
+
+255891 158
+
+63
+
+(b) P 1
+
+262
+
+2270
+
+1
+
+P2
+
+373
+
+8
+
+780
+
+TABLE VI THE CLASSIFICATION RESULTS OBTAINED USING LINEAR OUTPUT ANN, P P FEATURES AND ARTIFACT DETECTOR: (a) PERFORMANCE MEASURES,
+(b) CONFUSION MATRICES
+
+and ability to approximate linear and non-linear functions. In addition, the performance of PPG pulse classiﬁcation largely depends on an estimated normal heart rate (parameter fNHR) which inﬂuences the normalization process.
+The presented study has several limitations. Firstly, the signals have not been annotated by the medical experts. Secondly, the method has not been tested on the signals recorded during active motion, such as walking and jogging. Finally, for some rare PVC types (e.g., interpolated PVCs) [39], PVCs can not be detected by the algorithm because PPG is not enough sensitive to hemodynamic changes during such cardiac events.
+VI. CONCLUSIONS AND SIGNIFICANCE OF THE WORK
+A photoplethysmography-based method for detection of premature ventricular contractions has been developed. Considering its high performance, the proposed PVC detector is expected to have both a non-clinical (e.g., sleep monitoring) and a clinical (e.g., in hemodialysis procedures) relevance when moderate physical activity is involved.
+
+Class ⇒ N
+
+P1
+
+P2
+
+Se, % 99.7
+
+89.5
+
+83.2
+
+Sp, % 88.2
+
+99.9
+
+99.8
+
+(a)
+
+Acc, % 99.5
+
+99.8
+
+99.7
+
+M CC, % 81.9
+
+87.5
+
+68.3
+
+Class ⇒ N
+
+P1
+
+P2
+
+N
+
+254696 246
+
+137
+
+(a) P 1
+
+362
+
+2181
+
+1
+
+P2
+
+523
+
+9
+
+683
+
+erroneously assigned to a class of premature beat. Thus is, high amplitude artifacts may usually distort a group of nearby pulses and introduce residual distortions in a shape of further pulses. Nevertheless, even the simpliﬁed conﬁguration of the algorithm showed sufﬁcient performance to detect PVCs in artifact-distorted PPGs (see Table IV (a)). Therefore, the simpliﬁed (computationally efﬁcient) conﬁguration can be considered for the implementation in a mobile device.
+Although the algorithm shows nearly perfect speciﬁcity (99.9%), the speciﬁcity can be further improved by computing P Rs in several discrete ranges of each P P , rather than obtaining P Rs in the entire P P interval. Additional improvement in speciﬁcity may be achieved by upgrading an artifact detector, since the current artifact detector is effective only in cases when artifacts have higher amplitude than a normal PPG pulse.
+In this study, high-pass and low-pass FIR ﬁlters were used to pre-process the PPG. However, more advanced signal processing techniques can be employed either to eliminate PPG distortions, such as baseline wandering [35, 36], or to assess PPG quality [37, 38]. Initial tests showed that a single-layer perceptron classiﬁer does not converge during training, owing to the fact that the PPG features used in the present study are not linearly separable. Hence, a multi-layer perceptron (i.e., ANN) was chosen due to its universal characteristics
+
+APPENDIX The appendix brieﬂy describes an online implementation of the proposed method. The online version of the method was implemented as the application for the use in Android operating system. The most computationally efﬁcient conﬁguration of the algorithm (i.e., P P features, linear ANN outputs, and the blocks 6, 7 and 8 excluded in Fig. 2) was selected for the implementation. The PPG is transmitted to the smartphone via Bluetooth connection. Figure 7 shows a screenshot of the application running on the smartphone. PPG segment with correctly detected PVCs during the episode of bigeminy is shown in a chart on the top of the application window. The bottom chart shows the normalized peak-to-peak intervals. The sliding panel on the right side provides an important information about the number of detected PVCs and the PVC burden, determined by a percentage of PVC-related beats compared to a total number of beats.
+Fig. 7. Screenshot of the Android application with the implemented PVC detection algorithm. An application window shows detected PVCs during bigeminy episode, and other heart rhythm related parameters. Note that this particular signal is characterized by a very high heart rhythm (220 bpm) outside the episode of multiple PVCs
+
+JOURNAL OF IEEE TRANSACTIONS ON BIOMEDICAL CIRCUITS AND SYSTEMS, VOL. , NO. , OCTOBER 2015
+
+7
+
+ACKNOWLEDGEMENT
+This work was partially supported by CARRE (No. 611140)
+project, funded by the European Commission Framework Pro-
+gram 7, and by the Research Council of Lithuania (Agreement
+No. MIP-15391).
+REFERENCES
+[1] H. L. Kennedy, J. A. Whitlock, and M. K. Sprague, “Long-term follow-up of asymptomatic healthy subjects with frequent and complex ventricular ectopy,” New England Journal of Medicine, vol. 312, no. 4, pp. 193–197, 1985.
+[2] G. A. Ng, “Treating patients with ventricular ectopic beats,” Heart, vol. 92, no. 11, pp. 1707–1712, 2006.
+[3] G. Ephrem, M. Levine, P. Friedmann, and P. Schweitzer, “The prognostic signiﬁcance of frequency and morphology of premature ventricular complexes during ambulatory Holter monitoring,” Annals of Noninvasive Electrocardiology, vol. 18, no. 2, pp. 118–125, 2013.
+[4] F. Santoro, L. d. Biase, P. Hranitzky, J. E. Sanchez, P. Santangeli, A. P. Perini, J. D. Burkhardt, and A. Natale, “Ventricular ﬁbrillation triggered by PVCs from papillary muscles: Clinical features and ablation,” Journal of Cardiovascular Electrophysiology, vol. 25, no. 11, pp. 1158–1164, 2014.
+[5] H. Watanabe, N. Tanabe, and Y. Makiyama, “ST -segment abnormalities and premature complexes are predictors of new-onset atrial ﬁbrillation: The Niigata preventive medicine study,” American Heart Journal, vol. 152, no. 4, pp. 731–735, 2006.
+[6] S. K. Agarwal, G. Heiss, P. M. Rautaharju, and et al., “Premature ventricular complexes and the risk of incident stroke: the Atherosclerosis Risk In Communities (ARIC) Study.” Stroke; a journal of cerebral circulation, vol. 41, pp. 588–93, Apr 2010.
+[7] H. Hirose, S. Ishikawa, T. Gotoh, T. Kabutoya, K. Kayaba, and E. Kajii, “Cardiac mortality of premature ventricular complexes in healthy people in Japan,” Journal of Cardiology, vol. 56, no. 1, pp. 23 – 26, 2010.
+[8] X. Jouven, M. Zureik, and M. Desnos, “Long-term outcome in asymptomatic men with exercise-induced premature ventricular depolarizations,” New England Journal of Medicine, vol. 343, no. 12, pp. 826–833, 2000.
+[9] J. P. Frolkis, C. E. Pothier, and E. H. Blackstone, “Frequent ventricular ectopy after exercise as a predictor of death,” New England Journal of Medicine, vol. 348, no. 9, pp. 781–790, 2003.
+[10] B. Zaret, L. Cohen, and M. Moser, Yale University School of Medicine Heart Book. William Morrow and Co., 1992.
+[11] M. J. Reed and A. Gray, “Collapse query cause: the management of adult syncope in the emergency department,” Emerg Med J, vol. 23, no. 8, pp. 589–594, Aug 2006.
+[12] A. Garcia-Touchard, V. K. Somers, T. Kara, J. Nykodym, A. Shamsuzzaman, P. Lanfranchi, and M. J. Ackerman, “Ventricular ectopy during rem sleep: implications for nocturnal sudden cardiac death,” Nat Clin Pract Cardiovasc Med, vol. 4, no. 5, pp. 284–288, May 2007.
+[13] P. S. P. M. Khaled Shamseddin, “Sudden cardiac death in chronic kidney disease: epidemiology and prevention,” Nature Reviews Nephrology, no. 3, pp. 145–154, 2011.
+[14] S. Z. Rosero, V. Kutyifa, B. Olshansky, and W. Zareba, “Ambulatory ecg monitoring in atrial ﬁbrillation management,” Progress in Cardiovascular Diseases, vol. 52, no. 2, pp. 143–152, 2013.
+[15] J. Allen, “Photoplethysmography and its application in clinical physiological measurement,” Physiol. Meas., vol. 28, no. 3, pp. 1–39, 2007.
+[16] T. Suzuki, K.-I. Kameyama, and T. Tamura, “Development of the irregular pulse detection method in daily life using wearable photoplethysmographic sensor,” in Engineering in Medicine and Biology Society, 2009. EMBC 2009. Annual International Conference of the IEEE, Sept 2009, pp. 6080–6083.
+[17] L. Wang, B. Lo, and G.-Z. Yang, “Multichannel reﬂective ppg earpiece sensor with passive motion cancellation,” Biomedical Circuits and Systems, IEEE Transactions on, vol. 1, no. 4, pp. 235–241, Dec 2007.
+[18] T. Tamura, Y. Maeda, M. Sekine, and M. Yoshida, “Wearable photoplethysmographic sensors – past and present,” Electronics, vol. 3, no. 2, pp. 282–302, 2014.
+[19] K. Li and S. Warren, “A wireless reﬂectance pulse oximeter with digital baseline control for unﬁltered photoplethysmograms,” Biomedical Circuits and Systems, IEEE Transactions on, vol. 6, no. 3, pp. 269–278, June 2012.
+[20] R. Haahr, S. Duun, M. Toft, B. Belhage, J. Larsen, K. Birkelund, and E. Thomsen, “An electronic patch for wearable health monitoring by
+
+reﬂectance pulse oximetry,” Biomedical Circuits and Systems, IEEE Transactions on, vol. 6, no. 1, pp. 45–53, Feb 2012. [21] K. H. Shelley, “Photoplethysmography: beyond the calculation of arterial oxygen saturation and heart rate,” Anesth. Analg., vol. 105, no. 6 Suppl, pp. S31–36, Dec 2007. [22] E. Gil, P. Laguna, J. Martinez, O. Barquero-Perez, A. Garcia-Alberola, and L. Sornmo, “Heart rate turbulence analysis based on photoplethysmography,” Biomedical Engineering, IEEE Transactions on, vol. 60, no. 11, pp. 3149–3155, Nov 2013. [23] A. Solosenko and V. Marozas, “Automatic premature ventricular contraction detection in photoplethysmographic signals,” in 2014 IEEE BioCAS Proceedings, ser. IEEE Proceedings, 2014, pp. 49–52. [24] E. Peper, R. Harvey, I.-M. Lin, H. Tylova, and D. Moss, “Is there more to blood volume pulse than heart rate variability respiratory sinus arrhythmia, and cardiorespiratory synchrony?” Biofeedback, vol. 35, no. 2, pp. 54–61, 2007. [25] D. Zheng, J. Allen, and A. Murray, “Determination of aortic valve opening time and left ventricular peak ﬁlling rate from the peripheral pulse amplitude in patients with ectopic beats,” Physiological Measurement, vol. 29, no. 12, pp. 1411–1419, 2008. [26] A. L. Goldberger, L. A. N. Amaral, L. Glass, J. M. Hausdorff, P. C. Ivanov, R. G. Mark, J. E. Mietus, G. B. Moody, C.-K. Peng, and H. E. Stanley, “Physiobank, physiotoolkit, and physionet: Components of a new research resource for complex physiologic signals,” Circulation, vol. 101, no. 23, pp. 215–220, 2000. [27] M. Saeed, M. Villarroel, A. T. Reisner, G. Clifford, L.-W. Lehman, G. Moody, T. Heldt, T. H. Kyaw, B. Moody, and R. G. Mark, “Multiparameter intelligent monitoring in intensive care ii (mimic-ii): A publicaccess intensive care unit database,” Critical Care Medicine, vol. 39, pp. 952–960, May 2011. [28] G. Moody and R. Mark, “A database to support development and evaluation of intelligent intensive care monitoring,” in Computers in Cardiology, 1996, Sept 1996, pp. 657–660. [29] D. S. Benitez, P. Gaydecki, A. Zaidi, and A. P. Fitzpatrick, “The use of the hilbert transform in ecg signal analysis.” Comp. in Bio. and Med., vol. 31, no. 5, pp. 399–406, 2001. [30] S. Douglas, “Numerically-robust o(n2) RLS algorithms using leastsquares prewhitening,” in Acoustics, Speech, and Signal Processing, 2000. ICASSP ’00. Proceedings. 2000 IEEE International Conference on, vol. 1, 2000, pp. 412–415 vol.1. [31] T. Vogl, J. Mangis, A. Rigler, W. Zink, and D. Alkon, “Accelerating the convergence of the back-propagation method,” Biological Cybernetics, vol. 59, no. 4-5, pp. 257–263, 1988. [32] Piotrowski, A. P., Napiorkowski, and J. J., “A comparison of methods to avoid overﬁtting in neural networks training in the case of catchment runoff modelling,” Journal of Hydrology, vol. 476, pp. 97 – 111, 2013. [33] J. Gorodkin, “Comparing two k-category assignments by a k-category correlation coefﬁcient,” Computational Biology and Chemistry, vol. 28, no. 5-6, pp. 367–374, 2004. [34] A. Solosenko and V. Marozas, “Automatic extrasystole detection using photoplethysmographic signals,” in XIII Mediterranean Conference on Medical and Biological Engineering and Computing 2013, ser. IFMBE Proceedings, 2013, vol. 41, pp. 985–988. [35] P. Laguna, R. Jane, and P. Caminal, “Adaptive ﬁltering of ECG baseline wander,” in Engineering in Medicine and Biology Society, 1992 14th Annual International Conference of the IEEE, vol. 2, Oct 1992, pp. 508–509. [36] H. Wang, X. Wang, J. Deller, and J. Fu, “Shape-preserving preprocessing for human pulse signals based on adaptive parameter determination,” Biomedical Circuits and Systems, IEEE Transactions on, vol. 8, no. 4, pp. 594–604, Aug 2014. [37] J. Patterson and G.-Z. Yang, “Ratiometric artifact reduction in low power reﬂective photoplethysmography,” Biomedical Circuits and Systems, IEEE Transactions on, vol. 5, no. 4, pp. 330–338, Aug 2011. [38] K. Li, S. Warren, and B. Natarajan, “Onboard tagging for real-time quality assessment of photoplethysmograms acquired by a wireless reﬂectance pulse oximeter,” Biomedical Circuits and Systems, IEEE Transactions on, vol. 6, no. 1, pp. 54–63, Feb 2012. [39] J. Reilly and H. Antoni, Electrical Stimulation and Electropathology. Cambridge University Press, 1992.
+
+JOURNAL OF IEEE TRANSACTIONS ON BIOMEDICAL CIRCUITS AND SYSTEMS, VOL. , NO. , OCTOBER 2015
+
+8
+
+Andrius Solosenko was born in 1988. He received the BSc. degree in electronics engineering and MSc. degree in biomedical engineering from Kaunas University of Technology, Kaunas, Lithuania in 2011 and 2013, respectively. He is PhD student of electronics engineering since 2013 in Kaunas University of Technology. His current areas of research are digital signal processing algorithms for cardiac event detection in optical signals and development of medical mobile applications.
+
+Andrius Petre˙nas received the B.Sc. degree in electronics engineering and the M.Sc. degree in biomedical engineering from Kaunas University of Technology, Kaunas, Lithuania, in 2009 and 2011, respectively. He is currently with the Biomedical Engineering Institute at Kaunas University of Technology where he is working toward the Ph.D. degree. His research interests are mainly concentrated on signal processing algorithms for long-term monitoring of paroxysmal atrial ﬁbrillation, with particular interest in detection of brief arrhythmia episodes.
+Vaidotas Marozas received the BSc., MSc., and PhD. degrees in electrical engineering from Kaunas University of Technology (KTU), Kaunas, Lithuania, in 1993, 1995, and 2000 rectively. He was a visiting PhD student for several time periods during 1998 – 2000 in the Signal Processing Group, Department of Electroscience, Lund University, Lund, Sweden. Since 2001, he has been with Department of Electronics, Faculty of Electrical and Electronics Engineering, KTU, where he is currently an Associate Professor. He is also afﬁliated with Biomedical Engineering Institute, KTU, where he is a Research Scientist. His research interests fall in the area of signal processing and embedded systems for biomedical applications: detection and characterization of cardiac arrhythmias in ECG, PPG and IPG signals, application of electroconductive textiles for physiological signals monitoring, and real-time signal processing algorithms for embedded systems.
+

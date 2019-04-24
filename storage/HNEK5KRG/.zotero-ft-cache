@@ -1,0 +1,2294 @@
+Time-interval based Blood Pressure Measurement Technique and System
+Shan He
+Thesis submitted to the University of Ottawa in partial Fulfillment of the requirements for the degree of
+MASTER OF APPLIED SCIENCE
+School of Electrical Engineering and Computer Science Faculty of Engineering University of Ottawa
+© Shan He, Ottawa, Canada, 2018
+
+Abstract
+Smart watches in future will have smart wristband. This work analyses properties of new developed capacitive wristband sensor that measures ballistocardiogram (BCG) from single point on the wrist. In addition, it considers applications of this sensor to monitoring heart rate variability. Another application is in estimating changes (trend) in systolic blood pressure continuously when combined with lead one electrocardiogram (ECG).
+BP is one of the vital signs that indicates the health condition. It is commonly measured by cuff-based monitor using either auscultatory or oscillometric method. Cuff-based BP monitor is not portable and unable to measure BP continuously which means it is difficult to attach BP monitoring function on a wearable device. Significant research is conducted in estimating BP from pulse transit time (PTT) mathematically which would enable the cuffless BP measurement.
+In this work, a new time reference, RJ interval, which is the time delay between ECG and BCG signal peaks was tested whether it can be used as a surrogate of PTT in cuffless BP estimation. Based on the study done on 10 healthy people, it was shown that RJ intervals can be useful in evaluating trends of systolic blood pressure.
+Key words: cuffless blood pressure estimation; pulse transit time; RJ interval;
+ii
+
+To my parents and Yukee
+iii
+
+Acknowledgments
+Finishing M.Sc. is sometimes compared to reaching the light at the end of the tunnel, but for me there has been plenty of enlightenment but no tunnel in sight. For this, I have the following people to thank.
+First, I would like to express my gratitude to my supervisor: Professor Miodrag Bolic. His rigour has made me a more disciplined engineer and his sharp insight has taught me how to think critically. I was admitted by the M.Eng program at the beginning. In the first term, I took one of his courses, “Principles and Design of Advanced Biomedical Instrumentation”, which introduced the healthcare monitoring methods and devices, and I found this is what I am interested in. Fortunately, Dr. Bolic gave me a chance to do research with him and I was transferred into the M.Sc. program. It is him who led me into the field that I am truly interested in and always provided me with help and suggestions.
+I would like to thank Xinde Li who is an excellent engineer and who developed the hardware circuit for this research. I would like to thank Dr. Hilmi R. Dajani and Dr. Masayoshi Yoshida for answering my physiology questions since the very beginning of the project and for helping me setup the experimental protocol. I would also like to thank Dr. Izmail Batkin for proposing the idea of developing capacitive wristband sensor and therefore enabling this research.
+I would like to thank Dr. Glenn Kenny and students in his lab Madison, Erin, Reem and Robert for providing us with the continuous BP monitor Finometer Pro to conduct the experiments and helping me setup the instrument.
+iv
+
+I would like to thank my girlfriend Yukee who is always encouraging and inspiring me when I met problems. I would like to thank my best friends, Percy and Melody, who helped me during this project.
+v
+
+List of Abbreviations
+
+BCG BMI BP DAQ ECG EMD EMG EMI HRV IMF JJ MA MAD NSDE PAT PEP
+
+Ballistocardiogram Body Mass Index Blood Pressure Data Acquisition Electrocardiogram Empirical Mode Decomposition Electromyogram Electromagnetic Interference Heart Rate Variability Intrinsic Mode Function Peak-to-peak Interval (BCG) Motion Artifact Mean absolute difference Normalized Standard Deviation from Ensemble Pulse arrival time Pre-ejection period
+
+vi
+
+PPG PWV PSD PTT RJ RMSD RR SBP SD USB
+
+Photoplethysmogram Pulse Wave Velocity Power Spectral Density Pulse Transit Time Peak-to-peak Interval (ECG & BCG) Root mean square deviation Peak-to-peak Interval (ECG) Systolic Blood Pressure Standard difference Universal Serial Bus
+
+vii
+
+Contents
+Chapter 1.................................................................................................................................................1 Introduction............................................................................................................................................ 1
+1.1 Blood Pressure Monitoring.......................................................................................................1 1.2 Aims of Thesis Work................................................................................................................2 1.3 Thesis Organization.................................................................................................................. 4 Chapter 2.................................................................................................................................................6 Literature Review................................................................................................................................... 6 2.1 Definition of Blood Pressure.................................................................................................... 6 2.2 Review of Blood Pressure Measurement Methods...................................................................7
+2.2.1 Blood Pressure Measurement using Auscultatory Method........................................... 7 2.2.2 Blood Pressure Measurement using Oscillometric Method.......................................... 8 2.3 Review of Biomedical Signals............................................................................................... 10 2.3.1 Electrocardiogram (ECG)............................................................................................10 2.3.2 Photoplethysmogram (PPG)........................................................................................ 13 2.3.3 Ballistocardiogram (BCG)...........................................................................................15 Chapter 3...............................................................................................................................................19 Biomedical Signal Acquisition System................................................................................................ 19 3.1 ECG Sensor............................................................................................................................ 20 3.2 PPG Sensor............................................................................................................................. 20 3.3 BCG Sensor............................................................................................................................ 21 3.4 Signal Preprocessing Circuit.................................................................................................. 24 3.5 Data Acquisition Card (DAQ card)........................................................................................ 25 3.6 Software Program................................................................................................................... 25 Chapter 4...............................................................................................................................................26 Signal Denoising Approach and Peak Detection Algorithm................................................................ 26 4.1 Noise Sources......................................................................................................................... 26
+viii
+
+4.1.1 High Frequency Interference....................................................................................... 26 4.1.2 Low Frequency Interference........................................................................................27 4.2 Signal Denoising using Filters................................................................................................28 4.2.1 60 Hz Notch Filter Design...........................................................................................29 4.2.2 Bandpass Filter Design................................................................................................29 4.3 EMD-based Signal Denoising Method...................................................................................32 4.3.1 Methodology of EMD................................................................................................. 32 4.3.2 Signal Denoising using EMD Method.........................................................................34 4.4 Comparison of Filter and EMD Denoising Methods..............................................................35 4.4.1 Comparison of Denoising Performances on Morphology........................................... 35 4.4.2 Comparison of denoising performances based on signal quality index...................... 36 4.5 Peak Detection Algorithm...................................................................................................... 38 4.6 Summary of the Chapter.........................................................................................................40 Chapter 5...............................................................................................................................................42 Waveforms, Signal Validation and HRV Analysis.............................................................................. 42 5.1 Lead I ECG............................................................................................................................. 42 5.1.1 Waveform of Lead I ECG............................................................................................42 5.1.2 Frequency Range of Wrist ECG.................................................................................. 43 5.2 Wrist PPG............................................................................................................................... 44 5.2.1 Waveform of Wrist PPG..............................................................................................44 5.2.2 Frequency Range of Wrist PPG...................................................................................44 5.3 Wrist BCG.............................................................................................................................. 45 5.3.1 Waveform of Wrist BCG.............................................................................................45 5.3.2 Frequency Range of Wrist BCG..................................................................................46 5.4 Signal Validation for Capacitive Electrode............................................................................ 47 5.4.1 Methodology of BCG Validation Based on Morphology Matching........................... 47 5.4.2 Methodology of BCG Validation Based on Temporal Matching................................48 5.4.3 Experimental Design................................................................................................... 50 5.4.4 Results and Conclusion............................................................................................... 51 5.5 HRV Analysis.........................................................................................................................52
+ix
+
+5.5.1 Experimental Design................................................................................................... 53 5.5.2 Statistical Analysis...................................................................................................... 53 5.5.3 Results......................................................................................................................... 54 5.6 Summary of the Chapter.........................................................................................................55 Chapter 6...............................................................................................................................................56 Time-interval based Blood Pressure Measurement.............................................................................. 56 6.1 Introduction on Cuffless Blood Pressure Measurement......................................................... 57 6.1.1 Development of PTT-based Cuffless BP Estimation.................................................. 57 6.1.2 Definition of PTT........................................................................................................ 57 6.1.3 Moens-Korteweg (M-K) Equation.............................................................................. 58 6.2 Experimental Design.............................................................................................................. 63 6.2.1 Study Population..........................................................................................................63 6.2.2 Experiment Device...................................................................................................... 64 6.2.3 Data Collection Protocol............................................................................................. 65 6.3 Preprocessing Data Set........................................................................................................... 67 6.4 RJ-BP Model and PTT-BP Model..........................................................................................68 6.4.1 RJ-BP Model and PTT-BP Model based on Linear Regression................................. 68 6.4.2 RJ-BP Model and PTT-BP Model based on Nonlinear Regression............................ 69 6.5 Statistical Analysis................................................................................................................. 70 6.5.1 Beat-to-beat SBP Estimation using RJ-interval and PTT............................................73 6.5.2 Averaged SBP Trend Tracking using RJ interval and PTT........................................76 6.6 Results.................................................................................................................................... 80 6.7 Summary of the Chapter.........................................................................................................84 Chapter 7...............................................................................................................................................85 Conclusion............................................................................................................................................ 85 7.1 Summary and Contributions...................................................................................................85 7.2 Future Work............................................................................................................................86 References............................................................................................................................................ 88
+x
+
+List of Figure
+Fig 1-1. Block diagram of the research methodology.................................................................... 3 Fig 2-1. The BP waveform [4]........................................................................................................7 Fig 2-2. The auscultatory BP device (left) [7] and the methodology of auscultatory BP
+measurement (right) [8].......................................................................................................... 8 Fig 2-3. The oscillometric BP device (left) [10] and the methodology of oscillometric BP
+measurement (right) [11]...................................................................................................... 10 Fig 2-4. Anatomy of the human heart [15]................................................................................... 11 Fig 2-5. Schematic diagram of normal sinus rhythm for a human heart as seen on ECG [16].... 12 Fig 2-6. Electrode placement diagram of 12-lead ECG [21]........................................................13 Fig 2-7. PPG sensors can be configured to operate in transmission (left) or reflection (right)
+modes, based on the placement of the light source and the photodetector [25]................... 14 Fig 2-8. A typical waveform of the PPG, the amplitude of systolic peaks is x while y is the
+amplitude of the diastolic peak [26]..................................................................................... 15 Fig 2-9. Traditional and modern BCG measurement methods: (a) the traditional Starr BCG table
+[38], (b) the BCG pad [39], (c) the BCG chair [40], (d) the BCG scale [43].......................17 Fig 2-10. A standard BCG with significant waves labeled [48]...................................................18 Fig 2-11. Blood flow through the aorta with I-wave and J-wave occurrences labeled [49].........18 Fig 3-1. Biomedical signal acquisition system framework.......................................................... 19 Fig 3-2. (a) Picture of dry ECG metal electrode (b) Developed ECG electrodes placed on the
+fingers................................................................................................................................... 20 Fig 3-3. Picture of the PPG sensor............................................................................................... 21 Fig 3-4. Longitude section of capacitive BCG sensor worn on the wrist.....................................22 Fig 3-5. The BCG signal is measured by a developed capacitive wristband on the left wrist..... 23 Fig 3-6. The wrist BCG front-end circuit..................................................................................... 23 Fig 4-1. Effects of different noises on ECG signal: (a) EMG; (b) powerline noise; (c) EMI; (d)
+motion artifact.......................................................................................................................28 Fig 4-2. The implement of applying filters to remove noises from the signals............................28 Fig 4-3. Frequency response of 60 Hz notch filter....................................................................... 29 Fig 4-4. Frequency response of 0.5-25 Hz Type I bandpass filter............................................... 30
+xi
+
+Fig 4-5. Frequency response of 0.5-15Hz Type I bandpass filter................................................ 31 Fig 4-6. Frequency response of 0.5-7 Hz Type I bandpass filter................................................. 31 Fig 4-7. Plotting the envelopes and their mean [60].....................................................................32 Fig 4-8. Example of original noisy ECG signal and decomposed IMF components by applying
+EMD algorithm.....................................................................................................................34 Fig 4-9. Comparison of filtering and EMD denoising performance on a BCG segment............. 36 Fig 4-10. Examples of wrong peak detection due to motion artifacts. (a) several ripples occur on
+BCG J peak, (b) Wrong peak detection due to motion artifacts...........................................39 Fig 4-11. Morphology demonstration of improved peak detection algorithm............................. 40 Fig 5-1. Original noisy ECG waveform (top); denoised ECG waveform (bottom)..................... 43 Fig 5-2. PSD of lead I ECG signal............................................................................................... 43 Fig 5-3. Original noisy PPG waveform (top); denoised PPG waveform (bottom)...................... 44 Fig 5-4. The PSD of the wrist PPG.............................................................................................. 45 Fig 5-5. Original noisy BCG signal (top); denoised BCG signal (bottom)..................................46 Fig 5-6. PSD of wrist BCG...........................................................................................................46 Fig 5-7. Definition of main waves and intervals of ECG and BCG signals.................................49 Fig 5-8. Average morphological template of signals measured by capacitive electrode for 4
+subjects................................................................................................................................. 51 Fig 6-1. Morphological definition of PTT, PAT, RJ interval and JP interval.............................. 58 Fig 6-2. Segment of vessel wall and radius expansion.................................................................59 Fig 6-3. Locations of BCG, ECG, PPG and reference BP cuffs.................................................. 65 Fig 6-4. Normal Valsalva response: (a) typical blood pressure response during a VM (b) systolic
+blood pressure trace demonstrating phases of the Valsalva [81]..........................................66 Fig 6-5. The strategy of SBP tracking using RJ interval and PTT............................................... 71 Fig 6-6. The beat-to-beat RJ and reference SBP pairs (black dots) and the estimated linear
+model (blue line)...................................................................................................................72 Fig 6-7. The beat-to-beat SBP waveform and the moving averaged SBP waveform (subject 1) 76 Fig 6-8. Reference and estimated beat-to-beat SBP waveform using RJ interval and PTT.........82 Fig 6-9. Reference and estimated averaged SBP trend using RJ interval and PTT......................83
+xii
+
+List of Tables
+Table 4-1. NSDE value calculated on 1 min BCG signals from 10 subjects............................... 38 Table 5-1. Study population characteristics (mean±std)..............................................................51 Table 5-2. Percentage of waves that occurred in defined time interval........................................52 Table 5-3. Results of HRV analysis in time domain (NN: the average value of intervals with
+min-max value in bracket; SDNN: standard deviation of intervals; RMSSD: root mean squared standard deviation of intervals; PLFn: percentage of low frequency components of intervals; PHFn: percentage of high frequency components of intervals)........................... 54 Table 5-4. Correlation results for comparison of BCG JJ series with RR series. (R2 ≤ 0.01. CI: mean difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence)... 54 Table 6-1. Study population characteristics (mean±std)..............................................................63 Table 6-2. Correlation results for comparison of estimated SBP with reference SBP. ( R  0.01. CI: mean difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence).73 Table 6-3. Correlation results for comparison of estimated SBP with reference SBP using exponential model. ( R  0.01. CI: mean difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence)................................................................................. 74 Table 6-4. MAD between reference beat -to-beat SBP and estimated SBP using both linear model and exponential model (unit: mmHg)........................................................................75 Table 6-5. RMSD between reference beat -to-beat SBP and estimated SBP using both linear model and exponential model (unit: mmHg)........................................................................75 Table 6-6. Correlation results for comparison of estimated SBP with reference SBP using linear model. ( R  0.01. CI: mean difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence)................................................................................................................... 77 Table 6-7. Correlation results for comparison of estimated SBP with reference SBP using linear model. ( R  0.01. CI: mean difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence)................................................................................................................... 78 Table 6-8. MAD between reference beat -to-beat SBP and estimated SBP using both linear model and exponential model (unit: mmHg)........................................................................78 Table 6-9. RMSD between reference beat -to-beat SBP and estimated SBP using both linear model and exponential model (unit: mmHg)........................................................................79 Table 6-10. IEEE standard for wearable, cuffless blood pressure measuring device [88]...........81
+xiii
+
+Chapter 1 Introduction
+1.1 Blood Pressure Monitoring
+Blood pressure (BP) is the force of blood against the artery wall as it circulates through the body. It is considered as one of the most important monitoring parameters in clinical medicine. As reported in 2010, nearly one in five Canadians adults - about 4.6 million people between ages of 20 and 79 has high blood pressure [1]. High BP can cause health problem, and therefore it is important to measure BP frequently.
+For years, the cuff-based sphygmomanometer and the arterial invasive line have been the gold standards for care professionals to assess BP. During the past few decades, the wide spread use of the oscillometry-based BP arm or wrist cuffs have made home-based BP assessment more convenient and accessible. However, the discontinuous nature, the inability to interface with mobile applications, high sensitivity to motion artifacts, and need for calibration have rendered those BP oscilliometry devices inadequate for next-generation healthcare infrastructure where integration and continuous data acquisition and communication are required [2].
+Recently, the indirect approach to obtain BP values has been intensively investigated, where BP is mathematically derived through the “Time Delay” in propagation of pressure waves in the vascular system. This holds the promise for the realization of cuffless and continuous BP monitoring systems in both inpatient and outpatient settings [2].
+1
+
+In this study, two time delays, RJ interval and pulse transit time (PTT), were employed to estimate systolic blood pressure (SBP). PTT is the time delay between the ECG R peak and maximum of the PPG pulse which we will call P peak. RJ interval is the time delay between ECG R peak and BCG J peak. It has been reported that PTT is related to the arterial stiffness and can be used to estimate the SBP [3]. In this thesis, we evaluated whether RJ interval can be used as a surrogate of PTT in estimating SBP.
+1.2 Aims of Thesis Work
+The research presented in this thesis has the following aims:  To validate the collected BCG with reference BCG using both morphology matching analysis and wave occurrence time matching analysis  To test if JJ interval of the BCG can be the surrogate of ECG RR series in heart rate variability (HRV) analysis  To find correlation between reference SBP and RJ interval and PTT, and assess if RJ interval can be the surrogate of PTT in cuffless BP estimation. In order to achieve these aims, the experimental data acquisition and sensor system
+designed by Liodigital Corp, Toronto, Canada, were improved to achieve:  ECG measurements on the wrists using a pair of dry electrodes  BCG measurements on the left wrist using a capacitive electrode  PPG measurements on the left wrist using an optical pulse sensor.
+2
+
+For the purpose of this thesis we included dry lead I ECG electrodes and optical PPG sensor in the data acquisition system and LabVIEW program for data acquisition and MATLAB program for data analysis.
+Fig 1-1 shows high level overview of the steps performed in the thesis. The red colored blocks represent topics that this research work focused on.
+Fig 1-1. Block diagram of the research methodology
+The following two studies were performed:  The study that involved 4 healthy subjects with the goal of collecting BCG and ECG
+signals to validate BCG sensor and estimate heart rate variability.  The study that involved 10 healthy subjects with the goal of collecting the BCG, PPG
+and ECG signals as well as the reference continuous blood pressure signal to analyze correlation between reference SBP and RJ interval and PTT. The thesis work resulted in publication: S. He, et. al., “Detecting Cardiac Activity by Capacitive Electrodes from a Single Point on the Arm,” EMBC 2018. The research on the new developed capacitive BCG sensor: “Detecting Cardiac Activity by Capacitive Electrodes from a Single Point on the Arm,” presented on MDII &CREATEBEST Poster Day.
+3
+
+One other paper is in preparation: S. He, et. al., “Continuous tracking of changes in blood pressure using BCG and ECG.”
+1.3 Thesis Organization
+This thesis is organized into the following chapters:
+ Chapter 2 reviews the BP measurement methods, the origins of ECG, BCG and PPG signals and their characteristic waveforms.
+ Chapter 3 introduces the biomedical signal acquisition system. The system has three parts, including sensors, hardware circuit and software programs that was developed for signal process and analysis.
+ Chapter 4 presents the signal denoising approaches, the conventional filter-based denoising method and the EMD-based denoising method. The comparison of these two methods is described in the end.
+ Chapter 5 presents the recorded ECG, BCG and PPG waveforms. As the BCG signals were collected using our new capacitive wrist band, the recorded capacitive signals were validated in both morphology matching and wave occurrence time matching methods. The BCG JJ series were tested if it can be the surrogate of ECG RR series in HRV analysis.
+ Chapter 6 describes the methodology of BP estimation using time intervals. The goal of this study is to test the performance of SBP estimation using both PTT and RJ intervals. For this study, 10 healthy subjects were recruited and the REB-approved protocol was followed. The performances of both methods and the comparison are presented in this chapter.
+4
+
+ Finally, Chapter 7 concludes the work with a summary of contributions and items for future work.
+5
+
+Chapter 2 Literature Review
+The goal of this study is to estimate the SBP cufflessly using time intervals extracted from biomedical signals. PTT and RJ intervals were employed for SBP estimation, where PTT is the time difference between ECG and PPG, RJ interval is the time difference between ECG and BCG. In this chapter, the modern cuff-based BP measurement methods and the physiological origins of ECG, PPG and BCG are reviewed.
+2.1 Definition of Blood Pressure
+The blood pressure (BP) is one of the vital signs of human beings and is defined as the pressure of the blood within the arteries. It is produced primarily by the contraction of the heart muscle. A BP reading consists of two numbers, the first (top) number is called the systolic number that is the maximum pressure inside the arteries when the heart beats. The second (bottom) number is called the diastolic number that is the minimum pressure between beats. The BP can indicate the health condition of human, e.g., a high BP means too much resistance inside the arteries and can cause arterial damage and increase the risk for stroke, heart attack, heart failure and kidney failure. The BP waveform is shown in Fig 2-1.
+6
+
+Fig 2-1. The BP waveform [4]
+2.2 Review of Blood Pressure Measurement Methods
+Currently, the most common non-invasive methods for measuring BP rely either on the auscultatory method or on the oscillometric approach that require an inflatable cuff which may cause discomfort and only provide intermittent BP readings.
+2.2.1 Blood Pressure Measurement using Auscultatory Method
+The auscultatory method uses a stethoscope and a sphygmomanometer. This comprises an inflatable cuff placed around the upper arm at roughly the same vertical height as the heart, attached to a mercury or aneroid manometer. The mercury manometer, considered as the gold standard, measures the height of a column of mercury, given an absolute result without need for calibration and, consequently, not subject to the errors and drift of calibration which affect other methods. The use of mercury manometers is often required in clinical trails and for the clinical measurement of hypertension in high-risk patients.
+A cuff of the appropriate size [5] is fitted smoothly and also snugly, then inflated manually by repeatedly squeezing a rubber bulb until the artery is completely occluded. It is important that the cuff size is correct: undersized cuffs record too high a pressure;
+7
+
+oversized cuffs may yield too low a pressure [6]. Usually three or four cuff sizes should be available to allow measurement in arms of different size [6]. Listening with the stethoscope to the brachial artery at the antecubital area of the elbow, the examiner slowly releases the pressure in the cuff. When blood just starts to flow in the artery, the turbulent flow creates a “whooshing” or pounding (first Korotkoff sound). The pressure at which this sound is first heard is the systolic blood pressure. The cuff pressure is further released until no sound can be heard (fifth Korotkoff sound), at the diastolic arterial pressure. The auscultatory BP device and the methodology of auscultatory BP measurement are shown in Fig 2-2.
+Fig 2-2. The auscultatory BP device (left) [7] and the methodology of auscultatory BP measurement (right) [8]
+2.2.2 Blood Pressure Measurement using Oscillometric Method
+The oscillometric method was first demonstrated in 1876 and involves the observation of oscillations in the sphygmomanometer cuff pressure which are caused by the oscillation of blood flow, i.e., the pulse. The electronic version of this method is sometimes used in long-term measurements and general practice. It uses a
+8
+
+sphygmomanometer cuff, an electronic pressure sensor to observe cuff pressure oscillations, electronics to automatically interpret them, and automatic inflation and deflation of the cuff. The pressure should be calibrated periodically to maintain accuracy [9].
+The cuff is inflated to a pressure initially in excess of the systolic arterial pressure and then reduced to below diastolic pressure over a period about 30 seconds. When blood flow is nil (cuff pressure exceeding systolic pressure) or unimpeded (cuff pressure below diastolic pressure), cuff pressure will be essentially constant. When blood flow is present, but restricted, the cuff pressure, which is monitored by the pressure sensor, will vary periodically in synchrony with the cyclic expansion and contraction of the brachial artery.
+Over the deflation period, the recorded pressure waveform forms a signal known as the cuff deflation curve. A bandpass filter is utilized to exact the oscillometric pulses from the cuff deflation curve. Over the deflation period, the extracted oscillometric pulses form a signal known as the oscillometric waveform (OMW). The amplitude of the oscillometric pulses increases to a maximum and then decreases with further deflation. A variety of analysis algorithms can be employed in order to estimate the systolic, diastolic, and mean arterial pressure. The calculation of systolic, diastolic and mean BP using oscillometric method is shown in Fig 2-3.
+9
+
+Fig 2-3. The oscillometric BP device (left) [10] and the methodology of oscillometric BP measurement (right) [11]
+As shown in Fig 2-3, the pressure, Pm, at which the oscillations have the maximum amplitude, Am, is the mean arterial pressure (MAP) as marked as the red point on the OMW. Empirical and theoretical work has shown that the systolic and diastolic pressures, Ps and Pd respectively, occur when the amplitudes of oscillation, As and Ad respectively, are a certain fraction of Am. In [12], these fractions are computed as:
+ Ps is the pressure above Pm at which As/Am = 0.55  Pd is the pressure below Pm at which Ad/Am = 0.85
+2.3 Review of Biomedical Signals
+2.3.1 Electrocardiogram (ECG)
+The electrocardiogram (ECG) is a measure of heart electrical activity. Augustus Waller published the first human ECG using a capillary electrometer in 1887 [13]. In 1902, Willen Einthoven demonstrated the galvanometric measurement of the ECG from the limbs dipped in saline solutions and began the use of the ECG as a clinical tool [14].
+10
+
+Nowadays, ECG has been developed as an important non-invasive clinical technique to monitor cardiac activities for human beings.
+Fig 2-4. Anatomy of the human heart [15]
+The heart, which consists of right atrium, left atrium, right and left ventricles, is a muscular organ that has the task of circulating blood throughout the body. As shown in Fig 2-4, the top chambers (atrium) of the heart are responsible for accepting the blood flow coming to the heart and the bottom chambers (ventricle) have the task of forcing blood out of the heart. There are two nodes in the heart that are involved in ECG process. Sino-atrial node (SA node) that is in the right atrium on the top, close to the vein then carries impure blood to the heart. This node is the pacemaker and controls the heartbeat. The second node is the atrioventricular node (AV node) that is on the other side of the right atrium close to the valve between the right atrium and the right ventricle. A collection of special muscle cells locate between the right and left part of the heart is another part of the electrical conduction system of the heart in addition to the two nodes mentioned above. The electrical conduction system of the heart is responsible for creating ECG signals. A characteristic ECG waveform is shown in Fig 2-5.
+11
+
+Fig 2-5. Schematic diagram of normal sinus rhythm for a human heart as seen on ECG [16]
+As shown in Fig 2-5, the P wave signifies the depolarization of the atrium, the QRS complex represents the depolarization of the ventricles, and the T wave signifies the repolarization of the ventricles. This cycle repeats with every heartbeat and generates the ECG. Many heart diseases modify the ECG waveform hence the ECG becomes a very important factor in monitoring heart conditions [18]. The frequency of a standard ECG signal ranges from 0.67 to 120 Hz, and 0.67 Hz is the frequency which is observed when the pulse rate is 40 beats/min [18]. Low frequency components consist of the P and T waves, 5-9 Hz [19,20]. While the QRS complex resides at high frequency.
+Among all ECG collection methods, the 12-lead ECG is the one that is mostly used in clinical applications. The 12-lead ECG system consists of 10 electrodes which form both bipolar and unipolar leads (three bipolar limb leads, three unipolar limb leads, and six unipolar leads). Fig 2-6 demonstrates the electrode placement of 12-lead ECG system.
+12
+
+Fig 2-6. Electrode placement diagram of 12-lead ECG [21]
+2.3.2 Photoplethysmogram (PPG)
+A photoplethysmogram (PPG) is a non-invasive signal related to the pulsatile volume of blood in tissue and is typically collected using optical sensors. In the 1930s, the PPG waveform was first discovered. Its importance in clinical medicine was greatly increased from 1980s after the pulse oximeter was introduced into routine clinical care. Nowadays, pulse sensor is widely used in smart watches and fitness band to monitor heart rate and blood oxygen saturation by analyzing waveform.
+The PPG is an optical technique for monitoring cardiovascular activity through the measurement of local changes in blood volume. In its simplest form, a PPG sensor consists of two components; a light source and a photodetector. The light source transmits light through the microvascular bed of tissue. A portion of the transmitted light is absorbed by the various constituents of the tissue, including blood, thereby attenuating the light reaching the photodetector. Attenuation of the light through absorption by the tissue is linked to the volume of blood locally present in the tissue.
+13
+
+Changes in local blood volume therefore alter the intensity of the light reaching the photodetector [22,23,24].
+PPG sensor can be developed to operate in either transmission mode or reflection mode based on the configuration of the light source and the photodetector, as shown in Fig 2-7. In the transmission mode configuration, the light source and the photodetector are located opposite to one another, with the finger placed between them. The light travels from the light source, through the tissue, to the photodetector on the opposite side. Transmission mode is typically used for thinner tissues such as fingertips or earlobes. In the reflection mode configuration, the light source and the photodetector are placed adjacent to one another. Reflection mode is preferred for thicker tissues, such as wrists [22,23,24].
+Fig 2-7. PPG sensors can be configured to operate in transmission (left) or reflection (right) modes, based on the placement of the light source and the photodetector [25].
+A characteristic PPG waveform is shown in Fig 2-8. The appearance of the PPG pulse is commonly divided into two phases: the anacrotic phase is rising edge of the pulse, whereas the catacrotic phase is the falling edge of the pulse as shown in Fig 2-8. The first phase is primarily concerned with systole, and the second phase with diastole and wave reflections from the periphery. A dicrotic phase of subjects with healthy compliant arteries.
+14
+
+Fig 2-8. A typical waveform of the PPG, the amplitude of systolic peaks is x while y is the amplitude of the diastolic peak [26]
+As shown in Fig 2-8, the systolic amplitude (x) is an indicator of the pulsatile changes in blood volume caused by arterial blood flow around the measurement site [27,28]. Systolic amplitude has been related to stroke volume [29]. Dorlas and Nijboer found that systolic amplitude is directly proportional to local vascular distensibility over a remarkably wide range of cardiac output [30]. It is also has been suggested that systolic amplitude is potentially a more suitable measure than pulse arrival time for estimating continuous blood pressure [31].
+2.3.3 Ballistocardiogram (BCG)
+The Ballistocardiogram (BCG) is a non-invasive method based on the measurement of the body motion generated by the ejection of the blood at each cardiac cycle. It was initially discovered in the late 19th century [32], has been the focus of intense research in 1940’s through the early 80’s, after which the method faded away. The disappearance of this method can be traced to a few general factors: 1) a lack of standard measurement techniques, with various methods leading to subtly different signals [33]; 2) a lack of understanding of the exact physiologic origin of the BCG waveform, as well as clear guidelines for interpretation of the results, leading to circumspection from the medical
+15
+
+community; 3) a primary focus on clinical diagnostic (e.g., myocardial infraction, angina pectoris, coronary heart disease [34,35]), which typically requires a high level of specificity and reliability that the BCG had not reached [36]; 4) the dawn of ultrasound and echocardiography techniques, which rapidly overtook BCG and related techniques for non-invasive cardiac and hemodynamic diagnostic [37]. In the last decade or so, BCG has been revisited and proved to be an effective and promising method for heart monitoring and cardiovascular disease diagnose.
+The first practical measurement method of BCG was invented by Starr in 1939 and the setup has the subject fixed to a mechanical table (Fig 2-9(a)) that is laterally spring loaded [38]. Since BCG is a mechanical signal, two measurement techniques are mainly employed for BCG detection. One is pressure method and the other one is acceleration method. Fig 2-9 (a) shows the traditional BCG measurement instrument and Fig 2-9 (b)Fig 2-9 (d) show the modern methods of BCG measurement. One method uses a piezoelectric sensor pad to measure the BCG during sleep [39]. A second application is a special chair with electromechanical film sensors or pressure sensors for BCG monitoring [40, 41, 42]. A modified weight scale with embedded pressure sensor can also measure the BCG in an upright posture [43].
+16
+
+Fig 2-9. Traditional and modern BCG measurement methods: (a) the traditional Starr BCG table [38], (b) the BCG pad [39], (c) the BCG chair [40], (d) the BCG scale [43].
+BCG is a recording of the movements of the body due to the vibration when blood flows in the arteries [44,45]. A healthy subject’s BCG is shown in Fig 2-10. A corresponding blood flow diagram of the aorta is shown in Fig 2-11. The waveform of BCG can be divided into three groups: pre-ejection, ejection and the diastolic portion of the heart cycle [46]. Pre-ejection (GH) waves consist of the venous return to the heart, atrial filling, and contraction. ‘H’ represents head-ward deflection, ‘I’ foot-ward deflection (reflects the rapid acceleration of blood in the ascending aorta and pulmonary arteries around the aortic arch and into the carotid arteries). The ejection phase J-wave describes the acceleration of blood in the abdominal area and deceleration of blood in the head-ward aorta. The peak of the J-wave corresponds to the end of rapid ejection of both ventricles. I wave and J wave are of primary interest, I-J amplitude reflects the force of contraction of the left ventricle and I-J period reflects contractility. The K and L waves reflect the deceleration and cessation of blood flow and the closing of the aortic
+17
+
+valve [46]. Diastolic waves (KL and MN) reflect the state of peripheral circulation. Also, the influence of arteries wall stiffness and peripheral resistance has greater influence on the diastolic waves [47].
+Fig 2-10. A standard BCG with significant waves labeled [48]
+Fig 2-11. Blood flow through the aorta with I-wave and J-wave occurrences labeled [49]
+18
+
+Chapter 3 Biomedical Signal Acquisition System
+The biomedical signal acquisition system was developed to collect physiological signals consists of ECG, BCG and PPG sensors, signal processing hardware circuit, DAQ card and signal analysis software. ECG, BCG and PPG can be recorded by their specific sensors. The hardware circuit and the capacitive BCG sensor employed for this study were developed by Liodigital Corp, Toronto, Canada. The dry lead I ECG electrodes, the LabVIEW and the MATLAB programs were developed by myself for this research. The signal processing circuit was designed to amplify the signals collected by sensors. The DAQ is an interface between hardware and the software program which can digitize the continuous analog signals into digital signals. The LabVIEW program was developed to display the signals in real time and store them for analysis, MATLAB algorithms were developed for data analysis. The framework of the biomedical signal acquisition system is shown in Fig 3-1.
+Fig 3-1. Biomedical signal acquisition system framework
+19
+
+3.1 ECG Sensor
+In this research, lead I ECG configuration was employed, which collects ECG signal by placing a pair of dry ECG electrodes on left and right arms. ECG electrodes are designed as a pair of conductive dry metal pads that can be pressed by fingers or mounted on wrists by tapes. The dimensions of the ECG electrodes are 1.2 0.2 cm (diameter thickness). The pictures of ECG metal electrodes and measurement position are shown in Fig 3-2(a) and Fig 3-2(b).
+Fig 3-2. (a) Picture of dry ECG metal electrode (b) Developed ECG electrodes placed on the fingers.
+3.2 PPG Sensor
+In this research, a commercial PPG sensor (SparkFun Electronics SEN-11574) designed for Arduino project was used for PPG measurement. This PPG sensor is configured to operate in reflection mode, with a simple filter and amplifier circuit built on the sensor chip. The dimensions of the PPG sensor are 2 0.3 cm (diameter thickness), as shown in Fig 3-3.
+20
+
+Fig 3-3. Picture of the PPG sensor
+3.3 BCG Sensor
+Recently, BCG has been revisited as a new approach in measuring cardiac activities. In general, the BCG is measured using two methods, one of which uses accelerometry method and another one uses pressure measurement method. In this research, a new capacitive pressure sensor was developed to measure BCG signal from a single point on the arm. Conductive fabric and rubber materials were used to build the new soft flexible BCG band which can be wrapped on the upper arm, forearm and even on the wrist. This new sensor can be modified and potentially developed into a wearable health monitoring device.
+A capacitive sensor generally has the same structure of the capacitor which is composed of two conducting plates separated by a non-conducting substance called dielectric ( ) [50,51]. The dielectric may be air, mica, ceramic, fuel, or other suitable insulting material [51]. The structure of the capacitive BCG sensor is shown in Fig 3-4. The BCG wristband consists of three layers, the inner and outer layers, which act as two capacitor plates, are made by conductive fabric (4-5-CN3190, 3M). The mid layer is rubber (Insten POTHOPTMOU12) which acts as electrolyte layer between two capacitor plates. The wires are glued on the conductive fabric by conductive epoxy (8331s-15G, MG Chemicals). The
+21
+
+dimensions of the electrode are 26 7 0.3 cm (length width thickness). The capacitance of this electrode depends on the geometry of the conductors and not on an external source of charge or potential difference [51, 52]. The space between the two plates of the capacitor is covered with dielectric material. In general, the capacitance value is determined by the dielectric material, distance between the plates, and the area of each plate. The capacitance of this BCG electrode can be expressed in terms of its geometry and dielectric constant as [53]:
+
+=
+
+0
+
+(3-1)
+
+Where C is the capacitance in Farads (F), is the dielectric constant of the material between the plates, 0 is the permittivity of free space (8.85 10-12 F/m), d is the separation between the plates.
+
+Fig 3-4. Longitude section of capacitive BCG sensor worn on the wrist
+Mechanical activity causes physical deformations of the sensor’s geometry, the distance between two capacitor plates changes in this case. If the geometry of the soft electrodes changes, their electrical charges move with respect to each other. These charge shifts are
+22
+
+measured by the sensor electrodes, converted to a voltage signal, and subsequently displayed as a BCG related signal [54].
+The capacitive BCG electrode can measure good quality BCG signals from upper arm and, forearm to wrist when subject is sitting still. Since the electrode is made of soft textile and rubber, it has the potential to be developed into a wristband and makes the wearable smartwatch monitor more detailed cardiac activities. The measurement position of this research is shown in Fig 3-5.
+Fig 3-5. The BCG signal is measured by a developed capacitive wristband on the left wrist
+Fig 3-6. The wrist BCG front-end circuit 23
+
+The diagram of the wrist BCG front-end circuit is shown in Fig 3-6. The capacitive electrodes have a capacitance to skin of approximately 1 pF. Therefore, to minimize signal loss due to voltage division, the capacitive electrodes are connected to high impedance buffers with IBIAS = 1 pA and with 6 GΩ bias resistors. The buffers provide active shields for the electrodes, which prevent capacitive coupling away from the skin. As shown in Fig 3-6, layer 1 and layer 3,are two capacitor plates separately, while layer 1 is the inner layer and layer 3 is outer layer. Layer 2 is a reference pad using the same conductive fabric attached on the inner capacitor layer which was designed to minimize the impact of common-mode interference. After the output, the signal is filtered by a 3-25 Hz physical bandpass filter.
+3.4 Signal Preprocessing Circuit
+The signal preprocessing circuit includes three electrically isolated amplifier channels. One channel is lead I ECG, another one is capacitive BCG channel and the other one is optical PPG channel.
+Each channel includes a pre-amplifier and a DAQ-amplifier. The pre-amplifier has an instrument amplifier and a two-stage amplifier. The instrument amplifier amplifies the signal collected by biomedical sensors. The BCG and ECG signals sometimes were too weak to be observed, a two-stage amplifier was designed for either ECG, BCG and PPG channel with first stage gain of 21 and second stage gain of 255. A DAQ-amplifier provides an interface between the pre-amplifier and the data acquisition card. Independent isolated channels which have their own isolated power supplier, ground, and signal amplifier are implemented in the DAQ-amp.
+24
+
+3.5 Data Acquisition Card (DAQ card)
+After being amplified by the signal processing circuit, the analog voltage signal (ECG, BCG and PPG) will be input into data acquisition card (DAQ card). DAQ samples input analog signals and converts the resulting samples into digital numeric values that can be manipulated by a computer. In this research, the analog ECG, BCG and PPG signal were digitized using a portable DAQ card (National Instrument USB 6002, 16 bits, 8 analog input channels). The digitized biomedical signals were transmitted to computer for further analysis via USB communication mode.
+3.6 Software Program
+The software programs were designed to analyze the signals. The software programs include a LabVIEW program (LabVIEW 2017, National Instruments) and a MATLAB program (MATLAB 2018a, MathWorks).
+The LabVIEW program was developed to receive digitized ECG, BCG and PPG signals from the DAQ card, displays the signals in real time and stores them for analysis. The signals were digitized at 2000 Hz.
+The MATLAB programs were developed to denoise the original noisy signals acquired by LabVIEW program. Other signal processing and analyzing algorithms, such as peak detection algorithm, signal smoothing algorithm and curve fitting algorithm were also developed in MATLAB program.
+25
+
+Chapter 4 Signal Denoising Approach and Peak Detection Algorithm
+ECG, BCG and PPG signals collected using our data acquisition system are very noisy. In this chapter, the signal denoising method using conventional filtering approach and EMDbased denoising approach will be described and compared.
+4.1 Noise Sources
+As presented in Chapter 2, the main ECG frequency range is 0.5-20 Hz, the PPG frequency range is 0.5-5 Hz and the BCG frequency range is 0.5-10 Hz. The different kinds of noises residing in biomedical signals will be presented below.
+4.1.1 High Frequency Interference
+The high frequency noises include electromyogram noises (EMG), electromagnetic interference (EMI), as well as power line interference.
+The EMG signal is the electrical manifestation of the neuromuscular activation associated with a contracting muscle. It is exceedingly complicated signal which is affected by the anatomical and physiological properties of muscles, the control scheme of the peripheral nervous system, as well as the characteristics of the instrumentation that is used to detect and observe it [55]. The energy of the signal is limited to the 0-500 Hz frequency range, with dominant energy being in the 50-150 Hz range [56].
+26
+
+Electromagnetic interference (EMI) is the disruption of an electronic device when it is in the vicinity of an electromagnetic field in the radio frequency spectrum that is caused by another electronic device. Nowadays, the wide usage of cell phone, wireless internet as well as wireless devices makes the EMI become a more severe interference in biomedical signal collection. The frequency range of EMI is within 2 kHz to 150 kHz [57].
+Power line interference consists of 60/50 Hz pickup and harmonics that can be modeled as sinusoids and combination of sinusoids. According to a research on power line interference on biomedical signals, the frequency content of this kind of noise is 60/50 Hz with harmonics and the amplitude is 50% of peak-to-peak ECG amplitude [58].
+4.1.2 Low Frequency Interference
+Motion artifacts (MA) are baseline changes which are caused by electrode movement which is also being considered as the causes of baseline wander on biomedical signals. In general, vibrations, movement, or respiration of the subject contribute to motion artifacts. MA is caused by respiration (0.4-2 Hz) and subject movement (1-3 Hz).
+The morphologies of different noises are shown in Fig 4-1.
+27
+
+Fig 4-1. Effects of different noises on ECG signal: (a) EMG; (b) powerline noise; (c) EMI; (d) motion artifact
+4.2 Signal Denoising using Filters
+In digital signal processing, a filter is a process that removes the unwanted components or features from a signal. As shown in Fig 4-1, different noise sources can interfere or change the waveforms and features of the target signals. As each biomedical signal has its own specific frequency range, three bandpass filters with different cut-off frequencies were developed to remove both high and low frequency noises, a 60 Hz notch was also employed to remove 60 Hz power line noise. The procedures of removing noises using filtering approach are shown in Fig 4-2.
+Fig 4-2. The implement of applying filters to remove noises from the signals.
+28
+
+4.2.1 60 Hz Notch Filter Design
+A notch filter is a filter that filters out a particular frequency component from a signal. A 60 Hz notch filter was designed to remove the powerline noise from the biomedical signals.
+Fig 4-3. Frequency response of 60 Hz notch filter
+As shown in Fig 4-3, there is a steep notch at 60 Hz in magnitude response which means this filter can remove 60 Hz components from the signal waveform significantly. This notch filter was first applied on ECG, BCG and PPG signals to remove powerline interference.
+4.2.2 Bandpass Filter Design
+According to the particular frequency bands of different biomedical signals, bandpass filters were developed and applied to remove noises. Two Type I bandpass filters with different passbands were designed for denoising ECG, BCG and PPG signals. Type I
+29
+
+filters have the property that they minimize the error between the idealized and the actual filter characteristic over the range of the filter with ripples in the passband. A Type I bandpass filter with passband of 0.5-25 Hz was applied on ECG and 0.5-15 Hz for BCG signals, another bandpass filter with passband of 0.5-7 Hz was applied on PPG signal. The magnitude response and phase response of the bandpass filters are shown in Fig 4-4 to Fig 4-6.
+Fig 4-4. Frequency response of 0.5-25 Hz Type I bandpass filter
+30
+
+Fig 4-5. Frequency response of 0.5-15Hz Type I bandpass filter
+Fig 4-6. Frequency response of 0.5-7 Hz Type I bandpass filter 31
+
+4.3 EMD-based Signal Denoising Method
+Conventional filtering methods have difficulties in removing noise and interference from the non-stationary signals. Therefore other methods are attempted.
+4.3.1 Methodology of EMD
+Empirical Mode Decomposition (EMD) is relatively new signal processing method and has been extensively used in analysis of non-stationary signal [59]. The algorithm as proposed by Huang is based on producing smooth envelopes defined by local maxima and minima of a sequence and subsequent subtraction of the mean of these envelopes from the initial sequence [60]. This requires the identification of all local extrema. The procedure of plotting the envelopes is shown in Fig 4-7, EMD method could decompose any time-varying data into a finite set of functions called “intrinsic mode functions” (IMFs) [61]. The procedure of extracting an IMF is called sifting. Whether a function is an IMF depends on whether it satisfies the following requirements: firstly, the number of local extreme and the number of zero-crossings must either equal or differ at most by one in the whole data set. Steps in sifting process are given below [62,63]:
+Fig 4-7. Plotting the envelopes and their mean [60].
+32
+
+(1) Find all the local extrema, including maxima and minima; then connecting all the
+
+maxima and minima of signal x(t) using smooth cubic spline to get its upper
+
+envelope th and lower envelope 1 th. (2) Subtract mean of these two envelopes 1 = t 1 th 2 from the signal:
+1t = t − 1t. (3) Consider 1 th as the new data and repeating steps 1 and 2 until the resulting signal
+meets the criteria of an IMF. Now 1 t = 1 t . (4) The first IMF 1 t contains the highest frequency component of the signal. The
+residual signal 1 t is given by 1 t = t − 1 t . (5) Consider 1 th as new data and repeating steps 1-4 until extracting all the IMFs.
+The sifting procedure is terminated when the nth residue th becomes less than a
+
+predetermined small number or becomes monotonic. A standard difference (SD) is
+
+calculated from the two consecutive sifting results. When the value of SD resides
+
+within a predefined range, the sifting process is determined. Hence the original data
+
+th can be represented as the sum of the decomposed IMFs and the resulting th,
+
+t = =1 t
+
+th
+
+When n is the number of IMFs, t is the IMF at i level.
+
+(4-1)
+
+Various stopping criteria result in different IMF functions after EMD decomposition.
+
+More than seven kinds of IMF stopping criteria have appeared after the EMD algorithm
+
+was proposed [64]. Practically, the resulting signal does not carry significant physical
+
+information after a certain number of iterations, because a pure frequency modulating
+
+the signal with constant amplitude would appear when it is sifted to an extreme. Usually,
+
+SD is set between 0.2 and 0.3 to avoid the sifting condition mentioned above [65]. A
+
+33
+
+segment of noisy ECG signal and resulting IMFs are presented in Fig 4-8. It reveals that the lower order IMF show the fast and high-frequency oscillations and upper order IMFs corresponds to slow or low-frequency oscillations.
+Fig 4-8. Example of original noisy ECG signal and decomposed IMF components by applying EMD algorithm
+4.3.2 Signal Denoising using EMD Method
+The high frequency noises include electromyogram (EMG), electromagnetic interference (EMI) and powerline noise. As the 60 Hz powerline noise is the stationary combination of sinusoids which can be removed by applying notch filter, in this section, the methods of removing EMG and EMI only will be introduced. Signal denoising by
+34
+
+EMD approach is performed by partial IMFs reconstruction based on the fact that the high frequency noise components tend to appear in the first several IMFs and the low frequency noise components tend to appear in the last few IMFs [66].
+To perform this EMD-based signal denoising method, the frequency of each IMF was calculated and the signal was reconstructed without first and last several IMFs.
+4.4 Comparison of Filter and EMD Denoising Methods
+To compare the performance of filter denoising method and EMD-based denoising, a segment of ECG signal which contains both high and low frequency noise components was employed for comparison. The 60 Hz notch filter was applied on the noisy signal first to remove powerline noise from the signal. Then the bandpass filter and EMD-denoising algorithm were applied on the filtered signal separately. The comparison of two methods will be shown in both waveforms and signal quality index.
+4.4.1 Comparison of Denoising Performances on Morphology
+The performance of the filtering denoising method and the EMD-based denoising method will be compared on morphology first. A segment of BCG signal contains motion artifacts and high frequency noise was selected for this comparison. The result is shown in Fig 4-9.
+35
+
+Fig 4-9. Comparison of filtering and EMD denoising performance on a BCG segment
+As shown in Fig 4-9, both filtering method and EMD denoising method can remove noises from the BCG waveform significantly. However, EMD denoising method performed better in removing motion artifacts than traditional filtering approaches.
+4.4.2 Comparison of denoising performances based on signal quality index
+To quantify the differences of traditional filter denoising method and EMD denoising approach, the signal quality index was calculated for both approaches. The signal quality of the filtered signal can be evaluated by its beat-to-beat morphology’s repeatability. A clean signal with no artifacts typically has highly consistent beat morphology, whereas motion artifacts and high frequency interferences such as EMG will impact beat to beat morphology. To quantify the repeatability of the signal, a metric that is based on the standard deviation between individual pulse to the ensemble average will be introduced. This standard deviation is normalized to the ensemble’s peak amplitude of biomedical signals to produce a metric called Normalized Standard
+36
+
+Deviation from Ensemble (NSDE). NSDE is defined in equation (4-2), where M is the number of samples per beat, N is the number of beats, Ensemble is the ensemble average of N beats, and L is the ensemble average’s peak (e.g. RECG, JBCG, PPPG) amplitude. A greater N reduces fluctuations in the ensemble waveform, it also masks any short-term changes due to averaging. N 20 should be chosen for the ensemble averages as it produces sufficiently stable ensemble waveforms [49].
+
+ NSDE
+
+
+
+1  1 LN
+
+N
+std Beati
+i 1
+
+ Ensemble
+
+
+(4-2)
+
+  
+
+1  1 L  N
+
+N  i1 
+
+1 M
+
+M j 1
+
+Beati 
+
+j
+
+Ensemble
+
+j2
+
+   
+
+(4-3)
+
+To compare the denoising performance using signal quality index, 10 subjects (5 males and 5 females) were recruited for signal collection and NSDE values were calculated. Subjects were asked to sit still and the capacitive BCG electrode was wrapped on their left wrists. One minute of BCG signal collected from each subject was chosen as an example to compare the performances of filter denoising method and EMD-based signal denoising method. The raw signal recorded by BCG electrode was firstly being denoised by 60 Hz notch filter, then NSDE of the denoised signal using bandpass filter and EMD-based denoising approach was calculated respectively. The information of these 10 subjects are shown in Table 6-1.
+After obtaining the BCG signal from each subject, the NSDE values calculated for each subject are shown in Table 4-1.
+
+37
+
+Table 4-1. NSDE value calculated on 1 min BCG signals from 10 subjects
+
+NSDE (60Hz)
+
+NSDE (bandpass)
+
+NSDE (EMD)
+
+Subject 1
+
+0.1504
+
+0.1453
+
+0.1116
+
+Subject 2
+
+0.3862
+
+0.2300
+
+0.1762
+
+Subject 3
+
+0.0756
+
+0.0701
+
+0.0728
+
+Subject 4
+
+0.1694
+
+0.0870
+
+0.0943
+
+Subject 5
+
+0.2438
+
+0.0791
+
+0.0684
+
+Subject 6
+
+0.1849
+
+0.1101
+
+0.0943
+
+Subject 7
+
+0.2219
+
+0.1555
+
+0.1211
+
+Subject 8
+
+1.5243
+
+0.2067
+
+0.1830
+
+Subject 9
+
+0.5942
+
+0.2564
+
+0.2848
+
+Subject 10
+
+0.1562
+
+0.1024
+
+0.1011
+
+In this case, a smaller NSDE value means every individual pulse has a higher similarity with the ensemble averaged pulse template or there were fewer motion artifacts exist in the waveform. As shown in Table 4-1, the average NSDE value of applying bandpass filter method is 0.1443 ± 0.0666, while the average NSDE value of applying EMD-based signal denoising approach is 0.1308±0.0665. This comparison of signal quality index shows that the EMD-based signal denoising approach performs better than traditional bandpass filter method.
+4.5 Peak Detection Algorithm
+The purpose of this study is to track SBP using time intervals extracted from biomedical signals. PTT is the time difference between ECG R peak and PPG P peak, and RJ interval is the time difference between ECG R peak and BCG J peak, which means it is important to
+
+38
+
+locate peaks accurately and therefore ensure the accuracy of tracking SBP using time intervals.
+In this study, ECG R peak and T wave, PPG P peak (systolic peak) and BCG J peak, H wave and K notch need to be located. As shown in Fig 4-10, the BCG signal is sensitive to motion artifacts and it will add noise and impact the BCG morphology, therefore will cause wrong detection on BCG J peaks. The ECG and PPG signals are stable and only have small distortions when subjects are moving.
+Fig 4-10. Examples of wrong peak detection due to motion artifacts. (a) several ripples occur on BCG J peak, (b) Wrong peak detection due to motion artifacts
+In order to detect accurate peak locations on interfered BCG waveforms, an improved peak detection algorithm based on estimated BCG J peak occurrence interval was developed. The PPG and ECG peaks are detected first, ECG R peaks and PPG P peaks were detected by a simple peak detection algorithm which is based on finding local maxima. The signal waveform is split into individual pulses based on an estimated pulse length, the ECG and PPG peaks are defined as the maxima of each individual pulse segment. ECG T waves can be detected by finding the maxima with a 0.3-0.5s window behind ECG R peaks. As described in [37], the peak of J wave usually occurs
+39
+
+between 0.22 and 0.26 seconds after the onset of the QRS complex of the ECG. Then ECG R peak acts as an indicator to locate BCG J peak [67], a time interval of 0.2-0.4s behind each ECG R peak is set for the approximate BCG J peak occurrence, BCG peak is detected as the maxima of this time interval. After detecting the BCG J peaks, BCG H waves are located by finding the local maxima within a 0.15-0.3s window ahead of BCG J peaks and BCG K notches are detected by finding local minima within a 0.2-0.4s window behind BCG J peaks. Fig 4-11 demonstrates the improved peak detected algorithm.
+Fig 4-11. Morphology demonstration of improved peak detection algorithm
+4.6 Summary of the Chapter
+In this chapter, both high and low frequency noise sources were introduced first. The interferences were removed using filter-based denoising method and EMD-based denoising approach. The EMD-based denoising approach performed better in both morphology enhancement and signal quality improvement in comparison with the filtering method. An
+40
+
+improved peak detection algorithm using ECG R peak as an indicator can improve the accuracy of BCG J peak detection in noisy signal segments.
+41
+
+Chapter 5 Waveforms, Signal Validation and HRV Analysis
+In this chapter, the waveform and frequency spectrum of the filtered ECG, PPG and BCG using EMD-based denoising approach are presented. As the BCG sensor used in this research is a new design, the signal detected from the wrist using this sensor needs to be validated. The signal was validated by both morphology matching analysis and wave occurrence time matching analysis to show that it is indeed BCG signal. In the end, the HRV analyses were performed on both ECG signal and BCG signal to determine if BCG JJ series can be the surrogate of ECG RR series in HRV analysis.
+5.1 Lead I ECG
+5.1.1 Waveform of Lead I ECG
+A standard ECG waveform with its QRS complex and T waves is shown in Fig 2-5. The collected original ECG waveform contains power line interference and motion artifacts. After applying filtering approaches, the denoised ECG signal can provide more details for analysis. The noisy and denoised ECG waveforms detected from wrists using dry metal electrodes are shown in Fig 5-1.
+42
+
+Fig 5-1. Original noisy ECG waveform (top); denoised ECG waveform (bottom).
+5.1.2 Frequency Range of Wrist ECG
+Fig 5-2 shows the denoised lead I ECG’s power spectral density (PSD) of a sample wrist ECG measured over 5 minutes. Most of the signal power resides in the range of 0.5Hz – 20Hz. This is consistent with the previous ECG works, which state that the majority of the ECG’s frequency content is less than 20Hz [68].
+Fig 5-2. PSD of lead I ECG signal 43
+
+5.2 Wrist PPG
+5.2.1 Waveform of Wrist PPG
+A standard PPG waveform should have clear systolic peak which is labeled as P peak in this study, as shown in Fig 2-8. The recorded original PPG waveform contains power line interference and motion artifacts. After applying filtering approaches, the denoised PPG waveform can provide more details for analysis. The noisy and denoised PPG waveforms detected from left wrist using optical pulse sensor are shown in Fig 5-3.
+Fig 5-3. Original noisy PPG waveform (top); denoised PPG waveform (bottom).
+5.2.2 Frequency Range of Wrist PPG
+Fig 5-4 shows the denoised wrist PPG power spectral density (PSD) of a sample wrist PPG measured over 5 minutes. Most of the total signal power resides in the range of 0.5Hz – 5Hz. This is consistent with the previous PPG works, which state that the majority of the PPG’s frequency content is less than 5Hz [69].
+44
+
+5.3 Wrist BCG
+
+Fig 5-4. The PSD of the wrist PPG
+
+In this section, the waveform of the recorded BCG and its frequency range will be illustrated first. Then, two signal validation methods, morphology matching analysis and wave occurrence time matching analysis will be conducted to validate that detected signal is the actually the BCG signal.
+
+5.3.1 Waveform of Wrist BCG
+The signal detected from left wrist using the new capacitive wrist band is shown in Fig 5-5. The waveform has significant waves as shown in Fig 2-10. However, a comprehensive signal validation process is necessary to determine whether this capacitive signal is indeed BCG.
+
+45
+
+Fig 5-5. Original noisy BCG signal (top); denoised BCG signal (bottom).
+5.3.2 Frequency Range of Wrist BCG
+Fig 5-6 shows the denoised wrist BCG’s power spectral density of a wrist BCG sample measured over 5 minutes. Most of the signal power resides in the range of 0.5Hz-10Hz. This is consistent with the previous BCG works, which state that the majority of the BCG’s frequency component is less than 10Hz [49].
+Fig 5-6. PSD of wrist BCG 46
+
+5.4 Signal Validation for Capacitive Electrode
+There are already several researches on BCG measurement using capacitive sensors, but none of them collect BCG signal on the wrists. Because of this, the signal validation process is important for this study. After applying both morphology matching and wave occurrence time matching analyses, the signals collected by the specially developed capacitive wrist band were finally validated as BCG.
+5.4.1 Methodology of BCG Validation Based on Morphology Matching
+There are several significant waves in the BCG signal which are defined as H, I, J and K waves. The origin and physiological significance of the waves are described below.
+ H Wave (Presphygmic Wave) The H wave is the first wave associated with contraction of the heart. This wave is an upward deflection and is normally relatively small. However, in heart disease, it may become large in amplitude even surpassing the height of the J wave [67].
+ I and J Waves (Ventricular Ejection) The onset of ejection is marked by a sharp negative wave, the I wave, which represents the footward recoil of body from acceleration of blood upwards in the pulmonary artery and ascending arch of the aorta [67].
+47
+
+The J wave normally is the dominant wave of the BCG. The peak of J wave usually occurs between 0.22 and 0.26 seconds after the onset of the QRS complex of the ECG [67].
+ K Wave (Aortic Deceleration)
+The K wave is a footward wave starting at the peak of the J and extending in relatively steep slope to a deep trough at a level of the I wave or slightly beyond the depth of the I wave [67].
+To validate the signal in morphology matching approach, the average waveform templates were calculated for each subject. The ensemble average of a signal is defined by a fiducial time for each beat, creating the ensemble of the time varying signals referenced to that time and then averaging across this ensemble at every time throughout the duration of the individual beats. After obtaining the averaged templates of the signals recorded by the capacitive wrist band from each subject, the morphology of individual template will be compared with the standard BCG waveform visually and the individual wave characteristics will be checked if they are as described above.
+5.4.2 Methodology of BCG Validation Based on Temporal Matching
+The physiological time intervals corresponding to the sequence of mechanical cardiac events within the whole beat were defined in [70]. In the first stage, QRS complexes, T waves and systolic BCG waves (H, I, J, K) wave detected by a wave detection algorithm, as described in Section 4.5. H, J and K time intervals were set for BCG signal validation associated with simultaneous ECG waves. The defined locations and time intervals are shown in Fig 5-7.
+48
+
+Fig 5-7. Definition of main waves and intervals of ECG and BCG signals.
+The definitions of time interval are described in [70] and are shown below:
+
+ J wave is the maximum of the BCG signal XBCG(n) in the range defined as a time interval around T wave occurrence:
+
+= argmaxn h ,
+
+−1 9
+
+1
+
+19
+
+1
+
+(5-1)
+
+Where, n represents every sample of the signal, nTi is the location of T waves, i is the number of pulses.
+
+ H wave is defined as the maximum of the BCG signal between the Rpeak and Tonset:
+
+=晦 m 晦
+
+h,
+
+1 20
+
+1 t − 1 20
+
+1
+
+(5-2)
+
+49
+
+Where, n represents every sample of the signal, nHi is the location of T waves, nRi is the location of ECG R peaks, i is the number of pulses. nToni is defined as the location of the start point of T wave.
+
+ K wave is searched for in an interval starting at J wave:
+
+K = argmin h ,
+
+J J 15
+
+1
+
+(5-3)
+
+Where, n represents every sample of the signal, nKi is the location of K waves, nJi is the location of BCG J peaks, i is the number of pulses.
+
+The percentages of waves occurred in the defined time intervals will be calculated for each subject and a high percentage shows the recorded signal has a high consistency with the standard BCG signal.
+
+5.4.3 Experimental Design
+
+To validate the signal collected by the new capacitive electrode is the actual BCG signal four healthy subjects (2 males and 2 females) were recruited for signal validation experiments. Each subject was asked to sit still on the chair to collect 10-min BCG signal using the new capacitive wrist band and simultaneous ECG using dry electrodes. The study population characteristics are presented in Table 5-1. These collected data were also used for HRV analysis in the next section.
+
+50
+
+Table 5-1. Study population characteristics (mean±std)
+
+Age
+
+Weight
+
+Height
+
+25.75±2.75 years
+
+65.50±17.15 Kg
+
+172±7.2 cm
+
+BMI 21.8±4.08 Kg/m2
+
+5.4.4 Results and Conclusion
+Both morphology matching and wave occurrence time matching analyses were performed on the capacitive signals measured from 4 subjects.
+
+Fig 5-8. Average morphological template of signals measured by capacitive electrode for 4 subjects.
+To validate that the signals detected by the capacitive electrode is the BCG, the average wave templates of different subjects were extracted as shown in Fig 5-8. After visually comparing the morphology of the average template with the morphology of several reference BCG signals and the definition of H, I, J and K waves, the signal
+51
+
+detected by capacitive electrode can be considered as BCG signal based on morphological feature matching.
+
+Table 5-2. Percentage of waves that occurred in defined time interval
+
+J wave
+
+H wave
+
+K wave
+
+Subject 1
+
+97.56%
+
+96.77%
+
+100%
+
+Subject 2
+
+100%
+
+94.44%
+
+96%
+
+Subject 3
+
+94.88%
+
+92.76%
+
+100%
+
+Subject 4
+
+100%
+
+92.42%
+
+100%
+
+As shown in Table 5-2, the average percentage of the detected waves derived from 4 subjects within the defined time interval is 96.2%. This consistency in the occurrence of the BCG waves based on time interval matching method from [70] provides us with the validation that the acquired signal is indeed BCG signal.
+5.5 HRV Analysis
+Heart rate variability (HRV) is one of the indicators of cardiac health. The HRV is the variation in the time between each heart beat. Having a high HRV means the body can efficiently change your heart rate depending on the activities. Currently, HRV is mostly measured at the doctor’s office with an ECG test that records the electrical activity of the heart. HRV is defined as beat-to-beat variation in either heart rate or the duration of the ECG R-R interval [71]. Comparing with ECG measurement, BCG measurement has several advantages, the device is relatively simple and portable which means the HRV analysis can be performed in wearable devices or in home health care monitors.
+
+52
+
+In this section, the BCG JJ (J-J interval) series will be tested if it can be the surrogate of ECG RR (R-R interval) series in HRV analysis.
+5.5.1 Experimental Design
+4 subjects (2 males, 2 females) were recruited for simultaneous ECG and BCG signal collection. Subjects were suggested to sit still during a 5-min signal collection, ECG signals were collected by lead 1ECG electrodes and BCG signals were collected by capacitive wrist band. The information of these 4 subjects is shown in Table 5-1.
+5.5.2 Statistical Analysis
+Classical time and frequency-domain indices from both B-HRV (BCG-HRV) and EHRV (ECG-HRV) were estimated for all 5-min recordings collected from 4 subjects, where stationary of the signal is assumed [71]. Bland-Altman plots are presented to show the agreement between ECG RR series and BCG JJ series.
+Mean normal to normal interval (NN) is defined as RR interval when analyzing ECG signals and JJ interval for BCG signals. Standard deviation of NN intervals (SDNN) and root mean square of successive differences of adjacent NN intervals (RMSSD) were calculated for each signal acquired from every subject. The normalized power in the low (0.05-0.14 Hz) and high ( 0.15 Hz) frequency bands (PLFn and PHFn) which are associated with sympathetic and parasympathetic response [71] was computed in frequency domain. Linear correlation and Bland-Altman analyses were performed on beat-to-beat measurements to determine whether JJ interval is an appropriate surrogate of the RR series extracted from ECG.
+53
+
+Table 5-3. Results of HRV analysis in time domain (NN: the average value of intervals with min-max
+
+value in bracket; SDNN: standard deviation of intervals; RMSSD: root mean squared standard deviation
+
+of intervals; PLFn: percentage of low frequency components of intervals; PHFn: percentage of high
+
+frequency components of intervals).
+
+Subject1
+
+Subject2
+
+Subject3
+
+Subject4
+
+RR
+
+JJ
+
+RR
+
+JJ
+
+RR
+
+JJ
+
+RR
+
+JJ
+
+NN
+
+854ms 854ms 878ms 878ms 757ms 757ms 848ms 848ms
+
+(770-
+
+(758-
+
+(750-
+
+(748-
+
+(696-
+
+(692-
+
+(744-
+
+(730-
+
+918)
+
+924)
+
+940)
+
+980)
+
+840)
+
+860)
+
+940)
+
+940)
+
+SDNN
+
+31ms
+
+33ms
+
+30ms
+
+34ms
+
+23ms
+
+24ms
+
+31ms
+
+49ms
+
+RMSSD 33ms
+
+36ms
+
+26ms
+
+36ms
+
+17ms
+
+18ms
+
+31ms
+
+49ms
+
+PLFn
+
+0.28
+
+0.28
+
+0.35
+
+0.32
+
+0.53
+
+0.52
+
+0.35
+
+0.29
+
+PHFn
+
+0.72
+
+0.72
+
+0.65
+
+0.68
+
+0.47
+
+0.48
+
+0.65
+
+0.71
+
+Table 5-4. Correlation results for comparison of BCG JJ series with RR series. (R2 ≤ 0.01. CI: mean
+
+difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence).
+
+Subject1
+
+Subject2
+
+Subject3
+
+Subject4
+
+R2
+
+CI (ms)
+
+R2
+
+CI (ms)
+
+R2
+
+CI (ms)
+
+R2
+
+CI (ms)
+
+JJ
+
+0.91
+
+±20
+
+0.79
+
+±30
+
+0.87
+
+±20
+
+0.74
+
+±40
+
+5.5.3 Results
+Table 5-3 shows the results of time and frequency analysis of HRV derived from ECG and BCG signals for each subject. Table 5-4 and Fig 5-9 show the result of BlandAltman analysis of BCG JJ series and ECG RR series. The squared Pearson R value varies from 0.74 to 0.91. The average squared Pearson R value of 0.8533 indicates that JJ series extracted from BCG has the potential to be the surrogate of ECG RR series for HRV analysis.
+
+54
+
+Fig 5-9. Bland-Altman plots for JJ and RR series of 4 subjects. (red dashed lines correspond to the limits of agreement)
+5.6 Summary of the Chapter
+In this chapter, the filtered biomedical signal waveforms and the frequency spectra were compared with the reference. The signal collected by the new designed capacitive wrist band was validated as the BCG by applying both morphology matching and wave occurrence time matching approaches. In the end, the BCG JJ series were indicated to be a surrogate of ECG RR series in HRV analysis.
+55
+
+Chapter 6 Time-interval based Blood Pressure Measurement
+Blood pressure (BP) is one of the most important vital signs which can indicate the health of the cardiovascular system. It is recommended that BP to be monitored frequently for health care, and it is especially important for people of advanced age and who have, or are at a high risk of develop, heart disease [72]. BP varies continuously due to physical activity, medication, emotion and stress. Different oscillometric methods, such as stethoscopes and phonocardiograms are conventional non-invasive techniques to measure blood pressure [73]. However, these cuff-based methods have several disadvantages, which limit the uses in certain clinic or home care settings, especially during certain physical activity in which the cardiac output increases. A continuous BP cannot be measured using cuff-based methods because a pause of at least 1-2 minutes between two BP measurements is necessary to reduce errors in the measurement. Further, the patient may be disturbed by the inflation of the cuff and this disturbance may cause a sudden elevation of the BP [3]. A continuous cuff-free BP measurement is desirable in a multitude of clinical and home settings. In chapter, the cuffless BP measurement using gold standard pulse transit time (PTT) and another time-interval extracted from ECG and BCG will be described.
+56
+
+6.1 Introduction on Cuffless Blood Pressure Measurement
+6.1.1 Development of PTT-based Cuffless BP Estimation
+There were several continuous cuffless BP measurement methods over the last decade and most of them employed the pulse transit time (PTT). PTT-based BP measurement has already been considered as the gold standard of cuffless BP measurement.
+PTT-based BP estimation has been extensively studied ever since 2000, when SBP was estimated using pulse arrival time (PAT) which is the time difference between ECG R peak and PPG diastolic wave with intermittent calibration and showed that the estimated SBP was highly correlated with reference SBP (r =0.97±0.02) [74]. In 2005, BP was estimated using PTT with initial calibration, and an accuracy of 0.6 ± 9.8 and 0.9 ± 5.6 mmHg for SBP and DBP was achieved and this research also found a nonlinear approach was better than linear one in BP estimation [75]. The definition of PAT is shown in Fig 6-1.
+6.1.2 Definition of PTT
+Pulse transit time (PTT) is the time delay for the pressure wave to travel between two arterial sites. In general, PTT is defined as the time interval between the R wave peak of electrocardiogram (ECG) and a characteristic point of photoplethysmogram (PPG) which is considered as a gold standard to conduct cuffless blood pressure measurement. The definition of PTT is shown in Fig 6-1. The fundamental principle of the PTT-based method is based upon the Moens-Korteweg (M-K) equation.
+57
+
+Fig 6-1. Morphological definition of PTT, PAT, RJ interval and JP interval
+In this research, the time interval between BCG and ECG signal will be investigated
+
+for cuffless BP measurement and the performances will be compared with PTT-based
+
+BP measurement. As shown in Fig 6-1. The RJ interval is defined as the time interval
+
+between the ECG R peak and BCG J peak, the JP interval is defined as the time interval
+
+between the BCG J peak and PPG P peak (maximum of PPG). According to the
+
+definition of PTT, RJ interval and JP interval, PTT can be represented as the sum of RJ
+
+and JP intervals ( =
+
+).
+
+6.1.3 Moens-Korteweg (M-K) Equation
+
+PTT is related to pulse wave velocity (PWV) which is further related to blood pressure. In biomechanics, the M-K equation models the relationship between wave speed or PWV and the incremental elastic modulus of the arterial wall or its distensibility. The equation was derived independently by Adriaan Isebree Moens [76, 77] and Diederik Korteweg [78].
+
+58
+
+Firstly, assume blood is non-viscous flowing liquid which flows inside complete elastic cylindrical tube, and then blood vessel is as infinite segment with same axial velocity named as v. The process of M-K equation is described in [79].
+To analyze hemodynamics, the liquid’s segment is dx, the pressure wave takes dt to pass dx, the pressure varying quantity is dp, and the corresponding radius displacement is dRi, the thickness of arterial wall is h, as shown in Fig 6-2.
+
+Fig 6-2. Segment of vessel wall and radius expansion
+Then the equation for pulse wave velocity (PWV) is:
+
+=t By applying Newton Second Law:
+
+(6-1)
+
+ dF  d ( AP)  PdA  AdP dx dx dx dx
+
+(6-2)
+
+Where P is blood pressure, A is the cross-section area of vessel. Since A is not related to x, equation (6-2) can be expressed as:
+
+59
+
+ dF  AdP dx dx
+The equation of cross-section area is: =2
+
+(6-3) (6-4)
+
+Blood volume is Ri2dx within region dx, and axial acceleration is dv/dt. Equation (6-5) can be deduced based on Newton Second Law:
+
+=晦 = 2 −
+
+=
+
+2
+
+t
+
+(6-5)
+
+Combining the equations shown above, the relationship between blood pressure and flowing velocity can be indicated as:
+
+−= t
+
+(6-6)
+
+Secondly, we will use continuity equations to describe the relationship between PWV and Young’s modulus. Although outflow velocity is smaller than inflow velocity, based on conservation of mass, volume change dV/dt is equal to difference between inflow volume and outflow volume expressed as dQ. Then
+
+t
+
+2
+
+− 耀= t =
+
+t
+
+=2 t
+
+(6-7)
+
+Volume rate can also be expressed as multiplication of cross section area and instant rate.
+
+− 耀= −
+
+2
+=−
+
+(6-8)
+
+60
+
+After solving these two equations, the relationship between the change of vessel wall. thickness and flowing velocity can be expressed as:
+
+− t= 2
+
+(6-9)
+
+Young’s modulus (E) is a measurement of the stiffness of an isotropic elastic material.
+
+It is defined as the ratio of the uniaxial stress F/S (ratio between force and the area it
+
+affects) over the uniaxial strain
+
+(ratio between varied size and original size) in the
+
+stress in which Hooke’s Law holds.
+
+= tg
+
+1 t晦
+
+=
+
+h
+
+=
+
+Therefore, the expression for stress is:
+
+tg =
+
+=
+
+− 2−
+
+2
+−
+
+2=
+
+−2 2−
+
+(6-10) (6-11)
+
+Since radius of vessel wall is much larger than thickness of vessel wall, that is Ri  h , equation (6-11) can be further transformed as:
+
+Deduce expression for strain:
+
+tg = 2
+
+(6-12)
+
+t晦 = =
+
+(6-13)
+
+Consequently, using the definition, combining equation (6-12) and equation (6-13), deduce the expression of dRi as:
+
+2
+=
+2
+
+(6-14)
+
+61
+
+Combining equation (6-6) and equation (6-14), deduce the relationship between blood pressure and flowing velocity:
+
+− t=
+
+(6-15)
+
+Calculate the derivative of x for equation (6-6), and also calculate the derivative of t for equation (6-15):
+
+2
+− 2=
+2
+− t2 =
+
+2
+t
+2
+t
+
+(6-16)
+
+The relationship between PWV and Young’s modulus can be extracted from equation (6-16):
+
+PWV 
+
+Eh 2R
+
+(6-17)
+
+Accordingly, the PWV along the arterial wall depends on: 1) the biomechanics properties of the arterial wall: and in particular its stiffness E or
+Young’s modulus, 2) the geometry of the wall, and in particular its thickness h and radius R, 3) and the density of blood. Even though the derivation of the Moens-Korteweg model relies on several simplifications, it provides an intuitive insight on the propagation phenomenon in arteries predicting that the stiffer the artery (increased E) the faster a pressure pulse will propagate along it. Therefore, for large elastic arteries such the aorta where the thickness
+
+62
+
+to radius ratio is almost invariable, PWV is expected to carry relevant information related to arterial stiffness [79]. The relationship between BP and PWV will be described in Section 6.4.
+
+6.2 Experimental Design
+
+The goal of this research is to test the performance of PTT-based BP measurement as well as RJ-interval based BP measurement. Specific experimental protocols were designed for this study.
+
+6.2.1 Study Population
+
+10 healthy subjects (5 males and 5 females) without cardiovascular diseases and hypertension were recruited for time-interval based blood pressure measurement experiments. All the subjects volunteered to participate and gave their informed consent before taking part in this study. The study was approved by the Office of Research Ethics and Integrity of University of Ottawa and conducted according to Declaration of Helsinki ethical principles for medical research on human subjects. Subjects with implantable cardiac devices including permanent pacemakers, cardiac-resynchronization therapy or defibrillator, pregnancy and unable to sign informed consent were excluded. The subject characteristics are illustrated in Table 6-1.
+
+Table 6-1. Study population characteristics (mean±std).
+
+Age (years) Height (cm) Weight (Kg) BMI (kg/m2)
+
+Mean SBP
+
+(mmHg)
+
+Mean ± std 28.3±8.25 168.56±8.14 68.8±15.05 23.82±3.85 117.7±13.13
+
+63
+
+6.2.2 Experiment Device
+The simultaneous ECG, BCG, PPG were recorded by the biomedical signal acquisition system which was described in Chapter 3. The Lead I ECG electrodes were mounted on left and right index fingers separately. The PPG sensor was placed on the left wrist above the main artery. The BCG wristband was wrapped on the left wrist. Body lotion or electrode gel has been employed for BCG signal acquisition to improve signal quality.
+The beat-to-beat BP were collected by a continuous blood pressure monitor Finometer PRO (Finapres Medical System BV, The Netherland). The Finometer Pro is a stand-alone solution for accurate non-invasive beat-to beat blood pressure monitoring. It can also provide hemodynamic parameters such as stroke volume, total peripheral resistance and cardiac output as well as pulse rate (variability). For different subjects, recommended cuff sizes were chosen, a finger cuff was wrapped on the middle phalanx of the right middle finger to measure the blood pressure within the finger using volumeclamp method, an arm cuff was also wrapped above right elbow which was used for calibration. Finometer PRO has also been shown to be stable and reliable in ambulatory recordings.
+The locations of the ECG, BCG, PPG sensors and the reference continuous blood pressure cuffs for this study are shown in Fig 6-3.
+64
+
+Fig 6-3. Locations of BCG, ECG, PPG and reference BP cuffs
+6.2.3 Data Collection Protocol
+For each subject, ECG, BCG, PPG and continuous BP were recorded simultaneously for 15 mins. The performance of cuffless BP measurement was validated with subjects at rest state and with subjects undergoing various Valsalva maneuvers (VM) which are assumed to induce dynamic BP changes. The VM is performed by moderately forceful attempted exhalation against a closed airway, usually done by closing one’s nose shut while pressing out as if blowing up a balloon [80]. The blood pressure responses to the VM can be measured invasively with an intra-arterial line, or noninvasively using blood pressure cuff or commercially available devices. The VM has four phases, and a normal response is sinusoidal in appearance as shown in Fig 6-4. In a normal response, Korotkoff sounds are audible only during phases I and IV, because the systolic pressure normally rises at the onset and release of the strain phase.
+65
+
+Fig 6-4. Normal Valsalva response: (a) typical blood pressure response during a VM (b) systolic blood pressure trace demonstrating phases of the Valsalva [81]
+As shown in Fig 6-4, phase 1 represents the increase in systolic pressure with initial strain due to increase in intrathoracic pressure. Phase 2 represents the decrease in stroke volume and pulse pressure and reflex tachycardia with continued strain due to decrease in venous return and increase in vascular resistance. Phase 3 indicates the sudden decrease in systolic pressure due to sudden decrease in intrathoracic pressure. Phase 4 represents the overshoot of systolic pressure and reflex bradycardia due to increased venous return and decreased systemic vascular resistance [81].
+The experimental protocol involves acquiring ECG, BCG, PPG and continuous BP simultaneously for 15 mins with subject sitting still on a chair with their arms placed on soft cushions on the table. The subjects were suggested to perform one VM every 2 minutes which means there were 7-8 VM performed during 15 min data collection.
+66
+
+6.3 Preprocessing Data Set
+After obtaining 15-min simultaneous BCG, ECG, PPG and continuous BP signals, the ECG R peak, BCG J peak and PPG P peak are located by using the improved peak detection algorithm as described in Section 4.5, and the RJ interval and PTT are calculated. There are still inaccurate RJ interval calculation due to wrong J peak detection within noisy segments. Therefore, a signal process approach is needed to preprocess the time intervals and SBP data before SBP estimation.
+As BCG is extremely susceptible to motion artifacts (MA), BCG peaks still can be located inaccurately and thus impact RJ interval calculation by using the advanced peak detection as described above. Therefore, outlier removal or data smoothing approaches need to be applied on the time intervals and SBP data.
+Mahalanobis outlier detection approach was considered first. Mahalanobis outlier detection approach based on Mahalanobis distance is suitable for multivariate model which also takes the shape of the observations into account [82]. The Mahalanobis distance is a measure of the distance between a point P and a distribution D. It represents a multidimensional generalization of the idea of measuring how many standard deviations away P is from the mean of D. The distance is zero if P is at the mean of D, and grows as P moves away from the mean along each principal component axis [83]. The point P will be considered as an outlier if the number of standard deviations from the P to the mean of D is greater than the setted threshold. However this approach locates some good points as outliers and impact the shape of the model. Then a simple median filter was taken into consideration. The median filter is a nonlinear digital filtering technique which is often used to remove
+67
+
+impulse noise from an image or signal. The inaccurately located peaks due to motion artifacts cause spikes on the waveform segment which can be considered as noises. The median filter works by moving through the waveform sample by sample and replacing each value with the median value of neighboring samples. This method will preserve the same number of samples after filtering and smoothing the data set.
+
+6.4 RJ-BP Model and PTT-BP Model
+
+The processed time interval data and the simultaneous SBP data were used to establish the time interval to SBP model. In this study, both linear regression and the exponential regression approaches were employed.
+
+6.4.1 RJ-BP Model and PTT-BP Model based on Linear Regression
+
+The relation between BP and PTT is derived from the relation between BP and pulse wave velocity (PWV), which is the velocity with which the pulse propagates. The linear model used for BP tracking using PTT is described in a reported study [84]. In equation (6-18), the relation between PWV and BP is:
+
+tt = t t h =
+
+1 −
+
+(6-18)
+
+Where is the change in BP, is the blood density, V is the blood volume, t is the change in blood volume and c is a normalising constant. The relation between PWV and PTT is:
+
+PWV  Z PTT
+
+(6-19)
+
+68
+
+Where Z represents the distance that the blood has to travel. A resulting relation is found when combining equations (6-18) and (6-19):
+
+PTT  Z  c  BP  c   BP  A  B  PTT
+
+
+
+4
+
+(6-20)
+
+The relation showed in equation (6-20) describes how PTT is linearly related to BP. The constants, A and B, can be determined through linear regression.
+
+6.4.2 RJ-BP Model and PTT-BP Model based on Nonlinear Regression
+
+Besides the linear relationship of PTT and BP, the relationship between BP and PTT can be expressed in exponential model as well [85]. The exponential relationship between modulus of elasticity and BP is:
+
+E  E0  eBP
+
+(6-21)
+
+Where E0 is the modulus of elasticity when pressure is zero, BP is the blood pressure ,  is a cnstant that depends on the vessel. Thus, the relation between PWV and BP can be expressed as:
+
+PWV 
+
+h  E0  eBP 2r
+
+(6-22)
+
+Thus, the blood pressure can be expressed as:
+
+BP
+
+
+
+1 
+
+ ln
+
+2
+
+r
+
+
+
+  PWV
+h  E0
+
+2
+
+
+
+(6-23)
+
+69
+
+As the PWV was defined in equation (6-19), PWV  Z , where Z is the distance PTT
+between two measurement points. It can be assumed that Z and E0 remain constant and  , r and h show only small changes [86], and the relation between blood pressure
+
+and PTT can be expressed as:
+
+BP
+
+
+
+1 
+
+
+
+ln
+
+ 
+
+Z PTT
+
+2 
+
+ 
+
+
+
+1 
+
+ ln
+
+2r h  E0
+
+
+
+
+
+C
+
+
+
+D
+
+
+
+ln(PTT
+
+2
+
+)
+
+(6-24)
+
+As shown in equation (6-20) and equation (6-24), the relation between BP and PTT
+
+can be expressed in both linear and exponential model. In this research, the PTT shown
+
+in equation (6-20) and equation (6-24) can be replaced by RJ interval to represent the
+
+relation between RJ interval and BP.
+
+6.5 Statistical Analysis
+
+After obtaining the simultaneous RJ interval, PTT and SBP from the data acquisition, the median filter was applied for data smoothing. Then the beat-to-beat SBP and SBP trend were tracked using beat-to-beat RJ interval and PTT, and averaged RJ interval and PTT respectively. The SBP trend is defined as the 40 beats moving averaged beat-to-beat SBP and it was estimated by the 40 beats moving averaged RJ interval and PTT. The strategy of statistical analysis is shown in Fig 6-5.
+
+70
+
+Fig 6-5. The strategy of SBP tracking using RJ interval and PTT
+The performance of estimating systolic blood pressure (SBP) using RJ-interval and PTT will be shown in this section. The correlation coefficients between the reference SBP and the estimated SBP using both PTT and RJ intervals were calculated, and the estimation performances were compared for both linear model and exponential model. Beside, the estimation performances were also compared for both beat-to-beat data and 40 beats averaged data, the mean absolute difference (MAD) and root mean standard deviation (RMSD) are employed to measure the differences between the estimated SBP and the reference SBP.
+The individual differences such as arterial stiffness and blood density will require models to be personalized. In this thesis, the SBP of each subject was estimated using both PTT and RJ interval. The SBP estimation method is shown below:
+ Plot the time interval (RJ & PTT) and reference SBP using MATLAB, the curve fitting toolbox was applied to obtain the coefficients A and B of the linear model and coefficients C and D of the exponential model. The time interval and the reference SBP plot with the estimated linear model are shown in Fig 6-6.
+71
+
+Fig 6-6. The beat-to-beat RJ and reference SBP pairs (black dots) and the estimated linear model (blue line)
+ The SBP was estimated using both linear and exponential model,
+  SBPest  A  B  PTT and SBPest  C  D  ln PTT 2 . The SBP was also be tracked using
+RJ interval.
+
+ The correlation coefficient r between the reference SBP SBPref and the estimated SBP SBPest was calculated for each subject, and the mean absolute difference (MAD) and the root mean square deviation (RMSD) were calculated to assess the difference between the reference and the estimation, the definition of MAD and RMSD are shown in equation (6-25) and equation (6-26):
+
+ MAD
+
+  
+
+n i 1
+
+SBPesti
+
+ SBPrefi
+
+ 
+
+n
+
+(6-25)
+
+   RMSD 
+
+n i 1
+
+SBPesti
+
+ SBPrefi
+
+2
+
+n
+
+(6-26)
+
+72
+
+The individual differences such as arterial stiffness and blood density will not lead to a uniform relationship for all subjects, the relationship between the time intervals and SBP was optimized for each subject.
+
+6.5.1 Beat-to-beat SBP Estimation using RJ-interval and PTT
+
+The RJ interval and PTT extracted from every individual beat were used to estimate the SBP values, the estimated SBP values were compared with reference SBP values collected from each subject. Linear correlation analysis was performed on beat-to-beat data to assess the performance of SBP estimation using RJ interval and PTT.
+
+ Linear Model The correlation coefficients and the confidence intervals (CI) between the
+reference SBP and the estimated SBP using linear model were calculated as shown in Table 6-2.
+
+Table 6-2. Correlation results for comparison of estimated SBP with reference SBP. ( R  0.01. CI: mean
+
+difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence).
+
+RJ-SBP
+
+PTT-SBP
+
+R
+
+CI (mmHg)
+
+R
+
+CI (mmHg)
+
+Subject 1
+
+0.6564
+
+±9.81
+
+0.5508
+
+±10.89
+
+Subject 2
+
+0.4412
+
+±7.95
+
+0.3502
+
+±8.21
+
+Subject 3
+
+0.6146
+
+±13.63
+
+0.4141
+
+±15.73
+
+Subject 4
+
+0.4314
+
+±11.78
+
+0.4688
+
+±11.52
+
+Subject 5
+
+0.5682
+
+±7.93
+
+0.2076
+
+±9.05
+
+Subject 6
+
+0.3758
+
+±13.40
+
+0.5991
+
+±11.51
+
+Subject 7
+
+0.5800
+
+±8.82
+
+0.4743
+
+±9.57
+
+Subject 8
+
+0.3866
+
+±13.38
+
+0.5133
+
+±12.47
+
+73
+
+Subject 9 Subject 10 Mean ± std
+
+0.3939 0.5059 0.4954±0.1
+
+±14.68 ±12.80
+__
+
+0.4678 0.4592 0.4505±0.1
+
+±14.12 ±13.18
+__
+
+ Exponential Model The correlation coefficients and the confidence intervals between the reference
+SBP and the estimated SBP using exponential model were calculated as shown in Table 6-3.
+
+Table 6-3. Correlation results for comparison of estimated SBP with reference SBP using exponential
+
+model. ( R  0.01 . CI: mean difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95%
+
+confidence).
+
+RJ-SBP
+
+PTT-SBP
+
+R
+
+CI (mmHg)
+
+R
+
+CI (mmHg)
+
+Subject 1
+
+0.6294
+
+±16.82
+
+0.3154
+
+±3.79
+
+Subject 2
+
+0.4650
+
+±7.81
+
+0.3514
+
+±8.28
+
+Subject 3
+
+0.6171
+
+±13.68
+
+0.4179
+
+±15.76
+
+Subject 4
+
+0.4294
+
+±11.78
+
+0.4713
+
+±11.47
+
+Subject 5
+
+0.5329
+
+±8.30
+
+0.2076
+
+±9.08
+
+Subject 6
+
+0.3711
+
+±13.32
+
+0.5984
+
+±11.55
+
+Subject 7
+
+0.5731
+
+±8.84
+
+0.4696
+
+±9.54
+
+Subject 8
+
+0.3863
+
+±13.31
+
+0.5147
+
+±12.43
+
+Subject 9
+
+0.3941
+
+±14.68
+
+0.4673
+
+±14.13
+
+Subject 10
+
+0.5038
+
+±12.79
+
+0.4581
+
+±13.19
+
+Mean ± std
+
+0.4902±0.1
+
+__
+
+0.4272±0.1
+
+__
+
+The MAD between the reference beat-to-beat SBP trend and the estimated SBP of both linear and exponential model is shown in Table 6-4.
+74
+
+Table 6-4. MAD between reference beat -to-beat SBP and estimated SBP using both linear model and
+
+exponential model (unit: mmHg)
+
+Linear Model
+
+Exponential Model
+
+MAD (RJ-SBP) MAD (PTT-SBP) MAD (RJ-SBP) MAD (PTT-SBP)
+
+Subject 1
+
+3.96
+
+.36
+
+3.97
+
+.36
+
+Subject 2
+
+3.19
+
+3.30
+
+3.14
+
+3.30
+
+Subject 3
+
+5.57
+
+6.48
+
+5.56
+
+6.47
+
+Subject 4
+
+4.76
+
+.66
+
+4.77
+
+.65
+
+Subject 5
+
+1.41
+
+2.68
+
+1.42
+
+2.67
+
+Subject 6
+
+5.54
+
+.86
+
+5.55
+
+.86
+
+Subject 7
+
+3.43
+
+3.53
+
+3.45
+
+3.52
+
+Subject 8
+
+4.59
+
+3.33
+
+4.57
+
+3.33
+
+Subject 9
+
+5.96
+
+5.56
+
+5.95
+
+5.56
+
+Subject 10
+
+5.17
+
+5.59
+
+5.18
+
+5.59
+
+Mean ± std
+
+4.358±1.39
+
+4.435±1.22
+
+4.356±1.39
+
+4.431±1.22
+
+The RMSD between the reference beat-to-beat SBP and the estimated SBP of both linear model and exponential model is shown in Table 6-5.
+
+Table 6-5. RMSD between reference beat -to-beat SBP and estimated SBP using both linear model and
+
+exponential model (unit: mmHg)
+
+Linear Model
+
+Exponential Model
+
+RMSD
+
+RMSD
+
+RMSD
+
+RMSD
+
+(RJ-SBP)
+
+(PTT-SBP)
+
+(RJ-SBP)
+
+(PTT-SBP)
+
+Subject 1
+
+5.023
+
+5.557
+
+5.083
+
+5.563
+
+Subject 2
+
+4.042
+
+4.219
+
+3.987
+
+4.217
+
+Subject 3
+
+6.973
+
+8.045
+
+6.955
+
+8.030
+
+Subject 4
+
+5.371
+
+5.312
+
+5.377
+
+5.303
+
+Subject 5
+
+3.151
+
+4.634
+
+3.163
+
+4.634
+
+75
+
+Subject 6 Subject 7 Subject 8 Subject 9 Subject 10 Mean ± std
+
+6.820 4.492 5.695 7.501 5.431 5.450±1.37
+
+5.893 4.855 5.226 7.213 4.661 5.562±1.21
+
+6.834 4.519 5.688 7.501 5.343 5.517±1.37
+
+5.896 4.869 5.218 7.215 4.663 5.561±1.21
+
+6.5.2 Averaged SBP Trend Tracking using RJ interval and PTT
+Although beat-to-beat SBP can provide detailed information on the continuous BP variability and cardiovascular conditions, it requires complicated algorithm to improve the estimation precision. The averaged BP over a certain period is enough for daily health care monitoring which can indicate the BP trends. In this study, the SBP, PTT and RJ interval were averaged using moving average approach with the window length of 40 beats. The averaged SBP trend and the beat-to-beat SBP waveform were shown in Fig 6-7.
+
+Fig 6-7. The beat-to-beat SBP waveform and the moving averaged SBP waveform (subject 1) 76
+
+As shown in Fig 6-7, the averaged SBP using moving average method with window length of 40 beats can represent the continuous SBP trend over 15 minutes.
+
+ Linear Model The correlation coefficients and confidence intervals between the reference SBP
+and the estimated SBP using linear model were calculated as shown in Table 6-6.
+
+Table 6-6. Correlation results for comparison of estimated SBP with reference SBP using linear model. ( R  0.01. CI: mean difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence).
+
+RJ-SBP
+
+PTT-SBP
+
+R
+
+CI (mmHg)
+
+R
+
+CI (mmHg)
+
+Subject 1
+
+0.7607
+
+±5.66
+
+0.6955
+
+± 6.34
+
+Subject 2
+
+0.4629
+
+±4.95
+
+0.2314
+
+±5.50
+
+Subject 3
+
+0.6837
+
+±7.53
+
+0.5217
+
+±8.85
+
+Subject 4
+
+0.6150
+
+±7.37
+
+0.4642
+
+±8.25
+
+Subject 5
+
+0.8535
+
+±3.47
+
+0.3018
+
+±6.33
+
+Subject 6
+
+0.4247
+
+±9.32
+
+0.8203
+
+±5.88
+
+Subject 7
+
+0.6604
+
+±4.65
+
+0.5042
+
+±5.28
+
+Subject 8
+
+0.4906
+
+±10.67
+
+0.6492
+
+±9.29
+
+Subject 9
+
+0.6324
+
+±7.43
+
+0.7080
+
+±6.81
+
+Subject 10
+
+0.6824
+
+±6.74
+
+0.6242
+
+±7.16
+
+Mean ± std
+
+0.6266±0.13
+
+__
+
+0.5521±0.19
+
+__
+
+ Exponential Model The correlation coefficients and confidence intervals between the reference SBP
+and the estimated SBP using exponential model were calculated as shown in Table 67.
+
+77
+
+Table 6-7. Correlation results for comparison of estimated SBP with reference SBP using linear model. ( R  0.01. CI: mean difference− 1.96SD ≤ difference ≤ mean difference +1.96SD, 95% confidence).
+
+RJ-SBP
+
+PTT-SBP
+
+R
+
+CI (mmHg)
+
+R
+
+CI (mmHg)
+
+Subject 1
+
+0.7588
+
+± 5.76
+
+0.6945
+
+± 6.27
+
+Subject 2
+
+0.4775
+
+±4.96
+
+0.2315
+
+±5.49
+
+Subject 3
+
+0.6830
+
+±7.56
+
+0.5203
+
+±8.80
+
+Subject 4
+
+0.6126
+
+±7.34
+
+0.4669
+
+±8.29
+
+Subject 5
+
+0.8526
+
+±3.52
+
+0.3008
+
+±6.36
+
+Subject 6
+
+0.4249
+
+±9.29
+
+0.8222
+
+±5.86
+
+Subject 7
+
+0.6559
+
+±4.63
+
+0.5039
+
+±5.31
+
+Subject 8
+
+0.4924
+
+±10.60
+
+0.6503
+
+±9.27
+
+Subject 9
+
+0.6311
+
+±7.49
+
+0.7077
+
+±6.75
+
+Subject 10
+
+0.6801
+
+±6.71
+
+0.6229
+
+±7.17
+
+Mean ± std
+
+0.6269±0.13
+
+__
+
+0.5521±0.19
+
+__
+
+The MAD between the reference averaged SBP trend and the estimated SBP of both linear and exponential model is shown in Table 6-8.
+
+Table 6-8. MAD between reference beat -to-beat SBP and estimated SBP using both linear model and
+
+exponential model (unit: mmHg)
+
+Linear Model
+
+Exponential Model
+
+MAD (RJ-SBP) MAD (PTT-SBP) MAD (RJ-SBP) MAD (PTT-SBP)
+
+Subject 1
+
+2.33
+
+2.69
+
+2.34
+
+2.70
+
+Subject 2
+
+2.13
+
+2.33
+
+2.11
+
+2.33
+
+Subject 3
+
+3.07
+
+3.45
+
+3.07
+
+3.45
+
+Subject 4
+
+2.97
+
+3.15
+
+2.98
+
+3.16
+
+Subject 5
+
+1.83
+
+2.82
+
+1.83
+
+2.82
+
+Subject 6
+
+3.79
+
+2.31
+
+3.79
+
+2.30
+
+78
+
+Subject 7 Subject 8 Subject 9 Subject 10 Mean ± std
+
+1.91 4.59 2.98 2.59 2.819±0.87
+
+2.08 3.14 2.85 2.99 2.781±0.43
+
+1.92 4.59 2.97 2.59 2.819±0.87
+
+2.08 3.14 2.85 2.99 2.782±0.44
+
+The RMSD between the reference averaged SBP and the estimated SBP of both linear model and exponential model is shown in Table 6-9.
+
+Table 6-9. RMSD between reference beat -to-beat SBP and estimated SBP using both linear model and
+
+exponential model (unit: mmHg)
+
+Linear Model
+
+Exponential Model
+
+RMSD
+
+RMSD
+
+RMSD
+
+RMSD
+
+(RJ-SBP)
+
+(PTT-SBP)
+
+(RJ-SBP)
+
+(PTT-SBP)
+
+Subject 1
+
+2.900
+
+3.211
+
+2.910
+
+3.215
+
+Subject 2
+
+2.553
+
+2.803
+
+2.531
+
+2.803
+
+Subject 3
+
+3.853
+
+4.505
+
+3.857
+
+4.509
+
+Subject 4
+
+3.755
+
+4.218
+
+3.764
+
+4.211
+
+Subject 5
+
+1.767
+
+3.234
+
+1.772
+
+3.235
+
+Subject 6
+
+4.756
+
+3.004
+
+4.775
+
+2.990
+
+Subject 7
+
+2.357
+
+2.711
+
+2.370
+
+2.711
+
+Subject 8
+
+5.428
+
+4.737
+
+5.421
+
+4.732
+
+Subject 9
+
+3.801
+
+3.465
+
+3.806
+
+3.466
+
+Subject 10
+
+3.421
+
+3.656
+
+3.431
+
+3.661
+
+Mean ± std
+
+3.460±1.11
+
+3.554±0.71
+
+3.464±1.11
+
+3.553±0.71
+
+79
+
+6.6 Results
+As demonstrated in this chapter, the continuous RJ-interval and PTT were used to estimate and track SBP using both linear and nonlinear method, and the averaged SBP trend was estimated using averaged RJ-interval and averaged PTT.
+As shown in Table 6-2 to Table 6-5, the mean correlation coefficient between the reference beat-to-beat SBP and the estimated SBP using linear model for RJ-interval is 0.4954 and for PTT is 0.4505. The mean correlation coefficient between the reference beatto-beat SBP and the estimated SBP using exponential model for RJ-interval is 0.4902 and for PTT is 0.4272 The averaged MAD between the reference beat-to-beat SBP and the estimated SBP is 4.357 mmHg for RJ-interval and 4.433 mmHg for PTT. The average RMSD between the reference beat-to-beat SBP and estimated SBP is 5.5 mmHg for RJinterval and 5.54 mmHg for PTT which means the RJ-interval performed better than PTT in estimating SBP using both linear and exponential model. In addition, the results did not show significant difference between linear and exponential model in estimating SBP.
+The performance of estimating averaged SBP trend using moving averaged RJ-interval and PTT is better than beat-to-beat estimation. The correlation coefficient of averaged SBP trend using RJ-interval is 0.627 compare to the correlation coefficient of 0.49 in estimating beat-to-beat SBP. The correlation coefficient of averaged SBP trend using PTT is 0.552 compare to the correlation coefficient of 0.44 in estimating beat-to-beat SBP.
+There are other researches reported that estimated SBP using PTT is highly correlated with the reference SBP. As described in [75], 20 patients from a cardiopulmonary unit were enrolled into the study and all subjects underwent a maximal cardiopulmonary exercise
+80
+
+testing on a semi-recumbent cycle ergometer. The blood pressure was measured every 2 min by a cuff-based BP monitor, and the single channel ECG and finger PPG was collected to calculate PTT. Both linear and non-linear models between PTT and SBP were employed to evaluate the performance of SBP tracking using PTT. The correlation coefficient between estimated SBP and reference SBP ranges from 0.93-0.99 using linear regression and similar for using non-linear regression.
+Although the correlation coefficient of SBP estimating using RJ interval and PTT is not as great as other reported researches, the estimated SBP waveforms shown in Fig 6-8 and Fig 6-9 can indicate that RJ interval and PTT can track SBP trend over a long period. Also the performance of SBP tracking using RJ interval is similar as using PTT, which means RJ interval has the potential to be the surrogate of PTT in cuffless SBP tracking.
+According to IEEE standard for wearable, cuffless blood pressure measuring devices, the MAD is employed to assess the accuracy level of a cuffless BP device [87]. As shown in Table 6-10, the device will be graded as Grade A if the MAD between the estimation and the reference is less than 5 mmHg. As shown in Table 6-4 and Table 6-8, the mean MAD of beat-to-beat SBP tracking for 10 subjects is 4.395 mmHg and the mean MAD of SBP trend tracking for 10 subjects is 2.8 mmHg which means the results of SBP tracking using RJinterval and PTT are encouraging.
+Table 6-10. IEEE standard for wearable, cuffless blood pressure measuring device [88]
+81
+
+Fig 6-8. Reference and estimated beat-to-beat SBP waveform using RJ interval and PTT 82
+
+Fig 6-9. Reference and estimated averaged SBP trend using RJ interval and PTT 83
+
+6.7 Summary of the Chapter
+In this chapter, the methodology of blood pressure estimation using time intervals were described at the beginning. The SBP estimation using PTT and RJ intervals extracted from BCG and ECG were compared. The estimation accuracy of estimation needs improvement and but this method can show the SBP trend, as shown in Fig 6-7 and Fig 6-8. However, there are also some limitations of time-interval based BP estimation.
+Although PTT has been proved as a promising surrogate of BP and could become the most widely used technique for non-invasive continuous BP monitoring in the future [74, 88], there are still several problems to be solved before its widespread application. First, some PTT-BP models could only provide one BP parameter, e.g., exclusively SBP [89,90, 91], DBP [92], or mean BP (MBP) [93], but SBP, DBP and MBP all have clinical significance. Second, a calibration procedure is required to map PTT to BP. However, recalibration at intermittent intervals is often necessary for accurate estimation, potentially owing to the inadequacy of PTT to track BP variation over a long period. Last and most importantly, the accuracy of PTT based BP estimation is unsatisfactory. The possible reasons are the influences of the vascular or vasomotor tone and the pre-ejection period (PEP). Regarding PEP issue, impedance cardiogram, phonocardiogram, ballistocardiogram, or two peripheral PPG have been adopted to eliminate the effect of PEP.
+84
+
+Chapter 7 Conclusion
+7.1 Summary and Contributions
+In summary, this work presents a wearable blood pressure monitor that uses pulse transit time and RJ intervals extracted from the physiological signals to estimate systolic blood pressure mathematically.
+Physiologically, the wrists location are shown to provide BCG, ECG and PPG signals. Mechanically, the wrist is the perfect location for smart watches, wrist bands which means monitoring vital signs on the wrist is a promising wearable technology.
+Comparing with other different BCG sensors, such as accelerometer or force sensors, the new developed capacitive BCG electrodes using soft conductive fabric and rubber can collect BCG signal from a single point on the wrist. After validating the signal collected by the capacitive BCG electrode using both morphology matching and occurrence time interval matching, the detected signal was validated as the actual BCG signal. ECG RR series are generally used in HRV analysis nowadays. In this research, the JJ intervals extracted from successive BCG J peaks are proved to be the surrogate of ECG RR series in HRV analysis.
+This work also demonstrates the signal denoising performances of both filtering method and EMD-based denoising approach. Comparing with traditional filtering method, EMDbased denoising method performed better in both high and low frequency noise elimination.
+85
+
+The time-interval based cuffless blood pressure estimation approach has been proved to be a promising BP measurement method. Comparing with tradition cuff-based BP measurement, this new approach can continuously monitor BP and doesn’t have the uncomfortability caused by pressure cuff during the measurement. In this study, two time intervals, pulse transit time and RJ interval are employed to estimate and track systolic blood pressure mathematically. Two mathematical models, linear regression and exponential regression are applied to estimate SBP. The results indicate that the estimation accuracy is not good as traditional cuff-based methods, but it shows this cuffless method can track the BP changing trend.
+7.2 Future Work
+This work has indicated that time-interval based cuffless blood pressure estimation approach is a promising BP measurement method. The future works will explore the following directions:  The BCG sensor will be properly evaluated to determine its sensitivity, linearity and
+other parameters.  An integrated 2-in-1 wristband which can measure ECG and BCG using soft fabric will
+be developed which can save the space on the wearable device.  The cuffless blood pressure estimation research will include collecting more data from a
+wider and larger study population, and machine learning algorithm will be applied to improve the accuracy and make the model be patient-specific.
+86
+
+ A true single arm BP monitor device using JP interval (BCG & PPG) will also be developed and tested.
+87
+

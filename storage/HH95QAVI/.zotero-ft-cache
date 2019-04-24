@@ -1,0 +1,983 @@
+Combinational Photoplethysmography Based Model for Blood Pressure Measurement A thesis submitted in fulfilment of the requirements for the degree of Master of Engineering
+Ross Nye Bachelor Computer Science (Embedded Systems), RMIT University
+Diploma of Computer Systems, RMIT University Associate Diploma in Engineering (Computer Systems), RMIT University
+School of Engineering College of Science, Engineering and Health
+RMIT University
+June 2018
+
+Declaration
+I certify that except where due acknowledgement has been made, the work is that of the author alone; the work has not been submitted previously, in whole or in part, to qualify for any other academic award; the content of the thesis is the result of work which has been carried out since the official commencement date of the approved research program; any editorial work, paid or unpaid, carried out by a third party is acknowledged; and, ethics procedures and guidelines have been followed. I acknowledge the support I have received for my research through the provision of an Australian Government Research Training Program Scholarship. Ross Nye 09th June 2018
+i
+
+Acknowledgements
+I wish to sincerely thank Professor Qiang Fang, Chair and a professor in Biomedical Engineering at the Department of Biomedical Engineering, Shantou University, China. Professor Fang was initially my supervisor when I started working on this research project. He encouraged me to begin and made all the arrangements and affiliations listed below. This research began as a research project paid for an instigated by Mr Jie Yu and his company is Beijing Sanjack Ltd, China. Without his interest in this subject this research would not have commenced. For this I offer my humble thanks to him and to his company. I would also like to thank Doctor Hui Li who conducted the clinical experiments on behalf of Beijing Sanjack. I also offer my eternal gratitude to Associate Professor Elena Pirogova who has been my guiding light especially since Professor Fang took up his new position in China. Without her support and guidance this thesis would never have been completed. To my fellow research partner at the beginning of this research, Doctor Zhe Zhang, I thank you for everything. Now we can talk about something else whenever we see each other. To my fellow HDR students Matt Dabin, Xiaoying Wang, Yinjun Tu, Dr. Ghazwan Haddad and Tilak Rajapaksha thanks for making the time we shared in our little office more than just about work. Finally, to my family, Mom, Graeme, David, Ross, Kristy and Joan, thanks for your love and support, and for putting up with me, now and forever; especially to Mom for bringing me all those dinners.
+ii
+
+Table of Contents
+Declaration ..................................................................................................................................i Acknowledgements .................................................................................................................... ii Table of Contents ..................................................................................................................... iii List of Figures ..........................................................................................................................vii List of Tables ............................................................................................................................ix List of Abbreviations .................................................................................................................x Executive Summary ...................................................................................................................1 Chapter 1: Background ..............................................................................................................3
+What is Blood Pressure ..........................................................................................................3 Blood Pressure Regulation .....................................................................................................4 Blood Pressure as a Health Indicator .....................................................................................6 BP Measurement Methodologies ...........................................................................................8
+Invasive Blood Pressure ..................................................................................................... 8 Non-Invasive Blood Pressure ............................................................................................. 9 Continuous Non-Invasive Blood Pressure........................................................................13 Photoplethysmography (PPG)..............................................................................................14 Chapter 2: Literature Review...................................................................................................17 Pulse Transit Time (PTT).....................................................................................................18 Pulse Wave Velocity (PWV)................................................................................................19 Pulse Wave Analysis (PWA) ...............................................................................................20
+iii
+
+BP Monitoring Bodies and Standards ..................................................................................23 Association for Advancement of Medical Instrumentation Standards ............................. 23 British Hypertension Society Classifications ................................................................... 24 Effectiveness of Standards ............................................................................................... 24
+Research Hypothesis ............................................................................................................26 Research Objectives .............................................................................................................26 Research Questions ..............................................................................................................28 Chapter 3: Materials and Methods ........................................................................................... 29 Materials ............................................................................................................................... 29
+Biopac hardware and software ......................................................................................... 29 Materials of Dual Channel Device .......................................................................................31
+Development Board..........................................................................................................31 Open Hardware Pulse Sensor ........................................................................................... 34 Keil ¬µVision IDE..............................................................................................................35 3D Modelling and Printing ............................................................................................... 36 MATLAB .............................................................................................................................36 Methodology of Using Dual Channel Device ......................................................................39 Sensor Positions Using Dual Channel Device..................................................................39 Dual Channel Device Usage Protocol .............................................................................. 41 Chapter 4: Results ....................................................................................................................45 Biopac Experiments .............................................................................................................45
+iv
+
+Dual Channel Device ...........................................................................................................46 Device Software ............................................................................................................... 46 3D Printed Case and Sensor Housing...............................................................................47
+Data Collection Tools...........................................................................................................54 MATLAB Data Collection tool........................................................................................54 MATLAB GUI data collection tool ................................................................................. 56 Windows .Net GUI ........................................................................................................... 57
+Data Collection.....................................................................................................................59 Initial Tests ....................................................................................................................... 59 Circadian Experiments ..................................................................................................... 60 Collaborators Data Collection .......................................................................................... 64 Data Consolidation ‚Äì Common Data Format ................................................................... 66
+Algorithm Development.......................................................................................................70 PEAK ‚Äì Systolic peak ...................................................................................................... 71 MSUS ‚Äì Mid-systolic up stroke ....................................................................................... 71 SSUS ‚Äì Start of the systolic up stroke..............................................................................71 PSUS ‚Äì Pre-systolic up stroke .......................................................................................... 72 Detection of PPG Signal Points........................................................................................72
+Analysis Algorithm Output ..................................................................................................73 Analysis Data....................................................................................................................75 Heart Rate Validation ....................................................................................................... 77
+v
+
+Problems Analysing Data.....................................................................................................78 Fixing Device Read Data Error ........................................................................................ 78 Signal Abnormalities ........................................................................................................ 82
+Creating a Fit........................................................................................................................84 Evaluation Against the AAMI and BHS Standards .............................................................88 Chapter 5: Discussion ..............................................................................................................95 Assessment of the Fitting Algorithm ...................................................................................95 Assessment of the Proposed PPG Methodologies ...............................................................96 Assessment of the Dual Channel PPG Device .....................................................................99 Effect of White Coat Syndrome on Results .......................................................................100 Chapter 7: Conclusion............................................................................................................101 Chapter 6: Future Work .........................................................................................................102 References .............................................................................................................................. 105 Publications ............................................................................................................................ 108 Appendix ................................................................................................................................ 109
+vi
+
+List of Figures
+Figure 1: Arterial branching of aortic arch and carotid arteries [2] ...........................................4 Figure 2: Hales invasively measuring a horse's BP [8] .............................................................8 Figure 3: Tonometry method [14]............................................................................................11 Figure 4: Reflective PPG sensor [26] ......................................................................................15 Figure 5: Example PPG signals ...............................................................................................16 Figure 6: Graphical definition of PTT [33]..............................................................................18 Figure 7: Example of PWV sensor placement [40] .................................................................19 Figure 8: Project outline...........................................................................................................27 Figure 9: Biopac MP100 specifications [55] ...........................................................................29 Figure 10: Biopac hardware setup ...........................................................................................30 Figure 11: Open Hardware PPG sensor contents.....................................................................34 Figure 12: Open Hardware PPG sensor design [57]................................................................35 Figure 13: PPG locations .........................................................................................................39 Figure 14: PWV Distance Approximation...............................................................................39 Figure 15: PPG finger showing PPG housing and Velcro attachment ....................................42 Figure 16: Example PPG output on LCD screen .....................................................................43 Figure 17: Biopac TSD200 PPG sensor [59]...........................................................................45 Figure 18: Model of Alientek Warship board..........................................................................48 Figure 19: Base component of dual channel device case ........................................................49 Figure 20: Alientek board on case base ...................................................................................50 Figure 21: Model of Alientek board on case base ...................................................................50 Figure 22: Rear view of model of case with cover attached....................................................51 Figure 23: Top view model of case with cover........................................................................52 Figure 24: Internal view of model of case cover .....................................................................52
+vii
+
+Figure 25: Underside of model of PPG sensor housing...........................................................53 Figure 26: Side view of model of PPG sensor housing ...........................................................53 Figure 27: Windows .Net GUI.................................................................................................58 Figure 28: Omron HEM-6221 [62]..........................................................................................60 Figure 29: SBP, DBP and HR Omron data from day 4 of Circadian Experiments .................63 Figure 30: SBP, DBP and HR Omron Data from all days of Circadian Experiments.............63 Figure 31: Conversion to common data format .......................................................................68 Figure 32: PPG detection points ..............................................................................................70 Figure 33: Flow chart of method for PPG signal point detection ............................................72 Figure 34: Segment of analysis algorithm output ....................................................................73 Figure 35: Analysis algorithm output ......................................................................................74 Figure 36: Data acquisition from device to PC........................................................................79 Figure 37: Determining a swapped channel.............................................................................81 Figure 38: Signal showing poor PPG sensor placement ..........................................................82 Figure 39: Signal showing movement artefacts and poor ear PPG placement ........................83 Figure 40: Example output of fittest.m ....................................................................................86 Figure 41: Fit validation output graph .....................................................................................94
+viii
+
+List of Tables
+Table 1: WHO Hypertension Classification [6].........................................................................7 Table 2: State of the art research..............................................................................................21 Table 3: British Hypertension Society Classifications [54].....................................................24 Table 4: STM32F103T6 Key Features [56].............................................................................33 Table 5: Example SBP, DBP and HR data collected during Circadian Experiments..............62 Table 6: Common Log Format ................................................................................................69 Table 7: PPG Meta data structure ............................................................................................75 Table 8: PTT/PWV calculations examples ..............................................................................76 Table 9: Fit validation with 10 calibration tests.......................................................................90 Table 10: Fit validation with 25 calibration tests.....................................................................90 Table 11: Fit Classifications of Full Circadian Experiments...................................................91 Table 12: Fit Validation: Circadian, Fit: 25, Eval: 55, Weight: None.....................................92 Table 13: Fit Validation: Circadian Full, Fit: 25, Eval: 142, Weight: None ...........................93
+ix
+
+List of Abbreviations
+AAMI ‚Äì Association for Advancement of Medical Instrumentation ......................................23 ADC - Analogue to Digital Converter .....................................................................................31 APG - Acceleration PlethysmoGram.......................................................................................68 BHS ‚Äì British Hypertension Society .......................................................................................24 BP - blood pressure....................................................................................................................1 BPM ‚Äì beats per minute...........................................................................................................77 CNIBP ‚Äì Continuous Non-Invasive Blood Pressure ...............................................................13 CO - cardiac output....................................................................................................................4 CSV ‚Äì Comma Separated Values ............................................................................................58 CVD - cardiovascular diseases ..................................................................................................6 DBP ‚Äì Diastolic Blood Pressure ................................................................................................3 DVP - Digital Volume Pulse....................................................................................................14 FIR - Frequency Impuse Response ..........................................................................................55 IABP ‚Äì Intra-Arterial Blood Pressure........................................................................................8 IBP Invasive Blood Pressure .....................................................................................................8 IC ‚Äì Integrated Circuit .............................................................................................................35 IDE ‚Äì Integrated Developlement Environment .......................................................................35 LCD ‚Äì Liquid Crystal Display.................................................................................................32 LED - Light Emitting Diode ....................................................................................................14 MAP ‚Äì Mean Arterial Pressure..................................................................................................3 PAT - Pulse Arrival Time ........................................................................................................18 PD - Photo Diode .....................................................................................................................14
+x
+
+PPG - Photoplethysmography....................................................................................................1 PTG - Plethysmogram..............................................................................................................14 PTT ‚Äì Pulse Transit Time ........................................................................................................17 PWA ‚Äì Pulse Wave Analysis...................................................................................................17 PWTT - Pulse Wave Transit Time...........................................................................................18 PWV ‚Äì Pulse Wave Velocity...................................................................................................17 SBP - Systolic Blood Pressure...................................................................................................3 TPR _ Total peripheral resistance..............................................................................................4 USB ‚ÄìUniversal Serial Bus......................................................................................................32 WHO - World Health Organisation ...........................................................................................6
+xi
+
+Executive Summary
+Blood pressure (BP) is an important vital sign commonly used to monitor a patient‚Äôs health. Blood pressure measured at the extremes, or changes in measurements over time, can be an important indicator and determining factor in diagnosis of a large variety of health conditions. As such, monitoring of blood pressure for extended periods can be used to help monitor a patient‚Äôs overall health as well as to track the progress or onset, of an illness. Current methods for monitoring blood pressure are unsuitable for continuous, uninterrupted measurement outside of a hospital setting as these methods are invasive and could pose risks to the patient if complications occur. It would be desirable to be able to monitor blood pressure in a continuous yet non-invasive way. The development of such a technique would allow for continuous monitoring outside of a hospital setting and allow for a person to have their blood pressure continuously monitored whilst engaging in their everyday activities. This research has investigated the possibility of using two photoplethysmography (PPG) sensors to measure blood oxygen saturation and through this monitor a patient‚Äôs pulse at two sites; the ear and the finger. Using these two simultaneous and continuous measurements the ultimate aim is develop a method of monitoring blood pressure. There have been several developments of the research. The first has been the creation of a device that is capable of simultaneously collecting data from two photoplethysmography sensors and sending this data to a connected computer. The second outcome has been the writing of programs capable of capturing the data delivered from the device to a PC and storing this data for later analysis.
+1
+
+The third outcome is a software tool that processes and analyses the data collected from the dual channel PPG device. This tool calculates four variants of pulse transit time (PTT) and pulse wave velocity (PWV) in an attempt to map the collected PPG data to blood pressure measurements taken through conventional means using oscillometric sphygmomanometry at the time the PPG data was recorded.
+2
+
+Chapter 1: Background
+What is Blood Pressure
+Blood pressure is a commonly used vital sign of the human body used to monitor a patient‚Äôs health and is used as indicator for the cardiovascular system. BP is a measurement of the force exerted on the blood vessel walls by blood as it is pumped around the body by the heart. As blood pressure increases the heart must work harder to pump blood. The measurement of BP consists of two separate measurements each corresponding to two different phases of the cardiac cycle; systole and diastole. Systole is the stage at which the heart has contracted to force blood along the arteries and around the body. Diastole is when the heart is at rest between each contraction. [1] BP is described as systolic blood pressure (SBP) over diastolic blood pressure (DBP). For historic reasons both SBP and DBP are measured in millimetres of mercury, (mm Hg). These two measurements give an indication of maximum and minimum BP respectively. Mean arterial pressure (MAP) is another BP measurement, also given in mm Hg. It combines SBP and DBP into a single measurement, but in doing so loses some of the information the separate measurements provide. BP is an ever changing and not constant and is determined by the following four factors
+‚Ä¢ Heart rate; how fast the heart is beating ‚Ä¢ Stroke volume; the volume of blood that can be pumped by a single heart contraction ‚Ä¢ Blood volume and viscosity; the volume of blood within the circulatory system and
+how thick that blood is
+3
+
+‚Ä¢ Arterial elasticity and thickness; elasticity reduces with age and onset of arteriosclerosis (thickening of the arteries)
+Heart rate and stroke volume can be combined into a single measurement named cardiac output (CO). Total peripheral resistance (TPR), can be categorised as the resistance the blood and the blood vessels apply to the movement of blood throughout the circulatory system; it is a combination of the other two factors mentioned above. As shown below in Equation 1, BP is can be defined as a combination of both CO and TPR [1].
+
+Equation 1
+
+Ì†µÌ∞µÌ†µÌ±É = Ì†µÌ∞∂Ì†µÌ±Ç . Ì†µÌ±áÌ†µÌ±ÉÌ†µÌ±Ö
+
+As cardiac output and/or total peripheral resistance increases as does blood pressure. Conversely as either decreases so too does BP.
+
+Blood Pressure Regulation
+
+The body regulates BP though a variety of mechanisms which alter CO or TPR as a means of maintaining BP at normotensive, or normal, levels. Much of this regulation is controlled from the medulla oblongata at the base of the brain.
+
+Baroreceptors measure the pressure that
+
+blood is applying to the vessel walls within
+
+the aortic arch (near the heart) and the
+
+bifurcation point of the left common carotid
+
+artery (in the neck) where it splits into the
+
+left internal carotid and left external carotid
+
+arteries; see Figure 1.
+
+Figure 1: Arterial branching of aortic arch and carotid arteries [2]
+
+4
+
+These pressure signals from the baroreceptors are sent to the medulla oblongata which contains the following centres for controlling BP:
+‚Ä¢ Cardiac acceleratory centre ‚Äì sympathetic nervous system ‚Ä¢ Vasomotor centre ‚Äì sympathetic nervous system ‚Ä¢ Cardiac inhibitory centre ‚Äì parasympathetic nervous system The cardiac acceleratory centre triggers the release of chemicals in the heart so as to increase both the heart rate and the stroke volume and thus increasing cardiac output. Conversely the cardiac inhibitory centre stimulates the heart, so cardiac output is decreased, but unlike the cardiac acceleratory centre is it does not stimulate the heart muscles directly. When responding to stimulus from the baroreceptors the vasomotor centre controls the size of blood vessels as follows: ‚Ä¢ vasodilation ‚Äì increase the diameter of the blood vessels ‚Ä¢ vasoconstriction ‚Äì decrease the diameter of the blood vessels The kidneys also play an important role in maintaining normotensive BP mainly though the secretion of renin. The secretion of this enzyme from the kidneys is triggered by the sympathetic nervous system. It acts in three ways to influence BP. When combined with angiotensin which are peptides that are produced in the liver and the lungs, it causes constriction of the blood vessels, aiding in vasoconstriction. Renin also triggers re-absorption water within the kidneys and an increase in thirst (and thus increased water intake) both of which aid in preserving or increasing the volume of water in the blood and thus effect the blood volume and its viscosity [1].
+5
+
+Blood Pressure as a Health Indicator
+As mentioned BP is commonly used vital sign of the human body. It is an important indicator of overall health and in particular it reflects the state of a person‚Äôs cardiovascular system. According to the World Health Organisation (WHO) cardiovascular diseases (CVDs) are the number one cause of death across the world. Annually more people die from CVDs than any other cause. During 2015 an estimated 17.7 million people died from CVDs [3]. High blood pressure, or hypertension, is both a risk factor and early warning sign of many CVDs. Hypertension occurs when blood vessels endure a persistently raised pressure. This increased BP places the vascular system under stress and the heart must work harder to pump blood throughout the body. This not only risks damage to the heart, but also the brain, kidneys and other organs. The WHO‚Äôs classification of hypertension can be seen in Table 1 on the following page. Prolonged hypertension can lead to heart failure, aneurysms, stroke and/or cognitive impairment, kidney failure or blindness. Hypotension, or low blood pressure, is less likely to be associated with long term health problems and so for some people low BP is normal. However, hypotension can also be associated with other underlying health problems and can cause dizziness, nausea or other symptoms. The WHO recommends routine checks of BP in adults as changes in BP can be an early indicator of impending or current health concerns [4]. As early as the 1920s it has been common for physicians to use BP as routine measurement in assessing patient health [5].
+6
+
+Table 1: WHO Hypertension Classification [6]
+
+Category blood pressure*
+
+Systolic (upper) blood pressure mm Hg
+Norm
+
+Diastolic (bottom) blood pressure mm Hg
+
+Optimal**
+
+120
+
+80
+
+Normal
+
+130
+
+85
+
+High normal
+
+130-139
+
+85-89
+
+Hypertension
+
+1 degree (soft) grade 2 (moderate)
+
+140-159 160-179
+
+90-99 100-109
+
+3rd degree (severe)
+
+180
+
+110
+
+edge
+
+140-149
+
+90
+
+Isolated systolic
+
+hypertension
+
+140
+
+90
+
+* If systolic and Diastolic blood pressure in different categories, the higher category is selected. ** Optimal with respect to the risk of developing cardiovascular complications and mortality
+
+7
+
+BP Measurement Methodologies
+Invasive Blood Pressure
+Invasive blood pressure (IBP), or Intra-Arterial Blood Pressure (IABP), is a commonly used methodology for measuring BP. It is particularly useful in measuring BP in an ongoing clinical setting such as a hospital ward or intensive care unit as well as in an operating theatre during surgery when constant monitoring of BP is necessary [7].
+This method of measuring blood pressure involves insertion of an arterial cannula into a suitable artery (often the radial or femoral arteries) of the subject. The cannula is connected to a sterile fluid filled tube. As the blood pressure in the subject‚Äôs artery changes the fluid in the tube rises and falls with this change in pressure.
+Reverend Stephen Hales is the credited with as being the first person to measure BP when he used IBP to measure the blood pressure of horses in 1733 [8, 9]. During these experiments he inserted a brass pipe attached to glass tube into the horse‚Äôs artery as depicted in Figure 2.
+The main advantage of IBP is that it allows for continuous beat-to-beat monitoring of BP.
+This essential during operations or any other time a patient is under anaesthesia, but it is also highly a desirable for monitoring of patients suffering acute conditions.
+Primarily due to dire complications that could result from the cannula dislodging
+Figure 2: Hales invasively measuring a horse's BP [8]
+8
+
+from the patient‚Äôs artery, IBP is not suitable outside of a hospital or clinical setting where a patient is able to be constantly monitored. If such dislodging occurs the patient could bleed out and loose vast amounts of blood. Still, IBP is the most reliable method of accurately measuring blood pressure.
+Non-Invasive Blood Pressure
+Mercury Sphygmomanometers
+Sphygmomanometers are a device for measuring blood pressure and were first introduced in the late 1800‚Äôs. The name is derived from the Greek for pulse, sphygmo and manometer which is an instrument for measuring the pressure of a fluid. Early sphygmomanometers were cumbersome, and their results were difficult to reproduce. The first non-invasive method for measuring BP was created by Samuel von Basch, an Austrian physician, in 1881. This water filled cuff instrument was the earliest sphygmomanometer [8, 10]. In 1896 however, Italian physician Scipione Riva-Rocci first published details of a mercury manometer and inflatable cuff based device capable of reliably measuring BP [5, 8]. His device occluded blood flow in the arm using a rubber squeeze bag to inflate the cuff which was placed over the upper arm. Palpation was used to determine the point where there was no longer a discernible pulse in the radial artery. The mercury manometer displayed the pressure to which the cuff was inflated at this point, in millimetres of mercury. The pressure at which the cuff was inflated is measured as the subject‚Äôs systolic blood pressure.
+9
+
+It was not until 1905 and Russian Nikolai Korotkoff described his ‚ÄòKorotkoff Sounds‚Äô that diastolic blood pressure could be measured [5, 8, 11]. These sounds, heard through auscultation using a stethoscope during the inflation and deflation of Riva-Rocci‚Äôs inflatable cuff. Korotkoff described five distinct sounds that occur after the cuff is inflated to beyond the subject‚Äôs systolic BP and slowly released. Initially no noise is heard whist the cuff completely collapses the artery and no blood is flowing. The first Korotkoff sound occurs as blood starts to flow. The onset of this sound indicates the subject‚Äôs systolic pressure. The fifth Korotkoff sound indicates the diastolic pressure, which occurs when the pressure in the cuff no longer occludes blood during diastole when the heart is as rest. Korotkoff‚Äôs method for auscultation using a stethoscope with a mercury sphygmomanometer has not changed and is still used over a century later. There are however aneroid sphygmomanometers where a mechanically driven dial replaces the mercury tube used to measure the pressure. These instruments tend to lose accuracy over time due to ware and tare. As such auscultation using mercury sphygmomanometers remain the ‚Äògold standard‚Äô measurement instrument for non-invasive blood pressure monitoring [8].
+Oscillometric Sphygmomanometers
+Most modern automated sphygmomanometers developed for home use fall into this category. The earliest version of the oscillatory method was first described in 1897 by Hill and Barnard [8]. Like traditional mercury sphygmomanometers an inflatable cuff is used to compress the artery in the arm and occlude blood flow. However, this method does not use auscultation to listen for Korotkoff sounds, but instead a pressure gauge is used to monitor tiny oscillations
+10
+
+in amplitudes of the measured cuff pressure caused by the pulse passing under the cuff as part of the beat-to-beat heart rhythm. The cuff is first inflated and then deflated over time. As this occurs the pressure in the cuff passes from being above systolic BP, and thereby totally occluding blood flow, to moving through to systolic pressure where maximum oscillations on the gauge occur. Pressure in the cuff is continually dropped until minimal oscillations occur on the gauge, which indicates diastolic blood pressure. These devices are gaining increased popularity due to their ease of use without any need for specialist training. However, their accuracy is questionable for subjects with certain preexisting conditions such as atrial fibrillation, obesity and atherosclerosis [12, 13].
+NIBP ‚Äì Tonometry and Vascular Unloading
+Non-Invasive Blood Pressure (NIBP) devices have existed for commercially for decades. These non-invasive devices also allow for continuous measuring of BP [14] . These devices are typically based on two techniques. The first of which is known as applanation tonometry. This method acquires the arterial pressure wave by applying force onto an artery squeezing and flattening the vessel wall against a bone as shown in Figure 3. Transmural forces are measured perpendicular to the arterial surface which is then used to estimate BP [14-17]. Although there are other commercially available
+Figure 3: Tonometry method [14]
+11
+
+devices based on the tonometry principle, SphygmoCor (AtCor Medical, Australia) is the most established [18].
+The force applied to the artery must be small enough so that blood flow is not completely shut. The correct positioning of the devices is also particularly important. Incorrect readings would be obtained if the position if even slightly out. Tonometry is also particularly susceptible to incorrect readings caused from movement of the subject [14].
+The other NIBP method is known as vascular unloading [19] or alternatively as the volume clamp method [12, 14]. This method does use a PPG sensor, which as seen in the following sections forms the basis of this research; see the Photoplethysmography (PPG) section on page 14. Vascular unloading also employs an occlusive cuff to restrict blood flow in a controlled manner, but only on the finger rather than the whole arm or limb. Using oscillometry blood volume is estimated while zero transmural pressure is being applied. The device uses the PPG sensor to control how much the cuff restricts blood flow in the finger in order to keep the blood volume under the PPG sensor constant throughout the beat-to-beat cycle of the hard. The amount of restriction required to keep the blood flow constant is used to measure the subject‚Äôs BP as the pressure applied by the cuff equates to the BP [12]. This method was first developed by Czech physiologist Ian Penaz in the early 1970 with his device called FINAPRES ‚Äì FINger Arterial PRESsure [20].
+NIBP devices are rarely used outside of clinical research. This is due to their discomfort of use, complex mechanical structure and high manufacturing cost [19]. A wide ranging study by Kim et al [21] which pooled results from many other studies found that the accuracy of devices based on the volume clamp method do not satisfy the AAMI standards; see Association for Advancement of Medical Instrumentation Standards section on page 23 for more information about the standard.
+12
+
+Continuous Non-Invasive Blood Pressure
+A method of continuous and non-invasive blood pressure (CNIBP) is desirable for several reasons. The first and most obvious being the ability to continuously monitor BP without the risks associated with using an arterial catheter that are inherent in IBP. Removing these risks is of itself a good thing but doing so would also open the possibility of continuous BP readings being taken outside of a hospital setting; if there is no catheter involved there is no risk of it falling out at home, or elsewhere, and no risk of the patient bleeding out. CNIBP monitoring is also desirable for the extra information that can be gathered from continuous monitoring of BP. Intermittently measuring BP has some inherent disadvantages. For example, subtle changes over time can easily be missed in between each instantaneous measurement of BP; CNIBP solves this problem. CNIBP also allows long term trends in BP to be observed in greater detail and without gaps in the information. Another problem potentially solved by CNIBP is white coat syndrome. Most current forms of BP monitoring involve your BP being measured in a clinical setting by a doctor, nurse or other trained professional. Some patients find the environment stressful. This can in turn have an effect on the patients BP which is then reflected in the measurement [22]. A fully realised version of CNIBP would most likely be able to be used outside such a setting, for example within the home, where such effects would not exist and therefore could not have an impact on the BP measurement. With the ability to solve these problems and perhaps others too, much research is being undertaken in order to develop a reliable and easy to use method of CNIBP.
+13
+
+Photoplethysmography (PPG)
+A plethysmograph is a device that measures changes in the volume of an organ, limb or the whole body. Such a device produces a plethysmogram (PTG) [23] through the act of plethysmography. The word itself is derived from the works ‚Äòplethysmos‚Äô and ‚Äògraph‚Äô, both ancient Greek words meaning increase and write respectively. A photoplethysmograph is a plethysmograph that uses photoelectric, or optical, means to perform the measurement [24]. In literature PPG can be used interchangeably to mean to either a photoplethysmograph device or sensor as well as photoplethysmography. The latter can in fact mean the signal derived from a photoplethysmography or the act of using the device to create the signal. A pulse oximeter is a common PPG device that monitors the oxygen saturation of a patient‚Äôs blood and in doing so it also monitors changes in blood volume as well. Usually such a device is worn on the finger and specifically measures digital volume pulse (DVP) [24, 25]. Often when referring to PPGs a pulse oximeter is the device that is being used. A PPG sensor is a simple electronic device consisting of three main components; one or more light emitting diodes (LED), a photo diode (PD) and a small amplifier/rectifier circuit. The light from the LEDs are shone into the patient. Depending on the type of PPG sensor this light may be either reflected or transmitted to the PD in varying amounts depending on the oxygen saturation of the blood. This distinction gives way to the main classification of PPG sensors; reflective or transmissive. In a transmissive PPG sensor the LED and PD are located on either side of the device and the light is shone through the patient; the light from the LED passes through the subject‚Äôs finger and is detected by the PD on the other side.
+14
+
+As can be seen in Figure 4, in a reflective PPG sensor the LED and PD are located on the same side of the device. Light from the LED is shone into the subject and reflected to varying degrees by the blood in the vascular system beneath the sensor back to the PD. PPG sensors measure the volume of blood in the vascular system directly beneath them. Blood is not instantly transported throughout the body, but rather it is forced around the vascular system by the heart. During systole, when the heart contracts to pump blood around the body, the oxygen saturation of the blood is increased to the point called the systolic peak. This can be seen in Figure 5 on the following page marked as point ‚Äòa‚Äô, with time between each of the ‚Äòd‚Äô points and ‚Äòa‚Äô points being systole. Conversely when the heart relaxes during diastole, between points ‚Äòa‚Äô and ‚Äòd‚Äô in Figure 5, the oxygen saturation decreases. As such the oxygen saturation increases and decreases as part of
+Figure 4: Reflective PPG sensor [26]
+15
+
+the body‚Äôs natural heart rhythm. The peaks and troughs in the PPG readings correspond to each heart beat and as such can be used to determine a patient‚Äôs heart rate.
+Due to their relative simplicity PPG sensors are not only low-cost devices, they are also very durable as they have no moving parts. They can also easily be manufactured in a small form factor. These are key reasons all for their prevalence in research aiming to develop a methodology for CNIBP.
+
+PPG signal points: a. systolic Peak
+b. dicrotic notch
+Figure 5: Example PPG signals
+
+c. diastolic peak d. start of systolic up stroke
+16
+
+Chapter 2: Literature Review
+A number of methods have been proposed for using PPGs in the estimation of blood pressure by many different researchers and research groups. Categorising them can be difficult due to the sometimes differing use of the same terms or differing terms used for the same methodology. However, they can generally be grouped into the following three categories:
+‚Ä¢ Pulse Transit Time (PTT) ‚Ä¢ Pulse Wave Velocity (PWV) ‚Ä¢ Pulse Wave Analysis (PWA). The following sections of this chapter detail each of the above methodologies. It should be noted that, despite the inverse relationship between a pulse wave velocity and its transit time, there is a difference in the methodologies, and the names merely serve as an identifier for the methodology. For example Gesche et al [27] obtained their measurements using PTT methodology, but later converted the measured PTT into Pulse Wave Velocity to form the calculations in their model. In their paper Myint et al [28] described PTT as being the time between the two maxima of two PPG waveforms at different sites and that it was inversely proportional to the proportional to the propagation velocity of the pulse wave. This definition does not align with most other research. This confusion regarding terminologies was specifically address by Mohamed Elgendi in his paper ‚ÄúStandard Terminologies for Photoplethysmogram Signals‚Äù [29] where he suggests standard terminologies to alleviate the confusion that is persistent throughout research in this area.
+17
+
+Pulse Transit Time (PTT)
+Pulse Transit Time (PTT) [30-36] can also be referred to as Pulse Wave Transit Time (PWTT) (e.g. by Zhang et al [37]) or Pulse Transmit Time (e.g. Y. Chen et al[38]) or Pulse Arrival Time(PAT) (e.g. Tang et al [39]). This technique uses a single PPG signal along with an Electrocardiogram (ECG) in order to calculate the PTT. The placement of the PPG and the ECG electrodes differ between research groups and there are pros and cons around where each device is placed. For example, in order to maximise the delay between and make the variations easier to detect the toe is a good site for a PPG sensor. However, this is at odds with a patient‚Äôs comfort and everyday living if the monitoring is being performed in an at home-based setting. The transit time in PTT is defined as the time between the R-Peak of the ECG and specific points of the PPG signal waveform, for example the systolic peak (‚Äòa‚Äô in Figure 5). In Figure 6 Parry et al [33] have shown their relevant PPG point as being the point of the maximum slope in the PPG signal. Whichever characteristic PPG point is chosen both events, the R-Peak in the ECG and the selected PPG point, occur with each heart beat on a beat-to-beat basis and can be detected through signal analysis. A downside of this approach is that two types of sensors are required, which makes the device‚Äôs design and construction more complex.
+Figure 6: Graphical definition of PTT [33]
+18
+
+Pulse Wave Velocity (PWV)
+
+The Pulse Wave Velocity (PWV) methodology uses signals from two PPG sensors, much like in Figure 5. Again, this approach has quite a broad definition but always involves two PPG sensors being placed at a known distance apart along the same arterial branch. The PPG is signals are analysed and the same characteristic point is located for each beat in the beat-tobeat heart cycle. For each heart beat the time difference between the times that the two points are detected on each of the two PPG sensors is calculated. This is time difference is then used along with the distance between them to calculate the velocity of the pulse wave.
+
+As already mentioned the description of this methodology is quite broad and there are many varying factors between difference implementations. One distinguishing factor amongst the differing techniques is the placement of the PPG sensors. For example McCrombie et al [40] calculated PWV by placing one PPG sensor above the ulnar artery at the wrist joint and the second on the proximal phalange of the pinky finger (see Figure 7). Peter et al [14] described a another form of PWV in which the common carotid artery in the neck is used along with femoral artery in the thigh. Both sensor sites were chosen due their proximity to the aorta, the body‚Äôs main artery. Nabeel et al [41, 42] have constructed a device containing two PPG sensors designed to be worn on the neck to measure PWV from the common carotid artery.
+
+A direct correlation between measured velocities derived using PWV and BP exists [14, 40].
+
+However, in order to calculate BP accurately a precisely measured distance between the two
+
+sensors is required. Also, precise placement
+
+of sensors is required to achieve optimum
+
+results. Sensors may move during the
+
+measurement or over time which can make
+
+calculations inaccurate.
+
+Figure 7: Example of PWV sensor placement [40]
+
+19
+
+Pulse Wave Analysis (PWA)
+Pulse Wave Analysis (PWA), is another classification of PPG based BP estimation methodologies. This methodology differs from the other two in that only a single PPG sensor is used. BP is estimated by analysing different properties of PPG signal.
+Among others this technique was employed by Teng and Zhang [43]. Their study extracted diastolic time from a single PPG sensor on the right index finger comparing their results with their previous PTT based study they found that they were able to better estimate DBP, but not SBP with this single PPG based method.
+As stated by Samria et al their method was ‚Äúnot highly accurate‚Äù [44]. Their methodology was to extract features like systolic time and diastolic time form a single DVP PPG signal as well as calculating the time delay between systolic and diastolic peaks (‚Äòa‚Äô to ‚Äòc‚Äô in Figure 5). This information was all used in order to estimate BP. However they had to split their results of their small sample group between two age groups (above and below 26 years old).
+Ruiz-Rodriguez et al [45] noted that, due to a high degree of variability and wide error margin, the signal analysis method is not currently viable.
+A similar approach had been conducted by S. Suzuki and K. Oguri [46] and a better outcome was achieved. The test subjects were grouped into classes defined by the characteristics of their systolic upstroke and systolic peak, and then split into two age groups. They concluded that the separation of the classes had improved the accuracy of the method.
+The primary obstacle in using PWA using a single PPG sensor to estimate or measure BP is that PPG signals are prone to dramatic non-systematic error, for example due to patient movement. However, this may be offset in the future by removing PPG signal artefacts
+20
+
+caused motion corruption as proposed by Joseph et al [47] using Discrete Wavelet Transform. A. Suzuki and K. Rye also point out that factors such as gender and age have dramatic effects on how PPG signals should be interpreted in this area [48].
+
+Table 2: State of the art research
+
+Research Group
+D. B. McCombie, A. T. Reisner, and H. H. Asada
+
+Methodology
+Type
+Pulse Wave Velocity
+
+J. M. Zhang, P. F. Wei, Pulse Transit
+
+and Y. Li
+
+Time
+
+I. C. Jeong, J. I. Ko, S. O. Hwang, and H. R. Yoon
+
+Pulse Transit Time
+
+H. Gesche, D.
+
+Pulse Transit
+
+Grosskurth, G.
+
+Time
+
+K√ºchler, and A. Patzak
+
+Y. Chen, C. Wen, G. Tao, and M. Bi
+
+Pulse Transit Time
+
+X. He, R. A. Goubran, Pulse Transit
+
+and X. P. Liu
+
+Time
+
+Y. Choi, Q. Zhang, and Pulse Transit
+
+S. Ko
+
+Time
+
+C. Myint, K. H. Lim, K. I. Wong, A. A. Gopalai, and M. Z. Oo
+
+Pulse Wave Velocity
+
+Teng and Zhang
+
+Pulse Wave Analysis
+
+R. Samria, R. Jain, A. Jha, S. Saini, and S. R. Chowdhury
+
+Pulse Wave Analysis
+
+Sensors Used
+PPG (wrist) + PPG (finger)
+ECG (wrist) + PPG (finger) ECG (chest) + PPG (ear) w/ Pressure and Temperature ECG (chest) + PPG (finger)
+PPG (ear) + PPG (toe)
+ECG + PPG (finger) ECG + PPG (finger)
+PPG (wrist) + PPG (finger)
+PPG
+PPG (finger)
+
+Description
+Method requires calibration procedure but it was has been validated, though not in real time [40]. Proposed a linear relation between PWTT and BP. Careful calibration is required [37]. Used temperature and pressure sensors attached to the PPG to expand the model correlating PTT to BP [26]. Used a one-time calibration using sphygmomanometric cuff. Sampled using PTT but converted to PWV (using 0.5 * patient‚Äôs height) to create a model for calculating BP [27]. Examined 6 different timing points on PPG signal waveform to best points to detect in order to calculate both SBP and DBP [38]. Used data from MIMIC database to confirm a correlation between PTT SBP, DBP and mean BP [31]. Also used MIMIC database. Applied Hilbert-Huang transform (HHT) to the ECG and PPG signals [32]. Calculated BP in real time but have not published any results only stated that is showed promising potential [28]. Analysed the signal from a single PPG and proposed two functions for estimating SBP and DBP [43]. Proposed multiple linear regression relationships for estimating BP dependant on age group of patient [44].
+
+21
+
+Research Group
+J. C. Ruiz-Rodriguez, A. Ruiz-Sanmartin, V. Ribas, J. Caballero, A. Garcia-Roche, J. Riera, et al
+
+Methodology
+Type
+Pulse Wave Analysis
+
+S. Suzuki and K. Oguri Pulse Wave Analysis
+
+P.M. Nabeel, S. Karthik, J. Jospeh, M. Sivaprakasam
+
+Pulse Wave Velocity
+
+B. Ibrahim, V. Nathan Pulse Transit
+
+and R. Jafari
+
+Time
+
+Soo-young Ye, GiRyon Kim, Dong-Keun Jung, Seong-wan Baik, and Gye-rok Jeon SH Song, JS Cho, HS Oh, JS Lee and IY Kim
+
+Pulse Transit Time
+PPG replacing auscultation
+
+Zunyi Tang, Toshiyo Tamura, Masaki Sekine, Ming Huang, Wenxi Chen, Masaki Yoshida, Kaoru Sakatani, Hiroshi Kobayashi, and Shigehiko Kanaya Thomas Wibmer, Coy Denner, Christoph Fischer, Benedikt Schildge, Stefan R√ºdiger, Cornelia KropfSanchen, Wolfgang Rottbauer and Christian Schumann Edmond Zahedi, Vahid Sohani, M. A. Mohd. Ali, Kalaivani Chellappan and Gan Kok Beng
+
+Pulse Transit Time
+Pulse Transit Time
+Pulse Wave Analysis
+
+Sensors Used
+PPG (finger)
+PPG (finger) 2x PPG (neck) PPG (finger) and Bio-Z (wrist)
+ECG + PPG
+
+Description
+Working with patients in hospital this group examined data simultaneously collected via PPG and intravenous BP measurement. They determined that clinical application of PSA is currently not possible [45]. Analysed the second directive of the PPG signal specifically monitoring systolic upstroke and systolic peak [46]. Two PPG sensors mounted in a device worn on neck that measures PWV in common carotid artery [41, 42]. Proposed a unique methodology for measuring PTT by using a BioZ impedance sensor on the wrist to replace ECG signal. This was compared to ECG based PTT measurements [49]. Derived a pulse pressure from ECG/PPG signals in enhance PTTBP estimation [34]
+
+PPG (finger) and PPG (wrist)
+ECG + PPG
+
+Used an occluding wrist cuff but rather than used auscultation to detect Korotkoff sounds used PPG to detect them [50]. Constructed a chair with embedded ECG and PPG sensors used to estimate BP whilst subject seated in chair [39].
+
+ECG + PPG (finger)
+
+Performed a study comparing PTT estimated BP with BP measurements obtained from automated sphygmomanometry and volume clamp methods [51].
+
+PPG (wrist)
+
+Investigated the possibility of substituting a PPG signal from radial artery into the generalised transfer functions used be devices that use applanation tonometry [18].
+
+22
+
+BP Monitoring Bodies and Standards
+Association for Advancement of Medical Instrumentation Standards
+Association for Advancement of Medical Instrumentation (AAMI) is an American body who aims to promote the use and improvement of medical instruments and their use. AAMI first published their SP10 standard covering sphygmomanometers in 1987 [52, 53]. The AAMI SP10 standard has undergone a number of revisions since.
+The AAMI SP10 standard covers both manual and automatic sphygmomanometers, covering all aspects of their accuracy and use right down to the point of effective labelling and product information. The standard is a voluntary one but is designed to increase safety and performance as well as enabling comparison of different products through the use of uniform testing.
+The most relevant part of the AAMI SP10 standard to this research is its classification of automatic blood pressure monitoring devices. It prescribes a testing regime for validating readings from an automatic blood pressure monitor against readings taken from auscultation using a standard mercury-based sphygmomanometer. It states that a device must not differ from the mercury standard by a mean difference of greater than 5 mm Hg or a have a standard deviation of greater than 8 mm Hg [52, 53].
+The AAMI SP10 standard is referred to heavily in literature and has been adopted by International Organization for Standardization (ISO), ISO 81060-1 and ISO 81060-2. The first part refers to non-automated non-invasive sphygmomanometers and the second part relates to automated devices.
+23
+
+British Hypertension Society Classifications
+Initially developed around the same time as the AAMI standard, the British Hypertension Society (BHS) also developed as standard for classifying automated blood pressure monitoring devices. The BHS‚Äôs aims are similar to that of the AAMI standard. However, rather than a binary pass or fail of the American standard, the British standard classifies a device using four separate grades based on the comparison with reading given from the mercury sphygmomanometer. The classifications are shown in Table 3.
+
+Table 3: British Hypertension Society Classifications [54]
+
+Grade A B C D
+
+Absolute difference between standard and test device (%)
+
+‚â§5 mmHg
+
+‚â§10 mmHg
+
+‚â§15 mmHg
+
+60
+
+85
+
+95
+
+50
+
+75
+
+90
+
+40
+
+65
+
+85
+
+Worse than C
+
+Effectiveness of Standards
+The stated main aim of AAMI is to promote the development of medical instrumentation through the use of standards. Their SP10 standard for sphygmomanometers was developed and refined to further this cause. The BHS standard was developed with similar intent. AAMI has been somewhat effective in its aims by having their standard be adopted as ISO 81060 by International Organization for Standardization.
+
+24
+
+However, both the AAMI and BHS standards are voluntary. A manufacture of any blood pressure monitoring device is not obligated to conform to these standards. As such most devices on the market, particularly those that are not designed for use in a clinical setting, have never been validated against these standards. This results in devices on the market and in use by the community of which there is no way of knowing how accurate, or perhaps inaccurate, they are. This poses a real issue for the future adoption of these technologies for mainstream use in ongoing prediction of patient health. Putting faith in a device that may be completely inaccurate could be a recipe for failure. Further evidence of this; twice, years apart, the researcher enquired with the distributors of Omron in Australia asking if they had a list of Omron devices that had been validated against the AAMI standard. On both occasions the distributors were unaware as to what the researcher was referring to and were unable to produce such a list. In fact, they thought it was a reference to the Australian insurance company called AAMI.
+25
+
+Research Hypothesis
+The focus of existing research into PPG based BP estimation has predominately investigated the use of PTT either PWV methodologies. To date a reliable PPG based method for estimating BP in a continuous and non-invasive manner has not been established. However, there is a prevailing presumption that such a methodology may be possible. This presumption is also made as a basis for this research. If this presumption is proven to be true it would allow for the development of continuously and non-invasively measure blood pressure (CNIBP).
+The ultimate aim of this research would be to develop a model that could be used estimate BP by using data collected from one or two PPG sensors. This model could be used to monitor changes in BP over the short and long term.
+To evaluate this model the estimated BP is to be compared to measurements obtained using a sphygmomanometer. This would be in a manner similar to what is stipulated in the AAMI SP10 / ISO 81060-2 and BHS standards, using the standards as a guide to evaluate the accuracy of the model where if the difference between the estimated and measured BP readings determines the model‚Äôs effectiveness.
+Research Objectives
+This research project has two main aims. The first of which was to develop a device that is capable of simultaneously capturing two PPG signals and recording them. This device should be agnostic to the PPG methodology used in endeavouring to estimate BP from the PPG signal(s). It should also be capable of sampling the analogue PPG signals at a high enough rate and with enough sensitivity to detect subtle changes in the signal(s).
+26
+
+This device should be used to collect dual channel PPG data on a number of subjects which can be used in the second aim of this project described below. The second main aim of this project was to use the data collected from a dual channel PPG device and endeavour to estimate the subject‚Äôs blood pressure. This estimation should be validated against blood pressure measured using conventional means. This validation of the measurement would be akin to the validation of devices in AAMI SP10 / ISO 81060-2 standard. As seen in Figure 8 the research project can be broken down into many components, each contributing to the overall aims of the research. As seen below and discussed in Chapter 4 the development of hardware to capture PPG signals as the data acquisition software that allows for the recording of this information was crucial to the latter stages of data analysis from which in turn leads to the development of the model.
+Figure 8: Project outline
+27
+
+Research Questions
+1. Is estimation of blood pressure in a continuous and non-invasive way possible using two PPG sensors? Can the estimations obtained be validated against BP measurement standards?
+2. Can a PPG from a sensor on a patient‚Äôs ear be used as a substitute for an ECG in calculating PTT?
+3. Can differing versions of PTT or PWV be derived in order to improve BP estimation? Do these differing versions offer different information from one and other?
+28
+
+Chapter 3: Materials and Methods
+Materials
+Biopac hardware and software
+Biopac is a commercial manufacturer of physiological data acquisition systems targeted at the education and research markets. They produce a wide variety of hardware and software for acquiring a range of different biological signals. The researcher used the Biopac MP100 data acquisition device along with its associated PPG amplifier the PPG100C and TSD200 PPG sensor. The specifications for the MP100 are listed in Figure 9 below. The MP100 is capable of acquiring many different biometric signals from multiple sources including ECG, EMG, EEG, PPG and other sources. This is achieved through the use of
+Figure 9: Biopac MP100 specifications [55]
+29
+
+modules that are attached to the MP100. Each module connects to one of more sensors or transducers; the number of sensors is dependent on the module type. The modules amplify the signal from the sensors and can be all connected together in a daisy chain fashion. The end module in the daisy chain is then connected to the MP100, which acts as an intermediary, or controller, between the modules and a computer attached to it. It also converts analogue signals into digital. This setup allows for the real time data collection from a variety of sources. The MP100 connects to a PC (or Mac) serially. The connection can also be converted to USB using an adapter. Data collection using the Biopac hardware also involves using a propriety piece of software called AcqKnowledge running on the attached PC. This software communicates with Biopac hardware such as the MP100. AcqKnowledge allows for data collection and rudimentary processing of the physiological signals collected using the hardware. Figure 10 below shows the components all connected as described. The experiments conducted with this hardware are described in the following Biopac Experiments section in Chapter 4.
+Figure 10: Biopac hardware setup Left to right: PC running AcqKnowledge, Biopac Serial to USB adapter, MP100, various Biopac amplifier modules connected to MP100 via both Digital and Analog DB cables.
+30
+
+Materials of Dual Channel Device
+As described in the previous chapter, one of the main aims and outcomes of this research was the development of a dual channel PPG device that is capable of simultaneously collecting PPG sensor data from two PPG sensors. The following sections describe the hardware, software and materials used in the creation of this device, which the device itself is described in the following chapter.
+Development Board
+To create the prototype dual channel PPG device an early decision that was made was to use a development board that already contained the appropriate hardware necessary for the needs of the research rather than building something completely from scratch. In selecting the development board to be used the following criteria needed to be satisfied.
+‚Ä¢ Low powered device ‚Ä¢ Self-contained Analogue to Digital Converters (ADC)
+o Capable of sampling 2 discrete analogue (PPG) signals simultaneously o Capable of sampling at a reasonable resolution; 12-bits or above ‚Ä¢ Easily connected to a PC to enable data to be transferred for analysis ‚Ä¢ Easily programmable Flash storage to store the small program that does the PPG sampling Many microcontrollers on the market today include an ADC controller on their IC. As such there was a wide variety of microcontrollers that were fit for purpose and many development boards that used them.
+31
+
+These stages of research were conducted as a group partnership. Both research partners were already familiar with ARM Cortex microcontrollers. As such, it was decided a development board based on one would be used. As there are many ARM Cortex variants there was a wide pool to select from. In the end it was decided to use an Alientek Warship which uses an STM32F103T6 microcontroller. The key features of this microcontroller are listed in Table 4 on the following page. Other considerations when choosing the Warship included
+‚Ä¢ a touchscreen LCD (Alientek TFTLCD Module V2.1) is included ‚Ä¢ USB ports on the device transfer data as well as supply power to it ‚Ä¢ the General Purpose Input / Output (GPIO) header on the board enabled easy access
+to the inputs for the ADC ‚Ä¢ the board is capable of supplying enough power to drive the PPG sensors via power
+headers on the board ‚Ä¢ With the combination of GPIO and power pins the PPG sensors could be connected
+directly to the board without the need for any additional hardware Another advantage of the Warship it is supplied with Keil ¬µVision IDE and device tool chain. This software is used for writing software that executes on the board and is also used for writing the binary executable (program) to the flash storage inside the STM32F103T6 microcontroller on the Warship. Both research partners were already familiar with this software. Refer to the specific section about this software on page 35.
+32
+
+Table 4: STM32F103T6 Key Features [56]
+ARM 32-bit Cortex‚Ñ¢-M3 CPU Core 72 MHz maximum frequency,1.25 DMIPS/MHz (Dhrystone 2.1) performance at 0 wait state memory access Single-cycle multiplication and hardware division Memories 16 or 32 Kbytes of Flash memory 6 or 10 Kbytes of SRAM Clock, reset and supply management 2.0 to 3.6 V application supply and I/Os POR, PDR, and programmable voltage detector (PVD) 4-to-16 MHz crystal oscillator Internal 8 MHz factory-trimmed RC Internal 40 kHz RC PLL for CPU clock 32 kHz oscillator for RTC with calibration Low power Sleep, Stop and Standby modes VBAT supply for RTC and backup registers 2 x 12-bit, 1 Œºs A/D converters (up to 16 channels) Conversion range: 0 to 3.6 V Dual-sample and hold capability Temperature sensor DMA 7-channel DMA controller Peripherals supported: timers, ADC, SPIs, I2 Cs and USARTs Up to 51 fast I/O ports 26/37/51 I/Os, all mappable on 16 external interrupt vectors and almost all 5 V-tolerant Debug mode Serial wire debug (SWD) & JTAG interfaces 6 timers Two 16-bit timers, each with up to 4 IC/OC/PWM or pulse counter and quadrature (incremental) encoder input 16-bit, motor control PWM timer with dead-time generation and emergency stop 2 watchdog timers (Independent and Window) SysTick timer 24-bit downcounter 6 communication interfaces 1 x I2 C interface (SMBus/PMBus) 2 √ó USARTs (ISO 7816 interface, LIN, IrDA capability, modem control) 1 √ó SPI (18 Mbit/s) CAN interface (2.0B Active) USB 2.0 full-speed interface CRC calculation unit, 96-bit unique ID Packages are ECOPACK¬Æ
+33
+
+Open Hardware Pulse Sensor
+Sourced from World Famous Electronics LLC (http://pulsesensor.com) these PPG sensors were used in the development of the PPG device developed as part of this research. This device is described below and in the following chapter. At US$25 each these Open Hardware PPG sensors were much cheaper than commercially available PPG sensors. They are designed to be used in small projects and because they are available under the Open Hardware licence there are few intellectual property restrictions. The sensors are supplied with include Velcro strips and pads as well as a metal fastening clip for use in attaching the sensors to different human body periphery such as fingers and ears. The contents of the complete package can be seen in Figure 11 along with a pen for scale.
+Figure 11: Open Hardware PPG sensor contents PPG sensor with 3 wire ribbon cable on left; Velcro strip top right; metal clip, 2x Velcro pads and 4x insulation stickers in centre; pen (for scale) at bottom.
+34
+
+The sensors themselves are reflective, visible light PPG sensors and contain the LED, PD and a small rectifier/amplifier circuit IC all in single small form factor package. All they require is an approximately 5V DC power and ground and the analogue PPG signal is output to its output (OUT) pin. The circuit design of these sensors is shown in Figure 12 below.
+Figure 12: Open Hardware PPG sensor design [57] See appendix for larger image
+Keil ¬µVision IDE
+As mentioned in previously in Development Board section of this chapter the development of the program that ran on the development board was done in Keil ¬µVision IDE. This software is produced by ARM and was supplied with the Alientek development board. The Keil ¬µVision IDE combines all the many of the tools needed for embedded software development, particularly on an ARM platform. It combines a source code editor, tool chain, run-time environment, real time debugger and more into a single program [58]. The IDE not only allows for the software to be written in assembly language relevant to the device being used, but it also allows for code to be written in high level languages C or C++; all in an integrated editor within the IDE. The software can be targeted to a specific
+35
+
+microcontroller (or many), compiled and written directly to an attached development board‚Äôs Flash storage using the JTAG connector.
+3D Modelling and Printing
+As described in detail in Chapter 4 a 3D printed case was created for the dual channel PPG device and housing for its PPG sensors. The modelling done to create the design of the case and housing was performed using SketchUp 8. This is a free 3D modelling program designed for a variety of uses from architectural and interior design to mechanical and civil engineering. Models of the case and housing were converted form the SketchUp SKP file format to STL files using an online converter. STL files are the most common file format for 3D printers and were what was required for the models to be printed on Stratasys uPrint Plus by Dimension, which was used to print the case and housing. SketchUp, which was owned by Google at the time, is now available from its current owner Trimble as a free online version at https://www.sketchup.com/products/sketchup-free. This newer version operates in any web browser and can export files to STL natively without the need for an external tool.
+MATLAB
+MATLAB, by Mathworks, is a mathematical computing environment the name of which stands for matrix laboratory. This software is available to this research under a licence provided through the university. The MATLAB software environment is primarily built
+36
+
+around the MATLAB scripting language, but MATLAB has many other features available as part of the main installation or as separate toolboxes that can be added to it.
+Much of the software developed for this research was written in the MATLAB scripting language, all of which is provided in the Appendices. Using MATLAB meant the tools available in it to analyse the data collected were easily accessible and did not need to be written from scratch.
+By the end of the project all the MATLAB scripts that had been written were using MATLAB 2017a. This would be the minimum version required to be able to run many of the scripts as they use some features and syntax (particularly around how strings are handled) that is not available in earlier versions.
+The MATLAB environment was used in three different phases of this research. It was used as a part of the data collection where software which ran on the PC collecting the PPG signals from the dual channel device was connected to (with the exception of the .Net GUI ‚Äì see the section titled Windows .Net GUI in Chapter 4). This software was either a MATLAB script running inside the MATLAB environment or as a standalone MATLAB GUI that was written in MATLAB and packaged with the MATLAB runtimes. This packaging enables the program to be run as a standalone application without even the need for MATLAB to be installed on the PC; it does however create software licensing issues that need to be addressed. See Chapter 4 sections titled MATLAB Data Collection tool and MATLAB GUI data collection tool for more information about these programs.
+MATLAB was also used in creating the analysis algorithm that was used to analyse the data from each test. This analysis program, which is actually a conglomerate of MATLAB scripts that are all reliant of each other, was written and refined over many months. This software was used to process the PPG signals recorded as a part of each test and to locate reoccurring
+37
+
+points that exist as part of the beat-to-beat cycle of the PPG signals. These points can then be used to calculate PTT/PWV for each beat as well as an average for the test.
+The graphing functionality built into MATLAB was very helpful during this stage of research as plotting graphs with detected points highlighted on them was quite valuable in determining whether detection working as expected or conversely when it was not.
+During the third stage of this research MATLAB was also used was in the analysis of the results produced in the previous stages. This very important step aimed to take the beat-tobeat PPG points derived in the previous stage and develop a model, or in MATLAB parlance, a fitting function, to correlate the calculated PTT/PWV values to the patient‚Äôs BP readings taken using the sphygmomanometers and recorded as part of each test.
+Work during the third stage was heavily reliant of the Curve Fitting Toolbox that can be added to MATLAB. Without this toolbox and the functionality built into it the work could not have been completed. Any of the other stages could have been done using almost any programming environment.
+The toolbox was feed a variety of inputs from the previous stage and it automatically generated a fitting function to map the PPG data to the corresponding sphygmomanometer recordings. The toolbox also evaluates the accuracy of these functions through a series of metrics.
+The aim of stage was indeed one of the main aims of this research; creating a model that uses PPG input and converts this input into a BP measurement. The recorded PPG and sphygmomanometer recordings were used to create the model and then the model was evaluated by comparing the output given PPG inputs to the corresponding BP readings for the test. See Creating a Fit section of the following chapter.
+38
+
+Methodology of Using Dual Channel Device
+Sensor Positions Using Dual Channel Device
+The dual channel PPG device‚Äôs hardware on its own does not stipulate the location of its two PPG sensors. The hardware allows the flexibility for the sensors can be placed anywhere on the body that the PPG sensors are able to obtain a usable signal. The choice of PPG sensor locations relies purely on decisions made in relation to the PPG methodology being used. For the purpose of this research the following two PPG sites were chosen with the rational explained below. Their location is also indicated in Figure 13 below.
+‚Ä¢ PPG ear ‚Äì left ear lobe ‚Ä¢ PPG finger ‚Äì left index finger The finger site can be used like regular pulse oximeter to produce familiar signals; existing / proposed PWA methods can be used with the signal.
+
+Figure 13: PPG locations
+
+Figure 14: PWV Distance Approximation
+39
+
+Secure placement of sensor on the periphery of finger and the ear lobe is relatively simple using Velcro strip and 3D printed housing for the finger and clip for the ear.
+Existing devices recommended using the left side of the body where possible due to layout of vascular system and placement of heart. The left carotid artery branches off from aortic arch first and in a different manner to right carotid artery and as discussed in Blood Pressure Regulation section of Chapter 1 plays a direct role in the body‚Äôs regulations of BP.
+In creating an alternative to PTT, the ear PPG site was chosen to provide a signal that could be analogous to the R-Peak of an ECG signal. Given the ear lobe receives blood supply directly from the carotid arteries and the carotid arteries are fed directly from the aortic arch, which is attached directly to the heart, it was surmised that the systolic peak taken from the PPG ear signal could be used to replace the R-Peak in PTT methodology.
+Similarly, PWV was simplified with the chosen PPG placement. The PWV methodology requires the two PPG sensors be places at a known distance apart on the same arterial branch. For this research this measurement was simplified to using the subject‚Äôs arm length, measured from the arm pit to the tip of the index finger as shown in Figure 14.
+This distance was used to due to the ease of measurement and because it roughly equates to the distance between the two sensors if they were both places on the same arterial branch; the distance to the heart from both the arm pit and the ear lobe is roughly the same. As such the pulse wave would arrive at both locations at a similar time.
+These two choices simplified the setup of the equipment and, if proven successful, would allow for enhanced ease of use for any possible device developed using this principal. Also, if the arm measurement was performed incorrectly the PPG signals could be re-analysed using an updated measurement to amend the calculated BP values.
+40
+
+Dual Channel Device Usage Protocol
+Almost all the data collected during this research was done so using the dual channel PPG device. The data that was collected came from multiple sources which are discussed in the Chapter 4. In order to effectively collect data a protocol had to be established and followed to ensure correct and meaningful data was collected. Collection of dual channel PPG data varied slightly depending on the version of the collection tool being run. Using some of the original tools require steps in the process that were later automated by software. However, for the most part the procedure was mostly the same as detailed below. Step 1
+Turn on the PC being used to run the test, start the MATLAB software and load the data collection tool. Alternatively, start the MATLAB stand-alone GUI tool or the Windows .Net GUI. The steps thereafter are almost identical. Step 2 Plug the two sensors into the dual channel PPG device using the 3.5mm sockets on the rear of the case. Both sockets have raised dot(s) to indicate which channel the socket is for. The leftmost socket, with the single dot below it, is channel 1. The rightmost being channel 2 with two dots. The PPG sensor for the ear, which has a metal clip attached to it, should be plugged into channel 1. The finger PPG sensor should be plugged into channel 2. The finger sensor in its housing is shown in Figure 15.
+41
+
+Step 3
+
+Attach a USB A to USB Mini-B cable between the device and the PC running the software. This will power the device. When initially powered, the device will display some text about the version of the software running on its LCD screen. This is immediately followed by the device displaying the signals being received from the two PPG sensors; which when not correctly positioned appropriately on the patient will appear as noise.
+
+Step 4
+
+As shown in Figure 13 fit the two PPG sensors to the patient in the appropriate positions; one on the left ear lobe and the other on the distal phalanx of the digitus secundus manus (index finger) of the left hand. Once positioned in place adjustment may be needed to obtain a useable signal; this is easily done with experience.
+
+The key to the placement and attachment is to not completely occlude blood flow.
+
+The clip holding the ear PPG in place cannot be adjusted so the sensor must be
+
+position in such a way that the way the
+
+clip is not too tight. The finger PPG
+
+should be placed as shown in Figure
+
+15 with the sensor on the underside of
+
+the finger. A usable signal should
+
+easily be obtained when the Velcro is
+
+no strapped too tight. The sensor needs
+
+to be in full contact with the skin, but
+
+the Velcro cannot be so tight that it
+
+occludes blood from the finger.
+
+Figure 15: PPG finger showing PPG housing and Velcro attachment
+
+42
+
+Example output from usable PPG signals can be seen in Figure 16. Here the blue signal is taken from the PPG positioned on the subject‚Äôs ear lobe and the red signal is from the finger. Smaller amplitude and absence of PPG features indicate incorrect PPG placement.
+Figure 16: Example PPG output on LCD screen The LCD display scans from left to right horizontally along the time axis. The vertical axis is the amplitude of the PPG signals. The blue signal is taken from channel 1 (PPG ear). The red signal is taken from channel 2 (PPG finger).
+Step 5 Once both sensors are correctly placed in position the subject should be seated and remain still for a period of around 30 seconds and begin breathing in a steady manner. This ensures any movement and irregular breathing patterns do not impact readings taken during the test. 43
+
+Step 6 Start the data collection tool. Earlier versions of the MATLAB script required the duration of the test to be entered, by altering a variable in the code prior to pressing the run (play) button in the toolbar. In the MATLAB GUI this can be done using the duration can be selected using a pull-down list. In the Windows .Net GUI the test will keep running until the program is told to stop. When the test begins the LCD on the dual channel device will flash and reset signifying the beginning of the test before once again continuing to display the signals received from the PPG sensors. The test subject should remain still and breathing steadily throughout the duration of the test.
+Step 7 When the collection of PPG has concluded the LCD screen will once again flash and reset. At this stage BP readings should be taken using a secondary device; a sphygmomanometer. The instructions governing use of this device should be followed to ensure accurate BP readings. These readings should be commenced immediately at the conclusion of the PPG readings and with as little movement as possible from the subject both prior and during the operation of the sphygmomanometer. The SBP, DBP and HR readings obtained from the sphygmomanometer should then be entered into the appropriate prompts within the data collection tool. These readings will then be saved along together with the PPG data.
+44
+
+Chapter 4: Results
+
+Biopac Experiments
+
+During the early stages of this research some initial investigation into PPG sensors and the waveforms produced they was conducted using commercially available hardware and software. These experiments were performed using a MP100 and associated PPG module (PPG100C) and PPG transducers (TSD200) (shown in Figure 17) as well as the AcqKnowledge software all from Biopac. These were described in Chapter 3.
+
+The only real aim of these experiments was to develop a familiarity with collecting PPG sensor data and being able to visibly identify specific aspects of the signals. The experiments were performed on this researcher over a number of sessions.
+
+Whilst data was collected as a part of these experiments, this data was never used. The outcomes however were not nil. Experience with the equipment and firsthand knowledge of how movement can affect the PPG signal was obtained. It was also determined that the Biopac PPG sensor‚Äôs design was inflexible; the Velcro strap was only suitable for strapping the sensor to a subject‚Äôs finger.
+
+It also established as to how prohibitively expensive the Biopac hardware was. There was
+
+initial interest in trying to establish if the PWV methodology could be performed using two
+
+PPG sensors placed apart, perhaps on separate
+
+phalanxes of the same finger. Only having access
+
+to a single PPG Biopac sensor, a quotation for
+
+sought for another sensor from the Australian
+
+distributor, SDR Scientific Solutions. A single
+
+PPG sensor (TSD200) cost AU$320 ex GST.
+
+Figure 17: Biopac TSD200 PPG sensor [59]
+
+45
+
+Dual Channel Device
+This device was originally created as a prototype for a pilot study for gathering dual channel PPG data as means of using these signals to continuously and non-invasively measure blood pressure. For the purposes of evaluation and calibration the efficacy of the device was established during the course of the initial investigation and data collection. When comparing this device to what could be achieved with the Biopac hardware and software solution this device not only met the needs of the project but was also more flexible and the PPG signals obtained from the device were easier to analyse. All this was achieved at a fraction of the cost of the commercial solution. The reduced cost and increased flexibility was at least in part due to the different PPG sensors used in the device. The Biopac PPG transducers were much more expensive and only designed to be worn on the finger.
+Device Software
+A small program was written in the C programming language and programmed on the Flash RAM on the Alientek board using Keil ¬µVision as mentioned in the previous chapter. This program set up two ADC channels for input by writing specific values to certain ports controlling the ARM microcontroller‚Äôs ADC. Once set up the program then continually sampled those two ADC channels at a rate of 1 kHz. Therefore, every millisecond both PPG sensors were read, their analogue signal converted to a digital signal and stored temporarily.
+46
+
+This data was then sent to an attached PC for storing and/or processing using virtual serial communications over the USB port. The same USB port was also used for powering the device. Whenever it is powered the device also displays both PPG signals in real time on its LCD screen. In order to not have the data drawn too quickly to the screen only every 5th sample is drawn to the screen. The signals are drawn from left to right before returning to the left of the screen to repeat the process.
+3D Printed Case and Sensor Housing
+To ensure that the dual channel device was more durable as well as presentable a 3D printed case to enclose the development board and the attached LCD screen was created along with housings for the PPG sensor so one could easily be worn on the finger. As mentioned in the previous chapter both the case and sensor housing were purpose designed in SketchUp 8 and printed using Stratasys uPrint Plus by Dimension. In order to create the case for the device firstly a model of the Alientek board and its attached LCD screen was created. This model was made by measuring dimensions on the board itself and the components on it as well as their precise position. This information was used to make a 3D model of the board so an appropriate case could be modelled around it. The model of the Alientek Warship board can be seen in Figure 18 on the following page. The model shows the attached LCD screen in the middle of the board. Note the two mounting legs and screws which needed to be taken into account when designing the case in order to make a snug fit. To the right of the LCD is the orange GPIO header that contained the ADC input pins for the PPG sensors. The two orange headers in the middle right edge are the 5V and ground pins used to create the power circuit for the PPG sensors.
+47
+
+Figure 18: Model of Alientek Warship board
+Another important factor in the design of the case was the position of the two USB ports on the board. They are shown as the two grey components on the left of the board. The USB port closest to the brown socket is the one that is used to communicate with the associated PC and to power the board. The final pertinent factor in the design of the case was the position of the four mounting screws in each of the corners of the board. Two of these can be seen along the front edge of the board in Figure 18. These screws are used to secure the board inside the case. The case was printed in two parts; a base (shown in Figure 19 on page 49) and the cover (shown in Figure 24 on page 52). In the design the Alientek board is attached to the base and the cover placed over the top including the base‚Äôs back plate. The cover is secured to the base using 3 tongue and grove slot where the tongues on the base slot into the groves on the inside of the cover. You can see three of the five tongues on the base in Figure 19.
+48
+
+In this Figure 19 you can also see the four holes that allow screws to be screwed through the base into the boards mounting screws to secure it in place. The model showing the Alientek Warship board on the case‚Äôs base is shown in Figure 21. On Figure 20 shows what this looks like in reality. Both of these figures are on the following page. Also visible in Figure 19 on the rear of the base are the two holes that accommodate the board‚Äôs two USB ports can be seen on the left. A USB micro connector passes through these orifices to plug into the receptacles on the board. On the right there is a slot that lines up with the boards SD cards reader, allowing cards to be inserted and removed from the board whilst still in the case (this was never used). Above the SD card slot are the mounting points for two 3.5mm headphone sockets. To aid ease of use and portability two 3.5mm headphone jacks and sockets were added for each of the PPG sensors. This allowed the sensors to be easily to be unplugged and plugged into the device. In hindsight these jacks were a poor design choice as the fiddly solder connection inside the jack was prone to failure and had to be fixed a number of times. The sockets are secured inside the device by pushing their shaft though the holes designed to
+Figure 19: Base component of dual channel device case
+49
+
+accommodate them and screwing sheath on the outer side of the base. In order to create the socket mount point on the base the 3.5mm sockets themselves were also measured and modelled in SketchUp.
+Figure 21: Model of Alientek board on case base
+Figure 20: Alientek board on case base
+50
+
+When assembled and the case secured to the base the sockets each had the 3 connecting wires soldered to them and further secured using heat shrink insulation tube, which also prevented electrical shorts from occurring. These three wires were wire-wrapped to the appropriate ADC pin on the GPIO header as well as the power and ground pins. Theses wire can be seen in Figure 20 passing under the LCD screen inside the same insulation tube which was used in this instance for the purpose of cable management. The model of the case‚Äôs cover is show in Figure 22 - Figure 24. In Figure 22 the rear of the case is shown where the USB ports, SD card slot and 3.5mm socket PPG sensor connectors shown. The LCD screen can also be seen at the top of the case. In Figure 24 the internal space where the case‚Äôs base and board reside is shown. The cut outs for the rear connectors can be seen as well the opening for the LCD which is surrounded by some indentation to accommodate the screen and some cut to size crafting foam used to create a seal between the cover and the LCD.
+Figure 22: Rear view of model of case with cover attached
+51
+
+Figure 23: Top view model of case with cover
+Figure 24: Internal view of model of case cover
+52
+
+A housing for a PPG sensor to be used on the finger was also modelled and 3D printed. This housing was designed to protect the electronics on the back of the sensor and to allow a Velcro strap to be attached to the sensor to allow for easy application and removal of the sensor. The sensors snuggly fit into the indentation shown in Figure 25 with the 3 wire ribbon cable connected to the sensor sits in the gap created for it. In Figure 26 the hole where a Velcro strap passes directly through the housing can be seen. The strap can then be wrapped around the finger or other periphery holding the sensor against the skin.
+Figure 25: Underside of model of PPG sensor housing
+Figure 26: Side view of model of PPG sensor housing
+53
+
+Data Collection Tools
+During the design phase of this research three methods of data collection were developed. ‚Ä¢ MATLAB (rudimentary) data collection tool ‚Ä¢ MATLAB GUI data collection tool ‚Ä¢ Windows .Net GUI
+The main function of all three tools was to read the PPG signals from the dual channel PPG device and record the subjects SBP, DBP and HR taken at the end of the test using a sphygmomanometer. The PPG and recorded sphygmomanometer readings were then stored together for later retrieval and processing.
+MATLAB Data Collection tool
+The purpose of this tool is to read in data from the dual channel PPG device and store all the PPG information. At the conclusion of each test the user was prompted to enter in the SBP, DBP and HR readings taking using a sphygmomanometer. This data could then be used to develop a model form measuring BP, continuously and non-invasively using two PPG signals. The tool itself involves a number of scripts that were initially written in an older version of MATLAB but have since been converted to be used with, as well as take advantage of features in MATLAB 2017a. The tool first established a serial connection with the device over USB connecting at a baud rate of 256000 bits per second. Once connected the dual channel PPG device collected PPG signals and converted the analogue signals to 12-bit digital values, ranging from 0 to 4095.
+54
+
+As both channels were sampled simultaneously this resulted in a total of 4 bytes of data being read at a rate of 1 kHz. The sampling and sending of data occurred continuously for a specified time of 15, 30, 60 or 120 seconds. Usually these tests were run for 30 seconds.
+Once the sampling and sending of the PPG data had concluded the user was then prompted to take blood pressure and heart rate readings using the sphygmomanometer. The user was then asked to enter these readings, SBP, DBP and HR, in that order.
+The script then processed some of the PPG data. Using a filter created in MATLAB‚Äôs filter designer the PPG signals were filtered to remove noise which was present on the signals.. The filter was a low pass frequency impulse response (FIR) filter with a 9600 Hz pass band and a 12 kHz stop band. This smoothed the signal to enable further processing by filtering out power line interference on the signal [24] . Next the heart rate was calculated using peak detection to detect the systolic peaks on both signals. The number of systolic peaks per minute corresponds to the heart rate.
+There were several different iterations of the MATLAB data collection tool. Initially a MATLAB script was written that read in data from the 2 channel PPG device and stored the raw PPG data for processing at a later time without any modification pre-processing of the data. Associated SBP, DBP and HR reading were not recorded or stored with the PPG data.
+Later versions of the tool prompted for the entry of the subject‚Äôs SBP, DBP and HR taken after the PPG readings using a sphygmomanometer. The PPG data and the BP readings were collated by the script and saved together in a file for later use. Some rudimentary processing of the data was done also done at this stage and the PPG signals were displayed on the computer screen. This was done to ensure the test had executed correctly and if not the test could be immediately discarded.
+55
+
+All modifications done to the data collection tool were made carefully so as to preserve the use of data that had already been collected. The data collected was not changed it was just dealt with and stored in a more appropriate manner making it easier to deal with in future. Other modifications made to the collection tool ensured that it functioned correctly and was more user-friendly. Early versions crashed under certain circumstances for various reasons. The causes of these crashes were isolated and removed over the course of the development of the tool.
+MATLAB GUI data collection tool
+This was developed as an enhancement to the earlier developed MATLAB collection tool. Rather than requiring the MATLAB environment to run in this tool was written in MATLAB but packaged to run a stand-alone program. This tool also uploaded the data to a specified web server rather than just storing the data locally on the PC it was running on. As it was based on earlier version of the processing tool there were however problems with it. If the tool encountered issues processing the data it crashed without keeping any of the results. This tool was what was used by collaborators at the Second Jiaxing Hospital of Jiaxing Municipal in China.
+56
+
+Windows .Net GUI
+This tool was written in Microsoft Visual Studio and is a .Net Windows based GUI alternative to the MATLAB data collection tool. It was written mainly to facilitate data collection by our counterparts at the Jiaxing Rehabilitation Hospital in China, but it never ended up being used by them. This software not only collected data, but it also performed some of the functions found in the analysis tool which was still concurrently under development itself at the time. It performed some of the rudimentary analysis of the PPG signals was able to display the PPG signals in real time within the application. The application also had added functionality of being able to detect problems with PPG placement or movement of the sensors and alert the operator drawing their attention to this problem. As this program was paid for, owned by and produced for our Chinese affiliates the user interface for the application is available in both English and Chinese. Part of the interface can be seen in Figure 27.
+57
+
+Figure 27: Windows .Net GUI
+One of the main aims of this program was to remove the reliance on using MATLAB to collect the data from the dual channel PPG device. To that end this program allowed the PPG data to be exported as plain text CSV files or in a Microsoft Excel spread sheet. This allowed for the data to be analysed within Excel or any other program that could open either of the two file formats, which is a major departure from the other MATLAB based programs.
+58
+
+Data Collection
+Initial Tests
+The main aim of these tests was to develop and evaluate the effectiveness of the dual channel device hardware and the PC software needed to operate it and to collect the data from the device. At this stage a simple data collection tool was created in MATLAB. This tool established serial communications with the dual channel device, collated and stored the dual channel PPG data and saved this data into a two .m files. Reading from the Omron were also taken during these tests but were stored in a separate spread sheet. It was not until later revisions of the MATLAB tools that both channels of PPG data as well as the SBP, DBP and HR readings for each test were all stored together in a single file. These initial tests were conducted on the two research partners conducting this research; initially this research was part of a group project and this researcher had a research partner who was working on the project for the first year. Any of the data that was collected using the research partner as a test subject has not been used in the research presented in this thesis. However, since the data collected on the author of this paper included all the necessary information ‚Äì the dual channel PPG data and SBP, DBP and HR readings ‚Äì but just in a different format, the author‚Äôs initial test data has been able to be used. It was during this phase of initial testing that the protocol that governed the use of the dual channel device was first established. This protocol is discussed in Dual Channel Device Usage Protocol section of the previous chapter.
+59
+
+Circadian Experiments
+The circadian experiments were initially designed test the efficacy of the dual channel PPG device and to see if the relationship between BP and the time of day could be could be confirmed and if this circadian rhythm is evident on the PPG readings. These experiments were performed based on the findings of previous research that in most individuals over the course of a day their SBP and DBP varies displaying a circadian rhythm [60, 61].
+These experiments were run using one human subject, the author if this thesis, as a test subject over the course of a week. Over this week long experiment a total of 245 tests were run resulting in over 2 hours of dual channel PPG data being recorded. This was the main long-term outcome of this experiment.
+These tests were conducted using the dual channel PPG device, the MATLAB data collection tool and an Omron HEM-6221 was used to obtain SBP, DBP and HR. The HEM-6221 is an automatic, wrist worn oscillometric sphygmomanometer. This device is shown in Figure 28 [62].
+The PPG and BP data were collected every two hours between 6am and 12am over the course of a week. During each 2 hour time slot the PPG data and BP readings were taken multiple times and recorded using the data collection tool. The number of times a test was run per slot varied, but there was always a minimum of three. The first of which were run at the start of the hour and subsequent tests after a delay of around one minute from the preceding test.
+Figure 28: Omron HEM-6221 [62]
+60
+
+Each test involved the subject (the author) in the seated position and connected to the dual channel device, with the two PPG sensors placed on the left ear lobe and left index finger as discussed in Sensor Positions Using Dual Channel Device section of Chapter 3. PPG data was collected for 30 seconds per test and was immediately followed by BP readings taken using the Omron sphygmomanometer which were consequently recorded and stored using the data collection tool. This was all done according to the same experimental protocol discussed in the previous chapter. The data was collected using an older version of the data collection tool. Later this data was converted to match a newly devised format that consolidated the data into a single structure and did some pre-processing to make analysis of the data faster. In terms of the original aim for this circadian experiment, which was to investigate a correlation between BP and the time of day these experiments were a failure. As shown by the small selection of data in Table 5 on the following page and by the error bars used to indicate the range of values recorded in each experiment time slot in Figure 29 (on page 63) the recorded SBP, DBP and HR values varied wildly within a matter of minutes. Over the course of the week-long experiment, even if the wide error bars are discounted, there is no evident correlation between any of the BP readings and the time of day for the subject (this researcher). This can be seen in the data shown in Figure 30 where each day‚Äôs worth of data is shown in a different colour. It also shows that for this researcher BP did not follow the circadian rhythm found in most subjects of previous research undertaken by others.
+61
+
+Table 5: Example SBP, DBP and HR data collected during Circadian Experiments.
+
+Slot Time 6.02 6.05
+6am 6.11 6.14 8.04
+8am 8.08 8.12
+10.05 10am 10.09
+10.17 12.03 12pm 12.06 12.10 14.10 2pm 14.13 14.21
+
+SBP DBP 145 92 159 106 165 108 145 105 158 107 149 99 161 104 143 105 143 99 148 106 144 99 138 95 132 92 147 98 147 105 151 106
+
+HR 71 62 60 58 59 57 57 65 58 57 62 60 64 52 60 57
+
+Slot 4pm 6pm 8pm 10pm 12am
+
+Time 16.06 16.10 16.13 16.16 18.13 18.16 18.19 18.21 20.02 20.04 20.07 22.01 22.05 22.08 22.12 00.01 00.04 00.07 00.12
+
+SBP 152 148 145 143 159 151 148 145 152 147 141 165 161 154 154 149 149 147 164
+
+DBP 103 104 102 98 109 103 103 108 102 100 99 110 103 105 104 95 97 99 106
+
+HR 65 61 60 58 59 57 58 59 62 63 63 61 62 63 67 51 53 54 53
+
+62
+
+Figure 29: SBP, DBP and HR Omron data from day 4 of Circadian Experiments
+Figure 30: SBP, DBP and HR Omron Data from all days of Circadian Experiments n.b. Each day on the above graph is represented by a different colour.
+63
+
+Collaborators Data Collection
+This research began as collaboration with the Beijing Sanjack Ltd, China. The dual channel PPG device and the associated software is the result of this collaboration and was created to be used as a part of research conducted for them by researchers at the Second Hospital of Jiaxing Municipal in China. The researchers in China conducted their own experiments, without any guidance or input from this researcher. At a later date access was granted to the data that was collected at the Hospital. This came in the form of two different experiments which were run over two stages. All the data collected at the Second Hospital of Jiaxing Municipal was done after approval from the hospitals ethics committee. All the patients whom were subjects of the hospitals research also completed a certified consent for allowing for the data collected to be used in any future research within or outside the hospital. A letter of authorisation from the hospital was obtained to enable the use of the data the collected there in this research.
+Stage 1
+During this stage of their research the Chinese researchers conducted tests on 4 patients of the rehabilitation hospital. In these experiments each patient was placed in the supine position on an initially flat tilt bed. Over the course of each experiment the tilt be was slowly tilted to varying degrees up to a maximum inclination of about 80 degrees. The idea behind this tilting action was that it was designed to induce a change in BP which was to be detected by the monitoring of the PPG signals. Unfortunately, this data was mostly unusable for this research as the SBP and DBP sphygmomanometer readings were only recorded once per patient as opposed to once per
+64
+
+test. To investigate the correlation between BP and PPG, SBP and DBP readings are required per test so they can be the PPG data can be better modelled to these readings. It was possible to use the collected dual channel PPG data as a means of improving the analysis algorithm‚Äôs ability to detect the appropriate events occurring on the PPG signals. This provided limited value to the research overall however. The data collected in this stage of their research was collected using a very early version of the data collection tool. This tool stored the PPG data in two separate files and did not include the sphygmomanometer data together with this information. Due to this data being separate it was not until after much time was spent working with this data that it was realised all the necessary information had not been collected.
+Stage 2
+The second stage of experiments conducted by the researchers/doctors the Second Hospital of Jiaxing Municipal hospital differed in several ways from the experiments originally conducted by them. The second stage of experiments conducted at the Second Hospital of Jiaxing Municipal involved many more patients than in their first stage. During this stage there were a total of 21 patients used as the subjects in the experiment. These patients all signed consent for their medical data to be collected and used for research purposes. This was all approved through the ethics processes of the hospital, who also granted access to use the data in this research. Many of the patients were used as subjects of the tests multiple times, some of them only once. It varied from patient to patient. Some patients participated in the tests over the course of a few days, others in rapid succession one test immediately following another.
+65
+
+During each test, unlike in the hospitals earlier experiment, the patients all remained in a seated and still position throughout the duration of the test. As before the tests were conducted using a dual channel PPG device. However, the software that ran on the PC it was connected to had been updated. This updated software now had an easy to use GUI interface making it much more user-friendly. However, the main improvement in functionality from the point of view of this research was that the data collected was now automatically uploaded to a web server. The uploaded data included both the dual channel PPG raw data as well as SBP, DBP and HR measurements. These readings were taken by a doctor or nurse at the hospital using an oscillometric sphygmomanometer at the conclusion of each test. As recording this information was required in order to proceed to the conclusion and uploading of the data all tests had this information included. This resulted in BP information existing for each set of PPG data which was necessary for this research. There were a few notable problems with the collection of this data. The main being a problem of data entry of the SBP, DBP and HR reading taken using the sphygmomanometer by doctor or nurse. The entry of this data was not always accurate. For example, the one test had a recorded SBP of 1212 mmHg, which could not possibly be correct.
+Data Consolidation ‚Äì Common Data Format
+The data collected during the initial and circadian experiments as well as both stages of the Chinese experiments were all collected using different versions of the data collection tool. While these tools all performed the same task of connecting to the dual channel device and recording the PPG data sent from it, they all worked differently and more importantly saved the data in differing formats.
+66
+
+Initially data collected was manually saved by the operator and in doing so the operator chose the filename. All the variables in the MATLAB workspace were saved along with the raw PPG data. Much of the information stored in this file was relevant to being able to analyse the data, but some of it was not.
+By the time the circadian tests had been completed the data collection tool had progressed to automatically saving the relevant data into file. The file created contained all the information relevant to the test. This included the SBP, DBP and HR readings taken using the sphygmomanometer at the conclusion of the test and entered by the operator, as well as a patient identifier used to group tests covering the same patient together, information about the test itself like the length that it ran for, and the PPG data itself. Having all the data in the one file was a vast improvement in terms of being able to analyse the data.
+The results for Stage 1 and Stage 2 of the Jinxing Rehabilitation Hospital experiments were also in a different format. Stage one had files for each PPG signal for each test and a spread sheet, in Mandarin, containing information about the test. As mentioned in the Collaborators Data Collection section of Chapter 4 these results turned out to be unusable for this research as each test was not accompanied by their own SBP, DBP and HR information.
+During the Stage 2 experiment at the Second Hospital of Jiaxing Municipal the data collected was automatically uploaded to a server by the updated data collection tool. The uploaded information included the PPG data, each stored in a separate file, but also the additional information about the test, including the sphygmomanometer measurements, were recorded.
+Processing and analysing all the data from the disparate experiments proved to be difficult without having a uniform data set to work with. As such a common data format was created where all the relevant information experiments could be stored in a common file that could be easily process by the analysis tool in MATLAB.
+67
+
+Figure 31: Conversion to common data format
+In creating the common log format, it was decided to allow all the tests from a particular experiment group should be stored in the same file, which was a table in MATLAB. Each row of this table would reflect the results for a particular test. In creating the common log file it was decided to alleviate some of the processing that would always occur as part of the analysis of the test, such as filtering using the low pass FIR filter to filter out any power line interference [24] present in the PPG signals. Also the first and second derivative (often referred to as acceleration plethysmogram (APG) in literature [23, 24, 48, 63]) of each of the filtered PPG signals was calculated. All this signal information, including the raw, unprocessed PPG signals, was included as part of the log along with timestamp, patient id and other information about the test.
+To accommodate the creation of the common log format conversion tools were written in MATLAB script that converted each of the disparate datasets from three experiments into the common log format.
+Refer to Table 6 on the following page for the fields that make up the common log format.
+68
+
+Table 6: Common Log Format
+
+Field
+
+Usage
+
+test Id
+
+An ID that can be used to refer to the test within a larger data pool
+
+valid comment
+
+Set during analysis this indicated if the test data valid and should it be included in the overall results; true or false
+Comment about the data set during analysis
+
+timestamp
+
+The date and time the test was conducted.
+
+userID armLength
+
+An identifier to uniquely identify patients so tests using the same subject could be associated with each other.
+The measured length of the arm of the test‚Äôs subject
+
+recSBP recDBP recHR sampleTime PpgData PpgMeta
+
+SBP reading taken using sphygmomanometer at the conclusion of the test and recorded by operator.
+DBP reading taken using sphygmomanometer at the conclusion of the test and recorded by operator.
+HR reading taken using sphygmomanometer at the conclusion of the test and recorded by operator.
+The duration of the test; i.e. how long PPG data was collected (in seconds)
+This is a structure array, one structure for each PPG channel containing the raw, filtered and 1st and 2nd derivative signal data.
+This is a second structure array, one element per channel. Each structure contains meta data about the PPG signals and it created during analysis.
+
+69
+
+Algorithm Development
+In traditional PTT calculations the time is measured between detection of the R-Peak of the ECG until the corresponding systolic wave is observed on the PPG signal. Different approaches have used differing methods of detecting this wave, but often the systolic peak itself or its mid-point are used. Four different ways to detect and define the start of each heart beat using a single PPG signal were used in this research. This was done using recurring and detectable events that occurred as part of a regular PPG signal. Each event occurred on or around the systolic up stroke so as to maintain a relationship between the detection point and the R-Peak of an ECG used in traditional PTT calculations. The four events, or points, in the PPG signal as seen in Figure 32 were as follows (in order)
+‚Ä¢ Pre-systolic up stroke (PSUS) ‚Ä¢ Start of the systolic up stroke (SSUS) ‚Ä¢ Mid systolic up stroke (MSUS) ‚Ä¢ Systolic peak (Peak) These four points where derived from either the first or second derivative of the PPG signals and involved determining the zero crossing points within these signals.
+Figure 32: PPG detection points
+70
+
+PEAK ‚Äì Systolic peak
+The systolic peak detection is the easiest to visualise on the PPG signal as shown in Figure 32. It occurs as maximum blood flow beneath the sensor is detected for the corresponding heartbeat. The peak can be detected using two methods; finding the local maximum and using the zero crossing of the first derivative. In the end the peak was determined by using the zero-crossing point in the first derivatives and the known locations of the MSUS point described below; each peak occurs at the zerocrossing point of the first derivative that occurs after a the MSUS of each heartbeat.
+MSUS ‚Äì Mid-systolic up stroke
+The MSUS, or mid-systolic up stroke, occurs during at the midpoint in the rising edge of the systolic upstroke. This is detected by the algorithm developed for this research using the local maximum of the first derivative. In detecting the MSUS the local maximum is detected by finding the peaks in the first derivative that at least 50% of the value of the maximum of the first derivative.
+SSUS ‚Äì Start of the systolic up stroke
+The SSUS, or start of the systolic upstroke, occurs prior to the MSUS of the same heart beat cycle. The MSUS point is used in the detection of the SUSS, so MSUS must be calculated first. SSUS occurs at the peak in the second derivative of the PPG signal that occurs just prior to the MSUS.
+71
+
+PSUS ‚Äì Pre-systolic up stroke
+PSUS, or pre-systolic up stoke is the first detectable point in the heart beat cycle. It is probable, though unproven, that it occurs at pre-ejection point of the heartbeat. Like the other 3 detection points the detection of PSUS relies on MSUS for detection. It is detected by determining the zero crossing points in the second derivative of which there are many. PSUS has been defined and detected as the first zero crossing point of the second derivative that occurs just prior to a MSUS point.
+Detection of PPG Signal Points
+As part of the analysis algorithm all the PPG signal points for both PPG signals (ear and finger) are detected. The process of detecting these points is outlined above and in Figure 33 below. Refer to the source of findPpgPoints.m in the Appendix for the complete source code for this algorithm. Note that like all of the analysis this does not happen in real time and analyses a complete test from start to finish. However, there is no reason that this process could not be applied to small windowed segments of PPG signal at a time and thus allow for real time processing, albeit with a small delay determined by the window size.
+Figure 33: Flow chart of method for PPG signal point detection
+72
+
+Analysis Algorithm Output
+Overall the most amount of time spent on this research was spent developing the analysis algorithm, and in particular locating the desired points in the PPG signals as described in the previous section. As previously mentioned this algorithm was developed in MATLAB and written in MATLAB script. All of the source code can be found in the Appendices. The role of the analysis algorithm was to parse the PPG data from each test, analyse it and locate the 4 points of interest mentioned in the previous section for each complete heart beat cycle present on both PPG signals from the ear and finger. This process was both manual and automatic. The MATLAB scripts produced output such as in Figure 35 on the following page, a segment of which is below in Figure 34 . This output was visually inspected and verified. This inspection, or inspection of multiple outputs, may have resulted in refinements being made to the algorithm to improve its detection of beat-tobeat points. This process was also used to determine the tests where there were problems with the data which made them unusable or there were too many irregularities for the test to be processed with the analysis program.
+Figure 34: Segment of analysis algorithm output
+73
+
+74
+
+Figure 35: Analysis algorithm output
+
+Analysis Data
+The analysis algorithm extracted a large amount of data from the PPG signals in each test. All this data was added to the test‚Äôs data stored in the common log format. Adding to the existing information was done in such a way that the same log file could be again used as input to the analysis algorithm. This was done in order to be able to make refinements to the analysis algorithm and still be able to reuse the same data where necessary.
+There were two categories of information generated from the analysis. There was data which related to each specific PPG signal from the test and the data that related to both. The data pertaining to each PPG signal was stored in the PPG Meta structure outlined in Table 6.
+The PPG Meta data stored per PPG channel in for each test‚Äôs entry in the common log format .mat files is shown below in Table 7. Many of the fields in this structure were inspired by
+
+Table 7: PPG Meta data structure
+
+Field
+
+Meaning / use
+
+psus
+
+The beat-to-beat PSUS points ‚Äì stored as sample index of occurrence
+
+(time)
+
+suss
+
+The beat-to-beat SSUS points
+
+msus
+
+The beat-to-beat MSUS points
+
+peaks
+
+The beat-to-beat peak points
+
+d1zc
+
+Zero crossing points of the PPG signal‚Äôs first derivative
+
+beats
+
+Number of detected full heart beat cycles
+
+bpm
+
+Heart rate (beats per minute) for test using beats (above) & test‚Äôs
+
+sample time
+
+systolicTime
+
+The beat-to-beat systolic time in ms. (time from PSUS to Peak)
+
+p2pTime
+
+The time in ms (samples) between each peak on a beat-to-beat basis
+
+peakVariance
+
+Difference in PPG saturation level between one peak to the next (beat-to-beat)
+
+sysInitTime
+
+Time between PSUS and SSUS points (beat-to-beat)
+
+sysInitAmplitude Difference in PPG saturation level between PSUS and SSUS (beatto-beat)
+
+ssus2ssusTime Time in ms (samples) between each SSUS point (beat-to-beat)
+
+ssusVariance
+
+Difference in PPG saturation level between successive SSUS points (b-to-b)
+
+75
+
+similar items measured by Birrenkott et al [64] in their paper evaluating measurements used in analysing ECG and PPG signals.
+The PPG Meta data can also be seen displayed along with the signals in the analysis algorithm output in Figure 35 on the page 74.
+Along with the metadata derived from each PPG signal more information was obtained from combining this metadata together. In terms of this research was the PTT and PWV calculations based on the four different methodologies (PSUS, SSUS, MSUS and Peak). PTT here does not refer to the traditional definition of PTT, but rather a revised definition where the ECG R-peak is replaced with timings from the PPG ear signal. PWV is also not the standard definition from other research but is also a modified version based on the procedure outlined in Sensor Positions Using Dual Channel Device section in Chapter 3. This PWV was calculated using the measured PTT and the subject‚Äôs arm length as an analogous measurement to that of the distance between the two PPG sensors.
+Not only were the modified versions of PTT and PWV were calculated using each of the four methodologies on a beat-to-beat basis a mean was calculated for each as well as the standard deviation. For example, see Table 8 below for all the data calculated and stored for PSUS methodology. All these were replicated using the other three methodologies; SSUS, MSUS and Peak.
+
+Table 8: PTT/PWV calculations examples
+
+Field pttPsus pttPsusMean pttPsusSD pwvPsus pwvPsusMean pwvPsusSD
+
+Meaning / use Beat-to-beat PTT calculations using PSUS Mean of all of the PTTPSUS calculations Standard deviation of all the PTTPSUS calculations Beat-to-beat PWV calculations using PTTSUS and arm length Mean of all the PWVPSUS calculations Standard deviation of all the PWVPSUS calculations
+
+76
+
+Finally, the means of the following metadata was also taken from the PPG finger signal were also calculated and added to the log; systolicTime, p2pTime, peakVariance, sysInitTime, sysInitAmplitude, ssus2ssusTime and ssusVariance.
+Heart Rate Validation
+There is a good reason for calculating and including different variants of obtaining the heart rate form the test. Heart rate is a relatively simple thing to obtain from a PPG signal. Visually this can be done just by counting the peaks in the PPG signal and dividing by the time period being measure before converting to beats per minute (BPM). As the number of beats can easily be calculated and visually verified it was used as a means of verification of the analysis algorithm‚Äôs functionality. This was particularly handy as it can be used with each of the four PPG PTT/PWV methodologies. Differences in the number beats calculated per channel were used as an indication of potential problem with the analysis of the PPG signals which was particularly helpful when refining the analysis algorithm in order to improve its accuracy and performance. Comparison of the heart rate derived from the PPG signals to the heart rate measured from using the sphygmomanometer was also as a means of validation of data. When there was a discrepancy of more the 10 BMP the test was marked invalid and not used. Heart rate was also used in the weighting of results when creating a fit between PPG PTT/PWV and BP readings. See the Creating a Fit section on page 82.
+77
+
+Problems Analysing Data
+A number of issues made the task of analysing the PPG data from the dual channel device difficult. These issues can be classified into two categories
+‚Ä¢ Data error reading from the device ‚Ä¢ Abnormalities with the PPG signal(s)
+Fixing Device Read Data Error
+Much of this category of problem can be put down to a design flaw with the device and how it communicates with the PC. This flaw was the lack of handshaking between the device and the PC. It was not until after all the data was collected and the analysis algorithm was being refined in MATLAB that this problem was first noticed. The problem can be described as follows. Once a serial connection between the PC and the device was established the device constantly sends a stream of data to the PC until the connection is closed. There is no hand shaking, there is no data format, just a stream of consecutive bytes sent over the serial communications. Each channel of PPG data is sampled by a 12-bit ADC, but over the serial communications this data is sent as 8-bit bytes. As such a single sample from one of the PPG sensors requires two bytes to be transmitted; the upper nibble (4-bits) of the high byte is padded with four zeros. Since the dual channel device sends both PPG samples from each channel together a single dual PPG channel sample is 4 bytes long. However, when the PC starts reading in the data it can start reading at any point in the data stream. As such it could start reading at any one of the 4 bytes used to make up a dual PPG
+78
+
+sample. As a result, when reading in the data there are four ways the data could be interpreted and possibly read in correctly. This is illustrated below in Figure 36. It was not until late in this research that the data acquisition problem was rectified. The steps outlined in the next two sections were both performed before it was fixed and had to be repeated once the problem was rectified. The rectification of this problem was only made possible by the fact the upper nibble of each of the high bytes from each signal was always set to zeros. This meant the high byte from each PPG signal sample was always of the format 0000xxxx in binary, where xxxx is the higher 4-bits of the 12-bit sample. A MATLAB script, swapChannelData.m (see Appendix), was written to manipulate the data stored in the common log format so the test, which was previously marked as invalid, could be used. Swapping the data around only half solved the problem however. As can be seen in Figure 36 one of the four places the PC could start reading is reading the second channels data, in the correct byte order, first. The result of which was the PC interpreted the PPG channels
+Figure 36: Data acquisition from device to PC
+79
+
+incorrectly and the channels were swapped. This creates a problem for the calculations of PTT/PWV values needed in this research as the one of the basic assumptions is that the ear channel, which is being uses as an analogy of ECG signal for the calculation of PTT values, will be seen on channel 1. Visual inspection of the two PPG signals could be used to determine which channel was which and if necessary the channels were swapped. Initially the assumption was that the ear signal generally had a lower systolic amplitude than observable on a PPG finger signal. This was not always the case however. A secondary visual inspection method was the employed using the assumption that dicrotic notches do not generally appear on PPG ear signals. MSUS points were also used to programmatically determine if the channels should be swapped or not as MSUS on the ear PPG signal should usually lead the MSUS on PPG finger, but this was still visually confirmed manually and channels swapped as appropriate. All of this can be seen in on the next page in Figure 37.
+80
+
+Figure 37: Determining a swapped channel
+
+81
+
+Signal Abnormalities
+Abnormal PPG signals was another problem that affected the analysis algorithm‚Äôs ability to analyse the data from the dual channel PPG device. As the analysis was refined the better equipped it was to be able to handle irregularities in the data, but some could not be recovered from. Most problematic PPG signals from the tests can be classified as two types:
+‚Ä¢ Poorly placed PPG sensors ‚Ä¢ Movement artefacts
+Shown is Figure 38 is data from a test where the PPG sensor had been poorly placed on the subjects ear. As can be seen in the figure the amplitude of the signal is quite small as the sensor was not able to properly detect the subject‚Äôs oxygen saturation of the blood correctly. This weak signal could not be properly processed by the analysis algorithm; in particular failure to properly detect SSUS points was often an issue with this type of signal.
+
+Figure 38: Signal showing poor PPG sensor placement
+
+Time
+
+82
+
+In Figure 39 two issues have occurred with the PPG data. As highlighted by the arrows in the figure a movement artefact has occurred. This is likely due to sudden movement of the subject which has caused a spike in both the PPG ear and finger signals. It can also be seen that the red PPG ear signal is not producing a stable cyclical signal. This is also the result of poor PPG sensor placement.
+Figure 39: Signal showing movement artefacts and poor ear PPG placement
+83
+
+Creating a Fit
+In order to estimate BP using the PPG signals a correlation between the PPG input and the BP readings obtained from the Omron must be found. As this research attempts to compare the four differing methods of calculating PTT/PWV a number of different sets of correlations needed to be calculated. This number is multiplied as SBP, DBP and MAP were all being compared as well. Consequently, for a given set of data 12 different correlations needed to be calculated.
+This process was repeated using different sets of calibration data and comparison data which were all ultimately derived from subsets of all the data available to this research. The three sets of data that were used were as follows
+‚Ä¢ Data collected during Circadian Experiments ‚Ä¢ Data collected during Circadian Experiments and Initial Experiments ‚Ä¢ Data collected during Circadian Experiments, Initial Experiments and data obtained
+from stage 2 of the Second Hospital of Jiaxing Municipal Experiments.
+To estimate BP from the PPG based methodologies a set of calibration data needed to be used to create a correlation between each of the PPG based PTT/PWV methodologies. This training data took a set of PPG based readings obtained after processing the data with the analysis algorithm. This provided PTT/PWV averages using the each of the 4 different methodologies for all the tests. Each test also has associated with it the sphygmomanometer readings taken as a part of the test.
+For each of the 4 methodologies (PSUS, SSUS, MSUS and Peak) a correlating fitting algorithm was calculated between the average PWV of each test and the SBP, DBP and MAP readings. This process relied on the Curve Fitting Toolbox extension to MATLAB.
+84
+
+The first step in this process was to use the Curve Fitting Tool, cftool, in MATLAB to analyse all the data produced by the analysis algorithm. Output from different combinations of three sources was fed into the Curve Fitting Tool one by one until later the process was automated with a script, fittest.m (which can be found in the Appendix)
+
+The MATLAB script takes a set of analysis data, extracts the tests that were marked as valid during analysis (though this can be overridden to select different tests as being valid or invalid) and attempts to establish a correlating fit using the different built in fitting functions in MATLAB. This script produced output is shown in Figure 40 on the following page. The graphs themselves are not as important as the numbers quoted above them; the sum of squares due to error (SSE) and the adjusted R-squared (coefficient of determination). These were used to determine the best inbuilt function to use for creating a correlation between PPG based PWV and BP. In the end the exponential function shown in Equation 2 was chosen as the base fitting function, where values for Ì†µÌ±é and Ì†µÌ±è are are calculated for each given set of data.
+
+Equation 2: Fitting function
+
+Ì†µÌ±¶ = Ì†µÌ±é Ì†µÌ±íÌ†µÌ±èÌ†µÌ±•
+
+Two different sized fit series were used in establishing a fit between the PPG PWV readings and the BP readings, both of which came from the data obtained in the Circadian Experiments.
+‚Ä¢ using first 10 valid circadian results ‚Ä¢ using first 25 valid circadian results
+
+85
+
+Figure 40: Example output of fittest.m
+
+86
+
+Each fit series was also weighted in three different ways to produce a total of 6 fit series. These 3 weightings involved comparing the heart rate measured by the sphygmomanometer to that which was detected using the PPG. The rational for this was that heart rate was something that is easily calculated using the PPG and was something that was easily verifiably during the processing of each test. Also, as there were two PPG there were two heart rate readings obtained from each test; one from each of the PPG signals. The three weighting types were classified as follows
+‚Ä¢ no weighting ‚Äì here the data was not weighted at all ‚Ä¢ simple weighting (see Equation 3) ‚Ä¢ reciprocal weighting (see Equation 3)
+Equation 3: simple weighting
+Ì†µÌºîÌ†µÌ±†Ì†µÌ±ñÌ†µÌ±öÌ†µÌ±ùÌ†µÌ±ôÌ†µÌ±í = 1 ‚àí |Ì†µÌ∞ªÌ†µÌ±ÖÌ†µÌ±úÌ†µÌ±öÌ†µÌ±üÌ†µÌ±úÌ†µÌ±õ ‚àí Ì†µÌ±öÌ†µÌ±íÌ†µÌ±éÌ†µÌ±õ(Ì†µÌ∞ªÌ†µÌ±ÖÌ†µÌ±íÌ†µÌ±éÌ†µÌ±ü, Ì†µÌ∞ªÌ†µÌ±ÖÌ†µÌ±ìÌ†µÌ±ñÌ†µÌ±õÌ†µÌ±îÌ†µÌ±íÌ†µÌ±ü)|
+Equation 4: reciprocal weighting
+1 Ì†µÌºîÌ†µÌ±üÌ†µÌ±íÌ†µÌ±êÌ†µÌ±ñÌ†µÌ±ùÌ†µÌ±üÌ†µÌ±úÌ†µÌ±êÌ†µÌ±éÌ†µÌ±ô = |Ì†µÌ∞ªÌ†µÌ±ÖÌ†µÌ±úÌ†µÌ±öÌ†µÌ±üÌ†µÌ±úÌ†µÌ±õ ‚àí Ì†µÌ±öÌ†µÌ±íÌ†µÌ±éÌ†µÌ±õ(Ì†µÌ∞ªÌ†µÌ±ÖÌ†µÌ±íÌ†µÌ±éÌ†µÌ±ü, Ì†µÌ∞ªÌ†µÌ±ÖÌ†µÌ±ìÌ†µÌ±ñÌ†µÌ±õÌ†µÌ±îÌ†µÌ±íÌ†µÌ±ü)|
+This all resulted in a total of 24 exponential curve fitting function that mapped the 4 variants of PWV averages obtained from each test to the BP (SBP, DBP and MAP) readings taken. These curve fitting functions were then used to estimate the BP readings for the remaining set of tests which were then validated against the AAMI and BHS standards which is discussed in the following section.
+87
+
+Evaluation Against the AAMI and BHS Standards
+In this research the BHS and AAMI SP10 / ISO 81060 standards were used to guide the evaluations of the different PTT/PWV calculation methods. It should be noted that in evaluating the proposed methodologies against these two standards the complete evaluation procedures detailed within the standards were not followed. Both standards are quite specific in how devices should be evaluated. Both AAMI and BHS consider mercury-based sphygmomanometers as the gold standard that should be used as the baseline for evaluation of new devices and techniques. In doing so they both stipulate that for the purposes of such evaluation a sufficiently trained person should use the auscultation method to obtain blood pressure readings from a subject for each measurement taken from the new device or using the proposed new technique. The BP readings obtained through auscultation and the mercury sphygmomanometer can then be compared to that readings obtained using the new device or technique. Whilst all the tests that form the data that was used in this research include standard BP and heart rate readings taken at the time of the test, these readings were not obtained via the method outlined in the AAMI and BHS standard. Rather than using auscultation and a mercury sphygmomanometer these readings were taken using an oscillometric device, an Omron HEM-6221 in the case of the data collected by this researcher on them self. This is contrary to AAMI and BHS recommendations for the purposes of evaluation of the proposed methodology. Although not strictly adhering to either standard, both AAMI and BHS were used in making a comparison between four variations of calculating PTT/PWV.
+88
+

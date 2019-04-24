@@ -1,0 +1,750 @@
+USING ULTRASOUND TO MEASURE ARTERIAL DIAMETER FOR THE DEVELOPMENT OF A WEARABLE BLOOD PRESSURE MONITORING DEVICE
+by
+Richard Tyler Worthing
+B.A.SC., The University of British Columbia, 2014
+A THESIS SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS FOR THE DEGREE OF
+MASTER OF APPLIED SCIENCE in
+THE COLLEGE OF GRADUATE STUDIES (Electrical Engineering)
+THE UNIVERSITY OF BRITISH COLUMBIA (Okanagan)
+October 2016
+¬© Richard Tyler Worthing, 2016
+
+Abstract
+The goal of this thesis is to explore the potential of using ultrasound as part of a continuous and non-invasive blood pressure measurement device. Personal blood pressure measurement technology has remained relatively stagnant for decades, restricting those who take their blood pressure at home to using devices that operate with an inflatable pressure cuff.
+These devices are prohibitive in terms of both wearability and the ability to make measurements continuously. A device based on the methods explored in this thesis would be beneficial to anyone who requires at-home or 24-hour blood pressure monitoring without hindrance to daily activities, or blood pressure monitoring during exercise.
+In this thesis, a combination of ultrasound imaging and photoplethysmography are used to measure the diameter and the speed of a blood pulse traveling through the radial artery. Hemodynamic models suggest that these two metrics (arterial diameter and pulse wave velocity) are closely related to blood pressure and can be used to track changes in blood pressure at various points on the human body. To demonstrate proof of concept, two phases of a prototype device have been constructed. The first phase of the prototype makes use of an arterial phantom that simulates blood flow through an artificial artery immersed in a water bath. The purpose of the first prototype was to test the proposed method in a closed and controlled environment, using a nondestructive testing ultrasound probe for measuring the diameter of the phantom artery and pressure sensors for measuring the speed of a pressure pulse through the artery. The second phase of the prototype was built to perform measurements on human subjects. This stage used a medical ultrasound probe and photoplethysmography sensors to measure the diameter of the radial artery and local pulse wave velocity.
+Measurements with the phantom showed good correlation between the experimental
+ii
+
+method and absolute pressure measurement sensors. For human measurements, modelled blood pressure correlated well with values measured using a standard cuff-based blood pressure measurement device. Though the model showed good correlation with reference measurements, more work is needed on the prototype device before commercialization can be considered.
+iii
+
+Preface
+This thesis was completed under the supervision of Dr. Thomas Johnson and was cosupervised by Dr. Kenneth Chau at the School of Engineering, The University of British Columbia, Okanagan Campus.
+The author took the role of primary researcher and was involved with all aspects of the work in collaboration with Wilhelm Wenngren. Wilhelm is the author of a related thesis [1] that deals with the photoplethysmography sensors that make up part of the proposed device. Work on this research was collaborative and divided according to speciality for the publication of their respective theses.
+This project originated as an undergraduate capstone project at UBC Okanagan that was sponsored by Rick Slamka of Questek Research and Development and completed with design group member Ryunosuke Nakamatsu.
+Ethics approval (identification number H15-00058) for this research was granted by the Clinical Research Ethics Board at The University of British Columbia.
+iv
+
+Table of Contents
+Abstract.......................................................................................................................................... ii Preface........................................................................................................................................... iv Table of Contents .......................................................................................................................... v List of Figures............................................................................................................................... ix List of Symbols ............................................................................................................................ xv List of Abbreviations ................................................................................................................ xvii Acknowledgements .................................................................................................................. xviii Chapter 1: Introduction ......................................................................................................... 1
+The History of Blood Pressure Measurement............................................................... 2 The Early Experiments ‚Äì Stephen Hales and Jean L√©onard Marie Poiseuille.. 3 Development of Non-Invasive Blood Pressure Measurement ‚Äì The Sphygmograph .................................................................................................. 4 The Beginning of Modern Blood Pressure Measurement ‚Äì The Sphygmomanometer ......................................................................................... 5 Measuring Diastolic Blood Pressure - The Oscillometric Method................... 7 Korotkoff ‚Äì Measuring Blood Pressure with Sound......................................... 8
+Modern Day Blood Pressure Measurement Technology.............................................. 8 The Auscultatory Method or Korotkoff Sounds ............................................... 9 Automatic Oscillometric Method ................................................................... 10
+v
+
+Applanation Tonometry.................................................................................. 11 The Pe≈à√°z or Vascular Unloading Method..................................................... 12 Experimental Methods................................................................................................ 12 Pulse Wave Velocity Techniques ................................................................... 13 Pulse Wave Velocity and Arterial Diameter .................................................. 13 Hemodynamics ‚Äì The Theory of Blood Pressure and Arterial Blood Flow .............. 14 Elastic Properties of the Arterial Wall ............................................................ 14 Composition of the Arterial Wall ................................................................... 16 Pulse Wave Velocity and Young‚Äôs Modulus ‚Äì The Moens-Korteweg Equation.......................................................................................................... 18 Pulse Wave Velocity and Pressure - The Bramwell-Hill Equation................ 19 Continuous Measurement with Arterial Diameter and Pulse Wave Velocity 19 The Potential for Using Modeled Incremental Young‚Äôs Modulus in Continuous Blood Pressure Measurement ......................................................................... 21 Measuring Arterial Diameter...................................................................................... 22 Why Ultrasound? ............................................................................................ 22
+Imaging System Requirements for Measuring Arterial Diameter ... 23 Measurement Specifications for the Radial Artery.......................... 25 Comparison of Alternative Imaging Modalities .............................. 26 Ultrasonic Imaging ..................................................................................................... 28
+vi
+
+Ultrasound Transducers .................................................................................. 29 Attenuation, Axial Resolution and Lateral Resolution of Ultrasound............ 32 A, B and M Modes of Ultrasound Imaging .................................................... 38
+A-Mode ............................................................................................ 38 B-Mode ............................................................................................ 39 M-Mode ........................................................................................... 41 Chapter 2: Blood Pressure Estimation from Arterial Diameter Measurements ............ 43 The Ultrasound Test-bed ............................................................................................ 43 Ultrasound Pulser Board ................................................................................. 44 Analog Front End and Analog to Digital Converter Board ............................ 47 Data Acquisition and Control ......................................................................... 49 Verification of the Ultrasound Test-Bed .................................................................... 50 10 MHz Non-Destructive Testing Probe ........................................................ 51 Calibration Experiments ................................................................................. 52 Development of a Biological Phantom....................................................................... 56 Windkessel Model for Fluid Flow .................................................................. 57 Construction and Operation of the Phantom .................................................. 58 Signal Processing ............................................................................................ 65 Measurement Results using the Arterial Phantom.......................................... 71 Blood pressure Measurement using a Human Test Subject ....................................... 72
+vii
+
+Adaptation of a Medical Ultrasound Probe .................................................... 73 Photoplethysmography Sensors ...................................................................... 76 Results of Blood Pressure Measurement on a Human Test Subject............... 79 Summary......................................................................................................... 82 Chapter 3: Improving the Accuracy of Blood Pressure Measurements .......................... 83 Explanation for the Underestimation of Blood Pressure ............................................ 83 Additional Discussion on the Ultrasound Test-Bed ................................................... 86 Chapter 4: Conclusion and Future Work........................................................................... 88 Future Work: Human Trials and Model Evaluation ................................................... 89 Goals and Expected Outcomes of Future Experimentation........................................ 89 References .................................................................................................................................... 90
+viii
+
+List of Figures
+Figure 1.1 An early sphygmograph with bowls for holding counterweights and a revolving drum for recording the pressure waveform. The small point labelled ‚Äòb‚Äô would sit directly over a peripheral artery. Figure provided by [14]. ....................................................... 5
+Figure 1.2 A compact sphygmograph with narrow pressure pad in contact with the radial artery. Figure provided by [13]. .............................................................................................. 5
+Figure 1.3 Diagram of an early sphygmomanometer. Figure provided by [13]. ........................... 6 Figure 1.4 Modern sphygmomanometer complete with pressure gauge and inflation bulb........ 10 Figure 1.5 A modern automated oscillometric blood pressure measurement device for at-home
+use. ............................................................................................................................. 11 Figure 1.6 A typical plot of stress versus strain (blue). The Young's modulus is depicted as a
+straight line from the origin to the endpoint (red). The incremental Young's modulus (green) is shown at two locations (A and B) being the slope at specific points on the stress/strain curve (blue). ........................................................................................... 16 Figure 1.7 Cross sectional view of a conduit artery wall with layers and component materials. Adapted from [34]...................................................................................................... 17 Figure 1.8 An example of what is meant by axial and lateral resolution on a typical 2D ultrasound imaging beam.............................................................................................................. 24 Figure 1.9 The general relationship between axial resolution and depth of imaging as a function of transducer frequency............................................................................................... 24 Figure 1.10 Major arteries of the arm. Provided by [46]. ............................................................. 25 Figure 1.11 Imaging depth and axial resolution for common medical imaging technologies. Provided by [56]......................................................................................................... 26
+ix
+
+Figure 1.12 The spatial resolution versus imaging depth for various forms of photoacoustic microscopy. Taken from [58]..................................................................................... 27
+Figure 1.13 Components of a typical medical ultrasound transducer........................................... 29 Figure 1.14 Top: A voltage is applied to an ultrasound transducer to generate an acoustic wave.
+Bottom: Acoustic waves induce a voltage in the ultrasound element. Taken from [63]. ........................................................................................................ 30 Figure 1.15 Typical frequency response of a piezoelectric ultrasound transducer operating around the resonance frequency. Taken from [63]. ............................................................... 31 Figure 1.16 Comparison between good and poor axial resolution. Systems with poor axial resolution will blend the received echoes together (top). Systems with good axial resolution are capable of resolving two closely spaced reflectors (bottom). ............. 33 Figure 1.17 Illustration of how spatial pulse length influences axial resolution. Shorter spatial pulse lengths (left) return to the transducer as distinct pulses while longer spatial pulse lengths (right) are unresolvable and reduce axial resolution. .................................... 34 Figure 1.18 Ultrasound imaging trade-offs between axial resolution, operating frequency, and the imaging depth. Provided by [68]................................................................................ 35 Figure 1.19 Ultrasound attenuation characteristics for human tissues. Taken from [69]. ............ 36 Figure 1.20 Simulated A-Scan of a biological structure. Peaks in the received signal (lower portion) correspond to reflective boundaries in the imaging medium (top portion). Provided by [71]......................................................................................................... 39 Figure 1.21 Illustration of how B-Mode ultrasound is essentially a linear array of many A-Scan lines, combined together to create a 2D image. ......................................................... 40
+x
+
+Figure 1.22 Top: Typical B-Mode ultrasound image taken from the author's radial artery. Bottom: M-mode image generated over six seconds from the A-Scan (dashed) line visible in the top B-Mode portion.............................................................................................. 41
+Figure 2.1 Block diagram of the ultrasound test-bed with primary components: the ultrasound transducer, the analog front end board and pulser board, as well as their subcomponents........................................................................................................... 44
+Figure 2.2 The STEVAL-IME009VI ultrasound pulser board that was used to drive the test-bed ultrasound transducer. ................................................................................................ 45
+Figure 2.3 Typical high voltage excitation waveform generated by the pulser board. Waveform consists of three pulses of an alternating 60 V square wave with a fundamental frequency of 10 MHz. ................................................................................................ 46
+Figure 2.4 The AD9278 analog front end board. Eight SMA connectors connect to each of the eight analog front end channels. ................................................................................ 47
+Figure 2.5 Assembled front end receive unit for the ultrasound test-bed with HSC-ADC-EVALC (top) and AD9278 (bottom). ...................................................................................... 49
+Figure 2.6 10 MHz non-destructive testing probe used for imaging the arterial phantom. ......... 51 Figure 2.7 The aluminum cube and plastic straw used to verify the function of the test-bed. The
+water bath served as a consistent medium through which ultrasound waves could propagate. ................................................................................................................... 53 Figure 2.8 Ultrasound scan of the aluminum test cube. Large spikes in signal magnitude correspond to echoes reflected from the surfaces of the cube. .................................. 54
+xi
+
+Figure 2.9 Ultrasound signal received from the plastic straw when imaged with the non-destructive testing probe. Four distinct peaks correspond to the expected geometry of a cylindrical vessel. Attenuation of the ultrasound signal is also evident, with a decrease in amplitude from left to right, or, from shallow to deep............................................... 55
+Figure 2.10 An ideal ultrasound signal envelope for hollow cylindrical structures such as arteries. Four major reflections are returned to the transducer when the ultrasound wave reflects from the outer and inner walls. Reflections from the lumen, the center of the artery, are low and the received signal will appear to be close to zero for this region. ........ 56
+Figure 2.11 Example of the Windkessel effect with the characteristic components of the pump (heart), Windkessel or elastic chamber (the arteries), and the in-line resistance of the output spout (capillaries and branches). Provided by [78]......................................... 58
+Figure 2.12 Schematic diagram of the arterial blood flow phantom. An air piston produces a pressure pulse that is delivered to a tube of air and water that acts as the Windkessel. ................................................................................................................ 59
+Figure 2.13 Overview of the arterial phantom. The pumping system is on the right, with the Windkessel and artificial artery in the center............................................................. 60
+Figure 2.14 Close-up of the air piston pumping device. A motor system drives a cam which actuates the air piston. ................................................................................................ 61
+Figure 2.15 Close-up of the Windkessel assembly. The short column is the Windkessel and connects to the piston pump. The large column provides hydrostatic pressure to the phantom and connects to the reservoir....................................................................... 62
+Figure 2.16 Artificial artery substitute (white material) in a water bath. Pressure sensors are located on either side of the artery material. .......................................................................... 63
+xii
+
+Figure 2.17 Pressure sensors as seen from the outside of the water tank. Wire leads connect the pressure sensors to the data acquisition unit after passing through an instrumentation amplifier. .................................................................................................................... 64
+Figure 2.18 Non-destructive testing probe fixed to the outside of the water tank by the three-axis positioner.................................................................................................................... 65
+Figure 2.19 Raw ultrasound signals captured by the test-bed. The start of each frame can be identified by the large spike in signal amplitude that was produced by the high voltage excitation waveform................................................................................................... 66
+Figure 2.20 Envelope of the raw ultrasound waveform generated through use of the Hilbert Transform................................................................................................................... 68
+Figure 2.21 13107 samples of continuously recorded data separated from the original data array. .......................................................................................................................... 68
+Figure 2.22 Single frame of ultrasound data. The region of interest containing echoes from the phantom artery begins to emerge. .............................................................................. 69
+Figure 2.23 Processed ultrasound signal with peak detection algorithm applied. Peak locations detected by the algorithm appear as red vertical lines. .............................................. 70
+Figure 2.24 Pressure measured directly in the phantom (bottom, red) versus pressure estimated through the proposed model (top, blue). .................................................................... 72
+Figure 2.25 The medical ultrasound transducer adapted to work with the test-bed. Individual paths for the elements were identified and connected directly to the pulser board............. 74
+Figure 2.26 Shielded ultrasound probe attached to the 3D printed adapter.................................. 75 Figure 2.27 Arm jig designed to hold the subject's arm during measurement of arterial
+diameter...................................................................................................................... 76
+xiii
+
+Figure 2.28 PPG signal taken on the radial artery over four cardiac cycles. ................................ 77 Figure 2.29 Two simultaneously recorded PPG signals from sensors placed at different locations
+on the radial artery. The blue signal corresponds to the sensor that is positioned upstream relative to the dashed-red signal. ................................................................ 78 Figure 2.30 Photoplethysmography sensors used to measure pulse wave velocity are attached to the arm with 3D printed spacers and adhesive fabric. ............................................... 79 Figure 2.31 Raw ultrasound data of the author's radial artery taken from two channels of the adapted ultrasound transducer.................................................................................... 80 Figure 2.32 Envelopes of the radial artery ultrasound signals shown in Figure 2.31. .................. 80 Figure 2.33 Arterial blood pressure generated from PWV and arterial diameter data over two cardiac cycles. ............................................................................................................ 82 Figure 3.1 Comparison between the diameter waveforms taken from the test-bed and Vivid E9. ............................................................................................................. 84 Figure 3.2 Blood pressure curve generated using equation 1.6 and the diameter measurement taken from the Vivid E9 ultrasound machine. ..................................................................... 85
+xiv
+
+List of Symbols
+Ì†µÌ±ê ‚Äì Pulse wave velocity Ì†µÌ∞∏Ì†µÌ±ñÌ†µÌ±õÌ†µÌ±ê ‚Äì Incremental Young‚Äôs modulus ‚Ñé - Arterial wall thickness Ì†µÌ±Ö - Radius of the artery Ì†µÌºå ‚Äì Density of blood Ì†µÌºé ‚Äì Poisson‚Äôs ratio for the artery wall Ì†µÌ±É ‚Äì Arterial Pressure Ì†µÌ±â ‚Äì Volume of a segment of artery Ì†µÌ∞∑ ‚Äì Diameter of the artery Ì†µÌ±É0 ‚Äì Diastolic blood pressure Ì†µÌ±Ö0 ‚Äì Diameter of the artery at diastole Ì†µÌ∞∏0 ‚Äì Constant that describes an instantaneous Young‚Äôs modulus curve Ì†µÌºÅ - Constant that describes an instantaneous Young‚Äôs modulus curve Ì†µÌ±ÜÌ†µÌ±ÉÌ†µÌ∞ø ‚Äì Spatial pulse length Ì†µÌ±Å ‚Äì Number of cycles in an ultrasound pulse Ì†µÌºÜ ‚Äì Wavelength of an ultrasound wave Ì†µÌ∞º ‚Äì Intensity of an ultrasound wave Ì†µÌªº ‚Äì Attenuation coefficient Ì†µÌ±ô ‚Äì Distance travelled by an ultrasound wave Ì†µÌ±ì ‚Äì Frequency of an ultrasound wave Ì†µÌ±£ ‚Äì Propagation velocity of an ultrasound wave Ì†µÌ±ìÌ†µÌ±é(Ì†µÌ±°) ‚Äì Complex analytic signal
+xv
+
+Ì†µÌ±ì(Ì†µÌ±°) ‚Äì A real signal Ì†µÌ±ì‚Ñé(Ì†µÌ±°) ‚Äì Hilbert transform of Ì†µÌ±ì(Ì†µÌ±°) Ì†µÌ±ü(Ì†µÌ±°) ‚Äì Envelope of a signal –§(Ì†µÌ±°) ‚Äì Phase of a signal Ì†µÌºîc ‚Äì Angular frequency Ì†µÌ±ìc ‚Äì Center Frequency
+xvi
+
+List of Abbreviations
+CAT ‚Äì Computed axial tomography MRI ‚Äì Magnetic resonance imaging PAM ‚Äì Photoacoustic microscopy LNA ‚Äì Low noise amplifier VGA ‚Äì Variable gain amplifier AAF ‚Äì Anti-aliasing filter DAQ ‚Äì Data acquisition ADC ‚Äì Analog to digital converter AFE ‚Äì Analog front end NDT ‚Äì Non-destructive testing ZIF ‚Äì Zero insertion force EMI ‚Äì Electromagnetic interference PPG ‚Äì Photoplethysmography PWV ‚Äì Pulse wave velocity LED ‚Äì Light emitting diode PD - Photodiode
+xvii
+
+Acknowledgements
+I would first like to thank my primary supervisor Dr. Thomas Johnson for his initial interest in this project and for sharing his sage-like knowledge of electrical engineering. Thanks also to Dr. Kenneth Chau for his passion for research and the momentum he provided to this work.
+Also deserving of acknowledgement is Dr. Glen Foster of the School of Health and Exercise Sciences at UBC Okanagan, who generously gave his time and lab resources to this research.
+My thanks also go to Rick Slamka, who first conceptualized this project and served as its steadfast sponsor at all stages.
+It was my pleasure to complete this work alongside my friend Wilhelm Wenngren, the author of a related thesis that deals with the photoplethysmography sensors used in this work. To many more adventures in applied science.
+Lastly I would like to acknowledge my family and my friends for their continued support and interest in my pursuit of this work. Thanks especially to Kristen, for sharing her time and making sure I remained both fed and sane while working on this project. To many more adventures.
+xviii
+
+Chapter 1
+Chapter 1: Introduction
+The work in this thesis describes the proof of concept of a portable and continuous blood pressure measurement device. Continuous insofar as blood pressure is recorded consistently over some time as opposed to at a single instance, and portable meaning small enough to be worn on one‚Äôs arm. The proposed method uses a combination of ultrasonics and photoplethysmography to measure the diameter of, and the local pulse wave velocity in, a peripheral artery.
+Blood pressure measurement is of vital importance for the assessment of cardiovascular and overall health [2], but modern technology has limited value for athletes and those who require 24-hour blood pressure monitoring without interference with their daily activities. An inflatable cuff, known as a sphygmomanometer, is the most common device used to measure blood pressure. Cuff-based devices such as the sphygmomanometer require the user to remain stationary during the course of the measurement and can cause pain or discomfort [3]. The method presented in this thesis is designed to overcome these limitations as well as to provide continuous blood pressure measurement, which has yet to be realised in a convenient way outside of a clinical or hospital setting.
+In order to provide a cuffless blood pressure reading where the user has unrestricted movement, the proposed device relies on a hemodynamic model in which pressure is not directly measured, but is estimated through the non-invasive collection of alternative data. Similar studies that make use of arterial diameter and local pulse wave velocity for continuous blood pressure measurement [4, 5] have demonstrated the effectiveness of the method in a research setting with professional medical equipment. In order for this means of blood pressure measurement to be considered accessible, a low-cost and standalone device that does not require professional medical
+1
+
+equipment must be realised. The proof of concept presented in this thesis is comprised of off the shelf components to assess the potential of developing this technology into a commercial product.
+In addition to the device used to measure blood pressure, an arterial phantom that simulates blood flow in an artery like substance has been developed. The intent of the phantom was to provide a controlled measurement environment for testing our device; one where the difficulties associated with data collection in vivo are diminished. The data collected from the phantom and the resulting pressure estimates are presented alongside measured reference pressure in a later section of this thesis.
+In order to build up the necessary theory and background relating to this project, the introduction has sections on: a brief description and history of blood pressure measurement; relevant hemodynamic theory and vascular properties that relate to blood pressure; the principles of ultrasonic imaging; and lastly, how ultrasonic imaging can be used to estimate blood pressure.
+The History of Blood Pressure Measurement It has been proposed that an underestimation of systolic blood pressure by as little as 5
+mmHg can lead to a 25% increased risk of death from stroke or heart attack [2, 6]. The primary reason for this increase in mortality is that an underestimation of blood pressure makes it more likely that those with high blood pressure go untreated. This is substantial, as approximately 17.6% of Canadians are known to have high blood pressure [7]. What is known commonly as ‚Äòblood pressure‚Äô, is the pressure exerted on the walls of arteries created by the pumping action of the heart. With every beat of the heart, a pulse of blood is ejected from the left ventricle that travels to the various parts of the body. After this ejection of blood, this part of the heart rests and refills with blood to prepare for the next contraction. The portion of the cardiac cycle (in reference to the left ventricle) when the blood is sent to the body, is known as systole. Similarly, the part of the cardiac
+2
+
+cycle when the heart is at rest is known as diastole. This cyclic nature of the cardiac cycle, namely the pulsing and resting sequence of the heart, produces a pulsatile blood pressure that changes from high pressure to low pressure, from systole to diastole. Thus systolic blood pressure is the name given to the maximum pressure experienced in the arteries during the cardiac cycle, and diastolic blood pressure is the minimum or resting pressure.
+Maintaining nominal values of systolic and diastolic blood pressure is important in the keeping of good health. Overly high blood pressure, known as hypertension, causes increased stress on arterial walls and internal organs. Hypertension is generally known to have an average resting blood pressure of over 140 mmHg systolic and over 90 mmHg diastolic [8]. The increased stress brought on by hypertension can lead over time to develop into very serious health concerns. Hypertension is proven to lead to an increased risk for heart attack, kidney disease, heart failure and stroke [9].
+The measurement of blood pressure as a health metric has not always been the case. It will be shown that even current non-invasive methods for measuring blood pressure, such as with a sphygmomanometer, have required many years of research to develop an accurate and reliable measurement device. The following section describes the history of blood pressure measurement, and how devices and theory have progressed from their infancy into what is available today.
+The Early Experiments ‚Äì Stephen Hales and Jean L√©onard Marie Poiseuille The first experiment to ever measure arterial pressure was conducted by British clergyman and scientist Stephen Hales [10]. Hales‚Äô most famous experiment with blood pressure was completed in 1733 and involved the cannulation of a long glass tube into the femoral artery of a horse. With the tube in a vertical orientation and blood allowed to flow from the artery, Hales was able to measure the height of the resulting column of blood present in the glass tube, thereby
+3
+
+providing some measure of blood pressure. Though seemingly primitive compared to today‚Äôs standards, Hales‚Äô work was a stepping stone on which modern blood pressure measurement came into being.
+Following Hales, one of the major milestones in blood pressure measurement was brought about by Paris born physiologist and physicist Jean L√©onard Marie Poiseuille [11]. If it could be said that Hales‚Äô experiment included the first official observation of arterial blood pressure, then Poiseuille was the first to measure blood pressure accurately with scientific instrument. Poiseuille‚Äôs contribution to the field of blood pressure measurement occurred first around the year 1830, and included a mercury manometer used with an anticoagulant coupled directly to the artery of an animal [12]. The experiment observed the pulsatile nature of blood pressure as well as its absolute measured values in units of mmHg, the same measure of blood pressure still used today. The use of the mercury manometer to measure blood pressure enabled future researchers to improve the accuracy and repeatability of blood pressure measurements.
+Development of Non-Invasive Blood Pressure Measurement ‚Äì The Sphygmograph For obvious reasons, the widespread use of arterial cannulation for blood pressure measurement was not acceptable for human subjects. The development of non-invasive methods began around the year 1855, with the idea that blood pressure could be measured by applying a known counter pressure to a peripheral artery and recording the response [11, 13]. This counter pressure was applied by using some configuration of springs and levers with attached weights. When the pressure generated by the device was approximately equal to the pressure in the artery, fluctuations in arterial pressure were measured and recorded. These devices, known as sphygmographs, provided a crude graphical representation of a blood pressure pulse by recording the motion of the levers over a cardiac cycle. Despite the advantage over invasive methods, these
+4
+
+devices were cumbersome and difficult to use in practice [13]. Figures 1.1 and 1.2 show examples of early sphygmographs.
+Figure 1.1 An early sphygmograph with bowls for holding counterweights and a revolving drum for recording the pressure waveform. The small point labelled ‚Äòb‚Äô would sit directly over a peripheral artery. Figure provided by [14].
+Figure 1.2 A compact sphygmograph with narrow pressure pad in contact with the radial artery. Figure provided by [13].
+The Beginning of Modern Blood Pressure Measurement ‚Äì The Sphygmomanometer The development of the device known as the sphygmomanometer gave rise to the modern
+5
+
+inflatable cuff-based approach of measuring blood pressure that we have today. The sphygmomanometer emerged in the 1870‚Äôs from the work of Samuel Siegfried Karl Ritter von Basch [11], who used a sphygmograph coupled to a water filled rubber bag attached to the bulb of a manometer. The device worked similar to the sphygmograph insofar as pressure was applied directly above an artery, but now included a manometer that allowed for more accurate and absolute measurements. Pressure applied to the sphygmograph was transferred uniformly to the water filled rubber bag, and the pressure in the bag was measured with a manometer. At the applied pressure when no oscillations were sensed by the physician observing the manometer (the pressure applied being greater or equal to arterial pressure), systolic blood pressure was taken. A drawing of an early sphygmomanometer is shown in Figure 1.3.
+Figure 1.3 Diagram of an early sphygmomanometer. Figure provided by [13].
+6
+
+Various refinements to the sphygmomanometer took place shortly after the developments of von Bach, including the change from water to air in the rubber bag [11]. It was in the 1890‚Äôs however that an Italian physician by the name of Scipione Riva-Rocci brought the sphygmomanometer into the form most prevalent today [15], as it was Riva-Rocci who proposed the use of an inflatable arm cuff for the occlusion of the brachial artery to measure blood pressure. This ‚Äònew sphygmomanometer‚Äô as it was coined at the time, was able to measure blood pressure accurately and with a much greater simplicity than ever before. The system consisted of the usual mercury manometer to record pressure, with the addition of an inflatable rubber band used to uniformly constrict the brachial artery. To measure blood pressure, the cuff was inflated until the physician could no longer feel a pulse in the radial artery. At this point, the pressure was slowly released until the moment the pulse could again be palpated. The level of the mercury manometer was then taken to be the subject‚Äôs systolic blood pressure.
+Measuring Diastolic Blood Pressure - The Oscillometric Method The measurement of diastolic blood pressure at this point in history was restricted by the effectiveness and ability of physicians to palpate the pulse at key pressures. The issue is that there is no reliable way to detect diastolic blood pressure by sense of touch when using one of the apparatus described previously. In the late 1890‚Äôs a technique known as the oscillatory method was introduced as a way of measuring diastolic blood pressure. [11]. The oscillatory (or oscillometric) method made use of the pressure changes over a cardiac cycle which could be measured with a sphygmomanometer. The amplitude of the oscillations observed on the manometer were found to be related to the pressure exerted by the sphygmomanometer cuff. As the cuff pressure was varied on the subject‚Äôs arm, systolic blood pressure, diastolic blood pressure and mean blood pressure could be obtained by noting the pressure at which well-defined
+7
+
+oscillations began (systolic blood pressure), the pressure where maximum oscillation amplitude occurs (mean blood pressure) and the pressure where the oscillation amplitude noticeably decreases (diastolic blood pressure) [11, 16]. To this day, the oscillometric method is the most commonly used technique in automatic cuff-based blood pressure monitors, with proprietary algorithms used to determine systolic, mean, and diastolic blood pressure [16].
+Korotkoff ‚Äì Measuring Blood Pressure with Sound Around 1905, a Russian surgeon known as Nikolai Korotkoff presented another way of measuring both systolic blood pressure and diastolic blood pressure [11, 16]. Korotkoff discovered that by using a stethoscope in conjunction with a typical pressure cuff over the brachial artery, one could hear changes in the loudness of the pulse as pressure in the cuff was varied. This method is as follows: first the pressure cuff is inflated to a high pressure (over systolic) and the stethoscope is held directly below the pressure cuff downstream of the brachial artery. At this point, there should be no audible pulse as the artery is constricted. Then, the pressure in the cuff is slowly released until the pulse is just audible, signifying that the pressure in the cuff is approximately equal (or slightly less than) the maximum pressure (the systolic blood pressure) in the artery. To obtain diastolic blood pressure, the cuff pressure is further released until there are no pulsatile sounds audible through the stethoscope. This is the point at which diastolic blood pressure is taken, as the minimum pressure in the artery is no longer constricted by the pressure from the cuff. The Korotkoff sounds technique is still widely used today in its original form by physicians for clinical blood pressure measurement. Modern Day Blood Pressure Measurement Technology Perhaps one of the biggest advancements in blood pressure measurement is the emergence of at-home blood pressure monitoring. Taking blood pressure in the home has several advantages:
+8
+
+the reduction of stress associated with visits to the doctor‚Äôs office that result in a false reading of high blood pressure, known as ‚Äòwhite coat hypertension‚Äô; the ability to track blood pressure as it fluctuates throughout the day; and the increase in knowledge and greater control of one‚Äôs own health. The following section will explore the different kinds of blood pressure measurement techniques that are most commonly used in the clinical, hospital and at-home settings today.
+The Auscultatory Method or Korotkoff Sounds Despite being introduced over 100 years ago, the sphygmomanometer and the use of Korotkoff Sounds remains prominent in the doctors‚Äô offices of today. Though the techniques associated with this method remain relatively unchanged, modern materials and engineering have led to a smaller and easier to use sphygmomanometer. The modern sphygmomanometer is comprised of the expected expandable arm cuff, a rubber bulb for cuff inflation, a pressure gauge, and a built-in pressure release valve. An example of a modern sphygmomanometer can be seen in Figure 1.4.
+9
+
+Figure 1.4 Modern sphygmomanometer complete with pressure gauge and inflation bulb.
+Automatic Oscillometric Method The automatic oscillometric method is by far the most common means of measuring blood pressure in the home. Low-cost and reliable blood pressure measurement devices based on the oscillometric method can be implemented using modern materials, sensors and microcontrollers. Once positioned on the upper arm (often just above the elbow), the device will automatically inflate and systematically deflate the cuff while recording pressure oscillations. The algorithms used to calculate blood pressure from these oscillations are for the most part proprietary and known only by device manufacturers. For this reason, the accuracy of oscillometric devices will vary depending on the specific model used and also between manufacturers [16]. An example of an automatic oscillometric blood pressure monitor for at-home use can be seen in Figure 1.5.
+10
+
+Figure 1.5 A modern automated oscillometric blood pressure measurement device for at-home use.
+Applanation Tonometry The technique of blood pressure measurement known as applanation tonometry makes use of a pressure transducer directly applied overtop of a peripheral artery to obtain the local blood pressure waveform. When positioned over an artery (typically the radial artery), the pressure transducer is held with enough force to depress but not occlude the artery. Relative fluctuations in arterial pressure are then captured by the transducer. Unlike the oscillometric or auscultatory methods that provide only systolic blood pressure and diastolic blood pressure, applanation tonometry provides a continuous measurement of blood pressure over the cardiac cycle [17]. However, this method requires a calibration step (typically with one of the two previous methods described) before absolute values of blood pressure can be obtained. Additionally, transfer functions can be used to relate the radial blood pressure waveform to the more useful brachial or
+11
+
+central blood pressure waveforms [18]. Despite the need for calibration and precise positioning of the pressure transducer, applanation tonometry is a relatively simple means of non-invasively monitoring continuous arterial pressure waveforms.
+The Pe≈à√°z or Vascular Unloading Method A common method for continuously monitoring blood pressure in hospital and research settings [19], the Pe≈à√°z or Vascular Unloading method makes use of photoplethysmography and a pressure cuff attached around a finger to track changes in arterial blood pressure [20]. This is achieved by using the output of the photoplethysmography sensor to measure relative changes in finger artery blood flow. The pressure in the finger cuff is rapidly adjusted by a feedback loop to keep blood flow constant. The pressure in the finger cuff is then taken as a representation of the blood pressure within the finger. From this point, calibration with a sphygmomanometer or automatic oscillometric device that measures brachial blood pressure can be used to convert the measured blood pressure in the finger to the corresponding brachial blood pressure. An example of a device that uses this method for blood pressure monitoring is the Finometer; typically used in research settings to track the effects of blood pressure altering drugs and activities. The Finometer and other devices based on the Pe≈à√°z method are suitable for shortterm continuous blood pressure measurements but are not commonly used in a clinical or at-home setting on account of their cost, size and the requirement for calibration [19, 21]. Experimental Methods Thus far, only commercially available devices that are certified and tested over years of use have been presented. The following section deals with those methods that show some promise and are emerging from the research domain of blood pressure measurement. This section will also lead to the blood pressure measurement method that is used in this work.
+12
+
+Pulse Wave Velocity Techniques Pulse wave velocity is a valuable metric for the determination of arterial function, as well as a predictor for potentially fatal cardiovascular events [22, 23]. It is defined as the velocity of a blood pulse travelling through a segment of artery, or from one location on the arterial tree to another. In addition to its diagnostic value, pulse wave velocity is measured with relative ease and can be used in a hemodynamic relationship known as the Bramwell-Hill equation to estimate blood pressure [24]. There have been numerous investigations into the potential of using pulse wave velocity to continuously measure blood pressure [25]. Many of these investigations vary in the means by which they obtain pulse wave velocity: some use a pair of pressure sensors separated by a known distance over a segment of artery [26], others obtain pulse wave velocity using an electrocardiogram and a pressure transducer [27], or an electrocardiogram and a photoplethysmograph [28]. In nearly every method that uses pulse wave velocity as the sole metric for blood pressure estimation, some form of calibration must be used (such as with a cuff-based device), as pulse wave velocity by itself is not sufficient to obtain absolute values of blood pressure. Some of the drawbacks inherent when using pulse wave velocity to measure blood pressure include the need for frequent recalibration, that systolic blood pressure is measured more accurately than diastolic blood pressure [25], and the lack of a standardized measurement procedure [29]. Despite these drawbacks, explorations continue into pulse wave velocity based blood pressure measurement techniques. Pulse Wave Velocity and Arterial Diameter Drawing upon the same hemodynamic expressions that relate pulse wave velocity to blood
+13
+
+pressure, techniques that include the measurement of arterial diameter and pulse wave velocity provide a more complete picture of local arterial dynamics in its estimation of blood pressure [30]. Such methods are capable of accurately tracking the pulse pressure (difference between systolic blood pressure and diastolic blood pressure) of a subject over time as well as delivering a continuous pressure waveform [4, 5]. With a single measurement of diastolic blood pressure, or previously obtained knowledge of arterial properties, the method can be used to measure absolute values of blood pressure continuously. Some studies that investigate this method have utilized research-grade ultrasound platforms to simultaneously measure pulse wave velocity and arterial diameter [4, 5], while others have developed a bioimpedance sensor capable of performing the required measurements [31]. A similar device was implemented in this research project and uses pulse wave velocity and arterial diameter to estimate blood pressure. The developed system uses a combination of a simplified ultrasound sensor and photoplethysmography as a low cost alternative (in terms of price and computation) to measure pulse wave velocity and arterial diameter.
+Hemodynamics ‚Äì The Theory of Blood Pressure and Arterial Blood Flow The following section is an overview of the fluid dynamics of blood flow in arteries, the
+function of the circulatory system and a description of metrics that relate to blood pressure. It is important to understand hemodynamic principles so as to appreciate the challenges associated with developing a continuous and non-invasive blood pressure measurement device. In this section, equations are presented for hemodynamic models used to implement the continuous blood pressure measurement method.
+Elastic Properties of the Arterial Wall The arterial wall is viscoelastic by nature [32]. A viscoelastic substance is one that exhibits
+14
+
+both elastic and viscous properties. A purely elastic material has properties (such as deformation under an applied stress) that are independent of time. On the other hand, a viscous material has properties that are time dependant. The artery, on account of its viscoelasticity, is stiffer when stress is applied rapidly, and is less stiff when stress is applied slowly.
+When considering the elastic properties of the artery, for a certain applied stress there is a proportional deformation or strain. The concept of the proportionality between evenly distributed stress and strain for elastic materials is known as Hooke's Law, where stress is in units of force per area (pressure) and strain refers to the change in material dimensions as a percentage of its original size. A constant of proportionality can be determined that relates stress to strain called the elastic modulus or Young's modulus (Ì†µÌ∞∏). Young's modulus is defined as the slope of the stress/strain curve and has units of pressure (as strain is a dimensionless ratio). At single points on the stress/strain curve, the instantaneous modulus of elasticity can be determined for a small change in stress and strain. This quantity is known as the incremental Young's modulus (Ì†µÌ∞∏Ì†µÌ±ñÌ†µÌ±õÌ†µÌ±ê) and is more useful for materials that have nonlinear stress/strain characteristics. Figure 1.6 shows an example of a nonlinear stress/strain curve which is typical for large arteries [33].
+15
+
+Figure 1.6 A typical plot of stress versus strain (blue). The Young's modulus is depicted as a straight line from the origin to the endpoint (red). The incremental Young's modulus (green) is shown at two locations (A and B) being the slope at specific points on the stress/strain curve (blue).
+It can be seen from this curve that the arterial wall becomes stiffer (has a higher Ì†µÌ∞∏Ì†µÌ±ñÌ†µÌ±õÌ†µÌ±ê) as pressure/distention increases. The initial dilation of the artery has a relatively small incremental Young‚Äôs modulus as shown by point A. Once the deformation becomes large, Ì†µÌ∞∏Ì†µÌ±ñÌ†µÌ±õÌ†µÌ±ê increases rapidly as shown by point B. An explanation of this is found in the mechanical structure and composition of the arterial wall itself.
+Composition of the Arterial Wall Arteries are composed of a variety of materials that give rise to their non-linear Young‚Äôs Modulus. Figure 1.7 shows the composition of a typical conduit artery‚Äôs three distinct layers: the tunica intima, the tunica media and tunica adventitia.
+16
+
+Figure 1.7 Cross sectional view of a conduit artery wall with layers and component materials. Adapted from [34].
+The innermost layer from the inside of the artery (lumen) is known as the tunica intima, and is comprised of elastic lamellae and endothelial cells. The primary function of the intima is to provide a smooth surface that promotes the flow of blood. The next outermost layer is the tunica media, and is comprised of a combination of smooth muscle cells, elastic lamellae and collagen fibers. Finally, the outermost layer, the tunica adventitia, is made up of mainly collagen and elastic fibers.
+Structural properties, such as the Young's modulus of the arterial wall, are mostly determined by the tunica media and tunica adventitia [34]. At lower pressures, the distention of the arterial wall is governed primarily by the wall‚Äôs elastic constituents. This is due to the fact that
+17
+
+at low pressures, the collagen fibers are initially unstretched [35]. As the pressure increases, the collagen fibers begin to engage and contribute a much higher tensile strength than the elastin components of the artery [34]. This combined action of the elastin and collagen components are the cause of the exponential increase in Young's modulus for an increase in arterial pressure or strain [33, 36].
+
+Pulse Wave Velocity and Young‚Äôs Modulus ‚Äì The Moens-Korteweg Equation The elasticity of the artery wall can be seen to influence many aspects of the cardiovascular system. One such aspect is the nature and velocity of pulse wave propagation through arteries. Pulsatile flow is inherent in the arterial system, originating from the release of built up pressure in the left ventricle and propagation of the pressure wave to the periphery of the arterial tree. It has been observed that as arterial stiffness increases, there is an increase in the velocity of a pulse wave as it travels from one arterial site to another [37]. The relationship between the stiffness of the arterial wall and the pulse wave velocity is expressed in the Moens-Korteweg equation,
+
+Ì†µÌ±ê = ‚àöÌ†µ2Ì∞∏Ì†µÌ±ñÌ†µÌ†µÌ±õÌ±ÖÌ†µÌ±êÌ†µ‚ÑéÌºå
+
+(1.1)
+
+where Ì†µÌ±ê is the pulse wave velocity, Ì†µÌ∞∏Ì†µÌ±ñÌ†µÌ±õÌ†µÌ±ê is the incremental Young`s modulus taken at mean arterial pressure, ‚Ñé is the arterial wall thickness, Ì†µÌ±Ö is the inner radius of the artery and Ì†µÌºå is the density of blood.
+There are some assumptions present in equation 1.1. First, the tube or arterial segment that is considered has a thickness (‚Ñé) that is small in relation to its diameter. Second, the medium in which the wave propagates is assumed to be a non-viscous and incompressible fluid [32]. If viscous properties are taken into account, a modification to equation 1.1 yields a more accurate model for the pulse wave velocity in an elastic artery:
+
+18
+
+Ì†µÌ±ê
+
+=
+
+‚àö2
+
+Ì†µÌ∞∏Ì†µÌ±ñÌ†µÌ±õÌ†µÌ±ê ‚Ñé Ì†µÌ±Ö Ì†µÌºå (1‚àíÌ†µÌºé2)
+
+(1.2)
+
+In this equation, Ì†µÌºé is the Poisson's ratio for the arterial wall, a quantity that is found to be approximately 0.5 [32]. On account of its relationship with arterial Young's modulus, pulse wave velocity is commonly obtained in a clinical setting to provide a measure of arterial elasticity [32, 38].
+
+Pulse Wave Velocity and Pressure - The Bramwell-Hill Equation The local pressure inside the artery is closely linked to both pulse wave velocity and incremental Young`s modulus. As discussed previously, when the pressure in the artery increases, there is a corresponding increase in the incremental Young`s modulus. This increase in incremental Young`s modulus simultaneously results in a higher value for pulse wave velocity. An expression relating pulse wave velocity and pulse pressure takes form in the Bramwell-Hill equation.
+
+Ì†µÌ±ê
+
+=
+
+‚àö
+
+Ì†µÌª•Ì†µÌ±É Ì†µÌ±â Ì†µÌºå Ì†µÌª•Ì†µÌ±â
+
+(1.3)
+
+In this expression, Ì†µÌª•Ì†µÌ±É is a change in pressure, Ì†µÌª•Ì†µÌ±â is a change in arterial volume relative to volume Ì†µÌ±â, and Ì†µÌºå is the density of blood. The Bramwell-Hill equation is often used to indirectly determine pulse wave velocity using measurements of arterial diameter and pulse pressure [32]. The Bramwell-Hill and Moens-Korteweg equations are used extensively in blood pressure measurement techniques that use pulse wave velocity as a primary metric.
+
+Continuous Measurement with Arterial Diameter and Pulse Wave Velocity Three major variables that are related to arterial blood pressure have been described: pulse wave velocity, arterial diameter, and incremental Young`s modulus. In their standard forms, the Moens-Korteweg and Bramwell-Hill equations are insufficient to estimate blood pressure because the value of incremental Young`s modulus is unknown. In order for continuous blood pressure
+19
+
+measurement to work with these equations, either some substitution for incremental Young`s
+
+modulus must be made that allows for its inference indirectly, or a model of incremental Young`s
+
+modulus must be directly used. Without prior experimentation and measurement of continuous
+
+blood pressure, such models of incremental Young`s modulus are not obtainable, and thus most
+
+experimental methods of blood pressure measurement look for analytical ways to eliminate the
+
+requirement for direct models of incremental Young`s modulus.
+
+One such substitution starts with a basic definition of the incremental Young`s modulus of
+
+a cylindrical vessel as defined by Laplace‚Äôs Law [39].
+
+Ì†µÌ∞∏Ì†µÌ±ñÌ†µÌ±õÌ†µÌ±ê
+
+=
+
+Ì†µÌª•Ì†µÌ±É Ì†µÌ∞∑2 2 ‚Ñé Ì†µÌª•Ì†µÌ∞∑
+
+(1.4)
+
+In this expression, Ì†µÌª•Ì†µÌ±É and Ì†µÌª•Ì†µÌ∞∑ are small changes in pressure and arterial diameter respectively. By
+
+combining equation 1.4 and the Moens-Korteweg equation (1.1), an expression for the incremental
+
+change in blood pressure given a change in artery diameter and measured pulse wave velocity is
+
+Ì†µÌª•Ì†µÌ±É = 2 Ì†µÌ±ê2 Ì†µÌºå Ì†µÌª•Ì†µÌ±Ö
+Ì†µÌ±Ö
+
+(1.5)
+
+In this expression, the variable Ì†µÌ±Ö is the radius of the artery. Integration of this equation (over the
+
+cardiac cycle) yields an expression for continuous blood pressure measurement with variables of
+
+arterial diameter and pulse wave velocity.
+
+Ì†µÌ±É(Ì†µÌ±°)
+
+=
+
+2 Ì†µÌ±ê2 Ì†µÌºå log [Ì†µÌ±Ö(Ì†µÌ±°) ] +
+Ì†µÌ±Ö0
+
+Ì†µÌ±É0
+
+(1.6)
+
+In equation 1.6, Ì†µÌ±É(Ì†µÌ±°) and Ì†µÌ±Ö(Ì†µÌ±°) correspond to the pressure and radius of the artery at some arbitrary
+
+time in the cardiac cycle. Similarly, Ì†µÌ±É0 and Ì†µÌ±Ö0 correspond to the pressure and radius of the artery at diastole. Through experimentation, this method is found to closely follow the arterial blood
+
+pressure waveform when compared to existing methods [4, 5]. One drawback to this expression as
+
+a basis for blood pressure measurement is that Ì†µÌ±É0 or diastolic blood pressure cannot be known
+
+20
+
+without an independent measurement with an existing device. However, with the addition of an initial measurement of diastolic blood pressure, this waveform takes on absolute values of blood pressure continuously over the cardiac cycle, allowing for continuous and non-invasive blood pressure measurement at a multitude of locations on the body.
+
+The Potential for Using Modeled Incremental Young‚Äôs Modulus in Continuous Blood
+
+Pressure Measurement
+
+For a continuous, non-invasive method of blood pressure measurement to be able to
+
+measure absolute pressure and forgo any form of calibration with existing devices, it appears that
+
+some pre-existing information of the incremental Young`s modulus must be used. If such a
+
+measurement scheme were developed, relevant data for a variety of population groups would need
+
+to be obtained. Using this information, a mathematical relationship between arterial pressure and
+
+incremental Young`s modulus could be generated. As discussed in a previous section, incremental
+
+Young`s modulus has an exponential relationship with arterial pressure, such as
+
+Ì†µÌ∞∏Ì†µÌ±ñÌ†µÌ±õÌ†µÌ±ê = Ì†µÌ∞∏0 eÌ†µÌºÅÌ†µÌ±É
+
+(1.7)
+
+Equation 1.7 describes a typical incremental Young`s modulus versus pressure relationship with
+
+constants Ì†µÌ∞∏0 and Ì†µÌºÅ describing the shape of the incremental Young`s modulus curve. Using such a model in conjunction with the Moens-Korteweg equation would provide a means for absolute and
+
+continuous blood pressure measurement, as seen in equation 1.8.
+
+Ì†µÌ±É = 1 ln(Ì†µÌ±ê2 Ì†µÌ∞∑ Ì†µÌºå)
+
+Ì†µÌºÅ
+
+Ì†µÌ∞∏0 ‚Ñé
+
+(1.8)
+
+A model for blood pressure measurement such as this would rely heavily on the availability of
+
+Young's modulus data for a variety of population groups and the ability to match the required
+
+Young's modulus curve to a subject. However, due to the prevalence of smart phones and wireless
+
+device connectivity, the matching of the required incremental Young`s modulus model to an 21
+
+individual would be possible if the right information, being those factors that are known to influence incremental Young`s modulus, could be provided by those using the device.
+The data collection that would make this model possible involves determining the incremental Young`s modulus versus blood pressure relationship for various population groups who share a similar incremental Young`s modulus curve. With this information, statistical approximations could be developed that assign an incremental Young`s modulus/blood pressure curve to a subject based on their age, average blood pressure, ethnic background, height, and weight among other factors. From here, instantaneous measurement of arterial blood pressure could be performed using a form of ultrasonic arterial imaging and measurement of local pulse wave velocity such as described in a previous section on experimental blood pressure measurement techniques. Methods that estimate blood pressure continuously that are based on statistical models have not yet been well documented or pursued in literature. Early inquiries, however, suggest its potential for continuous and calibration free blood pressure measurement.
+Measuring Arterial Diameter The previous sections of this thesis have described a method by which blood pressure can be measured when given the metrics of arterial diameter and pulse wave velocity. The following sections will cover how arterial diameter is measured using ultrasound techniques. The fundamentals and hardware design of a sensor to measure pulse wave velocity is described in a separate thesis [1], whose work was completed in parallel to the work described herein.
+Why Ultrasound? Biomedical imaging is used for a wide variety of diagnostic, research and analytical purposes. Ranging from confocal microscopy to CAT and MRI scans, biomedical imaging devices are capable of observing some of the smallest biological structures, as well as large regions and
+22
+
+systems of the body. Of the many options in biomedical imaging, only a few have the potential to perform low-cost, non-invasive vascular imaging and measurement of arterial diameter. Before settling on one form of imaging over another, it is important to first define what is required to accurately measure arterial diameter. Once the specifications have been defined, a comparison of three well known and potentially suitable forms of biomedical imaging is made.
+Imaging System Requirements for Measuring Arterial Diameter Two fundamental metrics for an imaging system include spatial and temporal resolution. Temporal resolution refers to the ability of the system to resolve and collect data on something that is moving or changing in time. An analog to temporal resolution can be found in sampling theory, which defines the minimum rate at which data must be collected (or sampled) for an oscillating or time-varying signal to prevent aliasing errors. In a similar way, the temporal resolution of an imaging system defines how well it can accurately resolve objects or features that are in motion. In the case of the arterial diameter waveform, or arterial pulse waveforms in general, most of the information resides in frequencies below roughly 5 Hz [40-42]. On account of the relatively low frequency of the arterial diameter waveform, almost any imaging modality capable of repetitive or sequential data capture would suffice to satisfy the requirements of temporal resolution. Spatial resolution is defined as the minimum separation of two objects at which a system can resolve them distinctly [43], and also gives some insight into the capability of an imaging system to measure small features precisely. For two-dimensional imaging systems such as ultrasound, spatial resolution is comprised of axial (in the direction of the imaging beam), and lateral (perpendicular to the imaging beam) components. A visual indicator of axial and lateral resolution for a typical two-dimensional ultrasound beam can be seen in Figure 1.8.
+23
+
+Figure 1.8 An example of what is meant by axial and lateral resolution on a typical 2D ultrasound imaging beam.
+For the purposes of measuring arterial diameter, axial resolution is of primary concern. Though a greater axial resolution is a positive feature, there is often a trade-off with imaging depth. Figure 1.9 shows how axial resolution and imaging depth are inversely related as a function of frequency.
+Figure 1.9 The general relationship between axial resolution and depth of imaging as a function of transducer frequency.
+24
+
+Higher spatial resolution is obtained at higher imaging frequencies because the wavelength is short. On the other hand, the ultrasound pulse attenuates faster as frequency increases which then limits imaging depth. With this trade-off in mind, the goal for an imaging system must then be to maximize spatial resolution for a specified depth.
+Measurement Specifications for the Radial Artery Of the possible sites on the body suitable for the proposed method of blood pressure measurement, the radial artery was selected. The radial artery, located along the thumb-side of the forearm, is optimal for a number of reasons: the superficiality of the artery near the wrist, the ease of attaching a device to the body with a watch or wristband, and the existence of transfer functions to convert radial artery blood pressure to pressure in a more standard artery such as the brachial artery or aorta [44, 45]. The major arteries of the arm are shown in Figure 1.10.
+Figure 1.10 Major arteries of the arm. Provided by [46].
+The radial artery is usually located within 2 mm of the surface of the skin [47, 48] and has an average diameter around 2-3 mm. The exact depth and diameter of the radial artery varies with age, arm dominance and between males and females [49-51]. Based on this information, a
+25
+
+minimum imaging depth of 5 mm is required to consistently image the radial artery. Comparison of Alternative Imaging Modalities
+The first of the imaging modalities to be discussed will be optical coherence tomography, or OCT. OCT uses visible light for its image collection, and works on the principles of interferometry to resolve intelligible images from backscattered light. OCT offers a very high spatial resolution in the axial direction, in the range of 1-3 Œºm [52]. Figure 1.11 compares the imaging depth and resolution of OCT relative to other imaging technologies. In addition to very high resolution, OCT devices have been realized in relatively tiny form factors with exceptionally low cost [53]. Despite these advantages, OCT is limited by its depth of imaging being only 1-3 mm [54, 55] and requires minimally invasive procedures to image deeper tissues in the body [55]. Thus, for the purposes of imaging arterial diameter non-invasively, OCT lacks the required imaging depth.
+Figure 1.11 Imaging depth and axial resolution for common medical imaging technologies. Provided by [56].
+The next imaging modality to be considered is known as photoacoustic imaging, or photoacoustic microscopy (PAM). PAM is a hybrid system that uses a combination of light and ultrasonics to resolve images based on a principle known as the photoacoustic (or optoacoustic)
+26
+
+effect. The photoacoustic effect is essentially the transformation of light energy into sound or mechanical energy when light is absorbed by a medium [57]. By this effect, PAM uses laser pulses to generate ultrasonic disturbances in a medium which are then picked up by an arrayed ultrasound transducer. PAM offers exceptional contrast and resolution when compared to ultrasound [58, 59], and offers a higher maximum imaging depth than OCT. Figure 1.12 depicts a typical trend of resolution versus imaging depth for various subgroups of PAM imaging.
+Figure 1.12 The spatial resolution versus imaging depth for various forms of photoacoustic microscopy. Taken from [58].
+From Figure 1.12, one can estimate the axial resolution of a PAM imaging system at a depth of 5 mm to be approximately 12 Œºm. Despite these benefits, PAM systems are not as widespread as their purely ultrasonic counterparts and therefore development or acquisition of
+27
+
+such a system is restrictive. As the cost of PAM systems decrease [60] and research continues, this imaging modality may prove superior to ultrasound for the measurement of arterial diameter in a continuous blood pressure measurement device.
+Ultrasound was selected as the imaging platform for the work described in this thesis. The ubiquity of ultrasound systems allowed for the work to proceed in a relatively straightforward manner. Ultrasound also provides adequate and highly customizable resolution and imaging depth and is the current standard for measuring arterial diameter and observing the arterial system. In the following section, the background and underlying principles of ultrasonic imaging will be discussed.
+Ultrasonic Imaging Ultrasonic imaging (or ultrasonography) first emerged into the medical world in the 1930‚Äôs
+and has become a predominant form of medical imaging [61]. Today, ultrasonography is used in a variety of applications, from real time 3D imaging of tissue, intravascular imaging of the arterial system, to the characterization of the elasticity of tissues for cancer detection [62]. Although ultrasound imaging has become very sophisticated and complex, the objective in this work is to implement a simplified ultrasound system that can measure arterial diameter and eventually be incorporated into a wearable device.
+The form of ultrasound imaging used to measure arterial diameter is a simple pulse-echo technique, where a short pulse of acoustic (sound) energy is transmitted into the body by a piezoelectric transducer and echoes reflected from structures under the probe are detected. By analysing these echoes, and with the well documented knowledge of the speed of sound in biological tissues, one can deduce a spatial map of the structures under investigation. Each of these pulse-echo cycles is known as a frame. With a fast enough frame rate (the rate at which the pulse-
+28
+
+echo cycle is repeated), temporal changes (such as the change in arterial diameter over the cardiac cycle) can be resolved.
+The following sections will cover the principles behind ultrasound transducers, the generation of typical ultrasound images, and relevant calculations associated with spatial resolution.
+Ultrasound Transducers A typical ultrasound transducer is shown in Figure 1.13, and has the following major components: piezoelectric elements, an acoustic damping or backing block, an acoustic lens, and a matching layer.
+Figure 1.13 Components of a typical medical ultrasound transducer.
+Ultrasound is based on the ability of a transducer to convert voltage into an acoustic signal, and to convert acoustic echoes received by the transducer back into a readable voltage. For this process of conversion between acoustic and voltage signals, most ultrasound transducers use piezoelectric elements [63]. A piezoelectric material is one that experiences a mechanical deformation when a voltage is applied across it, or, induces a voltage across the material when a
+29
+
+mechanical deformation occurs. A piezoelectric transducer and how the transducer is used to transmit and receive ultrasonic waves is shown in Figure 1.14.
+Figure 1.14 Top: A voltage is applied to an ultrasound transducer to generate an acoustic wave. Bottom: Acoustic waves induce a voltage in the ultrasound element. Taken from [63].
+Piezoelectric materials are ideally suited for ultrasound imaging, as a single piezoelectric element can be used to both transmit and receive acoustic waves. In addition, these transducers can be machined to very small sizes and arranged in various shapes and orientations to form linear and two-dimensional arrays.
+For piezoelectric elements, it is necessary to define an operational frequency that will determine the imaging depth and axial resolution. Ultrasound transducers made from piezoelectric materials can be tailored to provide a specific frequency response and resonance frequency [64]. With an alternating voltage excitation (usually in the form of a square wave) applied to the transducer at its defined resonance (or center) frequency, the material will begin to oscillate with a frequency response similar to that in Figure 1.15.
+30
+
+Figure 1.15 Typical frequency response of a piezoelectric ultrasound transducer operating around the resonance frequency. Taken from [63].
+As with other resonant systems, the distribution of oscillating signal energy around the resonance frequency can be characterized by what is known as the Q factor. Q is defined as the ratio of the half power bandwidth (Œîf) over the resonant frequency. For imaging applications, a low Q factor is required for high spatial resolution [63].
+Once a piezoelectric element has been excited and is oscillating, the mechanical vibrations are transmitted from the elements into the matching layer and acoustic lens, and backwards into the backing/damping material. The purpose of the backing material is to suppress echoes reflected from the back of the transducer and dampen the oscillation of piezoelectric elements after they have been excited [65]. Without a backing layer, undamped oscillations would continue in the piezoelectric element, causing interference with echoes returning to the transducer, and compromising the axial resolution of the image.
+31
+
+The matching layer is used to improve the transfer of acoustic energy from the piezoelectric elements into skin. In a similar approach to optical matching layers, the impedance and thickness of the matching layer are selected in a way that reduces or nearly eliminates the reflection of acoustic energy back towards the piezoelectric elements. Thus with the presence of a matching layer, more acoustic energy is transferred into the imaged medium and the relative quality of the received signal is improved.
+The last major component of the ultrasonic transducer is the acoustic lens. The acoustic lens improves acoustic transmission into the skin and helps focus and reduce the spread of the ultrasound beam as it travels into tissue. Without the acoustic lens, less energy would be reflected back to the transducer from the region being imaged; thus the signal levels, and the quality of the image, would be reduced.
+Attenuation, Axial Resolution and Lateral Resolution of Ultrasound This section will explore the various factors that are associated with the spatial (axial and lateral) resolution of ultrasonic imaging, as well as the trade-offs that occur between resolution and imaging depth. As defined in a previous section, axial resolution is the ‚Äòminimum distance that can be differentiated between two reflectors located parallel to the direction of [the] ultrasound beam‚Äô [66]. Figure 1.16 illustrates this definition.
+32
+
+Figure 1.16 Comparison between good and poor axial resolution. Systems with poor axial resolution will blend the received echoes together (top). Systems with good axial resolution are capable of resolving two closely spaced reflectors (bottom).
+
+Axial resolution can also be described mathematically as half of the spatial pulse length,
+
+or half of the length of the pulse emited by an ultrasound transducer. Spatial pulse length can be
+
+defined as:
+
+Ì†µÌ±ÜÌ†µÌ±ÉÌ†µÌ∞ø = Ì†µÌ±Å Œá Ì†µÌºÜ
+
+(1.9)
+
+where Ì†µÌ±ÜÌ†µÌ±ÉÌ†µÌ∞ø is the spatial pulse length, Ì†µÌ±Å is the number of cycles in an ultrasound pulse, and Ì†µÌºÜ is
+
+the wavelength of the ultrasound pulse. Here wavelength is referenced to the speed of the sound
+
+wave travelling in a medium, around 1575 m/s for blood [63]. Figure 1.17 highlights how spatial
+
+pulse length impacts axial resolution.
+
+33
+
+Figure 1.17 Illustration of how spatial pulse length influences axial resolution. Shorter spatial pulse lengths (left) return to the transducer as distinct pulses while longer spatial pulse lengths (right) are unresolvable and reduce axial resolution.
+Thus it is seen that the effectiveness of the dampening material, the center frequency of the ultrasound system, and the number of excitation cycles applied to piezoelectric transduces are all significant factors that influence axial resolution [67].
+If the backing material and number of pulses delivered to transducer elements are optimized, axial resolution is limited by the operating frequency. Signal attenuation increases as frequency increases, and frequency limits the depth of imaging. Figure 1.18 shows the trade-off between frequency, axial resolution, and imaging depth for ultrasound systems.
+34
+
+Figure 1.18 Ultrasound imaging trade-offs between axial resolution, operating frequency, and the imaging depth. Provided by [68].
+
+Different tissues in the human body have different attenuation characteristics. Attenuation
+
+characteristics are defined by an attenuation coefficient, Œ±, that quantifies signal loss per unit
+
+length. A typical expression that relates the intensity of the ultrasound wave after travelling a
+
+certain distance through a lossy medium is:
+Ì†µÌ∞º2 = Ì†µÌ∞º1 Œá e‚àí2Ì†µÌªºÌ†µÌ±ô
+
+(1.10)
+
+In this expression, Ì†µÌ∞º2 is the intensity of the ultrasound wave after travelling distance Ì†µÌ±ô, Ì†µÌ∞º1 is the starting intensity of the ultrasound wave, and Ì†µÌªº is the attenuation coefficient for the medium
+
+at a specific frequency. Figure 1.19 shows typical ultrasonic attenuation characteristics for
+
+different types of tissue.
+
+35
+
+Figure 1.19 Ultrasound attenuation characteristics for human tissues. Taken from [69].
+
+A general rule for determining the maximum imaging depth for a specific operating
+
+frequency is to use two hundred times the wavelength of the transmitted signal [68]. After
+
+propagating 200 wavelengths, the transmitted signal is significantly attenuated and little of the
+
+echo signal can be detected. So, for an ultrasound system operating at 10 MHz (a typical frequency
+
+used to image vascular structures), and assuming the propagation velocity of the wave to be that
+
+of sound in blood (1575 m/s), the resulting wavelength is 157.5 Œºm using the following expression.
+
+Ì†µÌ±ì Œá Ì†µÌºÜ = Ì†µÌ±£
+
+(1.11)
+
+In this expression, Ì†µÌ±ì is the frequency, Ì†µÌºÜ is the wavelength in blood, and Ì†µÌ±£ is the propagation
+
+velocity. Two hundred times this wavelength results in a maximum imaging depth of 31.5 mm.
+
+Though this depth limit can be overcome to some extent through advanced systems and processing
+
+[68], the reduction in signal levels near the maximum imaging depth reduces signal quality
+
+drastically. 36
+
+Using requirements for axial resolution and penetration depth, one can choose a suitable center frequency for the intended imaging application. For imaging the radial artery, a penetration depth of at least 5 mm is required and frequencies of up to 63 MHz could be used. Since high frequencies improve axial resolution, it is desirable to maximize the operating frequency for a specific imaging depth. There are applications for ultrasound imaging at relatively high frequencies (from 30 to 100 MHz) including skin, and intravascular imaging [70]; however, most systems use frequencies in the range of 3-12 MHz. For this work, an operating frequency of 10 MHz is used and provides a good balance between imaging depth and axial resolution.
+By returning to the concept of spatial pulse length, one can calculate the maximum axial resolution for a given ultrasound transducer based on its operational frequency and the number cycles in the transmitted ultrasound pulse. For a single cycle of a 10 MHz ultrasound wave, the spatial pulse length is equal to the wavelength, which was calculated previously to be 157.5 Œºm in blood. Halving the 157.5 Œºm spatial pulse length produces an axial resolution of 78.75 Œºm for a 10 MHz ultrasound transducer.
+Lateral resolution defines a system‚Äôs ability to resolve images perpendicular to the direction of the ultrasound beam. A number of factors influence lateral resolution: frequency of the ultrasound wave, size and spacing of the transducer elements, and the degree of focusing. Unlike axial resolution, lateral resolution changes with the depth of the image being resolved. The reason for this depth dependence of lateral resolution is the spreading of the ultrasound beam as it moves away from the transducer. A narrow beam spread, brought on by a higher transducer frequency, smaller element size and superior focusing schemes, leads in turn to a higher lateral resolution.
+Although lateral resolution is important for accurate 2D imaging, the imaging of arterial
+37
+
+diameter can be reduced to a one dimensional problem provided that the ultrasound transducer element can be aligned accurately over the artery. In this work, two different transducer configurations are used: first, a single element transducer; and second, a transducer made from a linear array of elements. With correct positioning of one or many ultrasound transducers above an artery of interest, axial resolution is of primary concern.
+A, B and M Modes of Ultrasound Imaging The following section describes three common modes in ultrasonic imaging that use the pulse-echo technique: A-Mode, B-Mode and M-Mode.
+A-Mode A-Mode is the simplest form of ultrasound imaging and uses only a single ultrasonic element. A-Mode imaging operates under the pulse-echo technique to generate single scan lines, or maps of the intensity of received echoes directly under the transducer. Figure 1.20 illustrates the operation of an A-mode transducer and the hypothetically generated scan line.
+38
+
+Figure 1.20 Simulated A-Scan of a biological structure. Peaks in the received signal (lower portion) correspond to reflective boundaries in the imaging medium (top portion). Provided by [71].
+Changes in received echo intensity, such as the peaks seen in Figure 1.20, occur as parts of the transmitted ultrasound wave are reflected back from a boundary, signifying a change in acoustic impedance. For A-Mode scans to be meaningful, it is helpful to have some prior knowledge of the structure under investigation. An application of A-Mode imaging is in ophthalmology (the study of the eye), where A-Mode ultrasound is used to measure the thickness of layers in the eye and to find the location of the optical nerve.
+B-Mode B-Mode ultrasound generates a cross-sectional image of the region under the ultrasound transducer. It does this by using a linear array of ultrasound elements in what is essentially an array of A-Mode ultrasound scan lines. Figure 1.21 highlights the linear array of A-Scan lines inherent in B-Mode imaging.
+39
+
+Figure 1.21 Illustration of how B-Mode ultrasound is essentially a linear array of many A-Scan lines, combined together to create a 2D image.
+B-Mode is extremely useful for diagnostic and observational purposes, allowing physicians and researchers to non-invasively view structures such as organs and arteries in real time. This form of ultrasound imaging is also commonly used to aid the cannulation of arteries with intravascular catheters and needles. B-Mode has an advantage over A-Mode because it does not rely as much on precise positioning of the ultrasound transducer. An example of a B-Mode image taken over the author‚Äôs radial artery is shown in the top image of Figure 1.22.
+40
+
+Figure 1.22 Top: Typical B-Mode ultrasound image taken from the author's radial artery. Bottom: M-mode image generated over six seconds from the A-Scan (dashed) line visible in the top B-Mode portion.
+M-Mode M-Mode is similar to A-Mode in that it also only uses a single ultrasound element. However, M-Mode (or motion mode) imaging is used to visualise and capture the change in AScan line intensity over time. An example of an M-Mode scan is shown in the bottom image of Figure 1.22. The change in diameter of the radial artery is evident in the image. The center of the artery is at a depth of approximately 4 mm, and the oscillations in arterial diameter can be seen in the lightly shaded bands above and below the center of the artery. M-Mode imaging provides valuable information on those structures, such as arteries and valves of the heart, which undergo some form of motion. On account of having only a single scan line, M-Mode images require less processing and
+41
+
+resources than those taken using B-Mode. Often times, B-Mode is used to position the M-Mode scan line over the area of interest. This dual form of image generation allows for an ultrasound operator to easily position the M-Mode element with the use of the B-Mode cross sectional map.
+In this chapter, background on hemodynamics, the history of blood pressure measurement, and ultrasound imaging was presented. Of primary importance was the identification of hemodynamic models in section 1.4.5 that are capable of measuring continuous and non-invasive blood pressure using arterial diameter and pulse wave velocity. Another key topic was the requirements of an ultrasound imaging system to measure the diameter of the radial artery in section 1.5.1.2. In the following chapter, the hemodynamic model for continuous blood pressure measurement expressed in equation 1.6 will be evaluated in an arterial phantom and in the radial artery of a human subject. The development of ultrasound and pulse wave velocity sensors to measure arterial diameter and pulse wave velocity, respectively, will also be presented.
+42
+
+Chapter 2
+Chapter 2: Blood Pressure Estimation from Arterial Diameter Measurements
+In this chapter, experimental results are presented that evaluate the proposed blood pressure measurement method. The methodology of the experimental work begins with tests on an arterial phantom using a single element ultrasound transducer. The arterial phantom consists of an artificial artery in a water bath with a pumping mechanism used to mimic the cardiac cycle. The phantom provides a means of evaluating the measurement of blood pressure in a controlled environment that includes sensors which are calibrated to directly measure pressure in the artery. After validating the blood pressure measurement method using the arterial phantom, measurements were made on a human subject. The results presented in this chapter demonstrate the effectiveness of the proposed method to measure pressure in a controlled environment. The results also highlight the need for future work so that an acceptable level of effectiveness can be achieved for measuring blood pressure in human subjects.
+The Ultrasound Test-bed As this project was motivated by the goal of implementing a low-cost and portable system that could measure blood pressure, the research began with a search for a suitable ultrasound system with which to measure arterial diameter. Early in the project, an ultrasound pulser chip (STHV800) from ST Microelectronics was selected and an evaluation board (STEVAL-IME009) for the pulser chip was purchased. The purpose of the pulser board is to generate ultrasound pulses and receive the returning echo signals. The circuitry of the pulser board includes a transmit/receive (T/R) switch which connects to the ultrasound transducer. The pulser board controls the timing, frequency, and number of ultrasound pulses delivered to the transducer. In addition to the pulse generation circuitry, the
+43
+
+pulser board has analog output ports to receive the ultrasound echo signals. The analog output signals from the pulser board are amplified and sampled using an analog front end board which uses the AD9278 chip from Analog Devices. The sampled signals are stored in a buffer and then transferred to a computer through USB. Matlab was used to control the operation of the pulser and analog front end boards as well as to post-process the sampled ultrasound signals. A block diagram of the ultrasound test-bed system is shown in Figure 2.1.
+Figure 2.1 Block diagram of the ultrasound test-bed with primary components: the ultrasound transducer, the analog front end board and pulser board, as well as their subcomponents.
+Ultrasound Pulser Board The ultrasound pulser board is a development board for the STHV800 high voltage pulser chip from ST Microelectronics [72, 73]. The chip provides an integrated solution for low-cost ultrasound imaging systems and is capable of driving up to eight piezoelectric elements in an ultrasound transducer. The transmit circuitry generates a high voltage pulse which drives the piezoelectric element to transmit an acoustic pulse into the medium. After transmission, a transmit/receive (T/R) switch is toggled to direct the received echo signals to the eight output SMB connectors on the board. A photo of the pulser board is shown in Figure 2.2.
+44
+
+Figure 2.2 The STEVAL-IME009VI ultrasound pulser board that was used to drive the test-bed ultrasound transducer.
+The pulse waveform used to generate mechanical oscillations in the ultrasound probe consists of a square wave with a user defined amplitude that is controlled by positive and negative voltages applied to the screw terminals on the board. Controlling the voltage of the excitation waveform lets the user define the relative power of the transmitted ultrasound wave. In a portable device, this is important as the power of the transmitted signal is related to the overall power consumption of the system. In addition to controlling the amplitude, the number of periods as well as the frequency of the excitation waveform can be set by the user and uploaded to the pulser board through a USB connection to a PC. An example of a typical excitation waveform is shown in Figure 2.3.
+45
+
+Figure 2.3 Typical high voltage excitation waveform generated by the pulser board. Waveform consists of three pulses of an alternating 60 V square wave with a fundamental frequency of 10 MHz.
+The operation of the pulser board can be partitioned into three distinct phases: transmission, clamp and switch, and receive. During the transmission phase, the T/R switch connects the high voltage excitation circuitry to the ultrasound transducer and isolates the sensitive low voltage receive circuitry from the transmit output circuit. Also during the transmission phase, the excitation waveform is delivered to the ultrasound probe and the piezoelectric element begins to oscillate. After the excitation wave has been transmitted to the ultrasound transducer, the pulser board switches to the receive mode. It starts this transition by first eliminating any transient voltage left over from the transmit circuitry by what is known as clamping to ground. Clamping provides a direct path to the ground voltage level on the board and dissipates stored energy in the transmit circuitry, rather than dissipating through, and potentially damaging the sensitive receive circuitry. After clamping, the T/R switch changes to the receive state and the ultrasound transducer is connected to the low voltage receive circuitry. A coaxial cable connects the received output signal
+46
+
+from the pulser board to the input of the analog front end board where the signal is amplified and digitized.
+Analog Front End and Analog to Digital Converter Board The development board used for amplification and digitization of the received ultrasound echoes uses an AD9278 octal ultrasound analog front end chip from Analog Devices [74, 75]. The AD9278 evaluation board has 8 input channels with SMA connectors to provide a path for incoming signals to the board‚Äôs analog front end circuitry. Each of these channels includes a low noise amplifier (LNA), variable gain amplifier (VGA), anti-aliasing filter (AAF), and a 12-bit analog to digital converter. Figure 2.4 shows a photo of the AD9278 evaluation board with its 8 SMA input connectors.
+Figure 2.4 The AD9278 analog front end board. Eight SMA connectors connect to each of the eight analog front end channels.
+47
+
+The LNA is the first stage of the digitization process, and amplifies the small ultrasound signals that are received at an initial amplitude in the range of 1-10 mV. As the received signal levels are low, the ‚Äòlow noise‚Äô characteristic of the LNA is of vital importance. This is because any erroneous signal components (such as noise) introduced at the beginning of the digitization process will cascade and compound as the signal is amplified.
+Following the LNA, the VGA compensates for the effects of amplitude attenuation in the received ultrasound signals. In a uniform medium, the magnitude of ultrasound waves attenuates as the wave propagates in the medium. This attenuation of signal magnitude with depth will lead to inaccurate representations of the medium being imaged, and the relative amplitudes of received echoes. To overcome this, modern ultrasound imaging systems are equipped with a VGA to dynamically increase the receiver gain as the echoes are received. The result is a gain compensated signal whose amplitude does not degrade with imaging depth.
+The AAF is designed to reduce the bandwidth of the signal prior to sampling by the ADC. This bandlimiting prevents signals from being sampled that may cause aliasing: the interference of unwanted high frequency signals with the signal in the desired frequency range. On the AD9278, the AAF consists of a bandpass filter with user selectable high and low cut-off frequencies (or corner frequencies) common to ultrasonic signals. The default configuration of the AAF was selected for use in this work, having a high-pass corner frequency of 1.5 MHz and a low-pass corner frequency of 18 MHz.
+After the signal passes through the AAF, the AD9278 analog front end samples the amplified and filtered signal at rates of up to 65 MHz. After sampling, the digitized signal is sent via serial communication to a PC for post-processing and signal analysis. The AD9278 board uses a high-speed converter evaluation board, the HSC-ADC-EVALC, to interface the serial data
+48
+
+stream to a computer via a USB connection [76]. The HSC-ADC-EVALC together with the AD9278 evaluation board are shown in Figure 2.5.
+Figure 2.5 Assembled front end receive unit for the ultrasound test-bed with HSC-ADC-EVALC (top) and AD9278 (bottom).
+Data Acquisition and Control In order for the pulser and analog front end boards to be controlled directly with Matlab, a data acquisition (DAQ) board (USB-6210) from National Instruments was used. The DAQ was used to configure the state of the pulser board‚Äôs digital control lines. These control signals were
+49
+
+used to start and stop transmission of the pulse waveform as well as to reset the pulser board. The DAQ unit was also used to generate an analog voltage reference for the analog front end
+board. The analog front end has variable gain amplifiers which can be used to compensate for amplitude attenuation in the received ultrasound signal. The reference voltage can be used to dynamically control the amplifier gain to compensate for signal attenuation. For the experiments in this work, the reference voltage was chosen to maximize the gain of the analog front end. With maximum gain, the signal to noise ratio is highest, and compensation for signal attenuation can be made during post-processing.
+The analog front end board has a USB interface to read the raw data captured by the analog to digital converter (ADC) in the AD9278 chip. Analog Devices provides a USB driver to download blocks of data which are stored in the chip‚Äôs buffer. Matlab was used to run the software capture program and blocks of raw sample data could be read through the USB port.
+The buffer of the analog front end limited the maximum block size to 64 kB which was a significant limitation. The sampling rate of the ADC was 50 MHz and a 64 kB block of data spans only a portion of a typical cardiac cycle. Therefore, it was impossible to obtain a continuous block of data which spanned one complete cardiac cycle. After experimentation with the interface, blocks of 13,107 samples were periodically read at a repetition rate of approximately 55 Hz. The blocks of data were concatenated in post-processing. The 13107 sample block was chosen to ensure that three pulse-echo cycles were captured in each block of data. For a sampling frequency of 50 MHz, each block of data contained approximately 262 Œºs of data.
+Verification of the Ultrasound Test-Bed Before the ultrasound test-bed was used to conduct experiments to verify the blood pressure
+measurement method, the test-bed was used with a single element non-destructive testing (NDT)
+50
+
+transducer to measure the dimensions of simple reference objects. The imaging problems in these tests are well defined, and the exact dimensions of the objects are known, thus providing a way to verify the measurements obtained from ultrasound signals. The following section contains information on the NDT probe used to verify the test-bed, and the methodology of the calibration experiments.
+10 MHz Non-Destructive Testing Probe NDT transducers are most commonly used in industries that require quality control and error detection in critical hardware components such as aircraft turbines and in structural welds. The transducer selected for the initial phase of the test-bed was an NDT single element transducer operating at a frequency of 10 MHz. Figure 2.6 shows a photo of the NDT transducer.
+Figure 2.6 10 MHz non-destructive testing probe used for imaging the arterial phantom.
+The NDT probe was advantageous to this work for a number of reasons. Its relative simplicity in being comprised of only one element helped to efficiently calibrate and gain experience with the ultrasound test-bed. In addition to this, most NDT probes operate at a
+51
+
+frequency much lower than 10 MHz, a frequency commonly used for imaging human arteries. However, ultrasound measurements on humans with the NDT transducer was not possible, as the transducer was designed with a matching layer suitable for hard surfaces.
+Despite this limitation, the NDT transducer provided the ability to collect data with high spatial resolution on non-biological media in the short term and would help to facilitate the transition to a 10 MHz ultrasound probe designed for measurements on humans.
+Calibration Experiments With the use of the NDT ultrasound transducer, simple experiments to verify the basic functionality of the test-bed were conducted. The objects used for these tests are shown in Figure 2.7, and include an aluminum cube and a thin-walled plastic tube.
+52
+
+Figure 2.7 The aluminum cube and plastic straw used to verify the function of the test-bed. The water bath served as a consistent medium through which ultrasound waves could propagate.
+The first experiment used the ultrasound test-bed to measure the dimensions of an aluminum cube. The estimated measurement of the thickness of the cube using ultrasound imaging could then be compared to the dimensions measured with a digital Vernier caliper. Figure 2.8 shows the results from the ultrasound scan of the aluminum cube.
+53
+
+Figure 2.8 Ultrasound scan of the aluminum test cube. Large spikes in signal magnitude correspond to echoes reflected from the surfaces of the cube.
+Prominent echoes in the ultrasound scan are caused by the ultrasound wave reflecting back to the transducer from the far edge of the cube. The time delay between reflections from the opposite side of the cube corresponds to twice the width of the cube. Therefore, the time delay which is 11.93 Œºs in Figure 2.8 is divided by two to calculate the width of the cube. The speed of sound in aluminum is approximately 6420 m/s [77] and the width of the aluminum cube estimated using ultrasound imaging is approximately 38.29 mm. The width of the cube as measured with the calipers was 38.30 mm, thus confirming the accuracy of the measurement using the ultrasound test-bed.
+The second experiment performed to verify the function of the test-bed used a thin walled plastic straw submersed vertically in a bath of water. The cylindrical structure of the plastic straw is similar to the shape of an artery. The experimental apparatus with the straw and water bath is shown in Figure 2.7, and the corresponding ultrasound signal from imaging the plastic straw is
+54
+
+shown in Figure 2.9.
+Figure 2.9 Ultrasound signal received from the plastic straw when imaged with the non-destructive testing probe. Four distinct peaks correspond to the expected geometry of a cylindrical vessel. Attenuation of the ultrasound signal is also evident, with a decrease in amplitude from left to right, or, from shallow to deep.
+Scans of the thin walled plastic tube result in a received echo of four distinct peaks. These peaks correspond to reflections of the ultrasound wave from the inner and outer interfaces of the near and far walls of the plastic tube, a pattern that is also characteristic of arterial ultrasound scans. Ultrasound scans of the plastic straw also provided early data for the development of algorithms to measure the diameter of tube-like, and thus arterial-like structures. An example of this four peak characteristic reflection for cylindrical structures is highlighted in Figure 2.10.
+55
+
+Figure 2.10 An ideal ultrasound signal envelope for hollow cylindrical structures such as arteries. Four major reflections are returned to the transducer when the ultrasound wave reflects from the outer and inner walls. Reflections from the lumen, the center of the artery, are low and the received signal will appear to be close to zero for this region.
+Development of a Biological Phantom With a working ultrasound test-bed, the next step taken was to construct a bench-top
+simulation (or phantom) of pulsatile blood flow through an artery mimicking tissue. The phantom was used to create measurement conditions that had accurate spatial control of the ultrasound sensing element in relation to the artificial artery. Experiments with the phantom also provided a means of verifying the estimate of pressure in the artery with accurate in-line pressure sensors.
+56
+
+The following sections detail the theory behind the arterial phantom, physical construction of the phantom itself, the data collected and the results of blood pressure estimation.
+Windkessel Model for Fluid Flow A Windkessel (German for ‚Äòair chamber‚Äô) is a general term for an elastic or energy storage and release element used in fluid flow. This element is analogous to the elastic properties of the arterial wall that help to dampen, or reduce the swing of pressures experienced in the artery caused by the pumping action of the heart [78]. This dampening effect was first used by firefighters to create a relatively steady stream of water flow from firehoses that were supplied by pulsatile pumps. It did this by including an elastic element in the form of a closed air chamber in the system (the Windkessel), and some resistance to flow created by the nozzle of the hose. As a pulse of pressure was generated by the pump, the air in the Windkessel would compress and thus absorb and dampen some of the pressure pulse delivered to the nozzle. As pressure from the pump declined, the air would decompress and help to keep flow uninterrupted. Figure 2.11 highlights the Windkessel action in both arteries, and in its original setting.
+57
+
+Figure 2.11 Example of the Windkessel effect with the characteristic components of the pump (heart), Windkessel or elastic chamber (the arteries), and the in-line resistance of the output spout (capillaries and branches). Provided by [78].
+Construction and Operation of the Phantom The phantom developed in this work relies on the Windkessel effect to mimic the elasticity of arteries, and draws inspiration from other works that have developed their own phantom for arterial blood flow [5, 79, 80]. The design concept of the phantom is shown in Figure 2.12.
+58
+
+Figure 2.12 Schematic diagram of the arterial blood flow phantom. An air piston produces a pressure pulse that is delivered to a tube of air and water that acts as the Windkessel.
+The arterial phantom can be broken down into three major components: a pump and air cylinder, a Windkessel and fluid column, and an artificial artery. The artificial artery was generously provided by Dr. Hadi Mohammadi in the UBCO School of Engineering [81], and the other parts for the phantom were constructed from readily available materials. A photo of the assembled phantom is shown in Figure 2.13.
+59
+
+Figure 2.13 Overview of the arterial phantom. The pumping system is on the right, with the Windkessel and artificial artery in the center.
+A photo of the air pump mechanism is shown in greater detail in Figure 2.14. The pump consisted of a motor used to drive an air piston that delivered unidirectional air flow into the Windkessel. The Windkessel and fluid column are shown in Figure 2.15. The air pulse from the piston pump is fed into the top of the Windkessel chamber, which is filled primarily with water
+60
+
+and containing an air cushion above. This Windkessel chamber was directly attached to both the artificial artery and a fluid column. The fluid column was filled with water by an aquarium pump to a height calculated to produce a pressure of 80 mmHg, consistent with nominal values of diastolic blood pressure. In the absence of a fluid pulse, pressure in the artery substitute is equal to the 80 mmHg of pressure provided by the fluid column. Systolic blood pressure is achieved as a pulse of air is delivered to the Windkessel which then transfers the dampened pressure pulse to the artery. This cycle was controlled by limiting current delivered to the motor, thereby setting the frequency of the pulse cycle as well as overall amplitude of the pressure wave.
+Figure 2.14 Close-up of the air piston pumping device. A motor system drives a cam which actuates the air piston.
+61
+
+Figure 2.15 Close-up of the Windkessel assembly. The short column is the Windkessel and connects to the piston pump. The large column provides hydrostatic pressure to the phantom and connects to the reservoir.
+The artery that receives the pressure pulse from the piston pump, Windkessel and fluid column, was housed in an acrylic water bath as seen in Figure 2.16. The water bath provided a medium in which ultrasound waves could easily propagate from the acrylic, to the water and then to the artery. Though submerged in the water bath, the artery was connected to the pumping
+62
+
+apparatus in a closed loop. Flexible plastic tubing of similar diameter was used to connect the artery to the pumping mechanism and fluid reservoir.
+Figure 2.16 Artificial artery substitute (white material) in a water bath. Pressure sensors are located on either side of the artery material.
+Two pressure sensors [82] were included to measure the inlet and outlet pressures of the artery as shown in Figure 2.17. The purpose of these sensors is twofold: measure the absolute pressure in the artery, and measure the pulse wave velocity experienced in the artery for the estimation of blood pressure. The sensors were individually calibrated by filling the fluid column with known heights of water and applying a correction factor so that sensors measured consistently between themselves. Consistent measurements between the pressure sensors was only valid when the phantom assembly was in a static state, with the pump not active. The reason for this is that the dampening action of the artery will change the pressure between the sensors when the pump is operating. While the phantom was in operation, the outlet sensor was assumed to be more closely
+63
+
+correlated to the pressure in the artery. The pressure sensors were connected by means of an instrumentation amplifier circuit to a National Instruments DAQ board.
+Figure 2.17 Pressure sensors as seen from the outside of the water tank. Wire leads connect the pressure sensors to the data acquisition unit after passing through an instrumentation amplifier.
+With the phantom construction complete, the NDT ultrasound probe was situated on the outside of the acrylic tank, fixed in place by the three-axis positioner and coupled to the acrylic tank with an acoustic gel. This configuration of the NDT probe is shown in Figure 2.18. The position of the ultrasound transducer allowed for cross sectional scans of the artery to take place as the phantom operated.
+64
+
+Figure 2.18 Non-destructive testing probe fixed to the outside of the water tank by the three-axis positioner.
+Signal Processing Ultrasound data captured from the phantom must first be processed before arterial diameter information can be used in the blood pressure model. The data begins in the raw format captured by the ultrasound test-bed and consists of successive recordings each with a fixed number of samples. For a continuous recording of data, ultrasound signals were sampled at a rate of 50 MHz. The number of samples for each continuous recording was chosen to be long enough to capture three pulse-echo cycles. These pulse-echo cycles are also known as frames. As the analog font end board responsible for data capture lacked the ability to accept trigger signals from the pulser board, data was captured asynchronously relative to the pulse-echo cycle. To compensate for asynchronous data capture, the pulser board ran continuously, while the front
+65
+
+end board captured blocks of 13107 samples at a repetition rate of 55 Hz. After capture, these groups of data were concatenated and stored for further processing. An example measurement of a raw signal is shown in Figure 2.19.
+
+Figure 2.19 Raw ultrasound signals captured by the test-bed. The start of each frame can be identified by the large spike in signal amplitude that was produced by the high voltage excitation waveform.
+
+Once the raw measurement data is captured, the first step in processing is to find the
+
+envelope of the signal. The envelope of a signal can be obtained by forming a complex analytic
+
+signal with the Hilbert Transform. The complex analytic signal Ì†µÌ±ìÌ†µÌ±é(Ì†µÌ±°) is defined as
+
+Ì†µÌ±ìÌ†µÌ±é(Ì†µÌ±°) = Ì†µÌ±ì(Ì†µÌ±°) + Ì†µÌ±ó ‚àô Ì†µÌ±ì‚Ñé(Ì†µÌ±°)
+
+(2.1)
+
+where Ì†µÌ±ì(Ì†µÌ±°) is the real signal captured by the analog front end, and Ì†µÌ±ì‚Ñé(Ì†µÌ±°) is the Hilbert Transform
+
+of the real signal Ì†µÌ±ì(Ì†µÌ±°). The complex analytic signal is formed by adding the original function
+
+with its Hilbert transform in quadrature. The envelope is extracted from the complex analytic
+
+signal by first converting the analytic signal into a polar form:
+
+66
+
+Ì†µÌ±ìÌ†µÌ±é(Ì†µÌ±°) = Ì†µÌ±ü(Ì†µÌ±°) ‚àô Ì†µÌ±íÌ†µÌ±ó‚àô–§(Ì†µÌ±°) ‚àô Ì†µÌ±íÌ†µÌ±ó‚àôÌ†µÌºîÌ†µÌ±ê‚àôÌ†µÌ±°
+
+(2.2)
+
+In this polar representation, Ì†µÌ±ü(Ì†µÌ±°) is the signal envelope, –§(Ì†µÌ±°) is the signal‚Äôs phase, and Ì†µÌºîÌ†µÌ±ê is the
+
+angular frequency which is also equal to 2 ‚àô Ì†µÌºã ‚àô Ì†µÌ±ìÌ†µÌ±ê where Ì†µÌ±ìÌ†µÌ±ê is the carrier frequency of the ultrasound
+
+signal. The carrier frequency used in this design was 10 MHz. The Hilbert transform is useful in
+
+that it can separate the envelope of a signal from its frequency and phase components regardless
+
+of the signal‚Äôs fundamental frequency. The analytic signal also has the property that all signal
+
+components reside in the positive half of the frequency spectrum. The envelope component can
+
+then be isolated by finding the magnitude of the complex analytic signal.
+
+Ì†µÌ±ü(Ì†µÌ±°) = |Ì†µÌ±ìÌ†µÌ±é(Ì†µÌ±°)|
+
+(2.3)
+
+This final step can also be done by multiplying expression 2.2 by its complex conjugate. At this
+
+point, the envelope of the signal is in essence a frequency shifted form of the original signal, one
+
+that has its frequency spectrum now centered at a frequency of zero instead of at Ì†µÌ±ìÌ†µÌ±ê. Matlab is used to post-process the raw measurement data using the Hilbert transform technique to recover the
+
+signal envelope. The envelope of the raw ultrasound data in Figure 2.19 is shown in Figure 2.20.
+
+67
+
+Figure 2.20 Envelope of the raw ultrasound waveform generated through use of the Hilbert Transform.
+At this point, the envelope of the raw ultrasound data is separated into blocks of data that contain 13107 samples. An example is shown in Figure 2.21.
+Figure 2.21 13107 samples of continuously recorded data separated from the original data array.
+68
+
+The next phase of processing the ultrasound signal involves separating the data block into individual frames. This is done by using the large peaks generated by the ultrasound pulser as reference points. Once these reference points are identified through analysis of the dominant peaks in the signal, a single frame containing all relevant ultrasound echo data is produced. A single frame of ultrasound data isolated by this method is presented in Figure 2.22.
+Figure 2.22 Single frame of ultrasound data. The region of interest containing echoes from the phantom artery begins to emerge.
+The last step taken to condition the ultrasound signal before calculating arterial diameter is to isolate a region of interest within individual frames. This step can be completed by manually observing the region of interest in a single frame (as in Figure 2.22), and then automatically extracting the same region of data from sequential frames.
+Once the ultrasound data has been conditioned and the region of interest selected, the diameter of the artery can be determined. Using an algorithm that identifies the four most
+69
+
+prominent peaks in a set of data, the locations of the artery walls can be tracked over sequential frames. Figure 2.23 highlights this process of peak identification.
+Figure 2.23 Processed ultrasound signal with peak detection algorithm applied. Peak locations detected by the algorithm appear as red vertical lines.
+Once the four peaks are identified in a frame, the diameter of the artery can be calculated. Using Figure 2.23 as an example, the time delay between the two inner peaks corresponds to the inside diameter of the artery. The delay is 3.44 Œºs, and the time delay must be divided by two to account for the forward and backward waves. If the time delay (Ì†µÌ±°Ì†µÌ±ë) is combined with the velocity (Ì†µÌ±£) of sound in blood, then the diameter of the artery is estimated as Ì†µÌ±£ Œá Ì†µÌ±°Ì†µÌ±ë. In this example, Ì†µÌ±°Ì†µÌ±ë is 1.57 Œºs, Ì†µÌ±£ is approximately 1480 m/s, and the inner diameter is 2.32 mm. The same procedure can be repeated for each frame, and using the time index for each frame, a plot of diameter versus time can be generated.
+70
+
+Measurement Results using the Arterial Phantom Ultrasound data was combined with the calculated pulse wave velocity from the pressure sensors to form an estimate of pressure within the phantom. Equation 1.6 was used for estimating pressure, with P0 taken as the minimum pressure measured by the downstream pressure sensor over the duration of the measurement. After experimenting with the arterial phantom, it was observed that the artery would deflect slightly as fluid was pumped through it. The deflection created an error in the measurement results and the pressure was reduced to minimize deflection. Supports were also added to the artery that prevented motion perpendicular to the ultrasound beam. An example of the pressure measurement made using the arterial phantom is shown in Figure 2.24, which also includes an accurate pressure measurement using the downstream pressure sensor in the test-bed. As a result of timing differences between the DAQ hardware which samples the pressure sensors and the ultrasound hardware which samples the ultrasound transducer signal, the measured pressure is offset in time by ten seconds from the modeled pressure in Figure 2.24. In this example, the pulse wave velocity of the pressure waves was calculated to be approximately 9.1 m/s, and the value of P0 was 10 mmHg. On average, the maximum (or systolic) estimated pressure differed from the reference by 1.50 mmHg. Similarly, the estimated diastolic pressure differed on average from the reference by 1.66 mmHg.
+71
+
+Figure 2.24 Pressure measured directly in the phantom (bottom, red) versus pressure estimated through the proposed model (top, blue).
+Despite the drawbacks of the phantom system, the end result was a proof of concept of the blood pressure model. The next phase of this work involved the same essential methods as in the phantom now applied on the radial artery of a human. However, this required the development of sensors suitable for measurement on humans. The following section details the process of obtaining human-ready sensors and the resulting measurements.
+Blood pressure Measurement using a Human Test Subject Human measurements are necessary for the validation of any model of blood pressure.
+After ethics approval was granted by the University of British Columbia‚Äôs Research Information Services board, work began on developing sensors suitable for human measurements. The goal was to estimate blood pressure using arterial diameter and pulse wave velocity, and compare our results to an off-the-shelf blood pressure measurement device. The following is an outline of the ultrasound and pulse wave velocity sensors developed, as well as the steps taken to collect and
+72
+
+analyse blood pressure data. Adaptation of a Medical Ultrasound Probe One of the advantages of the NDT probe when used with a non-biological phantom is that
+it is designed to have better acoustic transmission and coupling to hard and dense surfaces. With biological tissue however, the NDT probe falls short with greatly diminished received signal power. Also, the NDT probe has only one ultrasound element, which makes positioning of the element over the artery difficult and overly sensitive for data collection on humans.
+Medical imaging ultrasound probes on the other hand are designed to improve acoustic coupling to skin and they have an array of sensor elements to improve imaging resolution over a larger spatial area compared to a single element NDT transducer. For the blood pressure sensor application, a linear array of sensors would reduce positioning sensitivity relative to the radial artery.
+A used medical imaging probe was purchased and adapted to work with the test-bed. The probe was an ATL L12-5 38 mm linear array transducer, with 192 piezoelectric ultrasound elements spaced at a pitch of 0.2 mm. The operating frequency range of the transducer was 5 to 12 MHz. The transducer, in its original form, has a 240 pin zero insertion force (ZIF) connector to connect the sensor to the ultrasound imaging base-station equipment. The connector interface does not provide direct connections to individual piezoelectric elements and there was internal circuitry inside the transducer. A schematic diagram of the transducer circuitry was not available, so the probe had to be modified to bypass internal circuits and make direct connections to individual piezoelectric elements. Figure 2.25 shows the modified probe.
+73
+
+Figure 2.25 The medical ultrasound transducer adapted to work with the test-bed. Individual paths for the elements were identified and connected directly to the pulser board.
+In total, eight elements of the linear array were adapted to match the eight available channels of the pulser board. When the process of soldering wire to the ultrasound elements was complete, the wires were secured to the transducer and metallic shielding was wrapped around the transducer to reduce electromagnetic interference (EMI).
+With the ultrasound transducer now compatible with the existing test-bed hardware, a method for holding the transducer in position alongside the subject‚Äôs arm in steady contact was developed. This method consisted of holding the subject‚Äôs arm in a jig next to the ultrasound probe which was fixed to a three-axis positioner. To do this, adapters were designed and 3D printed to fix the ultrasound probe to the three-axis positioner. The adapter attached to the ultrasound probe is shown in Figure 2.26.
+74
+
+Figure 2.26 Shielded ultrasound probe attached to the 3D printed adapter.
+The jig itself consisted of a 3D printed arm rest and hand grip. The configuration allowed the subject to keep their arm steady, as well as to precisely position the ultrasound probe over their radial artery. Small position changes were made with micrometer controls on the positioner. The assembled jig and ultrasound probe apparatus are shown in Figure 2.27. The arm jig greatly improved both the stability of the subject‚Äôs arm as well as the positioning accuracy of the ultrasound probe relative to the radial artery.
+75
+
+Figure 2.27 Arm jig designed to hold the subject's arm during measurement of arterial diameter.
+Photoplethysmography Sensors Before new experiments could be conducted on a human test subject with the modified ultrasound transducer, a method for measuring pulse wave velocity was required. An optical sensing technique called photoplethysmography (PPG) was selected for the design of a pulse wave
+76
+
+sensor. The detailed design of this sensor is described in other work [1] and only a brief overview is given here to provide sufficient background to explain subsequent measurement results.
+PPG sensors use a combination of light emitting diodes (LED) and photodiodes (PD) to measure changes in the absorption of light by the skin and underlying tissues over time. Blood travelling beneath a PPG sensor will alter the amount of light that is detected by the PD. This change in light intensity provides an easily distinguishable pulse waveform every cardiac cycle. An example of a PPG signal is shown in Figure 2.28.
+Figure 2.28 PPG signal taken on the radial artery over four cardiac cycles.
+For measuring pulse wave velocity, PPG sensors are placed at two locations above the radial artery, separated by a known distance. The pulse wave velocity is determined by dividing the distance between the sensors by the time it takes a pulse of blood to travel from the upstream sensor to the downstream sensor. An example measurement of two PPG sensors over the radial artery is shown in Figure 2.29.
+77
+
+Figure 2.29 Two simultaneously recorded PPG signals from sensors placed at different locations on the radial artery. The blue signal corresponds to the sensor that is positioned upstream relative to the dashed-red signal.
+The PPG sensors used in this work are based on the SFH7050 optical biosensors from Osram Opto Semiconductor [83]. The sensors were attached to the forearm with a custom made wrist strap, which is shown in Figure 2.30.
+78
+
+Figure 2.30 Photoplethysmography sensors used to measure pulse wave velocity are attached to the arm with 3D printed spacers and adhesive fabric.
+Results of Blood Pressure Measurement on a Human Test Subject After verifying the operation of the ultrasound and PPG sensors, experiments were made to evaluate the blood pressure measurement model presented in equation 1.6. The model requires arterial diameter (D), pulse wave velocity (c), and a calibration constant of diastolic blood pressure (P0). In this experiment, the author was used as a test subject. Using the same signal processing technique as described in section 2.3.3, ultrasound scans of the radial artery were taken at a location roughly 25 mm proximal of (or closer to the body than) the wrist. After the envelope waveform was extracted from the scans, arterial diameter was calculated using the time delay between signal peaks in the envelope waveform and a value of 1575 m/s for the velocity of sound in blood. An example of a single frame from two channels of the raw ultrasound signal is shown in Figure 2.31 and the extracted envelopes are shown in Figure 2.32.
+79
+
+Figure 2.31 Raw ultrasound data of the author's radial artery taken from two channels of the adapted ultrasound transducer.
+Figure 2.32 Envelopes of the radial artery ultrasound signals shown in Figure 2.31.
+80
+
+On account of a software limitation that will be explained in the following chapter, only two of the eight adapted channels on the ultrasound transducer were used during the measurements. This limited the ability of the transducer to be accurately positioned over the artery at the start of measurements, as well as increased the sensitivity to movement of the transducer while the measurements were conducted. To overcome this, the transducer was positioned as close as possible to the artery location before measurement, and the superior signal (channel 1, which experienced the largest swing in diameter) between the two channels was used in the diameter estimation algorithm.
+The PPG sensor was used to estimate pulse wave velocity. Averaging measurement data over the trial period yielded a PWV of approximately 7.6 m/s. Reference blood pressure was measured by a commercially available oscillometric blood pressure cuff, the Omron HEM741CAN. The reference measurement was 132/72 mmHg, typical of the authors resting blood pressure. This reference measurement also set the value of the constant P0 to 72 mmHg. The resulting plot of blood pressure from this experiment is shown in Figure 2.33.
+81
+
+Figure 2.33 Arterial blood pressure generated from PWV and arterial diameter data over two cardiac cycles.
+The modelled blood pressure shown in Figure 2.33 underestimates the arterial pulse pressure significantly, exhibiting a maximum systolic pressure of 89 mmHg compared to the 136 mmHg measured by the reference cuff.
+Summary Though the arterial phantom produced positive results for the proposed method of blood pressure measurement, human measurements using the blood pressure model did not correspond well to the values measured with a reference device. After repeated testing with the ultrasound testbed and PPG sensors produced similar results on a human subject, work was done to investigate sources of error in the system. The possible sources of error are presented in the following chapter along with a comparison of the ultrasound test-bed to a commercial ultrasound machine.
+82
+

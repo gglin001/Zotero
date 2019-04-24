@@ -1,0 +1,2751 @@
+Photoplethysmography-Based Biomedical Signal Processing
+Vom Fachbereich 18 Elektrotechnik und Informationstechnik der Technischen Universit¨at Darmstadt
+zur Erlangung der Wu¨rde eines Doktor-Ingenieurs (Dr.-Ing.) genehmigte Dissertation
+von Dipl.-Ing. Tim Sch¨ack geboren am 19.11.1986 in Oﬀenbach am Main
+
+Referent: Korreferent: Korreferent: Tag der Einreichung: Tag der mu¨ndlichen Pru¨fung:
+
+Prof. Dr.-Ing. Abdelhak M. Zoubir Prof. Dr. D. Robert Iskander Dr.-Ing. Michael Muma 30.10.2018 21.01.2019
+
+D 17 Darmstadt, 2019
+
+Sch¨ack, Tim: Photoplethysmography-Based Biomedical Signal Processing Darmstadt, Technische Universit¨at Darmstadt, Jahr der Ver¨oﬀentlichung der Dissertation auf TUprints: 2019 Tag der mu¨ndlichen Pru¨fung: 21.01.2019
+Vero¨ﬀentlicht unter CC BY-NC-SA 4.0 International https://creativecommons.org/licenses/
+
+“You can, you should, and if you’re brave enough to start, you will.” Stephen King (2000)
+To my Family and Friends.
+
+III
+Acknowledgments
+I would like to thank all the people who helped, inspired and supported me during my doctoral studies and who contributed to this thesis in various ways.
+First, I would like to thank Prof. Dr.-Ing. Abdelhak Zoubir for giving me the opportunity of accomplishing my Ph.D. studies in an excellent research group. I am very grateful for his support and for the freedom he gave me for my research.
+I thank Dr.-Ing. Michael Muma wholeheartedly for his supervision, about which I consider myself fortunate since my student research project in 2011. His outstanding enthusiasm and motivation helped me throughout my doctoral studies to accomplish achievements that I would not have accomplished without him. I remember especially the extraordinary time during the IEEE Signal Processing Cup 2015 together in Darmstadt and Australia. I am deeply grateful to him for all his advice and guidance.
+I would like to thank Prof. Dr. D. Robert Iskander for his co-supervision and his valuable scientiﬁc comments. My gratitude goes to my examiners Prof. Dr. Thomas P. Burg and Prof. Dr.-Ing. Ju¨rgen Adamy, as well as Prof. Dr. Heinz Koeppl as the chairperson.
+It was a wonderful, almost never-ending time for me in the Signal Processing Group and I am thankful for the great atmosphere, team spirit and support in any form. In particular, I thank my roommates Patricia Binder, Dr.-Ing. Go¨khan Gu¨l, Dr.-Ing. Michael Leigsnering, Ann-Kathrin Seifert and Freweyni Teklehaymanot for the countless conversations and wonderful moments we had together. I really enjoyed going to a conference or summer school with Dr.-Ing. Mouhammad Alhumaidi, Dr.-Ing. Stefano Fortunati, Dr.-Ing. Ju¨rgen Hahn, Dr.-Ing. Khadidja Hamaidi, Di Jin, Dr.-Ing. Sahar Khawatmi, Michael Lang and Sergey Sukhanov. It was a pleasure working with Dr.-Ing. Sara Al-Sayed, Jack Dagdagan, Dr.-Ing. Christian Debes, Dr.-Ing. Nevine Demitri, Dr.-Ing. Michael Fauß, Prof. em. Dr.-Ing. Eberhard Ha¨nsler, Dr. Roy Howard, Huiping Huang, Amare Kassaw, Dr.-Ing. Stefan Leier, Mark Leonard, Touﬁk Mouchini, Aﬁef Pambudi, Dr. Ivana Perna, Prof. Dr.-Ing. Henning Puder, Dominik Reinhard, Dr.-Ing. Simon Rosenkranz, Dr.-Ing. Adrian S˘o˘si´c, Dr.-Ing. Wassim Suleiman, Dr.Ing. Fiky Suratman, Dr.-Ing. Gebremichael Teame, Dr.-Ing. Christian Weiß and Dr.-Ing. Feng Yin.
+I am sincerely grateful to Renate Koschella and Hauke Fath for taking care of any administrative and technical problem. Both always had an open door to listen to my
+
+IV
+wishes and problems. You have always been a constant for me to rely on and to ask for help or advice.
+Furthermore, I sincerely want to thank the people I had the opportunity to collaborate with. Especially, I thank Yosef Saﬁ Harb from Happitech and Dr. J.S.S.G. de Jong and Dr. Robert Riezebos from the Onze Lieve Vrouwe Gasthuis (OLVG) in Amsterdam for the constructive collaboration, joint research and for your valuable practical insights. I really enjoyed working with you in Darmstadt and in Amsterdam.
+I also thank the co-authors Prof. Dr. Mengling Feng, Prof. Dr. Cuntai Guan and Dr.-Ing. Weaam Alkhaldi for their contributions to our joint research. Special thanks go to Dr.-Ing. Christian Steﬀens and Prof. Marius Pesavento for their contributions to our paper in the IEEE Signal Processing Magazine.
+During my doctoral studies, I was happy to supervise and work with some brilliant students. My sincere thanks go to Bjo¨rn Achenbach, Frederik Bous, Burak Celik, Nikola Geneshki, Lisa Hesse, Thomas Ku¨bert, Marc Meißner, Felicia Ruppel, Christian Sledz and Sarun Thongaram.
+I would also like to thank those dedicated students with whom I won the IEEE Signal Processing Cup 2015 together in Brisbane, Australia: Alaa Alameer, Bastian Alt, Maximilian Hu¨ttenrauch, Hauke Radtki and Patrick Wenzel. Guys, you did a great job!
+Special thanks go to my friends who accompanied me during my doctoral studies: Bettina Freier, Sebastian Jo¨rg, Dennis Noll, Yvonne Sp¨ack-Leigsnering and Benjamin Surges for listening to my concerns, for your support and above all for your friendship. I would also like to thank Thorsten Kempermann for proofreading and all his useful comments.
+Finally, I wish to express my gratitude to my family: my mother Heidi and her husband Bernd, my father Uwe and his wife Gabi, my sisters Carolin, Franzi, Jenny, Julia, Nele, and their partners, my niece Emilia, my cousin Martin, and my sweetheart Anna Korﬀ. Without your unconditional love, patience and trust, this work would not have been possible.
+Darmstadt, 21.01.2019
+
+V
+Kurzfassung
+In dieser Dissertation werden biomedizinische Signalverarbeitungsverfahren auf Basis der Photoplethysmograﬁe entwickelt und analysiert. Die entwickelten Methoden lo¨sen Probleme der Herzratenscha¨tzung bei ko¨rperlicher Bet¨atigung und der Beobachtung der kardiovaskula¨ren Gesundheit. Fu¨r die Scha¨tzung der Herzrate wa¨hrend ko¨rperlicher Beta¨tigung werden zwei verschiedene Methoden vorgestellt, die die momentane Herzrate am Handgelenk sehr genau scha¨tzen k¨onnen und gleichzeitig rechnerisch efﬁzient in Wearables integriert werden ko¨nnten. Im Rahmen der Beobachtung der kardiovaskul¨aren Gesundheit wird eine Methode fu¨r die Erkennung von Vorhoﬄimmern mit der Videokamera eines Smartphones vorgeschlagen, die eine hohe Erkennungsrate von Vorhoﬄimmern auf einem klinischen Vorstudien-Datensatz erzielt. Die weitere Beobachtung der kardiovaskul¨aren Parameter beinhaltet die Sch¨atzung von Blutdruck, Pulswellengeschwindigkeit und vaskula¨ren Altersindex, fu¨r die ein Verfahren vorgestellt wird, das nur ein einziges photoplethysmograﬁsches Signal ben¨otigt.
+Die Sch¨atzung der Herzrate wa¨hrend einer ko¨rperlichen Beta¨tigung mit Hilfe von photoplethysmograﬁschen Signalen stellt einen wichtigen Forschungsschwerpunkt dieser Dissertation dar. In dieser Arbeit werden zwei eﬃzient rechnende Algorithmen vorgestellt, die die Herzrate aus zwei photoplethysmograﬁschen Signalen mit einem dreiachsigen Beschleunigungssensorsignal scha¨tzen. Im ersten Algorithmus werden adaptive Filter benutzt, um die Artefakte zu sch¨atzen, die durch die Bewegung verursacht wurden und die die Signalqualit¨at stark beeintra¨chtigen. Hierzu wird der nichtstation¨are Zusammenhang zwischen den gemessenen Beschleunigungen und den Artefakten als lineares System modelliert. Die Ausga¨nge der adaptiven Filter werden kombiniert, um die Signalqualita¨t weiter zu verbessern. Die Herzrate wird im Spektralbereich so verfolgt, dass sie entlang der wahrscheinlichsten kontinuierlichen Linie mit hoher Energie verla¨uft. Der zweite Algorithmus weist eine geringe Berechnungskomplexit¨at auf und ist im Vergleich zu anderen Ansa¨tzen sehr schnell in der Ausfu¨hrung. Er nutzt korrelationsbasierte Indikatorfunktionen und Kombinationen der Signalspektren, um das korrelierte Nutzsignal zu verbessern und unkorrelierte St¨orungen zu unterdru¨cken. Durch die zus¨atzliche Da¨mpfung harmonischer Rauschanteile werden die Auswirkungen starker Bewegungsartefakte auf die Herzratensch¨atzung reduziert. Das spektrale Scha¨tzverfahren verwendet eine lineare Vorhersage mithilfe der Methode der kleinsten Quadrate. Beide Algorithmen sind sehr genu¨gsam in der beno¨tigten Rechenleistung. Insbesondere der zweite Algorithmus ist sehr schnell in seiner Ausfu¨hrung, was an einem weitverbreiteten Vergleichsdatensatz gezeigt wird, an dem beide Algorithmen mit anderen aktuellen Methoden verglichen werden.
+
+VI
+Der zweite Forschungsschwerpunkt und ein weiterer wichtiger Beitrag dieser Dissertation liegt in der Beobachtung der kardiovaskula¨ren Gesundheit mittels eines einzelnen photoplethysmograﬁschen Signals. Es werden zwei Methoden vorgestellt, von der die eine zur Erkennung von Vorhoﬄimmern und die andere zur Scha¨tzung des Blutdrucks, der Pulswellengeschwindigkeit und des vaskula¨ren Alters dient.
+Die erste Methode ist in der Lage, Vorhoﬄimmern anhand eines Smartphones zu erkennen, das einen auf der Videokamera aufgelegten Finger ﬁlmt. Der Algorithmus wandelt das Video in ein photoplethysmograﬁsches Signal um und extrahiert Signalmerkmale, die dann zur Unterscheidung zwischen Vorhoﬄimmern und einem normalen, regelma¨ßigen Herzschlag verwendet werden. Eine fehlerfreie Erkennung von Vorhoﬄimmern kann fu¨r einen klinischen Datensatz, der 326 Messungen (davon 20 mit Vorhoﬄimmern) entha¨lt, bereits durch zwei Merkmale und anhand einer einfachen linearen Entscheidungsgleichung erreicht werden.
+Die zweite Methode zielt darauf ab, kardiovaskul¨are Parameter aus einem einzigen photoplethysmograﬁschen Signal ohne die sonst u¨bliche Verwendung eines zusa¨tzlichen Elektrokardiogramms zu scha¨tzen. Das vorgeschlagene Verfahren extrahiert eine große Anzahl von Merkmalen aus dem photoplethysmograﬁschen Signal und seiner Diﬀerenzenreihe erster und zweiter Ordnung und rekonstruiert fehlende Merkmale durch Anwendung eines ”Matrix Completion“-Ansatzes. Die Scha¨tzung kardiovaskula¨rer Parameter basiert auf einer nichtlinearen Erweiterung der ”Support Vector Regression“ und wird mit einkanaligen photoplethysmograﬁsch-basierten Sch¨atzern, die lineare Regressionsmodelle nutzen, sowie einer auf der Pulsankunftszeit basierten Methode verglichen. Wenn der Trainingsdatensatz bereits die Person enth¨alt, fu¨r die die kardiovaskula¨ren Parameter bestimmt werden sollen, kann mit der vorgeschlagenen Methode eine akkurate Sch¨atzung ohne weitere Kalibrierung erfolgen.
+Alle vorgeschlagenen Algorithmen werden auf reale Daten angewendet, die wir entweder selbst in unserem biomedizinischen Labor erfasst haben, die von einem klinischen Forschungspartner erfasst wurden oder die als Benchmark-Datensatz frei verfu¨gbar sind.
+
+VII
+Abstract
+In this dissertation, photoplethysmography-based biomedical signal processing methods are developed and analyzed. The developed methods solve problems concerning the estimation of the heart rate during physical activity and the monitoring of cardiovascular health. For the estimation of heart rate during physical activity, two methods are presented that are very accurate in estimating the instantaneous heart rate at the wrist and, at the same time, are computationally eﬃcient so that they can easily be integrated into wearables. In the context of cardiovascular health monitoring, a method for the detection of atrial ﬁbrillation using the video camera of a smartphone is proposed that achieves a high detection rate of atrial ﬁbrillation (AF) on a clinical pre-study data set. Further monitoring of cardiovascular parameters includes the estimation of blood pressure (BP), pulse wave velocity (PWV), and vascular age index (VAI), for which an approach is presented that requires only a single photoplethysmographic (PPG) signal.
+Heart rate estimation during physical activity using PPG signals constitutes an important research focus of this thesis. In this work, two computationally eﬃcient algorithms are presented that estimate the heart rate from two PPG signals using a three axis accelerometer. In the ﬁrst approach, adaptive ﬁlters are applied to estimate motion artifacts that severely deteriorate the signal quality. The non-stationary relationship between the measured acceleration signals and the artifacts is modeled as a linear system. The outputs of the adaptive ﬁlters are combined to further enhance the signal quality and a constrained heart rate tracker follows the most probable high energy continuous line in the spectral domain. The second approach is modest in computational complexity and very fast in execution compared to existing approaches. It combines correlation-based fundamental frequency indicating functions and spectral combination to enhance the correlated useful signal and suppress uncorrelated noise. Additional harmonic noise damping further reduces the impact of strong motion artifacts and a spectral tracking procedure uses a linear least squares prediction. Both approaches are modest in computational complexity and especially the second approach is very fast in execution, as it is shown on a widely used benchmark data set and compared to state-of-the-art methods.
+The second research focus and a further major contribution of this thesis lies in the monitoring of the cardiovascular health with a single PPG signal. Two methods are presented, one for detection of AF and one for the estimation of BP, PWV, and VAI. The ﬁrst method is able to detect AF based on a smartphone ﬁlming the ﬁnger placed on the video camera. The algorithm transforms the video into a PPG signal and extracts features which are then used to discriminate between AF and normal sinus rhythm
+
+VIII
+(NSR). Perfect detection of AF is already achieved on a data set of 326 measurements (including 20 with AF) that were taken at a clinical pre-study using an appropriate pair of features whereby a decision is formed through a simple linear decision equation. The second method aims at estimating cardiovascular parameters from a single PPG signal without the conventional use of an additional electrocardiogram (ECG). The proposed method extracts a large number of features from the PPG signal and its ﬁrst and second order diﬀerence series, and reconstructs missing features by the use of matrix completion. The estimation of cardiovascular parameters is based on a nonlinear support vector regression (SVR) estimator and compared to single channel PPG based estimators using a linear regression model and a pulse arrival time (PAT) based method. If the training data set contains the person for whom the cardiovascular parameters are to be determined, the proposed method can provide an accurate estimate without further calibration.
+All proposed algorithms are applied to real data that we have either recorded ourselves in our biomedical laboratory, that have been recorded by a clinical research partner, or that are freely available as benchmark data sets.
+
+IX
+Contents
+
+1 Introduction
+
+1
+
+1.1 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+
+1.2 Aims of this Doctoral Project . . . . . . . . . . . . . . . . . . . . . . . 2
+
+1.3 Summary of the Contributions . . . . . . . . . . . . . . . . . . . . . . . 2
+
+1.3.1 Heart Rate Estimation During Physical Activity . . . . . . . . . 3
+
+1.3.2 Cardiovascular Health Monitoring . . . . . . . . . . . . . . . . . 3
+
+1.4 Publications . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+
+1.4.1 Photoplethysmography-Related Publications . . . . . . . . . . . 4
+
+1.4.2 Other Publications . . . . . . . . . . . . . . . . . . . . . . . . . 5
+
+1.5 Organization of the Thesis . . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+2 Photoplethysmographic Signals
+
+9
+
+2.1 Preliminaries . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+
+2.1.1 Signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+
+2.1.2 Relation to Electrocardiography . . . . . . . . . . . . . . . . . . 10
+
+2.2 Areas of Application . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+
+2.3 Acquisition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+
+2.3.1 Sensor Systems of the Experimental Data . . . . . . . . . . . . 14
+
+2.4 Signal Model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+
+2.4.1 Signal Segmentation and Diﬀerence Series . . . . . . . . . . . . 15
+
+2.5 Summary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+
+3 Heart Rate Estimation During Physical Activity
+
+19
+
+3.1 Introduction and Motivation . . . . . . . . . . . . . . . . . . . . . . . . 19
+
+3.2 State of the Art . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22
+
+3.3 Contributions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+
+3.4 Adaptive Filter Based Heart Rate Estimation . . . . . . . . . . . . . . 25
+
+3.4.1 Preprocessing . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+
+3.4.2 Noise Reduction by Adaptive Filtering . . . . . . . . . . . . . . 25
+
+3.4.3 Signal Enhancement by Combination . . . . . . . . . . . . . . . 27
+
+3.4.4 Heart Rate Tracking . . . . . . . . . . . . . . . . . . . . . . . . 28
+
+3.5 Computationally Eﬃcient Heart Rate Estimation . . . . . . . . . . . . 29
+
+3.5.1 Preprocessing . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+
+3.5.2 Signal Enhancement by Sample Correlation Functions . . . . . . 30
+
+3.5.3 Fourier Transformation . . . . . . . . . . . . . . . . . . . . . . . 30
+
+3.5.4 Harmonic Noise Damping . . . . . . . . . . . . . . . . . . . . . 31
+
+3.5.5 Heart Rate Tracking . . . . . . . . . . . . . . . . . . . . . . . . 31
+
+X
+
+Contents
+
+3.6 Experimental Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32 3.6.1 Real Data Set . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32 3.6.2 Evaluation Metrics . . . . . . . . . . . . . . . . . . . . . . . . . 33 3.6.3 Heart Rate Estimation Accuracy . . . . . . . . . . . . . . . . . 33 3.6.4 Computational Complexity . . . . . . . . . . . . . . . . . . . . . 34
+3.7 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39 3.8 Summary and Conclusions . . . . . . . . . . . . . . . . . . . . . . . . . 40
+
+4 Cardiovascular Health Monitoring
+
+41
+
+4.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 42
+
+4.2 Contributions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+
+4.3 State of the Art . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+
+4.4 Atrial Fibrillation Detection . . . . . . . . . . . . . . . . . . . . . . . . 45
+
+4.4.1 PPG Signal Acquisition and Preprocessing . . . . . . . . . . . . 45
+
+4.4.2 Statistical Feature Extraction . . . . . . . . . . . . . . . . . . . 46
+
+4.4.2.1 Time-Domain Features . . . . . . . . . . . . . . . . . . 47
+
+4.4.2.2 Frequency-Domain Features . . . . . . . . . . . . . . . 49
+
+4.4.2.3 Acceleration Features . . . . . . . . . . . . . . . . . . 50
+
+4.4.3 Feature Selection and Classiﬁcation . . . . . . . . . . . . . . . . 51
+
+4.4.3.1 Sequential Forward Selection (SFS) . . . . . . . . . . . 51
+
+4.4.3.2 Support Vector Machine (SVM) . . . . . . . . . . . . . 52
+
+4.4.4 Real Data Results . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+
+4.4.4.1 Experimental Setup and Performance Metrics . . . . . 52
+
+4.4.4.2 Classiﬁcation Results . . . . . . . . . . . . . . . . . . . 53
+
+4.4.5 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 54
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness . . . . . . . . . . . 56
+
+4.5.1 Preprocessing . . . . . . . . . . . . . . . . . . . . . . . . . . . . 56
+
+4.5.2 Feature Extraction . . . . . . . . . . . . . . . . . . . . . . . . . 57
+
+4.5.2.1 Features from the PPG Waveform . . . . . . . . . . . 57
+
+4.5.2.2 Features from the VPG Waveform . . . . . . . . . . . 60
+
+4.5.2.3 Features from the APG Waveform . . . . . . . . . . . 60
+
+4.5.3 Feature Matrix Completion . . . . . . . . . . . . . . . . . . . . 60
+
+4.5.4 Cardiovascular Parameter Estimation . . . . . . . . . . . . . . . 62
+
+4.5.4.1 Least Squares Linear Regression . . . . . . . . . . . . 63
+
+4.5.4.2 Robust Linear Regression . . . . . . . . . . . . . . . . 63
+
+4.5.4.3 Support Vector Regression (SVR) with Linear Kernel . 64
+
+4.5.4.4 Support Vector Regression (SVR) with Nonlinear Kernel 65
+
+4.5.5 Experimental Results . . . . . . . . . . . . . . . . . . . . . . . . 66
+
+4.5.5.1 Subjects . . . . . . . . . . . . . . . . . . . . . . . . . . 66
+
+Contents
+
+XI
+
+4.5.5.2 Study Protocol . . . . . . . . . . . . . . . . . . . . . . 67 4.5.5.3 Evaluation Metrics . . . . . . . . . . . . . . . . . . . . 69 4.5.5.4 Feature Selection . . . . . . . . . . . . . . . . . . . . . 70 4.5.5.5 Comparison between Feature Extraction Methods . . . 70 4.5.5.6 Static Parameter Estimation . . . . . . . . . . . . . . 71 4.5.5.7 Continuous Parameter Estimation . . . . . . . . . . . 72 4.5.5.8 Training the Regression Model . . . . . . . . . . . . . 73 4.5.6 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 75 4.6 Summary and Conclusions . . . . . . . . . . . . . . . . . . . . . . . . . 79
+
+5 Conclusions and Future Work
+
+83
+
+5.1 Conclusions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 84
+
+5.1.1 Heart Rate Estimation . . . . . . . . . . . . . . . . . . . . . . . 84
+
+5.1.2 Cardiovascular Health Monitoring . . . . . . . . . . . . . . . . . 84
+
+5.2 Challenges and Future Work . . . . . . . . . . . . . . . . . . . . . . . . 85
+
+5.2.1 Heart Rate Estimation . . . . . . . . . . . . . . . . . . . . . . . 85
+
+5.2.2 Cardiovascular Health Monitoring . . . . . . . . . . . . . . . . . 86
+
+Appendix
+
+89
+
+A.1 Summaries of Other Publications . . . . . . . . . . . . . . . . . . . . . 89
+
+A.1.1 Robust Nonlinear Causality Analysis . . . . . . . . . . . . . . . 89
+
+A.1.1.1 State of the Art . . . . . . . . . . . . . . . . . . . . . . 89
+
+A.1.1.2 Contributions . . . . . . . . . . . . . . . . . . . . . . . 91
+
+A.1.2 Eyelid Localization in Videokeratoscopic Images . . . . . . . . . 91
+
+A.1.2.1 State of the Art . . . . . . . . . . . . . . . . . . . . . . 93
+
+A.1.2.2 Contributions . . . . . . . . . . . . . . . . . . . . . . . 94
+
+A.1.3 Signal Processing Projects at TU Darmstadt . . . . . . . . . . . 94
+
+A.1.3.1 Contributions . . . . . . . . . . . . . . . . . . . . . . . 95
+
+List of Acronyms
+
+97
+
+List of Symbols
+
+103
+
+References
+
+106
+
+Curriculum Vitae
+
+121
+
+1
+Chapter 1
+Introduction
+This chapter gives an introduction to the topic of this thesis, states our research aims, summarizes our original contributions, lists the publications that have been produced during the period of doctoral candidacy, and gives an overview of the structure of this thesis.
+1.1 Motivation
+With the advent of wearables, which are electronics that can be worn on the body, such as smartwatches, ﬁtness wristbands, or data glasses, health monitoring has become increasingly popular in the recent years. While in 2014 only 28.8 million wearables were sold worldwide, sales rose up to 115.5 million wearables in 2017 and are expected to exceed the 200 million mark for the ﬁrst time in 2020 [1]. A huge market has grown, especially in the sports sector, where the consumer can choose a suitable product from a large number of devices. In addition to communicative beneﬁts, wearables enable the wearer to track training progress, observe health conditions, and gain new insights into physical condition. But also in the area of smartphones there are more and more apps that aim at being beneﬁcial to the health of the user, for example by motivating to walk more steps that are counted by the inbuilt pedometer.
+The use of wearables is also becoming increasingly popular in the health sector. To give a recent example, many German health insurances oﬀer the possibility of having the steps counted with a wearable or smartphone credited to bonus points in their bonus plans. These in turn can be exchanged for monetary or other rewards. And yet, these non-medical devices often fall short of identifying actionable health insights, although their sensors would be able to, and algorithms already exist to detect cardiac arrhythmias, sleep disorders, or other risk factors. For example, an accelerated heart rate can be a sign of an imminent heart attack and an irregular heartbeat can indicate a variety of concerning conditions.
+Almost all health and ﬁtness companies use optical sensors in their wearable devices for non-invasive measurements of ﬁtness parameters. These optical sensors use the principle of photoplethysmography, which has become the standard for portable heart
+
+2
+
+Chapter 1: Introduction
+
+rate sensors and which is able to replace uncomfortable electrocardiogram (ECG) chest straps for many physical activities. In contrast to ECG, which is typically measured by multiple electrodes at the chest, a photoplethysmographic (PPG) sensor can be placed at a single site on the body with good blood circulation, such as the earlobe, ﬁngertip, or wrist, making it easy to wear and collect measurement data throughout the day. In addition, a PPG sensor can be cost-eﬀectively integrated into a wearable, and any video camera of a smartphone can be transformed into a PPG sensor.
+In summary, photoplethysmography has great potential to provide new health insights, to measure additional physiological parameters of the body, and to reveal health risks that have not yet been observed. However, further research on the algorithms is needed to improve the accuracy and reliability of the measurements and to develop new estimation methods for further physiological parameters.
+
+1.2 Aims of this Doctoral Project
+The aim of this doctoral project is to introduce photoplethysmography-based methods to solve current biomedical signal processing problems. The major research objectives which have been identiﬁed as highly relevant to the biomedical signal processing community and are therefore addressed in this project concern
+• the estimation of heart rate during physical activity using multiple PPG and three-channel acceleration signals at the wrist with high accuracy, low computational complexity, and low memory requirements,
+• the detection of atrial ﬁbrillation (AF) using the PPG signal recorded from a video camera of a smartphone with high reliability and low computational complexity,
+• and the estimation of blood pressure (BP), pulse wave velocity (PWV), and vascular age index (VAI) from a single PPG signal.
+
+1.3 Summary of the Contributions
+The original contributions of this doctoral thesis are as follows.
+
+1.3 Summary of the Contributions
+
+3
+
+1.3.1 Heart Rate Estimation During Physical Activity
+
+An adaptive ﬁlter based framework for eﬃcient estimation of a person’s heart rate using PPG and acceleration signals is presented. The original contributions in the context of this framework are constituted by:
+
+• the development of a motion artifact suppression in PPG signals by use of adaptive normalized least mean squares (NLMS) ﬁlters and acceleration signals,
+• the development of a signal enhancement method in the frequency domain,
+• and the development of a constrained spectrogram-based heart rate tracker.
+
+As the computational power and memory size of wearables are limited, a second, computationally eﬃcient framework for accurate heart rate estimation is presented that is designed to be implemented on wearables. The original contributions in the context of this framework are constituted by:
+
+• the development of a correlation-based method to enhance periodic components and suppress wideband noise that is caused by motion-induced artifacts or sensor and ampliﬁer noise,
+• the development of a Gaussian bandstop ﬁlter based method to damp harmonic noise,
+• and the development of a constrained frequency-domain-based heart rate tracker using linear prediction.
+
+1.3.2 Cardiovascular Health Monitoring
+A photoplethysmography-based algorithm for the reliable detection of AF using smartphones is presented that has low computational cost and low memory requirements. Our original contributions in the context of this research area are summarized as follows:
+• the development of an enhanced PPG signal acquisition procedure for smartphones,
+
+4
+
+Chapter 1: Introduction
+
+• the exploration and extraction of new statistical discriminating features in the time and frequency domain for AF,
+• and the development of a classiﬁcation procedure that selects the most signiﬁcant features for AF detection and that yields a simple classiﬁcation equation for the discrimination between AF and normal sinus rhythm (NSR).
+
+For monitoring a person’s cardiovascular health, a framework for the estimation of BP, PWV, and VAI from a single PPG signal is proposed. The original contributions in the context of this framework are constituted by:
+
+• the development of signal processing methods for extracting a large set of features from a PPG signal,
+• the application of a matrix completion method for the recovery of missing feature values to ensure continuous estimation,
+• the application of feature selection methods and the identiﬁcation of features that are particularly signiﬁcant for the estimation of cardiovascular parameters,
+• the conduct of a study to monitor BP, PWV, and VAI with 18 persons and 42 measurements,
+• the ﬁtting of a nonlinear regression model and the comparison with linear and robust linear regression models to estimate cardiovascular parameters from a PPG signal.
+
+1.4 Publications
+The period of doctoral candidacy has culminated in the following publications.
+1.4.1 Photoplethysmography-Related Publications
+The following publications have been produced during the period of doctoral candidacy on photoplethysmography. Internationally Refereed Journal Articles:
+
+1.4 Publications
+
+5
+
+• T. Scha¨ck, M. Muma, and A. M. Zoubir, “Estimation of blood pressure, pulse wave velocity and vascular age index from a single PPG signal”, submitted to IEEE Journal of Biomedical and Health Informatics.
+
+Internationally Refereed Conference Papers:
+
+• T. Scha¨ck, M. Muma, and A. M. Zoubir, “Computationally eﬃcient heart rate estimation during physical exercise using photoplethysmographic signals”, in Proceedings of the 25th European Signal Processing Conference (EUSIPCO), Aug. 2017, pp. 2478–2481, in Kos, Greece.
+• T. Scha¨ck, Y. Saﬁ Harb, M. Muma, and A. M. Zoubir, “Computationally eﬃcient algorithm for photoplethysmography-based atrial ﬁbrillation detection using smartphones”, in Proceedings of the 39th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), July 2017, pp. 104–108, on Jeju Island, Korea.
+• T. Sch¨ack, M. Muma, and A. M. Zoubir, “A new method for heart rate monitoring during physical exercise using photoplethysmographic signals”, in Proceedings of the European Signal Processing Conference (EUSIPCO), Sept. 2015, pp. 2666– 2670, in Nice, France.
+
+Patents:
+
+• T. Sch¨ack, M. Muma, A. M. Zoubir, R. Lizio, and S. Li´ebana Vin˜as, “Methods to estimate the blood pressure and the arterial stiﬀness based on photoplethysmographic (PPG) signals”, submitted to the European Patent Oﬃce.
+• R. Lizio, S. Li´ebana Vin˜as, T. Scha¨ck, M. Muma, and A. M. Zoubir, “Preparations containing anthocyanins for use in the inﬂuence of cardiovascular conditions”, submitted to the European Patent Oﬃce.
+
+1.4.2 Other Publications
+The following publications have been produced during the period of doctoral candidacy on other topics. Summaries of these publications can be found in Appendix A.1. Internationally Refereed Journal Articles:
+
+6
+
+Chapter 1: Introduction
+
+• T. Scha¨ck, M. Muma, M. Feng, C. Guan and A. M. Zoubir, “Robust nonlinear causality analysis of nonstationary multivariate physiological time series”, IEEE Transactions on Biomedical Engineering, vol. 65, no. 6, pp. 1213–1225, June 2018.
+• T. Sch¨ack, M. Muma and A. M. Zoubir, “Signal processing projects at Technische Universita¨t Darmstadt: How to engage undergraduate students in signal processing practice”, IEEE Signal Processing Magazine, vol. 34, no. 1, pp. 16–30, Jan. 2017.
+• T. Scha¨ck, M. Muma, W. Alkhaldi and A. M. Zoubir, “A procedure to locate the eyelid position in noisy videokeratoscopic images”, EURASIP Journal on Advances in Signal Processing: Nonlinear Signal and Image Processing - A Special Issue in Honour of Giovanni L. Sicuranza on his Seventy-Fifth Birthday, vol. 2016, no. 1, pp. 136 (13 pages), Dez. 2016.
+
+Internationally Refereed Conference Papers:
+
+• T. Scha¨ck, M. Muma, and A. M. Zoubir, “Hands-on in signal processing education at Technische Universita¨t Darmstadt”, in Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), Apr. 2018, pp. 7011–7015, in Calgary, Canada.
+
+1.5 Organization of the Thesis
+Following this introduction, the thesis is structured as follows:
+Chapter 2 introduces the basic concept of photoplethysmography, describes the characteristics of PPG signals and the relation to electrocardiography. The areas of applications as well as the acquisition of PPG signals and the applied sensor systems in this thesis are detailed. This chapter also introduces the notation that is used throughout this thesis.
+In Chapter 3, two developed frameworks for heart rate estimation during physical activity using PPG and acceleration signals are introduced. First, an adaptive ﬁlter based approach is presented that reduces the impact of motion artifacts on the PPG signal and enhances the signal through a combination step before a tracker that takes
+
+1.5 Organization of the Thesis
+
+7
+
+physical constraints into account estimates the heart rate. The second framework emphasizes computationally eﬃcient heart rate estimation using basic signal processing operations only. Signal enhancement is performed by applying sample correlation functions as fundamental frequency indicators. Spectral noise damping using a Gaussian bandstop ﬁlter exploits information of the accelerometer spectrum. A simple linear least squares based tracking approach recursively estimates the heart rate. Experimental results obtained on a real-data benchmark data set conﬁrm the performance of the developed approaches.
+Chapter 4 is dedicated to cardiovascular health monitoring and presents two methods using PPG signals. First, a detection algorithm for AF using commercial oﬀ-the-shelf smartphones with a video camera is developed. For this, an intelligent acquisition method to extract a PPG signal from a smartphone video is described. Sequential feature selection is applied to ﬁnd the best feature combination that discriminates between AF and NSR, using support vector machines (SVMs) as the classiﬁcation algorithm. The experimental results on real-data that was recorded at a hospital in Amsterdam validate the performance of the presented method. Further, this chapter introduces a method for the estimation of BP, PWV, and VAI based on a single PPG signal. A set of 83 features is extracted from the PPG signal and its ﬁrst and second order diﬀerence series. The estimation of cardiovascular parameters is performed by nonlinear support vector regression (SVR) and compared to diﬀerent linear regression estimators, including a state-of-the-art method. The proposed method is evaluated on a self-recorded real data set.
+Finally, in Chapter 5, conclusions are drawn and an outlook for future work is presented.
+
+9
+Chapter 2
+Photoplethysmographic Signals
+The purpose of this chapter is to introduce the basic concept of photoplethysmography and the notations that are used throughout the dissertation.
+2.1 Preliminaries
+Photoplethysmography refers to an almost 150 years old optical, noninvasive indirect measurement of blood ﬂow changes in the microvascular bed of the tissue. The word plethysmograph is a combination of two ancient Greek words ’plethysmos’, which means increase, and ’graph’, which is the word for write [2]. The sensor system consists of a light source, that illuminates the skin along with underlying blood vessels via light-emitting diodes (LEDs), and a light detector to measure intensity changes of the reﬂected or transmitted light that is absorbed by a photo diode. The changes in light intensity are associated with variations in blood ﬂow of the tissue and can provide information on the cardiovascular system. The light that travels through biological tissue can be absorbed by the skin, bone, and arterial or venous blood. Most changes in blood ﬂow occur mainly in the arteries and arterioles, as they are responsible for the transport of oxygen-rich blood and nutrients.
+2.1.1 Signal
+The photoplethysmographic (PPG) waveform consists of a slowly varying trend, the low frequency (LF) component, which depends on the structure of the tissue, the average blood volume and the arterial blood oxygen saturation (SpO2), and a pulsatile high frequency (HF) component, which indicates blood volume changes that occur between the systolic and diastolic phases of the cardiac cycle [3]. While the LF component slowly varies with respiration and provides information about the respiration rate, the fundamental frequency of the HF component is directly related to the heart rate, see Fig. 2.1.
+The pulsatile HF component is commonly divided into two phases: the systolic phase with the systolic (direct) wave and the diastolic phase with the diastolic (reﬂected)
+
+10
+
+Chapter 2: Photoplethysmographic Signals
+
+Figure 2.1. An example of a PPG signal consisting of a LF and a HF component.
+wave [4], see Fig. 2.2. The diastolic wave is formed as a result of pressure transmission along a direct path from the aortic root to the measurement location, e.g. a ﬁnger. The diastolic wave is created by wave reﬂections from the periphery.
+2.1.2 Relation to Electrocardiography
+Photoplethysmography is directly related to electrocardiography which measures the electrical activity of the heart by using electrodes placed on the skin. The electrical signals can be measured using two or more electrodes placed in various positions on the chest resulting in the electrocardiogram (ECG). The most prominent feature of the ECG is the QRS complex, which indicates the main pumping contractions of the heart. Within the QRS complex, the most prominent component is the R-peak, which is typically used to estimate the heart rate by calculating the time diﬀerence between consecutive heartbeats. With each contraction of the heart, blood is pumped through the body and blood ﬂow changes can be measured by the PPG sensor. There is a time diﬀerence between the contraction of the heart and the onset of PPG waveform, the so-called pulse arrival time (PAT), see Fig. 2.3. Commonly, the PAT is calculated by the time diﬀerence between the R-peak of the QRS complex and the onset of the systolic wave of the PPG signal. In this case, the PAT is a combination of the pulse transit time (PTT), which describes the time a pressure wave takes to travel between two arterial sites, and the pre-ejection period (PEP), which is the time between the
+
+2.2 Areas of Application
+
+11
+
+Figure 2.2. A PPG waveform which is separated into two phases: the systolic phase with the systolic (direct) wave and the diastolic phase with the diastolic (reﬂected) wave.
+beginning of electrical stimulation of the left ventricle and the opening of the aortic valve.
+2.2 Areas of Application
+Photoplethysmography has been applied for decades in many diﬀerent clinical areas, for example in clinical physiological monitoring to measure heart rate, SpO2, blood pressure, cardiac output, and respiration, but also for vascular assessment, i.e. arterial disease or venous assessment [5]. Especially pulse oximetry, which uses photoplethysmography to measure the SpO2 and heart rate, is said to represent one of the most signiﬁcant technological advances in clinical patient monitoring over the last few decades [6] and became a mandated international standard for monitoring during anaesthesia in the early 1990s.
+Due to the increasingly large number of wearables, such as ﬁtness trackers or smartwatches, heart rate estimation in particular is more and more used in non-medical areas, for example by athletes to replace a bothersome ECG chest strap. The main advantage of a ﬁtness tracker or a smartwatch is the possibility to permanently record measurements that can provide new health-related insights.
+
+12
+
+Chapter 2: Photoplethysmographic Signals
+
+Figure 2.3. An example of a synchronously recorded ECG and PPG signal.
+The largest number of PPG sensors can, however, be found in your pocket or handbag: your smartphone. By placing the foreﬁnger on the video camera and using its ﬂash, a smartphone can easily be transformed into a PPG sensor. A variety of applications already exist that can estimate heart rate, heart rate variability, or even detect arrhythmia [7–12].
+2.3 Acquisition
+A PPG sensor consists of a light source and a light detector, also called photodetector (PD) or photosensor. The light source illuminates the tissue of the skin and is typically realized by an LED. The PD receives the spectrum and intensity of the reﬂected or transmitted light and additional stray light that incides on the sensor from the environment. A PD is typically realized by a photodiode, but can also be a mobile phone camera.
+There are basically two operating modes of a PPG sensor: the reﬂectance mode, in which the light source and the detector are side by side, and the transmission mode, in which the tissue is between the two components. The use of the transmission mode is naturally limited to a few body parts, e.g. ﬁngers or earlobes. Fig. 2.4 shows both operating modes on a ﬁnger.
+
+2.3 Acquisition
+
+13
+
+Figure 2.4. Two basic operating modes: The PD detects the transmitted light from the LED in the transmission mode (left) and in the reﬂectance mode (right), the PD receives the light that is back-scattered from the tissue, bone, or blood vessels. The image was taken from [3].
+For the light source of a PPG sensor, the choice of the wavelength of the LED is important. Anderson and Parrish examined the optical characteristics and the penetration depth of light in human skin [13]. Melanin is the major absorber of radiation in the epidermis, especially at shorter wavelengths in the ultraviolet (UV) range with a wavelength of less than 300 nm. In this range also epidermal thickness and several acids are important factors. The strongest absorption corresponds to the blue region (400–500 nm).
+As an optical “window” exists in skin and most other soft tissue in the red and near infrared (IR) region between 600–1300 nm, LEDs with near IR wavelengths have been used as a light source in PPG sensors, especially in medical devices. The penetration depth of near IR light with, for example, 1000 nm wavelength corresponds to approximately 1600 µm, making the sensor able to examine larger tissue beds located at a lower levels in the body and to obtain more biometric information, such as, hydration, muscle saturation, hemoglobin, etc. Red light is also much less aﬀected by skin color diﬀerences, tattoos, freckle patterns, or other physiological variations compared to green light. However, red light PPG sensors are more susceptible to motion artifacts and require advanced and robust signal processing to achieve a high signal-to-noise ratio (SNR) [14].
+In contrast, green light with a wavelength of 560 nm, for example, can only penetrate to a depth of about 420 µm and only examine the superﬁcial blood vessels, which can lead to signiﬁcant problems near the wrist, where blood circulation is limited. Although they do not penetrate deep, PPG sensors with green LEDs have a higher SNR and better resistance to motion artifacts. Many manufacturers of photoplethysmographybased ﬁtness devices use green LEDs because this choice requires less signal processing and there is a wealth of knowledge from existing products to build on. For monitoring the heart rate in the daily life, green LEDs are most suitable, but for further bio-
+
+14
+
+Chapter 2: Photoplethysmographic Signals
+
+metric information extraction, such as SpO2, deeper penetrating red or IR LEDs are recommended.
+
+2.3.1 Sensor Systems of the Experimental Data
+Our experimental data for Chapter 3 was initially provided by [15]. The data sets are also the training sets of the Institute of Electrical and Electronics Engineers (IEEE) Signal Processing Cup 2015. The two-channel PPG signal was recorded from the subject’s wrist using a pulse oximeter with green LEDs (wavelength: 515 nm).
+In Chapter 4, the experimental data for atrial ﬁbrillation (AF) detection was recorded using the video cameras of an iPhone 5s, iPhone 6 Plus, and iPhone 6s Plus as a PD. The foreﬁnger was placed on the mobile phone camera in such a way that it completely covered the camera image. Then, the white camera ﬂash LED light acts as a light source and illuminates the ﬁnger. Only the red channel of each video frame was considered in the generation of the PPG signal.
+For the estimation of cardiovascular parameters in Chapter 4, we recorded our own PPG data using the IR Plethysmograph Finger Clip and IR Plethysmograph Velcro Strap from ADInstruments with a wavelength of 950 nm, see Fig. 2.5.
+
+Figure 2.5. The IR Plethysmograph Finger Clip from ADInstruments with a wavelength of 950 nm that has been used for PPG data collection in our biomedical laboratory.
+
+2.4 Signal Model
+
+15
+
+2.4 Signal Model
+
+We propose the following measurement model to describe a PPG signal:
+
+p(n) = s(n) + m(n) + v(n).
+
+(2.1)
+
+Here, p(n) is the measured PPG signal, s(n) is the original non-stationary PPG signal without motion artifacts which is sought for, m(n) is the non-stationary motion artifact signal and v(n) ∼ N (0, σ2) represents the sensor and ampliﬁer noise.
+We model the eﬀects of the motion artifacts m(n) in dependence of the measured three-channel acceleration signal vector a(n) by introducing a time-varying system with impulse response h(n, αacc, ω, ψ) and rewrite the model using vector-matrix notation:
+
+p(n) = s(n) + h (n, αacc, ω, ψ)a(n) + v(n).
+
+(2.2)
+
+The impulse response h(n, αacc, ω, ψ) is assumed to be non-stationary, i.e., it depends on the time index n. Additionally, it also depends on the variable αacc, which is the acceleration that acts on the sensor, the angular velocity for rotational movements ω, and the actual position of the sensor ψ.
+As in practice the angular velocity ω and the actual position ψ is not always available, we restrict the model for the impulse response to the acceleration αacc. Hence, the system model equation simpliﬁes to
+
+p(n) = s(n) + h (n, αacc)a(n) + v(n).
+
+(2.3)
+
+2.4.1 Signal Segmentation and Diﬀerence Series
+Let
+
+p = [p(1), p(2), . . . , p(Nppg)]
+
+(2.4)
+
+16
+
+Chapter 2: Photoplethysmographic Signals
+
+denote the measurement vector, where Nppg is the length of the PPG signal.
+Frequency-domain analysis of the PPG signal, as required in the feature extraction step that is detailed in Section 4.4.2.2, requires dividing the PPG signal into segments of ﬁxed length Nseg, i.e.,
+
+psmeg = [psmeg(1), . . . , psmeg(Nseg)] , m = 1, . . . , Mseg,
+
+(2.5)
+
+where m is the segment index, Mseg is the total number of segments and psmeg(i) is the i-th sample of the m-th segment of the PPG signal.
+
+PPG signals may also be segmented into segments of unequal length that are associated to the cardiac cycles. For example, as detailed in Section 4.5, feature extraction for cardiovascular parameter estimation is based on analyzing individual heartbeat signals.
+
+Therefore, we divide p into Nbeat waveforms that are associated with the individual heartbeats, i.e.,
+
+where each heartbeat
+
+p = {p1, p2, . . . , pNbeat},
+
+(2.6)
+
+pn = [pn(1), pn(2), . . . , pn(ln)] , n = 1, . . . , Nbeat,
+
+(2.7)
+
+contains ln samples. As exemplarily shown in Fig. 2.6, the most prominent point in the PPG signal is the systolic notch which is also equal to the starting point of a heartbeat or the onset wave.
+To ﬁnd the systolic notches, we apply a simple search algorithm that ﬁnds prominent minima, subject to the condition that subsequent systolic notches have a minimal distance of 500 ms, as we do not expect resting heart rates to exceed 120 beats per minute (BPM). With
+
+mn
+
+=
+
+pn+1(1) − ln
+
+pn(1)
+
+(2.8)
+
+2.4 Signal Model
+
+17
+
+Figure 2.6. A PPG signal which is separated into individual heartbeats by the systolic notch.
+denoting the slope between two subsequent systolic notches, we then subtract a line with slope mn and intercept pn(1) for each heartbeat n = 1, . . . , Nbeat − 1 of the PPG signal. An example is shown in Fig. 2.6.
+Based on (2.7), we calculate the ﬁrst and second order diﬀerence series of the PPG signal. The ﬁrst order diﬀerence series of the PPG waveforms represents the velocity of the blood ﬂow and is abbreviated as velocity of PPG (VPG) [4]. The VPG waveforms that are associated with the individual heartbeats are computed as
+
+pn = [pn(1), pn(2), . . . , pn(ln − 1)] , n = 1, . . . , Nbeat,
+
+(2.9)
+
+where pn(i) = pn(i + 1) − pn(i).
+The second order diﬀerence series of the PPG waveforms represents the acceleration of blood ﬂow and is denoted as acceleration plethysmogram (APG)
+
+pn = [pn(1), pn(2), . . . , pn(ln − 2)] , n = 1, . . . , Nbeat, where pn(i) = pn(i + 1) − pn(i).
+
+(2.10)
+
+18
+2.5 Summary
+
+Chapter 2: Photoplethysmographic Signals
+
+This chapter has introduced the concept of PPG signals. The characteristics of the PPG signal have been presented and the PPG waveform has been discussed. Subsequently, this chapter has highlighted possible areas of application and has reviewed the acquisition of PPG signals, including the physical setup of PPG sensors and the sensor systems used in this thesis.
+Finally, the signal model and notation of PPG signals has been presented. In this context, the segmentation of the PPG signal and the calculation of diﬀerence series of the PPG signal has been described, which are necessary for the proposed algorithms in the subsequent chapters.
+
+19
+Chapter 3
+Heart Rate Estimation During Physical Activity
+In this chapter, we investigate two algorithms for heart rate estimation during physical activity using PPG signals obtained from wrist-worn optical heart rate monitors such as the ones described in Section 2.3.
+We give an introduction into heart rate estimation during physical activity using PPG signals and motivate the proposed approaches in Section 3.1. An overview of the state of the art in heart rate estimation using PPG signals is given in Section 3.2. Our contributions are highlighted in Section 3.3. We provide two heart rate estimation algorithms using PPG signals in Section 3.4 and Section 3.5. In Section 3.6, we show the performance of the proposed methods and provide real data results. We summarize and conclude this chapter in Section 3.8.
+The main contributions in this chapter have been published in [16, 17].
+3.1 Introduction and Motivation
+With the growing interest and the associated need for health and ﬁtness, there is an increasing trend to monitor heart rate to avoid heart problems, to monitor physiological conditions during daily activities, and to control the training load during physical exercises, as heart rate is an important index for evaluating training intensity. A superelevated heart rate could indicate an excessive training load and as a consequence an associated health hazard. Therefore, it is important to continuously monitor the heart rate during physical activity in order to optimally adjust the training intensity to individual needs.
+On the emerging market of wearable devices for healthcare and ﬁtness, it is becoming common practice to monitor the user’s heart rate with the help of photoplethysmography. Unlike conventional ECG-based heart rate monitors, which require multiple electrodes attached to the body to capture electrical signals, usually achieved by wearing an additional and inconvenient chest strap, depicted in Fig. 3.1, photoplethysmography can easily be recorded with wrist worn devices, see Fig. 3.2 for an exemplary
+
+20
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+Figure 3.1. An ECG chest belt [18] which can be used to monitor the heart rate during physical activity.
+
+Figure 3.2. A commercially available heart rate tracker [19] from 2015 with a photoplethysmography-based optical heart rate sensor and three green LEDs.
+
+3.1 Introduction and Motivation
+
+21
+
+Figure 3.3. An example of a clean PPG signal. Slow variations in the baseline are due to respiration.
+
+Figure 3.4. An example of a deteriorated PPG signal with motion artifacts while running on a treadmill.
+
+commercially available ﬁtness tracker. Optical heart rate monitors beneﬁt from simpler hardware implementation and lower costs compared to ECG based devices. Due to their higher usability and use in modern portable devices such as smartwatches and ﬁtness wristbands, optical heart rate monitors are widely used.
+However, photoplethysmography-based heart rate estimation is challenging, especially during intense physical exercise, as the PPG measurement is susceptible to motion artifacts, which inevitably occur during physical exercises. Depending on the type of physical activity of the user, motion-induced artifacts can strongly deteriorate the quality of a PPG signal, e.g., the arm movements while running can cause strong periodic components that overlap with the desired heartbeat related PPG component. Fig. 3.3 shows a clean PPG signal and Fig. 3.4 shows a deteriorated PPG signal with motion artifacts while running on a treadmill, both recordings are 8 s long.
+In the following, some challenging scenarios for heart rate estimation from motioncorrupted PPG signals are described: First, intensive hand movements (e.g. while running) change the distance between wrist and pulse oximeter so that the measured intensity of the PPG signal varies. This variation is often correlated with the frequency of hand movements. In addition, due to extensive movements, the sensors can sometimes be so far away from the skin that there is no peak corresponding to the heart rate in the frequency domain. For some cases, when the frequency of the motion artifact is close to the frequency of the heart rate, both can no longer be distinguished for a given frequency resolution. Increasing the data length would not avoid the problem, as this would require the heart rate to be stationary for a longer period of time, which is rarely the case in practice. In addition, even harmonics and subharmonics of periodic motion artifacts can mask the heart rate in the frequency domain. Another challenge is that intense movements such as boxing or jumping can cause so much acceleration
+
+22
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+in the blood in the arteries that even the correct intensity in the PPG signal might not correspond to actual heart rate.
+Most heart rate estimation algorithms take also the acceleration information into account in order to obtain information on the type and intensity of the movement and thus to draw conclusions about the motion artifacts. Also, the important a priori information that the actual heart rate cannot show any sudden discontinuity for healthy subjects helps to develop a useful tracking mechanism. However, if a motion artifact peak in the frequency domain is close to the heart rate peak and has a high intensity, the tracking mechanism could erroneously follow the motion artifact peak and lead to large estimation errors, even if the intensity of the heart rate peak increases again over time.
+Thus, signal processing techniques are required to remove motion artifacts and noise from the PPG signal prior to estimating the heart rate.
+
+3.2 State of the Art
+
+The basic steps involved in heart rate estimation using PPG signals and the accelerometer information is shown in the block diagram in Fig. 3.5. Typically, the PPG and acceleration signals are preprocessed, i.e., band-pass ﬁltered and downsampled to the desired frequency range. Motion artifact removal methods are applied to clean the signals from motion-induced artifacts and enhance the signal quality before a spectral peak tracker looks for the heart rate component in the frequency domain and outputs the estimated heart rate.
+
+PPG and Acceleration
+Signals
+
+Preprocessing
+
+Motion Artifact Removal
+
+Spectral Peak
+Tracking
+
+Heart Rate Estimate
+
+Figure 3.5. Basic steps for heart rate estimation algorithms using PPG and accelerometer signals.
+
+In recent years, numerous techniques have been proposed to estimate the heart rate from PPG signals. However, some of these methods [20–26] do not consider strong motion of the subjects or the PPG sensors were placed at the ﬁnger ring or forehead and not at the wearer’s wrist, and thus, are not suited for heart rate estimation during
+
+3.2 State of the Art
+
+23
+
+physical activity. Among the algorithms that can also handle motion artifacts, there are various approaches to clean PPG signals from motion artifacts or to reduce the impact of motion artifacts on the heart rate estimation. Frequently, adaptive ﬁlter algorithms are applied to model the inﬂuence of motion that is recorded by the acceleration sensor to the PPG signal [22, 23, 27].
+In [26, 28], three synthetic noise reference signals are generated internally from the artifact contaminated PPG signal itself. The reference signals were constructed from singular value decomposition (SVD), fast Fourier transform (FFT), and independent component analysis (ICA) and are applied to the adaptive step-size last mean squares (AS-LMS) ﬁlter for artifact removal. However, these methods are limited by the sensitivity to the reference signal, which is not able to represent all real-world characteristics, especially during various forms of physical activity.
+ICA was also used in [21], where Kim and Yoo exploit the quasi-perdiodicity of PPG signals and the independence of the PPG and the motion artifacts via a combination of ICA and block interleaving. Krishnan et al. [24] propose a frequency domain ICA routine that is more eﬀective in artifact removal than time-domain ICA. However, ICA based approaches rely on the assumption of statistical independence of motion artifacts and arterial volume variations, which could not be conﬁrmed by Yao and Warren [20].
+In 2015, Zhang et al. [15] proposed a framework for handling strong motion artifacts and, at the same time, provided a data set that is commonly used as a performance benchmark and also served as training data set for the Institute of Electrical and Electronics Engineers (IEEE) Signal Processing Cup 2015 [29,30]. The framework is based on signal decomposiTion for denoising, sparse signal RecOnstructIon for high-resolution spectrum estimation, and spectral peaK trAcking with veriﬁcation (TROIKA). However, TROIKA is very computational demanding, as we will see in Section 3.5, and therefore may not be suitable for wearable devices or may consume too much battery power.
+A subsequent publication by Zhang [31] is based on joint sparse spectrum reconstruction (JOSS). It jointly estimates the spectra of the PPG and acceleration signals, utilizing the multiple measurement vector model in sparse signal recovery. JOSS achieves highly accurate results but is still computationally complex [32]. Both TROIKA and JOSS rely on large matrices which cannot be stored on embedded systems with constrained internal memory.
+Khan et al. proposes a two-stage method for heart rate monitoring based on ensemble empirical mode decomposition (EEMD) [32]. The algorithm consists of an
+
+24
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+EEMD-based PPG mode extraction, adaptive ﬁlter based denoising and some heuristic approaches for decision making. The accuracy of the method is very high and its computation time is faster than TROIKA and JOSS, but still signiﬁcantly slower than the presented methods in this chapter.
+Recently, hybrid motion artifact removal methods were proposed, which combines nonlinear adaptive ﬁltering and signal decomposition. In [33], the PPG and acceleration signals were ﬁltered by a second order recursive least squares (RLS) Volterra-based nonlinear adaptive ﬁlter to perform adaptive noise cancellation. A binary decision algorithm based on Pearson’s correlation coeﬃcient (CC) then decides whether or not to adopt singular spectrum analysis (SSA) to further reduce motion artifacts. However, the CC can only reveal linear relationships between the denoised PPG signal and the acceleration signal and would not indicate a strong nonlinear correlation, which would aﬀect the denoising performance. To overcome this issue, Ye et al. revised their method and proposed a random forest-based binary decision algorithm that also exploits nonlinear features and obtains higher accuracy [34].
+A recent overview of heart rate estimation algorithms using PPG signals and accelerometer signals during physical exercise is given in [35].
+
+3.3 Contributions
+Our contributions lie in proposing two distinct heart rate estimation methods using PPG and acceleration signals during physical activity.
+The ﬁrst heart rate estimation method is both highly accurate and low in computational cost. Its motion artifact removal is based on a set of adaptive ﬁlters that estimate the eﬀects of motion on the PPG signal. By combining all ﬁlter outputs in the timefrequency domain, the algorithm is able to track the heart rate in the artifact-reduced signal. The proposed method outperforms previous work on a reference data set.
+Furthermore, we present a new method that provides highly accurate heart rate estimates during physical exercise using extremely low computational cost and memory requirements. To achieve this, only fundamental signal processing functions are used that are easily implementable on hardware and allow for very rapid execution. Numerical results based on current benchmark data are provided, which show that the proposed approach outperforms state-of-the-art methods considerably in terms of computational time, while achieving similar accuracy.
+
+3.4 Adaptive Filter Based Heart Rate Estimation
+
+25
+
+3.4 Adaptive Filter Based Heart Rate Estimation
+
+The proposed approach is based on three consecutive steps: First, the non-stationary impulse response h(n, αacc) is estimated and the linear inﬂuence of the acceleration, which acts on the PPG sensor, on the noise-free PPG signal is removed. This estimation process is accomplished by an adaptive ﬁlter that minimizes the diﬀerence between the measured PPG and acceleration signal. Second, a signal enhancement is performed based on the adaptive ﬁlter outputs, where non-coherent noise components are suppressed by element-wise multiplication of the resulting spectra. Finally, a heart rate tracker follows the most probable high energy continuous line in the spectrum over time. An overview of the proposed algorithm is provided in Fig. 3.6.
+
+3.4.1 Preprocessing
+The PPG and acceleration signals with sampling frequency fs = 125 Hz are bandpass ﬁltered with a ﬁnite impulse response (FIR) ﬁlter using cut-oﬀ frequencies fc1 = 0.6875 Hz and fc2 = 10 Hz, and are downsampled by a factor D = 6 to 20.83 Hz. The choice of the cut-oﬀ frequencies fc1 and fc2 are physiologically motivated by the range of the heart rate of about 45 to 200 beats per minute (BPM), which corresponds to a frequency range of 0.75 to 3.33 Hz, and its ﬁrst and second harmonic.
+
+3.4.2 Noise Reduction by Adaptive Filtering
+In the ﬁrst part, the motion artifact suppression by use of adaptive ﬁlters is explained. First, a general topology for artifact suppression via adaptive ﬁlters is derived and the optimization criterion is deﬁned. Then, the applied adaptive normalized least mean squares (NLMS) ﬁlter is described.
+General Topology
+The adaptive ﬁlter minimizes the power of acceleration signal components in the PPG signal, i.e., it maximizes the signal-to-motion artifact ratio (SMR). Based on this approach, we derive the diﬀerence equation
+
+e(n) = p(n) − mˆ (n),
+
+(3.1)
+
+26
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+p1
+
+BP
+
+D
+
+a1
+
+BP
+
+D
+
+pI
+
+BP
+
+D
+
+aN
+
+BP
+
+D
+
+hˆ1,1 mˆ 1
+
+sˆ1
+
+FFT Sˆ1
+
+Combine Sˆcom
+
+HR Tracking
+
+HR
+
+hˆI,N mˆ IN
+
+sˆIN
+
+FFT SˆIN
+
+Figure 3.6. Overview of the proposed algorithm with I = 2 PPG signals and N = 3 acceleration signals, which results in I · N = 6 adaptive ﬁlters. The inputs of the adaptive ﬁlters are band-pass ﬁltered and downsampled by a factor D to reduce computational cost. The weighted combination is performed on the spectra which are eﬃciently computed by means of the FFT. Based on the combination of the spectra, the heart rate can be estimated and tracked in the ﬁnal step. In this ﬁgure, the time and frequency indices are left out for the sake of clarity.
+
+where e(n) is the error signal, p(n) is the measured PPG signal and mˆ (n) is the estimated motion artifact caused by the acceleration. The adaptive ﬁlter structure is visualized in Fig. 3.7.
+p(n)
+
+a(n)
+
+hˆ(n)
+
+mˆ (n)
+
+e(n) = sˆ(n)
+
+Figure 3.7. Adaptive ﬁlter structure for the removal of motion artifacts.
+
+We can now transform (3.1) by replacing the estimated motion artifact mˆ (n) by the product of the estimated impulse response hˆ(n, αacc) and the measured acceleration vector a(n):
+
+e(n) = p(n) − hˆ (n, αacc)a(n).
+
+(3.2)
+
+Here, the error signal e(n) is, in fact, an estimate of the desired original PPG signal
+
+3.4 Adaptive Filter Based Heart Rate Estimation
+
+27
+
+sˆ(n) without motion artifacts. In our approach, each PPG signal is combined with every dimension of the three-axis acceleration signal, yielding six adaptive ﬁlters that operate in parallel, see Fig. 3.6.
+In our work, we applied diﬀerent kinds of adaptive ﬁlters, such as, e.g., the Kalman ﬁlter [36], the Kalman smoother [25], the least mean squares (LMS) [22,37], the NLMS ﬁlter [25], or the AS-LMS ﬁlter [28]. The Kalman ﬁlter achieved similar results as the NLMS ﬁlter but required more than double of the computational time. The standard formulation of the Kalman smoother can be used only after data acquisition is complete but not for real-time processing. Based on the normalization, the step-size value µ ∈ [0, 1] within the NLMS ﬁlter can be formulated much easier compared to the LMS ﬁlter. Finally, due to the low computational complexity O(N ) and the requirement of a fast adaptive algorithm for real-time purposes, we decided to use the NLMS.
+
+Normalized Least Mean Square (NLMS) Filter
+
+The objective of the LMS ﬁlter is to minimize the mean squared error (MSE) min E[|e(n)|2]. For a better control of the step-size µ, we compute the ﬁlter weights of the NLMS ﬁlter as follows:
+
+hˆ(n + 1) = hˆ(n, αacc) + a
+
+µ a(n)e(n)
+(n)a(n) + δ
+
+(3.3)
+
+The value δ = 10−12 is added in practice for numerical stability reasons. Based on the experimental data, we have determined the optimal choice in terms of mean absolute error (MAE) to the reference for the step size to be µ = 0.1 and for the NLMS ﬁlter order to be 9.
+
+3.4.3 Signal Enhancement by Combination
+The adaptive ﬁltering provides estimates sˆi(n), i = 1, . . . , 6 of the desired original PPG signal with reduced motion artifacts. At this point, the estimates need to be combined in a reasonable manner. This is done in order to remove all incoherent components, such as, e.g., the high noise ﬂoor, and enhance coherent components like those related to the heart rate.
+
+28
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+For all six estimates of s(n), the time-varying spectrum is estimated via the short-term Fourier transform (STFT). The combination of the six time-varying spectra is done by a computationally eﬃcient and simple element-wise multiplication of the spectra. This multiplication leads to a lower noise ﬂoor level which is useful in order to extract the heart rate signal. We can formulate this as
+
+6
+Sˆcom(n, f ) = 6 Sˆi(n, f ),
+i=1
+
+(3.4)
+
+where Sˆcom(n, f ) is the combined spectrum dependent on the time index n and the frequency band index f . The variable Sˆi(n, f ) corresponds to the channel i. In our
+simulations, we have ﬁxed the frequency resolution of the FFT to 4096 bins.
+
+3.4.4 Heart Rate Tracking
+
+The last step in the proposed algorithm is the actual heart rate estimation. This estimation is based on an extremely simple tracker that follows the most probable high energy continuous line in the enhanced spectrum Sˆcom(n, f ). The frequency region, in which the highest energy is to be found, lies in an interval of ± 14 BPM of the preceding heart rate estimate. As an initialization for the ﬁrst few estimates, the highest energy in the frequency region from 40 to 170 BPM is selected.
+To avoid inaccurate estimates, we developed and introduced a simple heuristic tracking rule based on extensive heart rate data analysis similar to [15]: We assume that the heart rate will rarely increase or decrease more than 6 BPM within two successive time frames and in case of occurrence, a regularization is performed to shift the frequency region under observation for the next estimate by ± 6 BPM.
+To prevent the tracking algorithm from losing the heart rate over a long time, the ratio between the highest peak in the observed frequency region and the highest peak in an interval of ± 100 BPM of the preceding heart rate estimate is calculated and compared to a predeﬁned threshold T ,
+
+max{Sˆcom(n, ∆f100)} max{Sˆcom(n, ∆f14)}
+
+>
+
+T.
+
+(3.5)
+
+3.5 Computationally Eﬃcient Heart Rate Estimation
+
+29
+
+where ∆fk denotes the frequencies −k ≤ fˆHR(n − 1) ≤ k, and fˆHR(n − 1) is the preceding heart rate estimate in BPM.
+
+If the threshold T is exceeded, for example, because the algorithm had mistakenly tracked a non-stationary high power transient noise that lost its energy, it switches to the alternative high energy value in the frequency neighborhood. Based on the experimental data, we have determined the optimal ratio threshold in terms of MAE to the reference to be T = 5,000.
+
+3.5 Computationally Eﬃcient Heart Rate Estimation
+The aim of this approach is to keep the computational complexity as low as possible and yet, present a reliable heart rate estimator for PPG signals. In contrast to the preceding approach, this method does not require the use of adaptive NLMS ﬁlters, which greatly reduces the computational complexity. Instead, we apply correlation functions to enhance periodic components and suppress wideband noise that is caused by motion-induced artifacts, or sensor and ampliﬁer noise. The results for this method are based on using two PPG and three acceleration channels. However, the method is also applicable to other conﬁgurations. The summation of squared spectra further enhances common components between the PPG channels and suppresses remaining artifacts and noise. Motion artifacts are reduced by taking into account the estimated periodic components from the acceleration spectra. The heart rate estimation picks the maximal value in a weighted spectrum using a linear prediction. All steps are detailed in the subsequent sections.
+3.5.1 Preprocessing
+First, PPG and acceleration signals with sampling frequency fs = 125 Hz are band-pass ﬁltered with a FIR ﬁlter using cut-oﬀ frequencies fc1 = 0.5 Hz and fc2 = 6 Hz, and are downsampled by a factor of 5 to 25 Hz. Again, the choice of the cut-oﬀ frequencies fc1 and fc2 are physiologically motivated by the range of the heart rate of about 45 to 200 BPM, which corresponds to a frequency range of 0.75 to 3.33 Hz.
+
+30
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+3.5.2 Signal Enhancement by Sample Correlation Functions
+
+To enhance periodic components, we next calculate the sample correlation functions of the two measured PPG signals pi(n), i = 1, 2,
+
+1 rpipj (κ) = 2N − 1
+
+N −1
+
+pi(n + κ)pj(n),
+
+n=−N +1
+
+i, j = 1, 2
+
+and normalize them
+
+(3.6)
+
+Here,
+
+rpnioprjm(κ)
+
+=
+
+rpipj (κ) − µpipj σpipj
+
+,
+
+i, j = 1, 2.
+
+(3.7)
+
+1 2N−1
+
+µpipj = 2N − 1
+
+rpipj (ν),
+
+ν=1
+
+i, j = 1, 2
+
+(3.8)
+
+and
+
+σpipj =
+
+1 2N−1 2N − 1
+
+rpipj (ν) − µpipj
+
+2,
+
+ν=1
+
+i, j = 1, 2.
+
+(3.9)
+
+Collecting
+
+the
+
+elements
+
+of
+
+(3.7)
+
+into
+
+vectors
+
+rnorm pi pj
+
+results
+
+in
+
+three
+
+unique
+
+vectors
+
+rnp1oprm1 ,
+
+rnorm p1 p2
+
+and
+
+rnorm p2 p2
+
+.
+
+3.5.3 Fourier Transformation
+Finally, the FFT is applied to all three unique vectors. Each spectrum with 2048 bins and a resolution of 0.37 BPM is again normalized by subtracting its mean and dividing by the standard deviation, resulting in Sˆ11(n, f ), Sˆ12(n, f ) and Sˆ22(n, f ), respectively.
+Next, we compute
+
+3.5 Computationally Eﬃcient Heart Rate Estimation
+
+31
+
+Sˆsum(n, f ) = Sˆ121(n, f ) + Sˆ122(n, f ) + Sˆ222(n, f ),
+
+(3.10)
+
+to further enhance common components between the channels and suppress uncorrelated background noise in the spectrum.
+
+3.5.4 Harmonic Noise Damping
+The spectrum resulting from (3.10) is multiplied element-wise with a Gaussian bandstop ﬁlter deﬁned by the window function
+
+wacc(n, f )
+
+=
+
+1−
+
+2
+
+e−
+
+1 2
+
+f −fˆq (n) 2
+, σwin,acc
+
+q=1
+
+f = 1, . . . , F,
+
+(3.11)
+
+whose parameters fˆ1(n) and fˆ2(n) = fˆ1(n)/2 are estimated by tracking the frequencies fˆq(n) that are associated with the maximal energy values of the accelerometer spectrum. Here, F is the number of frequency bins and the value of σwin,acc = 0.31 Hz, which is about 19 BPM, is determined empirically.
+
+3.5.5 Heart Rate Tracking
+
+The heart rate is recursively obtained by evaluating
+
+fˆHR(n)
+
+=
+
+arg
+
+max
+
+Sˆsum(n,
+
+f
+
+)
+
+·
+
+−
+e
+
+1 2
+
+f −fˆHprRed(n) σwin,HR
+
+2
+,
+
+f
+
+(3.12)
+
+where σwin,HR = 4 BPM is the physiologically motivated width of the Gaussian window and fˆHprRed(n) is the predicted heart rate, which is the estimate of a linear least squares
+ﬁt of the preceding three heart rate estimates
+
+fˆHprRed(n) = α(n) + 2 · β(n)
+
+(3.13)
+
+32 with
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+β(n) = fˆHR(n − 1) − fˆHR(n − 3) 2
+
+(3.14)
+
+and
+
+1 α(n) =
+3
+
+3
+
+fˆHR(n − i).
+
+i=1
+
+(3.15)
+
+If the frequency of the maximal energy in the accelerometer spectrum overlaps with the predicted heart rate, the heart rate is tracked either based on Sˆ11(n, f ) or Sˆ22(n, f ). The choice is made based on the maximal energy in the frequency bins of the last 5 estimated heart rates fˆHR(n − i) with i = 1, . . . , 5. Finally, to smooth the heart rate estimate sequence, we restrict the tracker to maximally jump ± 4 BPM in relation to
+the last estimate.
+
+3.6 Experimental Results
+3.6.1 Real Data Set
+For evaluation, we consider the training data set recorded by Zhang et al. [15] for the IEEE Signal Processing Cup 2015 [29, 30]. The training data set consists of twelve 5min recordings that were collected from 12 healthy male subjects with age ranging from 18 to 35 years while running on a treadmill. Each recording includes a two-channel PPG signal, a three-axis acceleration signal, and a reference heart rate for evaluation, obtained from a simultaneously measured ECG signal.
+The PPG signals were recorded from the subjects’ wrist using a pulse oximeter with green LEDs (wavelength: 515 nm). The acceleration signals were recorded at the same position. Both the PPG sensors and the accelerometer were embedded in a comfortable wristband. The ECG was simultaneously recorded from the chest using wet ECG electrodes. All signals were acquired with a sampling rate of 125 Hz and were sent to a nearby computer via Bluetooth.
+
+3.6 Experimental Results
+
+33
+
+During data recording, the subjects walked or ran on a treadmill with the following speeds in order: the speed of 1-2 km/h for 0.5 min, the speed of 6-8 km/h for 1 min, the speed of 12-15 km/h for 1 min, the speed of 6-8 km/h for 1 min, the speed of 12-15 km/h for 1 min, and the speed of 1-2 km/h for 0.5 min.
+We adapt the framework of the IEEE Signal Processing Cup 2015 and estimate the heart rate every 2 s based on overlapping time windows of 8 s length. This way, the algorithm is able to monitor the heart rate in real-time which is a common requirement for many applications, such as, e.g., for athletes to adjust their training program during the exercise.
+
+3.6.2 Evaluation Metrics
+The performance of the proposed approaches is evaluated and compared to state-of-theart methods by two established evaluation metrics: the average absolute error (AAE) and the average absolute error percentage (AAEP).
+The AAE is deﬁned as
+
+1 AAE =
+N
+
+N
+
+|fˆHR(n) − fHR(n)|,
+
+i=1
+
+(3.16)
+
+where N is the total number of estimates, fHR(n) denotes the ground truth of the heart rate value in the n-th time window in terms of BPM, and fˆHR(n) denotes the
+corresponding heart rate estimate in BPM.
+
+Analogously, the AAEP is deﬁned as
+
+1 AAEP =
+
+N
+
+|fˆHR(n) − fHR(n)| .
+
+N i=1
+
+fHR(n)
+
+(3.17)
+
+3.6.3 Heart Rate Estimation Accuracy
+
+We compare our two proposed methods with frequently cited state-of-the-art methods, which were also evaluated on the same, widely used data set of the IEEE Signal Processing Cup 2015. However, note that TROIKA and JOSS excluded multiple segments
+
+34
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+(in total 32 s) with strong motion artifacts in their performance evaluation because both algorithms did not output heart rate estimates. The strong motion artifacts are probably due to device adjustment after the recording system turned on. The exclusion of strongly disturbed signal sections must be taken into account when comparing these results with our proposed methods.
+Tables 3.2 and 3.3 list the heart rate estimation results of both the adaptive ﬁlter (AD) and the computationally eﬃcient (CE) approach and state-of-the-art methods in terms of the AAE and the AAEP, respectively, for each subjects’ recording and gives an overall average AAE. The average AAE over all 12 subjects of both proposed methods, 1.66 BPM for the AD and 1.32 BPM for the CE approach, is comparable to the stateof-the-art methods, whereas the standard deviation (STD) is signiﬁcantly lower for our methods with 0.88 BPM and 1.24 BPM, respectively. The most diﬃcult recording for all methods comes from subject 10, which was due to very low signal quality and strong motion artifacts in the PPG signals. The best evaluation performances were achieved for subject 8 with an AAE of around 0.5 to 1 BPM.
+The best and worst heart rate estimation results of our methods including the ECGbased ground truth is exemplarily shown in Fig. 3.8 and Fig. 3.9, superimposed on the artifact-reduced spectrograms. The intensities of the spectrograms diﬀer, since the algorithms have diﬀerent signal and noise power levels due to their respective motion artifact removal and their calculation of the spectra.
+It can be stated that a suﬃcient accuracy of the heart rate estimation has already been achieved. An average deviation of 1-2 BPM is reasonable for the application during physical activity. A further accuracy optimization on this data set has been reported in [32, 38–40], but is not of practical interest. This is especially the case because the reference values from the ECG may contain inaccuracies or may not be perfectly measured. It is also diﬃcult to average a heart rate over a period of 8 s as the heart rate could change dramatically within those 8 s.
+In addition to the accuracy, in the next subsection we look at the computational complexity of the algorithms.
+
+3.6.4 Computational Complexity
+While all methods achieve a comparable and suﬃciently high accuracy for the considered use-case, they strongly diﬀer in their computational complexity. The total
+
+3.6 Experimental Results
+
+35
+
+duration of the computation times is shown in Table 3.1. As reported in [32], the heart rate estimation of the training set takes several hours for TROIKA [15] and 300 s for JOSS [31], which is of a similar magnitude (402 s) as for our own implementation of JOSS.
+Our ﬁrst presented adaptive-ﬁlter based method [16] needs about 51 s. In comparison, our second, the computationally eﬃcient approach spends only 3.73 s to run the complete training set, which is roughly 80 times faster than JOSS and almost 14 times faster than the ﬁrst proposed approach. The computation time for our methods was evaluated on a 2.8 GHz Intel R CoreTM i5-760 CPU with 8 GB RAM and MATLAB R2016a. Please note that the most complex operation is the FFT, which is an O(N log N ) operation. For each time window of 8 s, the FFT is executed six times to transform the two time-domain PPG signals, their cross-correlation as well as three accelerometer signals into the frequency domain. Those six vectors with 2048 bins are the biggest variables in the storage.
+
+CE Method AF Method EEMD [32] JOSS [31]† TROIKA [15]†
+
+Total Duration (12 Data Sets) 3.73 seconds 51.46 seconds 199 seconds 300 seconds 3.5 hours
+
+† The computation time for this method are obtained from [32] using the M-FOCUSS algorithm [41], which is by far the most complex operation in TROIKA and JOSS. Our own implementation of JOSS using [42] achieved similar computation times.
+
+Table 3.1. Total computation times for the training data [15]. Both the adaptive ﬁlter (AF) and the computationally eﬃcient (CE) method considerably outperform state-of-the-art methods.
+
+36
+
+AD Method CE Method EEMD [32] JOSS [31] TROIKA [15]∗
+
+S 1 S 2 S 3 S 4 S 5 S 6 S 7 S 8 S 9 S 10 S 11 S 12 Mean ± STD 2.52 1.42 2.22 1.18 1.08 1.49 1.32 0.90 0.74 3.91 1.73 1.34 1.66 ± 0.88 BPM 1.45 1.29 0.58 1.52 0.78 0.86 1.02 0.65 0.39 5.07 0.79 1.46 1.32 ± 1.24 BPM 1.64 0.81 0.57 1.44 0.77 1.06 0.63 0.47 0.52 2.94 1.05 0.91 1.07 ± 2.17 BPM 1.33 1.75 1.47 1.48 0.69 1.32 0.71 0.56 0.49 3.81 0.78 1.04 1.28 ± 2.61 BPM 2.87 2.75 1.91 2.25 1.69 3.16 1.72 1.83 1.58 4.00 1.96 3.33 2.42 ± 2.47 BPM
+
+∗ The results for this method are obtained from [31].
+
+Table 3.2. Average absolute error (AAE) for the proposed adaptive ﬁlter (AD) based approach and the computationally eﬃcient (CE) approach over all 12 data sets from the training data [15] in BPM.
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+AD Method CE Method JOSS [31] TROIKA [15]∗
+
+S 1 S 2 S 3 S 4 S 5 S 6 S 7 S 8 S 9 S 10 S 11 S 12 Mean ± STD 2.16 1.36 2.07 1.05 0.84 1.16 0.99 0.77 0.61 2.57 1.14 0.98 1.31 ± 0.62 % 1.20 1.27 0.48 1.44 0.63 0.68 0.76 0.56 0.31 3.22 0.51 1.04 1.01 ± 0.78 % 1.19 1.66 1.27 1.41 0.51 1.09 0.54 0.47 0.41 2.43 0.51 0.81 1.01 ± 2.29 % 2.18 2.37 1.50 2.00 1.22 2.51 1.27 1.47 1.28 2.49 1.29 2.30 1.82 ± 2.07 %
+
+∗ The results for this method are obtained from [31].
+
+Table 3.3. Average absolute error percentage (AAEP) for the proposed adaptive ﬁlter (AD) based approach and the computationally eﬃcient (CE) approach over all 12 data sets from the training data [15] in %.
+
+3.6 Experimental Results
+
+37
+
+(a)
+(b) Figure 3.8. Heart rate (HR) estimates of the adaptive ﬁlter (AD) based approach depicted together with the true heart rate on the combined spectrogram of all six adaptive ﬁlter outputs for (a) the best result (S 9) and (b) the worst result (S 10).
+
+38
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+(a)
+(b) Figure 3.9. Heart rate (HR) estimates of the computationally eﬃcient (CE) approach depicted together with the true heart rate on the spectrogram, on which harmonic noise damping and background noise reduction was applied, for (a) the best result (S 9) and (b) the worst result (S 10).
+
+3.7 Discussion
+
+39
+
+3.7 Discussion
+
+Real-time heart rate estimation from PPG signals has become a very active ﬁeld of research and is a key step in developing wearable devices that can monitor the heart rate in a non-invasive way. The IEEE Signal Processing Cup in 2015 and the associated publication of Zhang et al. [15], in which they published the widely used dataset for heart rate estimation using PPG signals, initiated the begin of this active research ﬁeld. In addition to universities and research institutions, many leading high-tech companies are actively working on heart rate monitoring, as it is an important feature in modern wearable devices such as ﬁtness trackers or smartwatches. A large number of algorithms have since been published and evaluated on the benchmark data set of Zhang et al.. However, some of the published methods have been described in such a way that reproduction is either impossible or very diﬃcult. Our methods are based on simple functions and techniques and are therefore easy to understand, reproduce, and implement.
+Since the average error of our methods is around 1.5 BPM and, thus, clinically acceptable, PPG sensors have the potential to replace ECG for heart rate estimation, which is inconvenient and has to be collected from a minimum of three electrodes. A further improvement of the algorithms should therefore no longer be based on pure accuracy, especially since the heart rate is averaged over a data block of 8 s and compared with the reference value of an ECG, which itself can be erroneous under certain conditions. Within these 8 s, the heart rate can change by several tens of digits, e.g., at the start of an exercise, at a shock moment, or at a sudden rest after a hard exertion.
+Hence, our proposal for future research would be to include and publish a new, far more comprehensive data set with measurements from a large number of subjects during a variety of activities, so that algorithms can be tested for more realistic situations. The evaluation should then not only focus on the accuracy of the estimation, but also on other aspects such as speed, implementability, and reliability. If it is advantageous for the accuracy to adapt the estimation method to the respective physical activity, as many manufacturers of ﬁtness trackers and smartwatches seem to already do, the automatic recognition of the activity and the speed with which the algorithm adjusts to it should be investigated as well. For a long battery life and easy implementation in embedded devices, it is also important to develop algorithms with low computational complexity, as we have already achieved with our second proposed method.
+
+40
+
+Chapter 3: Heart Rate Estimation During Physical Activity
+
+3.8 Summary and Conclusions
+
+In this chapter, we have presented two approaches to monitor a subject’s heart rate in real-time during physical activity using PPG and acceleration signals. In the ﬁrst approach, we reduced the inﬂuence of motion artifacts in the PPG signal by using adaptive ﬁlters that estimate the eﬀects of motion on the signal. We combined the outputs of the adaptive ﬁlters to enhance the spectral quality and ﬁnally presented a constrained heart rate tracker that follows the most probable high energy continuous line in the spectrum over time. Real data experiments showed very accurate results on a widely used benchmark dataset. Further, we have presented a very computationally eﬃcient algorithm to monitor a subject’s heart rate in real-time during physical activity. This approach combined correlation-based fundamental frequency indicating functions, spectral combination, harmonic noise damping, and frequency domain tracking. The low computational complexity allows for running the algorithm in real time on a wearable device while keeping the battery consumption as low as possible. Despite its low computational complexity and memory requirements, the proposed method is comparable in terms of accuracy to computationally intensive state-of-the-art methods on the benchmark data set.
+
+41
+Chapter 4
+Cardiovascular Health Monitoring
+In this chapter, we present two methods for monitoring the cardiovascular health, i.e., for detecting atrial ﬁbrillation (AF) and estimating blood pressure (BP), pulse wave velocity (PWV), and vascular age index (VAI) from PPG signals.
+In the ﬁrst part of this chapter, we present a framework for the detection of AF with a smartphone by utilizing the video camera as a PPG sensor, as described in Section 2.3.1. The proposed algorithm transforms the video signal into an enhanced PPG signal and extracts statistical discriminating features. Through sequential forward selection (SFS) and support vector machine (SVM), simple classiﬁcation equations can be applied to distinguish between normal sinus rhythm (NSR) and AF. The presented algorithm has a low computational cost and low memory requirements.
+In the second part, we present an approach to estimate cardiovascular parameters from a single PPG signal. The method extracts a large set of features from the PPG signal and recovers missing values by matrix completion. Based on feature selection, the most signiﬁcant features for each cardiovascular parameter are presented. Finally, we apply support vector regression (SVR) with a nonlinear Gaussian kernel and present our results on a self-recorded data set. We compare our results with linear and robust linear regression methods and show that the proposed method is capable of accurately estimating the cardiovascular parameters of a new measurement using only ten features, given training data of the subject. The results are promising, because they indicate the possibility of designing single PPG approaches, that achieve accurate results for a subject, given only a single reference measurement of that subject and suﬃcient training data from other subjects.
+In Section 4.1, we start with an introduction to cardiovascular diseases (CVDs) and motivate monitoring cardiovascular health parameters, such as, e.g. BP or PWV. The contributions of this chapter are summarized in Section 4.2. Before describing both methods, the state of the art in AF detection and cardiovascular parameter estimation using PPG signals is given in Section 4.3. Our method for the detection of AF is presented in Section 4.4 and the framework for the estimation of BP, PWV, and VAI is explained in Section 4.5. Finally, a conclusion is drawn in Section 4.6.
+The main contributions in this chapter have been published in [43] and have served in parts as basis for [44].
+
+42
+4.1 Introduction
+
+Chapter 4: Cardiovascular Health Monitoring
+
+CVDs are the most common cause of death worldwide [45]. Almost 18 million people die of CVDs every year. That is an estimated 31 % of all deaths. 80 % of all CVD deaths are due to heart attacks and strokes. AF is the most common type of arrhythmia and one of the major causes of stroke, heart failure, sudden death, and cardiovascular morbidity in the world [46]. In 2010, it was estimated that 33.5 million people worldwide have AF [47] and, according to [48], almost one in four middle-aged adults in the USA and Europe will develop AF. However, undiagnosed AF is common, especially in older populations and for patients with heart failure [49]. Eﬀective AF treatments could reduce risk for complications from AF. Thus, a major challenge is the early and reliable detection of AF, which would be possible based on permanently monitoring the heartbeat patterns.
+High blood pressure or hypertension is the most common risk factor for AF, a common condition leading to CVDs, and an important indicator of cardiovascular health [50]. Increased arterial stiﬀness, which reﬂects structural arterial wall modiﬁcations and characterizes vascular aging, is associated with several factors including hypertension [51]. Arterial stiﬀness is a cardiovascular risk factor and can be an independent predictor of CVDs [52]. A permanent monitoring of the blood pressure and vascular stiﬀness values would be helpful in order to be able to detect and prevent negative developments at an early stage.
+The noninvasive gold standard for evaluating arterial stiﬀness is the carotid-femoral (aortic) PWV [53], which is the velocity at which the arterial pulse wave propagates through the arteries. The PWV is directly related to arterial stiﬀness by the MoensKortweg equation [54] and an indicator for arteriosclerosis. The European Society of Hypertension (ESH) recognizes PWV as a useful additional test in the investigation of hypertension [55]. In recent years, more and more devices that directly or indirectly estimate the stiﬀness of the aorta have started to model the vascular age based on stiﬀness estimation [56] and calculate a VAI, a single parameter for quantifying arterial stiﬀness and indicating a person’s vascular age. The comparison of the VAI with the chronological age of a person contributes to a better understanding and awareness among non-medical experts. If the VAI is older than the chronological age, there is an increased risk of CVDs. The key risk factors for CVDs are unhealthy diet, physical inactivity, obesity, tobacco use, and harmful use of alcohol. In addition to reducing these risk factors, monitoring the heart rate, BP, PWV, and VAI can help with the prevention, detection, and recovery of CVDs.
+
+4.2 Contributions
+
+43
+
+4.2 Contributions
+
+In this chapter, we present two methods for monitoring the cardiovascular health using PPG signals.
+First, we propose a practically realizable photoplethysmography-based method that detects AF using smartphones at a low computational cost and with low memory requirements. We propose an approach to acquire PPG signals from the video camera of a smartphone and calculate a set of features to discriminate AF from NSR and to automatically exclude measurements with strong hand movements. With the use of feature selection and SVM we achieve perfect detection of AF on a clinically recorded data set.
+Our second contribution is to propose a novel approach for estimating BP, PWV, and VAI from a single PPG signal. First, we address the challenge of accurately extracting features from the PPG signal and its ﬁrst and second order diﬀerence series, and describe signal processing methods how to ﬁnd the features. In case of missing feature values, we propose a method based on matrix completion to ensure a continuous estimation. We apply feature selection and demonstrate which features are particularly signiﬁcant for the estimation of the individual cardiovascular parameters. We conduct a study consisting of 18 subjects and 42 measurements of BP, PWV, and VAI. We evaluate diﬀerent regression models including robust linear regression and nonlinear SVR. Additionally, we investigate the inﬂuence of subject calibration on the estimation accuracy. We validate our approach and compare it with a state-of-the-art method using pulse arrival time (PAT).
+
+4.3 State of the Art
+Currently, AF diagnosis requires heart rhythm monitoring with an electrocardiogram (ECG) to reveal irregular heartbeat patterns. Considering the availablity of recording devices and the eﬀort of recording an ECG, the photoplethysmogram, which is typically measured from ﬁngertips, wrists, or earlobes, oﬀers a readily accessible, inexpensive and simple to operate alternative. The acquisition of PPG signals from smartphones has been examined by many researchers [57–59]. Lee et al. has ﬁrst demonstrated the feasibility of AF detection based on an iPhone 4s [7] and related works have followed [8, 9, 11]. However, we observed that state-of-the-art methods mostly rely on the peak-to-peak intervals (PPI) and that there is a lack of investigation on features
+
+44
+
+Chapter 4: Cardiovascular Health Monitoring
+
+that take other speciﬁc characteristics of the PPG signal into account. Furthermore, to classify AF, often ﬁxed thresholds are set for single features instead of using more sophisticated classiﬁcation algorithms or combining the features. Moreover, measurements with strong hand movement are not automatically detected and removed from analysis, and ECG-based classiﬁcation performance is not achieved.
+The measurement of BP can be performed with several techniques. Traditionally, the gold standard of accuracy for noninvasive BP measurements has been the sphygmomanometer, which consists of an inﬂatable cuﬀ, a measuring unit, and a mechanism for inﬂation, either a manually operated bulb or an electrically operated pump. Nowadays, one of the most common automated measurement methods for BP is oscillometry [60], as it does not require medical personnel and can be easily used at home. However, this technique cannot perform continuous measurements, unlike methods based on arterial tonometry [61], which is a technique in which an array of pressure sensors is pressed against the skin over an artery. The volume-clamp method (Finapres) is based on the principal of dynamic unloading of the arteries in the ﬁnger and measures the ﬁnger arterial pressure using a ﬁnger cuﬀ and an inﬂatable bladder in combination with an infrared plethysmograph [62]. Although this method can provide continuous estimates of blood pressure, a cuﬀ wrapped around the arm or ﬁnger is still required, which is cumbersome, non-portable, and impractical for daily or long-term uses [63]. An alternative cuﬄess method is based on continuous wave radar [64], but needs placement of a transmitter and receiver antenna at the sternum and four electrodes for the bioimpedance (BImp) and ECG across the shoulder.
+The current noninvasive methods to measure the PWV can be divided into three main groups: imaging, non-imaging, and optical methods [65]. Imaging methods that are routinely used in clinical environments, such as ultrasound or magnetic resonance imaging (MRI), have the advantage of a direct measurement of the path length and high accuracy but are very expensive and diﬃcult to operate. More aﬀordable and validated technologies are non-imaging methods such as the Complior R , SphygmoCor R , Arteriograph R , or Mobil-O-Graph R [66]. Many manufactures of these devices have launched models into their devices to calculate the VAI based on their PWV estimation and background factors, e.g., age, sex, or body mass index (BMI). However, these devices are mainly used in clinical environments, require a cuﬀ and professional medical training. Although optical methods, such as photoplethysmography, can only be used at peripheral sites and are still in the early stages of validation, they show promising results, are low-cost, and enable simple, cuﬄess, and continuous estimation.
+The underlying principle of existing photoplethysmography-based methods to estimate BP, PWV, or VAI is the pulse transit time (PTT), which describes the time a pressure
+
+4.4 Atrial Fibrillation Detection
+
+45
+
+wave takes to travel between two arterial sites [63, 67–71]. Commonly, the PAT is calculated by the time diﬀerence between the R-peak of the QRS complex from an ECG and a characteristic point of the PPG signal. Here, the PAT is a combination of the PTT and the pre-ejection period (PEP) which is the time between the beginning of electrical stimulation of the left ventricle and the opening of the aortic valve. A challenge for PAT-based methods is the individual calibration for each user before the monitoring to calculate model parameters required for accurate BP estimation. Some papers extract numerous features from the PPG signal or its ﬁrst and second order diﬀerence series but remain short on the details of how to ﬁnd the information from a signal processing point of view [71–73]. There is also a discussion whether linear or nonlinear regression models are necessary for BP and PWV. Miao et al. recently demonstrated that nonlinear SVR slightly outperforms linear regression, indicating a nonlinear relation between the features and cardiovascular parameters. However, they still recommend linear regression over SVR due to its low-power and low-complexity requirements [71].
+
+4.4 Atrial Fibrillation Detection
+
+In this section, we introduce a new method to detect AF with a PPG signal recorded with the video camera of smartphones, such as iPhone 5s, iPhone 6 Plus and iPhone 6s Plus. Fig. 4.1 summarizes the general principle of the algorithm.
+
+Video
+
+PPG Signal Acquisition & Preprocessing
+
+Statistical Feature
+Extraction
+
+Classiﬁcation
+
+Decision on AF
+
+Figure 4.1. General principle of the algorithm to detect AF with a PPG signal recorded with the video camera of smartphones.
+
+4.4.1 PPG Signal Acquisition and Preprocessing
+The PPG signals are acquired from the smartphones by using their camera and ﬂash. The method requires a static position of a ﬁnger on the camera. In contrast to other studies [7, 8, 59] that simply average 50 × 50 pixels of each video frame, we propose a novel method to better capture the variations of the pulsatile signal while reducing the computational cost and memory requirements.
+
+46
+
+Chapter 4: Cardiovascular Health Monitoring
+
+The ﬁrst step of our method is to take a subset on an equidistant grid of 50 × 50 pixels from the ﬁrst 5 s of the captured video. Following the ﬁndings of [10,58,74], we choose to generate the signal solely based on the red channel of each video frame and do not consider the green or blue channel. We calculate the variance of each pixel bk(n), k ∈ {1, . . . , 2500} over Ninit = 150 frames (the frame rate is 30 frames per second (fps))
+
+with
+
+σk2
+
+=
+
+1 Ninit −
+
+1
+
+Ninit
+(bk(n)
+n=1
+
+−
+
+µk)2,
+
+(4.1)
+
+1 Ninit µk = Ninit n=1 bk(n),
+
+(4.2)
+
+and select the Nvar pixels bk˜(n) with the highest variance, i.e.,
+
+σk˜2=1
+
+>
+
+σk˜2=2
+
+>
+
+...
+
+>
+
+σ2 k˜=Nvar
+
+,
+
+where
+
+k˜
+
+denotes
+
+the
+
+index
+
+of
+
+the
+
+ordered
+
+set
+
+of
+
+variances. Finally, we obtain the PPG signal of the entire measurement by averaging
+
+only the selected pixels in each of the remaining frames of the video
+
+1 Nvar p(n) = Nvar k˜=1 bk˜(n).
+
+(4.3)
+
+Fig. 4.2 compares a PPG signal that is acquired by randomly averaging 50 × 50 red channel pixels per frame and our proposed method that averages only over the Nvar most variant pixels in the red channel, showing higher signal energy. The resulting PPG signal is ﬁltered with a 4th order Butterworth band-pass ﬁlter with cut-oﬀ frequencies fc1 = 0.5 Hz and fc2 = 4 Hz.
+
+4.4.2 Statistical Feature Extraction
+Similar to other studies [7,8,11,75] we calculate statistical features from the PPG signal to distinguish between AF and NSR. In addition, we also make use of the features to detect strong hand movement during the measurement and label them as vibration (Vib). Implemented in a smartphone application, the user can be immediately informed that the measurement should be repeated. The statistical features are divided into two categories that are associated with the time domain and the frequency domain of the PPG signal.
+
+4.4 Atrial Fibrillation Detection
+
+47
+
+Figure 4.2. Comparison of an acquired PPG signal example before band-pass ﬁltering using the conventional method that averages over a subset of 50 × 50 pixels, and our method that averages only over the Nvar = 100 most variant pixels of the 50 × 50 pixel grid and has higher signal energy.
+4.4.2.1 Time-Domain Features
+As the irregular heartbeat sequence during AF results in an increased heart rate variability (HRV), we calculate typical HRV parameters [76] for time windows of 20 s. Thanks to the steps described in Section 4.4.1, we are able to use a simple peak detection algorithm that detects a local peak when a data sample is larger than its two neighboring samples. From the peak location diﬀerences, we calculate the root mean square of successive diﬀerences (RMSSD)
+
+RMSSD =
+
+1 Ndiﬀ −
+
+1
+
+Ndiﬀ −1
+(∆l+1
+l=1
+
+−
+
+∆l)2,
+
+(4.4)
+
+which captures the variation of the Ndiﬀ adjacent peak location diﬀerences ∆l = tl+1−tl, where tl is the l-th peak location in the PPG signal. In general, RMSSD is expected to be higher for patients with AF.
+
+The normalized root mean square of successive diﬀerences (nRMSSD)
+
+48
+
+Chapter 4: Cardiovascular Health Monitoring
+
+RMSSD
+
+nRMSSD = 1 Ndiﬀ
+
+Ndiﬀ l=1
+
+∆l
+
+,
+
+(4.5)
+
+adjusts for the eﬀect of heart rate.
+
+A further highly discriminating time-domain feature is the Shannon entropy
+
+Ndiﬀ
+ShE = − ∆2l log(∆2l ).
+l=1
+
+(4.6)
+
+In general, Shannon entropy is expected to be higher for patients with AF since it quantiﬁes the uncertainty in the distribution of the peak location diﬀerences. Further features are computed from the statistics of the successive peak location diﬀerences, such as, the mean, median, standard deviation (STD) and the mean absolute deviation (MAD).
+
+In addition to these commonly used features, we take into account the variation of the pulse waveform and determine the mean, median, STD and MAD of the following parameters: the crest time [2], which is the time from the foot of the PPG waveform to its peak, the peak rise height (PRH), the fall height and the waveform width as shown in Fig. 4.3, as well as the cross-correlation of consecutive pulse segments [77].
+
+Crest time
+
+Fall height
+
+Peak rise height (PRH)
+
+Waveform width
+Figure 4.3. Time-domain features extracted from the PPG waveform: the crest time [2], the peak rise height (PRH), the fall height, and the waveform width.
+
+4.4 Atrial Fibrillation Detection
+
+49
+
+4.4.2.2 Frequency-Domain Features
+
+We also incorporate frequency-domain HRV features, which provide additional evidence to distinguish an AF measurement from an NSR measurement [76]. For this, we interpolate the sequence of peak location diﬀerences ∆l, l ∈ {1, . . . , Ndiﬀ} to a regular grid using an equidistant grid interval of 0.25 s. Stacking the resulting series into the vector ∆˜ (∆˜ 1, . . . , ∆˜ N˜diﬀ) and applying the fast Fourier transform (FFT) yields
+
+∆˜ (fj) = F {∆˜ }, fj = 0, . . . , F∆
+
+(4.7)
+
+with F∆ = 2 Hz.
+From (4.7), features are formed by extracting the spectral powers in the very low frequency (VLF) range from 0 Hz to 0.04 Hz, in the low frequency (LF) range from 0.04 Hz to 0.15 Hz and in the high frequency (HF) range from 0.15 Hz to 0.4 Hz, as well as the quotients of these spectral powers.
+In contrast to previous studies [7, 8, 11, 75], we expand the set of statistical features by incorporating frequency-domain features of the PPG signal. For this, we ﬁrst divide the PPG signal into segments of 5 s with an overlap of 80 % and normalize them by subtracting their mean and dividing by their standard deviation. Let these segments, for m = 1, . . . , Mseg, be represented by psmeg = [psmeg(1), . . . , psmeg(Nseg)] , where Mseg is the total number of segments and Nseg denotes the segment length. Then applying the FFT
+
+P (fi, m) = F {psmeg}, fi = 0, . . . , Fp
+
+(4.8)
+
+with Fp = 3.33 Hz at a spectral resolution of 0.015 Hz allows for computing a variety of features, such as: maximal spectral peak, diﬀerences of the maximal spectral peak positions, summed spectral energy, peak to sum ratio, spectral entropy, and kurtosis of the spectrum
+
+1
+
+Kurtm
+
+=
+
+Fp
+
+(
+
+1 Fp
+
+Fp i=0
+
+(P
+
+(fi,
+
+m)
+
+−
+
+µP
+
+(m))4
+
+Fp i=0
+
+(P
+
+(fi,
+
+m)
+
+−
+
+µP
+
+(m))2)2
+
+,
+
+(4.9)
+
+50
+
+Chapter 4: Cardiovascular Health Monitoring
+
+Figure 4.4. Spectrogram for an exemplary recording of a patient with AF. The chaotic spectral power distribution indicates irregular heart beating in the presence of AF.
+
+where
+
+µP (m)
+
+=
+
+1 Fp
+
+Fp i=0
+
+P
+
+(fi,
+
+m).
+
+To
+
+perform
+
+classiﬁcation,
+
+we
+
+have
+
+to
+
+be
+
+consistent
+
+with the time-domain features, which provide one feature vector every 20 s. Therefore,
+
+we calculate the mean, median, STD and MAD of the frequency-domain features. This
+
+reduces the multiple feature vector from the overlapping 5 s segments to a single value
+
+each 20 s. Two exemplary spectrograms for a patient with AF and a patient with NSR
+
+for a measurement of 2 min are shown in Fig. 4.4 and Fig. 4.5, respectively.
+
+4.4.2.3 Acceleration Features
+Strong movement of the patient can deteriorate the quality of a PPG measurement. To avoid manual data screening by trained staﬀ, we propose to consider acceleration features to automatically detect strong movement of a patient. In a mobile phone application, when strong movement has been detected, e.g., the patient can be asked to repeat the recording. After subtracting the mean of in each direction the of acceleration, we calculate the mean, median, MAD and STD of the time- and frequency-domain energy in each direction and in total.
+
+4.4 Atrial Fibrillation Detection
+
+51
+
+Figure 4.5. Spectrogram for an exemplary recording of a patient with NSR. The spectral power distribution indicates a nearly constant sinusoidal heart rate at around 75 BPM.
+4.4.3 Feature Selection and Classiﬁcation
+We divide the classiﬁcation procedure into two diﬀerent stages: wrapper type feature selection and classiﬁcation via SVM. Both stages are computationally demanding but are not intended to be implemented in smartphone applications, which only need the resulting classiﬁcations rules. First, the feature selection aims at ﬁnding the best feature combination of the presented set of features to distinguish between the classes. Feature selection reduces the computational cost and reveals the diﬀerent levels of the features’ signiﬁcance. Then, the SVM is applied to ﬁnd the optimal decision equation to separate the classes. Finally, only the features of the best combination need to be calculated in the smartphone application and classiﬁcation can be performed based on decision lines for pairs of features or hyperplanes in case of multiple features.
+4.4.3.1 Sequential Forward Selection (SFS)
+We apply SFS to ﬁnd the best feature combinations heuristically [78]. SFS sequentially adds features to an empty candidate set until the addition of further features does not decrease the misclassiﬁcation rate. We use a 5-fold stratiﬁed cross-validation with
+
+52
+
+Chapter 4: Cardiovascular Health Monitoring
+
+100 Monte-Carlo repetitions to minimize the misclassiﬁcation rate and reduce the total number of 85 features.
+
+4.4.3.2 Support Vector Machine (SVM)
+In this work, we apply SVM for ﬁnding the optimal hyperplane that separates the feature classes in the feature space [79].
+First, we select the support vectors and ﬁnd two parallel hyperplanes that separate the classes NSR and AF, such that the distance, also referred to as margin, between the hyperplanes is as large as possible. Then, the maximum-margin hyperplane
+
+w x=0
+
+(4.10)
+
+is the hyperplane that lies halfway between the classes, where w is the normal vector to the hyperplane and x is the point in the feature space.
+The optimization problem is given by
+
+min
+w,ξq
+
+Nfeat
+w 2 + C ξq
+q
+
+(4.11)
+
+subject to yqcl(w xq) ≥ 1 − ξq for q = 1, . . . , Nfeat, where yqcl is the class label and ξq > 0 corresponds to the slack variable for the q-th data point in the feature space, and C is the cost of misclassifying. To solve (4.11), we perform a 5-fold cross-validation using the machine learning toolbox LIBSVM [80].
+
+4.4.4 Real Data Results
+4.4.4.1 Experimental Setup and Performance Metrics
+The data was recorded as a pre-study to a larger data collection at the Onze Lieve Vrouwe Gasthuis (OLVG) in Amsterdam, Netherlands, using the video camera of an iPhone 5s, iPhone 6 Plus, and iPhone 6s Plus at a frame rate of 30 fps. The ethical
+
+4.4 Atrial Fibrillation Detection
+
+53
+
+approval to conduct this pre-study was obtained from our collaboration partner. The duration of a measurement is 2 min and the sampling rate of the acquired PPG signal is 30 Hz. The measurements were visually checked and labeled by trained study staﬀ as AF, NSR, or vibration (Vib) in the case of strong hand movement of the patient. We collected 20 measurements of AF, 294 of NSR, and 12 of Vib.
+The time-domain features are computed over time windows of 20 s and the frequencydomain features are calculated for every 5 s segments with 80 % overlap and averaged over the same 20 s time windows. The classiﬁcation is performed based on the features that are extracted from these time windows of 20 s duration.
+We calculate the accuracy, sensitivity, speciﬁcity, and receiver operating characteristic (ROC) curve to evaluate the performance of the proposed method for each individual feature as well as for combinations of features.
+
+4.4.4.2 Classiﬁcation Results
+The feature selection, indicates that using only two features are suﬃcient for AF detection. Table 4.1 shows the results of the best feature pairs in terms of sensitivity, speciﬁcity, and accuracy. The best single feature is the Shannon entropy (ShE) of peak location diﬀerences, which when combined with the median of peak rise height (mPRH) achieves a perfect classiﬁcation accuracy of 100 %. Fig. 4.6 shows the ROC curve for the listed feature combinations.
+Fig. 4.7 displays the feature space of the best feature pair and the separating line w1 x with decision equation
+
+ 
+
+
+
+−0.54
+
+1
+
+AF
+
+w1
+
+x
+
+=
+
+ 
+
+0.045
+
+ 
+
+ 
+
+ShE
+
+ 
+
+≷
+
+0.
+
+ 
+
+ NSR
+
+1
+
+mPRH
+
+It also shows the separating line with decision equation
+
+(4.12)
+
+ 
+
+
+
+−3.83
+
+1
+
+AF/NSR
+
+w2
+
+x
+
+=
+
+ 
+
+0.267
+
+ 
+
+ 
+
+ShE
+
+ 
+
+≷
+
+0
+
+ 
+
+ Vib
+
+1
+
+mPRH
+
+(4.13)
+
+54
+
+Chapter 4: Cardiovascular Health Monitoring
+
+Table 4.1. Analysis of the classiﬁcation performance of feature combinations (Comb) in terms of sensitivity, speciﬁcity, accuracy and the AUC of the ROC curve based on classiﬁed 20 s segments.
+
+Feature Comb Sensitivity Speciﬁcity Accuracy ROC AUC
+
+ShE+mPRH LF+mPRH ShE+nRMSSD
+
+1.000 0.850 0.650
+
+1.000 1.000 0.990
+
+1.000 0.991 0.969
+
+1.000 0.998 0.927
+
+for the discrimination between AF, NSR and Vib. In this feature space, all three classes are linearly separable which implies perfect classiﬁcation between AF and NSR.
+
+Figure 4.6. Receiver operating characteristic (ROC) curve of the best three feature pairs.
+4.4.5 Discussion
+The proposed method is applied to data from a pre-study and will be further evaluated on a larger number of measurements, which might alter our ﬁndings of the best feature combination. Hopefully, in future, this will lead to suﬃciently large benchmark datasets for photoplethysmography-based AF detection.
+
+4.4 Atrial Fibrillation Detection
+
+55
+
+Figure 4.7. Feature space of the Shannon entropy of peak location diﬀerences and the median of peak rise height. The two lines separate AF from NSR and vibrationcorrupted samples from good samples, respectively.
+Variation in peak rise height in AF patients results from the variation in diastolic lengths that is present during AF. Longer diastolic time frames allow for more blood accumulation in the left ventricle which results in larger ejected blood volumes. The continuous variation in stroke volumes during AF is reﬂected by an increased variation in the peripheral pulse including small and relatively large peaks which can be detected by PPG.
+We notice that the detection of AF should not solely be based on Shannon entropy and nRMSSD but can be improved by accompanying new features, such as the median of peak rise height or low-frequency energy of the peak location diﬀerences. Besides Shannon entropy and nRMSSD, the classic features to discriminate between AF and NSR, also kurtosis of the PPG signal spectrum has been recognized as a promising feature, especially in case of measurements with high signal-to-noise ratio (SNR). We suggest to investigate its potential on a larger dataset.
+We assume that, for a larger amount of data, it may provide useful to combine more than two features and to calculate decision hyperplanes instead of lines. The proposed framework can easily be extended in this case. So far, we restricted ourselves to linear SVM for the simple reason that optimal classiﬁcation was already possible. If the perfect separation of AF and NSR in the feature space is not given for a larger number
+
+56
+
+Chapter 4: Cardiovascular Health Monitoring
+
+of measurements, we would suggest to perform a non-linear classiﬁcation using what is called the kernel trick to map the features into high-dimensional spaces, which we successfully apply in Chapter 4.5.4.4 using SVR.
+As a result of this work, a mobile application with extremely low computational costs could be implemented. Applying the proposed PPG acquisition, the application simply needs to calculate the presented subset of features, that best classiﬁes AF and NSR, and form decisions based on (4.12) and (4.13).
+Finally, a future extension of our work concerns recordings with bad ﬁnger placement. If the ﬁnger is moved on the camera lens during the measurement, the algorithm should reinitialize the most variant pixels that are used to acquire the PPG signal. Such a movement can be detected when the PPG signal abruptly jumps or is decaying.
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+A method for the estimation of BP, PWV, and VAI based on a single PPG signal is presented in this section. Please note that the PPG signal for this method is acquired from a PPG sensor and not from the video camera of a smartphone. Fig. 4.8 summarizes the general principle of the algorithm. All stages of the algorithm are detailed in what is to follow.
+
+PPG Signal
+
+Preprocessing
+
+Feature Extraction
+
+Feature Matrix Completion
+
+Cardiovascular Parameter Estimation
+
+Figure 4.8. General principle of the algorithm to estimate cardiovascular parameters based on a single PPG signal.
+
+4.5.1 Preprocessing
+We acquire a PPG signal at a sampling frequency of 1 kHz and reduce high frequency noise by applying a ﬁnite impulse response (FIR) low-pass ﬁlter with a cut-oﬀ frequency fc1 = 30 Hz and 15 ﬁlter coeﬃcients. The PPG signals are standardized (z-score) by subtracting their mean and dividing by their standard deviation.
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+57
+
+4.5.2 Feature Extraction
+
+In total, a set of 83 features is extracted from the PPG, velocity of PPG (VPG), and acceleration plethysmogram (APG) waveforms as detailed in this section.
+
+4.5.2.1 Features from the PPG Waveform
+
+For each of the n = 1, . . . , Nbeat heartbeats, we calculate its energy,
+
+its Shannon entropy,
+
+ln
+En = |pn(i)|2,
+i=1
+
+(4.14)
+
+ln
+ShEn = − pn(i)2 log(pn(i)2),
+i=1
+as well as its kurtosis,
+
+(4.15)
+
+Kurtn =
+
+1 ln
+1 ln
+
+ln i=1
+
+(pn
+
+(i)
+
+−
+
+µˆpn
+
+)4
+
+ln i=1
+
+(pn
+
+(i)
+
+−
+
+µˆpn
+
+)2
+
+2,
+
+(4.16)
+
+where
+
+µˆpn
+
+=
+
+1 ln
+
+ln i=1
+
+pn
+
+(i).
+
+To calculate further features based on characteristic points in the PPG waveform, we propose four diﬀerent methods to ﬁnd these characteristic points, three of which are based on Gaussian mixture models (GMMs) while the fourth uses the diﬀerence series. The modeling strategy exploits the well-known fact that the PPG waveform consists of two waves: the systolic and diastolic wave [4].
+
+Method 1 models the systolic wave with a one-dimensional GMM with two components. The ﬁrst component is centered at the maximal value of the PPG waveform corresponding to the systolic peak. An exemplary result is shown in Fig. 4.9.
+
+58
+
+Chapter 4: Cardiovascular Health Monitoring
+
+Figure 4.9. An example of a preprocessed PPG waveform with successful detection of the systolic and diastolic peak where the systolic wave is modeled by a one-dimensional GMM with two components and the diastolic wave is found as the diﬀerence to the PPG waveform (Method 1 ).
+Figure 4.10. An example of a preprocessed PPG waveform with successful detection of the systolic and diastolic peak where the systolic wave is modeled by a one-dimensional GMM with two components but described only using the variance of the ﬁrst component and the diastolic wave is found as the diﬀerence to the PPG waveform (Method 2 ).
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+59
+
+Figure 4.11. An example of a preprocessed PPG waveform with successful detection of the systolic and diastolic peak where both systolic and diastolic wave are modeled by a one-dimensional GMM with two components (Method 3 ).
+Method 2 similarly ﬁts a one-dimensional GMM with two components, where the ﬁrst component is centered at the maximal value of the PPG waveform and corresponds to the systolic peak. Only the ﬁrst component of the GMM is subtracted, and similarly to Method 1, the diastolic peak is deﬁned as the maximal value of the residual waveform.
+Method 3 directly models the systolic wave and diastolic wave as a one-dimensional GMM with two components. Here, the systolic peak and diastolic peak times are determined by location parameters of each component and their amplitudes are associated amplitudes in the original PPG waveform, see Fig. 4.11 for an example.
+Method 4 analyzes the VPG and APG waveforms without using a GMM. The systolic peak is determined by the location of the ﬁrst zero-crossing of the VPG, and the dicrotic notch and diastolic peak are determined by the locations of the subsequent zero-crossings with a positive and negative value in the APG, respectively.
+The locations and amplitudes of the estimated characteristic points serve as features. Further, for Methods 1-3, energy, Shannon entropy, and kurtosis are computed, analogously to (4.14)–(4.16), for the extracted systolic and diastolic waves.
+
+60
+
+Chapter 4: Cardiovascular Health Monitoring
+
+4.5.2.2 Features from the VPG Waveform
+
+From the VPG waveform we ﬁnd four additional characteristic points termed according to the suggestion of Elgendi et al. [4] as the maximum slope peak in the systolic wave, the local minima slope in the systolic wave, the global minima slope in the systolic wave and the maximum slope peak in the diastolic wave. An example of a VPG waveform with successful detection of the characteristic points is shown in Fig. 4.12. Further features are obtained by computing the energy of the VPG waveform, its Shannon entropy, and kurtosis.
+
+4.5.2.3 Features from the APG Waveform
+The APG signal consists of ﬁve well-known characteristic points: a, b, c, d, and e, which are illustrated in Fig. 4.13. The points a to d can be attributed to the systolic wave, whereas point e describes the onset of the diastolic wave. Upon various tested heuristics, we report the most successful strategy, which searches for the largest extrema of the APG waveform and arrives at the correct order of points by exploiting the temporal structure that both minima must occur between the three respective maxima. An example of an APG waveform with successful detection of the characteristic points is shown in Fig. 4.13. Besides the location and amplitude of the characteristic points, we calculate the ratios b/a and (b-c-d-e)/a), the energy, Shannon entropy, and kurtosis of the APG waveform.
+
+4.5.3 Feature Matrix Completion
+In total, in this study, we extract Nfeat = 83 features from a total number of Nobs = 5202 heartbeats and store the data in a large feature matrix. However, some features cannot be extracted for every heartbeat. For example, not all characteristic points in the PPG, VPG, or APG waveform can be found when the signal quality is too low or motion artifacts lead to large signal distortions. Overall, the amount of missing data is about 9 % with at least 65 % of the observations being available for each feature.
+To overcome the problem of missing data, we propose to apply matrix completion methods to recover the missing entries of the feature matrix. As proven in Cand`es and Recht [81], for our setting the missing entries can be recovered, given that the feature matrix is suﬃciently low rank. The low-rank assumption is well-justiﬁed in our case, because many features are highly correlated.
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+61
+
+Figure 4.12. A VPG waveform with its four characteristic points.
+
+Figure 4.13. An APG waveform with its four characteristic points: a, b, c, d, and e.
+
+62
+
+Chapter 4: Cardiovascular Health Monitoring
+
+To further investigate low-rank properties of the feature matrix X, we apply principal component analysis (PCA) which shows that 24 principal components already describe 90 % of the variance, 31 components describe 95 %, and 40 components describe 99 %, see Fig. 4.14.
+
+Figure 4.14. The explained variance (%) depending on the number of principal components of the feature matrix.
+For matrix completion, we use the iterative hard-thresholded singular value decomposition (IHT-SVD), provided by Cand`es and Becker for non-commercial use [82], and recover the standardized feature matrix X with Nobs rows (observations) and Nfeat columns (features) by solving the following optimization problem:
+
+minimize rank(X) subject to x˜ − M (x) 2
+
+(4.17)
+
+Here, M (x) is a masking operator applied to the vectorized feature matrix x = vec(X), and x˜ contains the successfully extracted features, see [82] for details.
+
+4.5.4 Cardiovascular Parameter Estimation
+The ultimate aim of this method is to accurately estimate cardiovascular parameters (dependent variables) based on a set of extracted features (independent variables).
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+63
+
+Accordingly, in general, we model the dependent variable
+
+y = f (X, β) + v
+
+(4.18)
+
+as a function of the independent variables X ∈ RNobs×Nfeat and unknown parameters β ∈ R . Nfeat Model uncertainty is captured in v, which is an independently distributed random variable.
+In the case of linear regression, (4.18) reduces to
+
+y = Xβ + v.
+
+(4.19)
+
+4.5.4.1 Least Squares Linear Regression
+The most commonly used estimator is the ordinary least squares (OLS) that minimizes the sum of squared residuals. Its closed-form expression for the estimate of the unknown parameters β is1
+
+βˆLSE = (X X)−1X y.
+
+(4.20)
+
+4.5.4.2 Robust Linear Regression
+Robust M-estimators of the regression parameters can account for a certain amount of outliers by downweighting them in the objective function [84–86]. Joint M-Huber estimators [86] minimize Huber’s criterion,
+
+ασ
+
+Nobs
+
+minimize Lhub(β, σ) =
+β∈RNfeat ,σ≥0
+
+2Nobs
+
++
+
+i=1
+
+ρhub
+
+yi −xi β σ
+
+σ
+
+(4.21)
+
+where
+1Since inverting XTX can lead to undesirably large rounding errors, we use orthogonal-triangular (QR) decomposition and pivoting to obtain a stable solution [83].
+
+64
+
+Chapter 4: Cardiovascular Health Monitoring
+
+xi = [xi(1), xi(2), . . . , xi(Nfeat)]
+
+(4.22)
+
+is the transposed i-th row (observation) of the standardized feature matrix X, yi is the corresponding reference value of the cardiovascular parameter, α > 0 is a ﬁxed scaling factor to obtain Fisher consistency when the error terms are independent and identically distributed (i.i.d.) Gaussian distributed, and ρhub is Huber’s convex and diﬀerentiable loss function, deﬁned as
+
+ρhub(x) =
+
+|x|2, 2ctune|x| − c2tune,
+
+for |x| ≤ ctune , for |x| > ctune
+
+x ∈ R,
+
+(4.23)
+
+where ctune is a tuning parameter that trades oﬀ robustness and eﬃciency at a nominal Gaussian distribution. To compute Huber’s M-estimates, we use the MinimizationMajorization-based algorithm, as implemented in the MATLAB function hubreg.m of the Robust Signal Processing Toolbox [86].
+
+4.5.4.3 Support Vector Regression (SVR) with Linear Kernel The basic idea of SVR [87] is to ﬁnd a function f (xi),
+
+f (xi) = xi β + bbias with β ∈ R , Nfeat bbias ∈ R,
+
+(4.24)
+
+that has at most ε deviation from the observations yi for all of the training data, and, at the same time, is as ﬂat as possible [88]. Here, bbias accounts for the bias. The ﬂatness is obtained for small β, and the convex optimization problem of the linear SVR is given by
+
+minimize 1 β 2 2
+subject to yi − xi β − bbias ≤ ε . xi β + bbias − yi ≤ ε
+
+(4.25)
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+65
+
+4.5.4.4 Support Vector Regression (SVR) with Nonlinear Kernel
+
+As described in (4.18), in general, the cardiovascular parameters can have a nonlinear dependency on the extracted features, we make use of the kernel trick to approximate the nonlinear regression model f (X, β).
+Using the dual problem form of the optimization problem
+
+with
+
+Nobs
+f (xi) = xi β + b = (αj − αj∗)xi xj + bbias
+j=1
+
+(4.26)
+
+Nobs
+β = (αj − αj∗)xj,
+j=1
+
+(4.27)
+
+where αi and αi∗ are Lagrangian multipliers, we can replace xi xj by the dot product of the transformed data points using a positively deﬁned kernel function:
+
+K(xi, xj) = φ(xi) φ(xj).
+
+(4.28)
+
+Among diﬀerent possible kernels, best performance was obtained for the radial basis function (RBF) or Gaussian kernel function
+
+K(xi, xj) = exp
+
+−
+
+||xi
+
+− xj 2σK2
+
+||2
+
+,
+
+where σK is the kernel scale, resulting in
+
+(4.29)
+
+in (4.24).
+
+Nobs
+f (xi) = (αj − αj∗) exp
+j=1
+
+−
+
+||xi
+
+− xj 2σK2
+
+||2
+
++ bbias
+
+(4.30)
+
+66
+
+Chapter 4: Cardiovascular Health Monitoring
+
+4.5.5 Experimental Results
+
+4.5.5.1 Subjects
+
+Eighteen subjects (13 males and 5 females) with no reported history of cardiovascular or cardiopulmonary disorders were recruited for this study. An informed consent was obtained from each subject after a detailed explanation of the investigation objective and the measurement procedure. The statistical characteristics of the study population and of the cardiovascular parameters are summarized in Table 4.2. For each cardiovascular parameter, the mean, STD, median, and range across all subjects are listed.
+
+Table 4.2. Statistical characteristics of the study population
+
+Characteristic
+
+Value
+
+Number of Subjects
+
+18
+
+Number of Measurements
+
+42
+
+Measurements per Subject
+
+1–5
+
+Sex [Total Measurements]
+
+Female
+
+5 [14]
+
+Male
+
+13 [28]
+
+Age (years)
+
+Mean ± STD 31.2 ± 7.8
+
+Median, Range 28.5, 21–59
+
+BMI (kg/m2)
+
+Mean ± STD 22.1 ± 2.4
+
+Median, Range 22.0, 18.4–27.5
+
+Cardiovascular Parameter DBP (mmHg) SBP (mmHg) PWV (m/s) VAI (years)
+
+Mean ± STD Median, Range Mean ± STD Median, Range Mean ± STD Median, Range Mean ± STD Median, Range
+
+Value 81.8 ± 10.8 80, 58–115 124.5 ± 11.3 124, 92–152 5.6 ± 0.7 5.5, 4.7–8.3 33.7 ± 7.2 33, 22–60
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+67
+
+4.5.5.2 Study Protocol
+
+The study was carried out in the biomedical laboratory of the Signal Processing Group (SPG) at Technische Universita¨t (TU) Darmstadt in December 2017. In total, 42 measurements were taken from 18 diﬀerent subjects. Three measurements had to be excluded because of bad signal quality resulting from sensor misplacement.
+All subjects sat on a chair and were asked to relax and avoid body movement during the measurement. The total duration of one measurement session was about 20 min and the following two-stage experimental procedure was applied for each subject:
+In the ﬁrst stage, three physiological signals (ECG, PPG at the left wrist, and PPG at the left fore ﬁnger) were simultaneously acquired for a duration of 2 min using the PowerLab 26T from ADInstruments at a sampling frequency of 1 kHz, see Fig. 4.15. Both PPG sensors, i.e., the infrared (IR) Plethysmograph Finger Clip and the IR Plethysmograph Velcro Strap, use infrared light (950 nm) and are connected to the PowerLab 26T. Unfortunately, the signal quality of the wrist-worn PPG sensors was not suﬃciently high and only the PPG signal from the ﬁnger clip could be used for further evaluation. To measure the ECG, three electrodes were placed at both subject’s wrists and at the left ankle. Motion artifacts in the ECG signal were corrected with the multi-resolution thresholding method by Strasser et al. [89]. The detection of R-peaks in the QRS complex of the ECG was performed by applying the algorithm of Pan & Tompkins [90] using the implementation of Sedghamiz [91]. For the removal of high frequency noise caused by the diﬀerentiation, we apply an FIR low-pass ﬁlter with cut-oﬀ frequencies fc2 = 25 Hz and 24 ﬁlter coeﬃcients for the VPG and fc3 = 15 Hz with 40 ﬁlter coeﬃcients for the APG, respectively.
+In the second stage, the cardiovascular reference parameters were measured with the Mobil-O-Graph PWA R which is a clinically approved device by I.E.M. GmbH. The device was validated in the year 2000 and fulﬁlls the criteria of the British Hypertension Society (BHS) protocol, achieving a grade B for systolic blood pressure (SBP) and a grade A for diastolic blood pressure (DBP) [92]. The average diﬀerences were −2 ± 8 mmHg for SBP and −2 ± 7 mmHg for DBP. The device therefore also passed the American Association for the Advancement of Medical Instrumentation (AAMI) standard (the average diﬀerences have to be within 5 ± 8 mmHg). Ten years later, the device was again validated according to the criteria of the BHS as a twenty-four-hour BP measurement device [93], and achieved grade A for SBP and DBP leading to a ﬁnal grade A/A. Thus, the device is “very accurate and with no error of clinical relevance” and is recommended for clinical use.
+
+68
+
+Chapter 4: Cardiovascular Health Monitoring
+
+Figure 4.15. A subject during the recording of PPG and ECG signals.
+
+Figure 4.16. A subject during the measurement with the reference device.
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+69
+
+The Mobil-O-Graph PWA R works similar to an inﬂatable cuﬀ device for BP, applying a cuﬀ to the subject’s upper arm, and exerting pressure onto the upper arm’s brachial artery, see Fig. 4.16. It thereby performs a pressure pulse wave analysis (PWA) and measures a variety of cardiovascular parameters from which the DBP and SBP, the PWV, and the VAI serve as reference values for the photoplethysmography-based parameter estimation of the physiological signals. The PWA was conducted three times in a row. The duration of the second stage was about 15 min.
+The study was approved by the Ethics Commission of TU Darmstadt on 24 April 2017. The reference number of the approval is EK 09/2017. Informed consent was obtained from all subjects before the experiment.
+
+4.5.5.3 Evaluation Metrics
+The median of the three consecutive measurements of the Mobil-O-Graph R serves as the reference for SBP, DBP, PWV, and VAI. The mean and STD of the estimation error w.r.t. these reference values are reported. We also evaluate the overall performance of the proposed methods according to the root-mean-squared error (RMSE),
+
+RMSE =
+
+1 N
+
+N
+(yˆi − yiref)2,
+
+i=1
+
+the mean absolute error (MAE),
+
+1 MAE =
+N
+
+N
+
+|yˆi − yiref|,
+
+i=1
+
+and Pearson’s correlation coeﬃcient (CC),
+
+ρ=
+
+Ni=1(yˆi − µyˆ)(yiref − µyref )
+
+,
+
+Ni=1(yˆi − µyˆ)2
+
+Ni=1(yiref − µyref )2
+
+where µyˆ and µyref are the sample means of yˆi and yiref, respectively.
+
+(4.31) (4.32) (4.33)
+
+70
+
+Chapter 4: Cardiovascular Health Monitoring
+
+4.5.5.4 Feature Selection
+To obtain the features that have the strongest impact in estimating the cardiovascular parameters, we apply sequential forward selection (SFS) [78], which sequentially adds features to an empty candidate set until the addition of further features does not increase the performance.
+For comparison, additionally to the PPG features, we also evaluate features that require measuring an ECG signal. Based on the extracted temporal locations of the R-peaks in the ECG signal and the temporal locations of the characteristic points in the PPG, VPG, and APG signal, we calculate the PAT which is commonly used to estimate the BP [63, 67–71]. We compare several ways to estimate the PAT: using the R-peak and the systolic notch, or the systolic peak determined with each of the Methods 1–4, or alternatively, by using the R-peak and the maximum slope peak in the systolic wave from the VPG signal, see Fig. 5. In addition, for comparison, we evaluate meta features, such as the subject’s age, height, weight, and BMI and evaluate their contribution to the estimation of cardiovascular parameters.
+Tables 4.4–4.11 summarize the ﬁrst ten selected features for all physiological parameters. A distinction is made between the PPG only feature set, and the set that includes ECG and meta information on the subjects. We apply a wrapper-based selector and evaluate subsets by their predictive accuracy in terms of the RMSE using the SVR with a Gaussian kernel and a 5-fold cross-validation.
+Note that, according to Table 4.4, the VPG features are important for modeling the glsdbp and from the ﬁrst seven PPG-only features ﬁve are extracted from the VPG signal. For the glssbp, the best ﬁve features are extracted from the APG signal, see Table 4.5. As expected, the PAT is the overall most signiﬁcant feature to estimate the glssbp. For the PWV and VAI, the three most signiﬁcant features are the same and come from the APG signal, as listed in Tables 4.6 and 4.7.
+
+4.5.5.5 Comparison between Feature Extraction Methods
+Table 4.3 compares the performance of Methods 1–4 for extracting features from the PPG waveform using the SVR with a Gaussian kernel and for static parameter estimation, as detailed in the following section. The results in Table 4.3 show that Method 1 outperforms the others for all cardiovascular parameters and Method 2 performs second best. The combination of all four methods produces more accurate results compared to using a single method.
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+71
+
+Table 4.3. Statistical performance analysis of the proposed methods to extract features with static parameter estimation and only features from the methods
+
+Method
+
+Mean ± STD RMSE MAE CC
+
+DBP: Method 1 -0.12 ± 3.49 3.49 2.07 0.95
+
+DBP: Method 2 -0.19 ± 3.80 3.80 2.24 0.94
+
+DBP: Method 3 -0.44 ± 4.61 4.63 2.84 0.91
+
+DBP: Method 4 -0.22 ± 5.58 5.58 3.71 0.86
+
+SBP: Method 1 -0.48 ± 5.11 5.13 3.12 0.88
+
+SBP: Method 2 -0.70 ± 5.10 5.15 2.57 0.87
+
+SBP: Method 3 -0.58 ± 5.26 5.29 3.13 0.87
+
+SBP: Method 4 -0.60 ± 6.88 6.91 4.42 0.74
+
+PWV: Method 1 0.04 ± 0.30 0.31 0.14 0.92
+
+PWV: Method 2 0.05 ± 0.33 0.33 0.14 0.89
+
+PWV: Method 3 0.06 ± 0.39 0.39 0.16 0.85
+
+PWV: Method 4 0.09 ± 0.45 0.46 0.25 0.84
+
+VAI: Method 1 0.34 ± 3.16 3.18 1.51 0.92
+
+VAI: Method 2 0.43 ± 3.48 3.51 1.49 0.89
+
+VAI: Method 3 0.51 ± 4.00 4.03 1.78 0.85
+
+VAI: Method 4 0.81 ± 4.66 4.73 2.74 0.83
+
+4.5.5.6 Static Parameter Estimation
+
+Static parameter estimation refers to estimating the cardiovascular parameters for each heartbeat and then calculating the median over all heartbeat estimates for each measurement. This allows for a comparison to the estimates obtained from the reference device in terms of the evaluation metrics deﬁned in (4.31)–(4.33).
+
+As a benchmark comparison, we report estimates for each cardiovascular parameter that are computed with the linear model
+
+β1PAT + β0,
+
+(4.34)
+
+which is widely used to model the BP in a linear relation to the time it takes for a volume of blood to travel from the heart to a peripheral organ, neglecting the change in the arterial thickness and diameter with pressure variations [63]. One critical issue of this conventional method is the frequent calibration as the time delay is subject related and varies with the subject’s heart rate. Thus, this regression model is subject speciﬁc and
+
+72
+
+Chapter 4: Cardiovascular Health Monitoring
+
+requires individual calibration, which is in contrast to our proposed methods that are based on one regression model for all subjects. A further drawback of the conventional method is that the PAT requires an ECG to be acquired simultaneously.
+For all cardiovascular parameters, the PAT using the R-peak in the ECG and the systolic peak in the PPG signal determined with Method 4 achieved best results in terms of glsrmse accuracy and was therefore reported.
+The results for the static parameter estimation are listed in Tables 4.12–4.15, which also reports on the feature selection (top ﬁve and top ten features) for the proposed SVR with Gaussian kernel (SVR-G).
+The linear regression model based estimators, i.e., linear least squares estimation (LSELin), linear joint M-Huber estimation (Joint M-Huber-Lin) and SVR with linear kernel (SVR-Lin), achieve comparable poor results. Our proposed approach using the SVR with Gaussian kernel with only the best ﬁve PPG features and the subject-speciﬁc linear regression using the PAT already demonstrate reasonable performance (e.g. the STD of BP is less than 5 mmHg). Using the best 10 PPG features or more, the accuracy improves further up to the point of overﬁtting, see Section 4.5.5.8 for further discussion.
+
+4.5.5.7 Continuous Parameter Estimation
+Through matrix completion, we have all features available for all heartbeats and are able to estimate a value for each heartbeat. As an evaluation compared to the static reference values is not appropriate, we show an exemplary course of our DBP estimates in Fig. 4.17 to illustrate the performance of the proposed continuous parameter estimation in a dynamic parameter estimation setting.
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+73
+
+Table 4.4. First ten features for DBP - PPG-only
+
+#
+
+Features for SVR Gaussian Kernel
+
+1
+
+Local Minima Slope Time in Systolic (VPG)
+
+2
+
+Maximum Slope Peak Time in Systolic (VPG)
+
+3
+
+b/a Ratio (APG)
+
+4
+
+Heart Rate in BPM
+
+5 Maximum Slope Peak Amplitude in Diastolic (VPG)
+
+6 Maximum Slope Peak Amplitude in Systolic (VPG)
+
+7 Local Minima Slope Amplitude Systolic (VPG)
+
+8
+
+Systolic Peak Time (PPG) - Method 1
+
+9
+
+Systolic Peak Time (PPG) - Method 2
+
+10 Diastolic Wave Shannon Entropy (PPG) - Method 3
+
+Table 4.5. First ten features for SBP - PPG-only
+
+#
+
+Features for SVR Gaussian Kernel
+
+1
+
+Time of Point b (APG)
+
+2
+
+(b − c − d − e)/a Ratio (APG)
+
+3
+
+Time of Point e (APG)
+
+4
+
+Normalized Amplitude of Point e (APG)
+
+5
+
+Normalized Amplitude of Point c (APG)
+
+6
+
+Heartbeat Duration
+
+7
+
+Shannon Entropy (APG)
+
+8 Maximum Slope Peak Time in Systolic (VPG)
+
+9
+
+Systolic Time (PPG) - Method 4
+
+10 Diastolic Wave Shannon Entropy (PPG) - Method 3
+
+4.5.5.8 Training the Regression Model
+
+Note that, in our proposed approach, the regression parameters of the regression models are subject independent, i.e., they are constant over all subjects. In this section, we compare results for diﬀerent types of training of the model parameters:
+
+• CV0 (“all data”): the regression parameters are calculated once using all available data, no cross-validation (CV)
+• CV1 (“leave one measurement out”): the regression parameters are calculated
+
+74
+
+Chapter 4: Cardiovascular Health Monitoring
+
+Table 4.6. First ten features for PWV - PPG-only
+
+#
+
+Features for SVR Gaussian Kernel
+
+1
+
+Normalized Amplitude of Point c (APG)
+
+2
+
+Normalized Time of Point e (APG)
+
+3
+
+Kurtosis (APG)
+
+4
+
+Systolic Time (PPG) - Method 4
+
+5
+
+Kurtosis (PPG)
+
+6 Maximum Slope Peak Amplitude in Diastolic (VPG)
+
+7
+
+Maximum Slope Peak Time in Systolic (VPG)
+
+8
+
+Kurtosis (VPG
+
+9
+
+Shannon Entropy (APG)
+
+10 Diastolic Wave Shannon Entropy (PPG) - Method 3
+
+Table 4.7. First ten features for VAI - PPG-only
+
+#
+
+Features for SVR Gaussian Kernel
+
+1 Normalized Amplitude of Point c (APG)
+
+2
+
+Normalized Time of Point e (APG)
+
+3
+
+Kurtosis (APG)
+
+4
+
+Systolic Time (PPG) - Method 4
+
+5 Maximum Slope Peak Time in Systolic (VPG)
+
+6
+
+Amplitude of Point e (APG)
+
+7
+
+Kurtosis (PPG)
+
+8
+
+Kurtosis (VPG)
+
+9
+
+Heart Rate in BPM
+
+10
+
+Systolic Time (PPG) - Method 1
+
+for a speciﬁc measurement using no data from the same measurement but from the same subject and all other subjects.
+• CV2 (“leave one subject out”): the regression parameters are calculated for a speciﬁc measurement using no data from the measurement’s subject but from all other subjects.
+
+The results are shown in Table 4.16 for static parameter estimation. All methods, except the benchmark “PAT-only” use SVR with a Gaussian kernel. Clearly, best results are obtained for CV0. For CV1, the standard deviation is low and results that are comparable to the benchmark method can be obtained. For CV2, an accurate
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+75
+
+Table 4.8. First ten features for DBP - All Features
+
+#
+
+Features for SVR Gaussian Kernel
+
+1
+
+PAT by Systolic Notch Time (ECG-PPG)
+
+2
+
+Age of Subject
+
+3
+
+Height of Subject
+
+4
+
+Heart Rate in BPM
+
+5
+
+Kurtosis (VPG)
+
+6
+
+BMI of Subject
+
+7 PAT by Systolic Peak Time in VPG (ECG-VPG)
+
+8
+
+Kurtosis (APG)
+
+9
+
+Weight of Subject
+
+10 Diastolic Wave Energy (PPG) - Method 3
+
+Table 4.9. First ten features for SBP - All Features
+
+#
+
+Features for SVR Gaussian Kernel
+
+1
+
+Weight of Subject
+
+2
+
+Height of Subject
+
+3
+
+Kurtosis (APG)
+
+4
+
+Systolic Time (PPG) - Method 4
+
+5
+
+Signal Energy (APG)
+
+6
+
+BMI of Subject
+
+7 Maximum Slope Peak Amplitude in Systolic (VPG)
+
+8
+
+Age of Subject
+
+9
+
+Shannon Entropy (VPG)
+
+10
+
+Amplitude of Point a (APG)
+
+estimation of the cardiovascular parameters is not possible. This can be attributed to the fact that the amount of data is not suﬃcient, i.e., more than 42 measurements from 18 subjects are required for a fully subject independent training.
+
+4.5.6 Discussion
+A strong motivation for our research is to provide an algorithm that accurately estimates cardiovascular parameters subject-independent and without any calibration from a single PPG signal. At this point in time, our estimation results are not yet good enough if no data is available from the respective subject. This is probably due
+
+76
+
+Chapter 4: Cardiovascular Health Monitoring
+
+Table 4.10. First ten features for PWV - All Features
+
+#
+
+Features for SVR Gaussian Kernel
+
+1
+
+Age of Subject
+
+2
+
+Height of Subject
+
+3
+
+Local Minima Slope Time in Systolic (VPG)
+
+4
+
+BMI of Subject
+
+5 PAT by Systolic Peak Time (ECG-PPG) - Method 4
+
+6
+
+Kurtosis (VPG)
+
+7
+
+Weight of Subject
+
+8
+
+Diastolic Wave Energy (PPG) - Method 3
+
+9 Diastolic Wave Shannon Entropy (PPG) - Method 3
+
+10 Systolic Wave Shannon Entropy (PPG) - Method 1
+
+Table 4.11. First ten features for VAI - All Features
+
+#
+
+Features for SVR Gaussian Kernel
+
+1
+
+Age of Subject
+
+2
+
+Height of Subject
+
+3
+
+Local Slope Minima Time in Systolic (VPG)
+
+4
+
+BMI of Subject
+
+5 PAT by Systolic Peak Time (ECG-PPG) - Method 4
+
+6
+
+Kurtosis (VPG)
+
+7
+
+Weight of Subject
+
+8
+
+Diastolic Wave Energy (PPG) - Method 3
+
+9 Diastolic Wave Shannon Entropy (PPG) - Method 3
+
+10 Systolic Wave Shannon Entropy (PPG) - Method 1
+
+to the insuﬃcient amount of training data. However, the estimation of cardiovascular parameters is already satisfying if there is at least one measurement and reference value of a subject available for training the regression model. As soon as all data is used to generate a regression model, however, over-ﬁtting can occur for high-dimensional models, such as, the SVR with Gaussian kernel using a large number of features.
+
+Another aim of our work is to provide an algorithm for permanent monitoring of cardiovascular parameters that can be easily implemented in wearable devices, as many ﬁtness tracker and smartwatches already use the principle of photoplethysmography. In contrast to wearable PAT and ECG-based devices, such as, the Apple Watch Series 4 that has a built-in single-lead ECG sensor that only works by placing the ﬁnger on
+
+4.5 Estimation of Blood Pressure and Arterial Stiﬀness
+
+77
+
+Table 4.12. Statistical performance analysis of the static parameter estimation for the DBP
+
+Method
+
+Mean ± STD RMSE MAE CC
+
+LSE-Lin (β1PAT + β0) [63]1,2 LSE-Lin (PPG-only)
+
+(mmHg) (mmHg) (mmHg)
+
+-0.09 ± 2.88 2.88
+
+2.21 0.97
+
+0.03 ± 5.78 5.78
+
+4.58 0.85
+
+Joint M-Huber-Lin (PPG-only) -0.23 ± 5.72 5.72
+
+4.43 0.85
+
+SVR-Lin (PPG-only)
+
+0.02 ± 5.79 5.79
+
+4.56 0.85
+
+SVR-G (Top 5 PPG feat.)
+
+0.08 ± 4.58 4.58
+
+3.06 0.92
+
+SVR-G (Top 10 PPG feat.)
+
+-0.02 ± 1.78 1.78
+
+1.21 0.99
+
+SVR-G (PPG-only)
+
+-0.01 ± 0.08 0.08
+
+0.08 1.00
+
+1 is subject speciﬁc (requires individual calibration) 2 best result of all PAT estimation methods (Method 4 )
+
+Table 4.13. Statistical performance analysis of the static parameter estimation for the SBP
+
+Method
+
+Mean ± STD RMSE MAE CC
+
+LSE-Lin (β1PAT + β0) [63]1,2 LSE-Lin (PPG-only)
+
+(mmHg) (mmHg) (mmHg)
+
+-0.14 ± 3.48 3.48
+
+2.94 0.94
+
+-0.13 ± 6.44 6.44
+
+5.04 0.82
+
+Joint M-Huber-Lin (PPG-only) -0.45 ± 6.36 6.38
+
+4.77 0.82
+
+SVR-Lin (PPG-only)
+
+-0.13 ± 6.46 6.46
+
+5.05 0.82
+
+SVR-G (Top 5 PPG feat.)
+
+-0.03 ± 4.87 4.87
+
+3.56 0.90
+
+SVR-G (Top 10 PPG feat.)
+
+-0.15 ± 1.69 1.70
+
+1.07 0.99
+
+SVR-G (PPG-only)
+
+0.00 ± 0.08 0.08
+
+0.08 1.00
+
+1 is subject speciﬁc (requires individual calibration) 2 best result of all PAT estimation methods (Method 4 )
+
+the crown for thirty seconds, our method is potentially applicable for the continuous monitoring of BP, PWV, and VAI without the use of additional sensors. Based on our experiments, the proposed approach seems to be promising, as we could already show satisfactory results with features that were derived from a single PPG signal. However, a large study is necessary to rigorously verify this claim.
+
+Recently, for a PAT-based method, Miao et al. [71] stated that linear regression models are preferred over nonlinear ones, because they are only slightly worse in performance, but are less demanding in terms of computational complexity. We have studied this proposal and have shown that SVR estimation with a nonlinear kernel can achieve far better results than its linear regression based counterpart for a single PPG-based
+
+78
+
+Chapter 4: Cardiovascular Health Monitoring
+
+Table 4.14. Statistical performance analysis of the static parameter estimation for the PWV
+
+Method
+
+Mean ± STD RMSE MAE CC
+
+LSE-Lin (β1PAT + β0) [63]1,2 LSE-Lin (PPG-only)
+
+(m/s) 0.00 ± 0.11 0.00 ± 0.38
+
+(m/s) (m/s) 0.11 0.09 0.95 0.38 0.26 0.87
+
+Joint M-Huber-Lin (PPG-only) 0.04 ± 0.40 0.40 0.25 0.86
+
+SVR-Lin (PPG-only)
+
+0.00 ± 0.38 0.38 0.26 0.87
+
+SVR-G (Top 5 PPG feat.)
+
+0.01 ± 0.20 0.20 0.13 0.96
+
+SVR-G (Top 10 PPG feat.)
+
+0.01 ± 0.07 0.07 0.03 1.00
+
+SVR-G (PPG-only)
+
+0.00 ± 0.01 0.01 0.01 1.00
+
+1 is subject speciﬁc (requires individual calibration) 2 best result of all PAT estimation methods (Method 4 )
+
+Table 4.15. Statistical performance analysis of the static parameter estimation for the VAI
+
+Method
+
+Mean ± STD RMSE MAE CC
+
+LSE-Lin (β1PAT + β0) [63]1,2 LSE-Lin (PPG-only)
+
+(y)
+
+(y) (y)
+
+-0.04 ± 1.21 1.21 0.92 0.95
+
+0.03 ± 4.09 4.09 2.86 0.86
+
+Joint M-Huber-Lin (PPG-only) 0.36 ± 4.26 4.28 2.69 0.85
+
+SVR-Lin (PPG-only)
+
+0.02 ± 4.10 4.10 2.87 0.86
+
+SVR-G (Top 5 PPG feat.)
+
+0.13 ± 2.39 2.39 1.59 0.95
+
+SVR-G (Top 10 PPG feat.)
+
+0.08 ± 0.65 0.65 0.32 1.00
+
+SVR-G (PPG-only)
+
+0.00 ± 0.05 0.05 0.05 1.00
+
+1 is subject speciﬁc (requires individual calibration) 2 best result of all PAT estimation methods (Method 4 )
+
+method. On the other hand, for PAT-based methods that require an ECG, we also achieved reasonable results using a linear regression model and, hence, conﬁrm the ﬁndings of Miao on our dataset.
+
+For the implementation of our proposed algorithm into wearable BP devices, the Institute of Electrical and Electronics Engineers (IEEE) Standards Association has issued a wearable device standard for cuﬄess BP measuring devices and their corresponding objective performance evaluation in 2014, IEEE 1708-2014 [94]. The standard applies to all types of wearable BP measurement devices, including epidermal and unobtrusive BP devices, but is limited to devices that do not use a cuﬀ during measurement. Although, several organizations have developed protocols for clinical validation of BP
+
+4.6 Summary and Conclusions
+
+79
+
+Figure 4.17. Illustration of a continuous estimation of DBP with three subsequently measured static reference values.
+measuring devices over the past 30 years [95], including the AAMI, the BHS, the German Hypertension League, or the ESH, there is still no universal standard for the validation of BP measuring devices yet. However, several organizations are currently working on the development of a single universal standard to replace all other existing standards and protocols [96]. To evaluate the applicability of our proposed method or related future approaches, it would be highly useful to base performance evaluation on such a standardized procedure.
+Finally, we would like to point out some limitations of our method. Our proposed method is limited in that the reference values were measured a priori and not continuously, the reference device has an inbuilt error that has to be considered, the measurements were taken under optimal measurement conditions, where the BP variability is very low, and the sample size of 18 subjects and 42 measurements is too small in order to draw general conclusions.
+4.6 Summary and Conclusions
+In this chapter, we have presented two diﬀerent approaches to monitor the cardiovascular health using PPG signals.
+
+80
+
+Chapter 4: Cardiovascular Health Monitoring
+
+Table 4.16. Statistical performance analysis of the diﬀerent cross-validation methods with static parameter estimation
+
+Method DBP: CV0 & PAT-only1 DBP: CV0 & PPG-only DBP: CV0 & All Features DBP: CV1 & PAT-only1 DBP: CV1 & PPG-only DBP: CV1 & All Features DBP: CV2 & PAT-only1 DBP: CV2 & PPG-only DBP: CV2 & All Features SBP: CV0 & PAT-only1 SBP: CV0 & PPG-only SBP: CV0 & All Features SBP: CV1 & PAT-only1 SBP: CV1 & PPG-only SBP: CV1 & All Features SBP: CV2 & PAT-only1 SBP: CV2 & PPG-only SBP: CV2 & All Features PWV: CV0 & PAT-only1 PWV: CV0 & PPG-only PWV: CV0 & All Features PWV: CV1 & PAT-only1 PWV: CV1 & PPG-only PWV: CV1 & All Features PWV: CV2 & PAT-only1 PWV: CV2 & PPG-only PWV: CV2 & All Features VAI: CV0 & PAT-only1 VAI: CV0 & PPG-only VAI: CV0 & All Features VAI: CV1 & PAT-only1 VAI: CV1 & PPG-only VAI: CV1 & All Features VAI: CV2 & PAT-only1 VAI: CV2 & PPG-only VAI: CV2 & All Features
+1 is not subject speciﬁc
+
+Mean ± STD -0.65 ± 10.50 -0.01 ± 0.08 -0.01 ± 0.08 -0.74 ± 11.02 0.20 ± 8.98 0.23 ± 8.53 -0.78 ± 11.66 0.73 ± 11.38 0.71 ± 11.18 -0.58 ± 10.11 0.00 ± 0.08 0.00 ± 0.08 -0.62 ± 10.57 -0.12 ± 9.76 -0.19 ± 9.37 -0.57 ± 10.94 0.75 ± 11.58 0.76 ± 11.48 -0.02 ± 0.69 0.00 ± 0.01 0.00 ± 0.01 -0.02 ± 0.72 0.12 ± 0.71 0.11 ± 0.68 -0.03 ± 0.73 0.14 ± 0.74 0.13 ± 0.70 -0.16 ± 7.18 0.00 ± 0.05 0.00 ± 0.05 -0.22 ± 7.47 1.29 ± 7.43 1.17 ± 7.03 -0.30 ± 7.54 1.52 ± 7.72 1.38 ± 7.33
+
+RMSE 10.52 0.08 0.08 11.04 8.98 8.53 11.68 11.40 11.20 10.13 0.08 0.08 10.59 9.76 9.38 10.95 11.60 11.51 0.69 0.01 0.01 0.72 0.72 0.69 0.73 0.75 0.72 7.19 0.05 0.05 7.48 7.54 7.13 7.55 7.86 7.46
+
+MAE 7.78 0.08 0.08 8.17 6.91 6.43 8.66 8.44 8.04 7.58 0.08 0.07 7.94 7.49 7.14 8.21 8.69 8.59 0.45 0.00 0.01 0.47 0.43 0.40 0.48 0.47 0.44 4.75 0.05 0.05 4.96 4.78 4.29 5.05 5.26 4.81
+
+CC 0.19 1.00 1.00 -0.15 0.58 0.65 -0.47 -0.12 -0.07 0.16 1.00 1.00 -0.13 0.31 0.44 -0.30 -0.43 -0.50 0.05 1.00 1.00 -0.82 -0.10 0.23 -0.78 -0.33 -0.08 0.08 1.00 1.00 -0.66 -0.11 0.23 -0.68 -0.34 -0.07
+
+4.6 Summary and Conclusions
+
+81
+
+First, we have proposed a photoplethysmography-based AF detection algorithm using the video camera of smartphones. The approach combines an enhanced PPG acquisition with a new set of discriminating features and a classiﬁcation procedure that selects the most signiﬁcant features and outputs decision equations for the discrimination between AF and NSR. The proposed method achieved perfect classiﬁcation on a set of 326 measurements that were taken at a clinical pre-study. The low computational complexity allows for a mobile application that could be implemented in future.
+Further, we presented a novel approach for estimating BP, PWV, and VAI from a single PPG signal. Detailed information on the feature extraction from a PPG signal and its ﬁrst and second order diﬀerence series, and on the recovery of missing features with matrix completion were given. The proposed estimation of cardiovascular parameters using a nonlinear SVR was compared to diﬀerent linear regression estimators, including a PAT-based method. Furthermore, a feature selection approach was applied to identify a feature subset and to remove redundant and uninformative features. This allows for easier interpretability and reduces overﬁtting, which leads to enhanced generalization. The experimental results showed that the proposed method is able to perfectly estimate the cardiovascular parameters if the training data includes reference values of the respective measurement. Furthermore, the proposed method can still estimate the cardiovascular parameters with a suﬃcient accuracy if the training data includes reference values for the respective subject. In addition to that, we have provided potentially novel insights for the estimation of cardiovascular parameters. The results we obtained in this study are promising and warrant further investigation with a larger sample size to improve the estimation performance of cardiovascular parameters when no reference data of a person is available. For future research, we suggest to validate and further improve the proposed method by using continuous reference measurements of the cardiovascular parameters.
+
+83
+Chapter 5
+Conclusions and Future Work
+In this thesis, we have proposed photoplethysmography-based methods to solve current biomedical signal processing problems in the area of heart rate estimation during physical activity using multiple PPG signals at the wrist, in the area of atrial ﬁbrillation (AF) detection using a PPG signal recorded from a video camera of a smartphone, and in the area of estimating blood pressure (BP), pulse wave velocity (PWV), and vascular age index (VAI) from a single PPG signal.
+In particular, we have presented two computationally eﬃcient approaches to monitor a subject’s heart rate in real-time during physical activity using PPG and acceleration signals. The ﬁrst approach reduces the inﬂuence of motion artifacts in the PPG signal with adaptive ﬁlters and combines multiple adaptive ﬁlter outputs to enhance the spectral quality. The second approach applies correlation-based fundamental frequency indicating functions, spectral combination, and harmonic noise dampening. Both approaches rely on simple frequency-domain trackers and demand low computational cost and memory requirements, but are comparable in terms of accuracy to computationally intensive state-of-the-art methods on a benchmark data set.
+In the context of cardiovascular health monitoring, we have presented a photoplethysmography-based approach to detect AF using the video camera of a smartphone. The approach includes a new acquisition method, the extraction of new discriminating features, the application of feature selection and yields simple decision equations for the discrimination between AF and normal sinus rhythm (NSR) that achieved perfect detection of AF at a clinical pre-study. Furthermore, we have presented an approach for estimating BP, PWV, and VAI from a single PPG signal. For this, a large number of features is extracted from the PPG signal and its ﬁrst and second order diﬀerence series, followed by the recovery of missing features using matrix completion. The proposed estimation of cardiovascular parameters using a nonlinear support vector regression (SVR) was thoroughly evaluated and compared a state-ofthe-art approach using the electrocardiogram (ECG). The experimental results showed that the proposed method is able to estimate the cardiovascular parameters with suﬃcient accuracy if the method’s calibration includes the respective subject. In addition to that, we have provided potentially novel insights for the estimation of cardiovascular parameters.
+
+84
+
+Chapter 5: Conclusions and Future Work
+
+In Section 5.1, we summarize our ﬁndings and draw conclusions about the problems considered in this thesis. An outlook regarding potential future work is given in Section 5.2.
+
+5.1 Conclusions
+5.1.1 Heart Rate Estimation
+One of the major research objectives of this thesis has been the development of a heart rate estimation method during physical activity that has high accuracy, low computational complexity, and low memory requirements. Two diﬀerent approaches that address this research objective have been presented in Chapter 3. The presented methods have been evaluated on a reference data set and show high accuracy compared to other methods. In contrast to many other published methods, which have been described in such a way that reproduction is either impossible or very diﬃcult, the presented approaches in this thesis are based only on simple signal processing functions and are therefore easy to understand, reproduce, and implement, which promotes further research in this area. Since the accuracy of the most accurate published algorithms on the data set of the IEEE Signal Processing Cup 2015 now lies at a suﬃciently good level around one beat per minute (BPM), our methods have made a contribution to the development of a simple and computational eﬃcient algorithm to estimate the heart rate during physical activity.
+5.1.2 Cardiovascular Health Monitoring
+Another major research aim of this thesis has been the detection of AF using the PPG signal recorded from a video camera of a smartphone with high reliability and low computational complexity. The proposed approach that addresses this research objective has been presented in Chapter 4.4. The evaluation on a clinical pre-study showed that AF and NSR could perfectly be classiﬁed by only using two of the presented features. As the proposed method includes many more features, it has the potential to perform well on a larger clinical study.
+A further major research aim of this thesis has been the estimation of BP, PWV, and VAI from a single PPG signal. The proposed approach that addresses this research objective has been presented in Chapter 4.5. The experimental results showed that the
+
+5.2 Challenges and Future Work
+
+85
+
+proposed method is able to estimate the cardiovascular parameters, and the obtained results are promising and warrant further investigation with a larger sample size to improve the estimation performance of cardiovascular parameters when no reference data of a person is available.
+
+5.2 Challenges and Future Work
+5.2.1 Heart Rate Estimation
+Especially important for the future improvement and extension of algorithms for estimating the heart rate during physical activity is the expansion to a universal test data set that is much larger and more meaningful than the data set currently used as a reference data set by Zhangs et al. [15]. In general, more measurements from several diﬀerent physical activities should be taken by a much larger total number of subjects, so that less subject-speciﬁc methods can be developed and evaluated for different activities. Ideally, a benchmark data set should also include measurements that are taken with diﬀerent wavelengths and number of PPG channels to assess the impact of such parameters on the estimation accuracy. This expanded data set with a large number of physical activities would then also make it interesting to develop an automatic recognition system for physical activities, which is already available for many commercially available devices, but which has so far only been studied to a limited extent in academic research. Furthermore, future research could also focus more on the assessment of the signal quality of a PPG signal and develop standards for signal quality metrics that would be supportive for further development of PPG algorithms. In general, it would be desirable to create a universally accepted framework for performance evaluation in order to be able to compare not only the accuracy but also the execution speed and complexity of photoplethysmography-based heart rate estimation methods independently of the platform.
+Motion artifacts, especially impulsive noise, that occur during sports with non-periodic movements, such as yoga or martial arts, and racket sports, such as tennis or badminton, are particularly diﬃcult to model, remove, or attenuate from a PPG signal. In these cases, the signal-to-noise ratio (SNR) is consistently very low and removing the noise without damage to the desired signal components is critical so that a reliable estimation of the heart rate is only possible to a limited extent and requires further research. A possible alternative could be additional PPG sensors at a location of the
+
+86
+
+Chapter 5: Conclusions and Future Work
+
+body where the movements are less impulsive or the body part has higher blood circulation, e.g. the racket player could put an additional wearable sensor around the ankle or upper arm rather than at the wrist where he holds the racket. The additional wearable sensor could then be connected to the actual wearable via Bluetooth or ANT. Challenging artifacts also occur during water sports, as water can penetrate between the sensor and the skin, resulting in a drastic decline of the SNR.
+
+5.2.2 Cardiovascular Health Monitoring
+A topic of large current interest to manufacturers of photoplethysmography-based wearables is the development of trackers for heart rate variability (HRV) and HRV related parameters. With the help of HRV and derived features, cardiac arrhythmias could be detected or at least the wearer could be advised to consult a physician if the device is certain to have detected abnormal heartbeat patterns. Even in developing countries, where the detection rates of abnormal heartbeat patterns are much lower than in industrial countries, simple medical devices are imaginable thanks to the technology of photoplethysmography. Since the costs for an ECG are more expensive, cheap PPG sensors could help people in developing countries to monitor their health and identify risks, whether with a wearable or a smartphone, as we presented in Chapter 4.4 using an AF detection algorithm.
+A further important future research direction is to detect and to distinguish other forms of cardiac arrhythmia, such as, premature atrial contractions (PACs), premature ventricular contractions (PVCs), or atrial ﬂutter. The diﬃculty in performing such research lies in acquiring ground truth, i.e., expert labeled data sets for these rather rare cardiac arrhythmia. This is especially diﬃcult because doctors who are able to detect such arrhythmia, e.g., based on a synchronously acquired ECG, are extremely busy, and the use of such personal data is strictly regulated.
+A rather practical challenge is the variety of diﬀerent camera systems in smartphones. Since the arrangement of the ﬂash and the video cameras as well as their size, resolution, and quality diﬀer from smartphone manufacturers, it is recommended to extend the measurements to a larger set of diﬀerent smartphones in order to ensure a deviceindependent design of the algorithms.
+One challenge with the calculation of the VAI is that manufacturers of commercially available measurement devices, such as the Mobil-O-Graph from I.E.M. GmbH, do not provide any details about their calculation of this value. Therefore, a general model
+

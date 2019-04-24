@@ -1,0 +1,428 @@
+A robust, simple and reliable measure of Heart Rate Variability using relative RR intervals
+Marcus Vollmer
+Department of Mathematics and Computer Science, University of Greifswald, Germany
+
+Abstract
+Background: Heart Rate Variability (HRV) is a physiological marker of the autonomic activity of the heart. For patients with cardiological diseases it has been used for risk stratiﬁcation and health prediction. Other applications extend from psychology to sports science. However, in case of heart rate changes many standard measures are unreliable.
+Methods: A new geometric measure for HRV is introduced. It is based on relative RR intervals, the difference of consecutive RR intervals weighted by their mean.
+Results: The proposed measure is simple, robust and reasonable for computing HRV. It can be applied even to short RR sequences with artifacts and missing values.
+1. What is HRV?
+Heart Rate Variability (HRV) analyzes the physiological phenomenon of the oscillation in the interval between consecutive heart beats [1]. It is a measure of neurovegetative activity and the autonomous function of the heart.
+1.1. Areas of research using HRV
+HRV takes part in the everyday life of amateur and professional sport through the development of mobile monitoring systems and smartphone applications, touted as a simple tool to improve performance, minimize risk of injuries and to avoid overtraining. Basis of almost all applications are the measures summarized in the outdated Guidelines of the European Society of Cardiology [1] of 1996, providing also the variety of clinical uses (e.g. for risk stratiﬁcation and health prediction in patients with cardiological diseases) and implications. A more recent survey article about HRV analysis [2] describes physiological relevance and analysis techniques for HRV. In addition to the mentioned areas it is used in psychophysiology as a stress indicator or as strength of self-regulation [3]. HRV Biofeedback methods are established and used in remedial medicine for prognostic purposes and performance objectiﬁcation.
+
+In the following I will concentrate on common measures and their difﬁculties.
+
+1.2. Common HRV measures
+
+Time domain methods
+The standard HRV measurements, given in the guidelines [1], are related to the variance of RR intervals. RRi denotes the time from the ith to the i+1st R peak. RR is the average interval, giving n intervals in total.
+
+SDNN :=
+
+1 n−1
+
+n i=1
+
+RRi − RR 2
+
+(1)
+
+RMSSD :=
+
+1 n−1
+
+n−1 i=1
+
+(RRi+1
+
+−
+
+RRi)2
+
+(2)
+
+pNN50 := P (|RRi+1 − RRi| > 50 ms) (3)
+
+Spectral methods
+The power spectrum f (λ) of the RR tachogram (sometimes spline interpolated) offers information about sympathetic and parasympathetic activity [4]. It has been established to take the ratio of the power of low and high frequency bands:
+
+LF/HF ratio :=
+
+0.15 Hz 0.04 Hz
+
+f
+
+(λ)
+
+dλ
+
+0.40 Hz 0.15 Hz
+
+f
+
+(λ)
+
+dλ
+
+(4)
+
+Geometric methods
+
+Based on a histogram of RR intervals with bin size 1/128 sec, the HRV triangular index is given by the most frequent value X (mode) with its absolute frequency k:
+
+HRV triangular index := n/k
+
+(5)
+
+A triangular interpolation of the discrete distribution of RR intervals (histogram counts) is used for the TINN measure:
+
+TINN := M − N
+
+(6)
+
+M and N are vertices of the triangular function T , with T (t)=0 for t≤N and t≥M . The modal bin is identical to the sample distribution: T (X)=k. T receives the values
+
+of linear functions by connecting (N, 0) with (X, k) and (X, k) with (M, 0). The triangular function with the best ﬁt to the sample distribution deﬁnes M and N .
+Using the return map of RR intervals, also known as ”Poincare´ plot” (e.g. [5]), HRV can be measured as the ratio of the standard deviation SD2 along the identity line (RRi+1=RRi) and the standard deviation SD1 along the perpendicular axis (RRi+1= − RRi):
+
+SD1 SD1/SD2 ratio := =
+SD2
+
+1 2
+
+·
+
+σ(RRi+1
+
+−
+
+RRi)
+
+(7)
+
+1 2
+
+·
+
+σ(RRi+1
+
++
+
+RRi)
+
+SD1 is based on successive differences, therefore named as ”short term HRV”, whereas the SD2 is based on the summation of successive RR intervals like a moving average. Its deviation represents the ”long term HRV”.
+
+1.3. Criticism of common HRV measures
+
+The guidelines concede that further studies of HRV are desirable: ”[...] the signiﬁcance and meaning of the different measures of HRV are more complex than generally appreciated and there is a potential for incorrect conclusions [...]”. The main problems from my point of view are discussed in the following:
+Every time domain measure which is based on absolute differences of RR intervals is inﬂuenced by the average heart rate and by heart rate changes per se. To obtain the same HRV, absolute differences have to be stable. Even when the average heart rate increases. When a heart rate of 60 bpm varies ±0.1 sec, the RR sequence would look like [0.9 1.1 0.9 1.1]). The same variation of ±0.1 sec would not be possible for a stress situation with 150 bpm. Such a RR sequence would look like [0.3 0.5 0.3 0.5]. This is unphysiological and without relation to heart capacity/capability. Remarkable would be a variability of ±0.04 sec, which corresponds to ±10%. The comparable RR sequence would be [0.36 0.44 0.36 0.44]. Furthermore, the average heart rate and heart rate changes can act as confounding variables for diseases and for HRV. The association between Sepsis and HRV measured by RMSSD [6] could just be a confounding effect of tachycardia, which reduces the RMSSD by deﬁnition and which is a SIRS criteria (Systemic inﬂammatory response syndrome, part of Sepsis deﬁnition) at the same moment. Similarly some researchers showed that the prognostic information of HRV is contained completely in heart rate for risk prediction after acute myocardial infarction [7].
+Spectral measures (e.g. LF/HF ratio) need signals without distortions, missing and unreliable RR intervals. Interpolation techniques are required since the times series of RR intervals are not equidistant. It is not applicable for short signals and signals with ”NaNs”. Procedures like the
+
+fast Fourier transform requires a lot of mathematical understanding.
+The ”Poincare´ plot” is indeed a good visualization of RR intervals, which uncovers obvious artifacts while ECG recording or QRS detection and which is suitable for diagnostic purposes (e.g. extra systoles). Standard deviations are offered as HRV measures (equation 7) but outliers inﬂuence the SD measure in an extreme way (cf. ﬁgure 2). Filtering methods (e.g. [8]) have to be used for elimination of artifacts. For longterm ECG recordings I would not recommend the return map, since the change of the average heart rate increases SD2. Local return maps offer more information or one plots the return map of absolute differences of successive RR intervals (just as it is in ECGLab [9]).
+For heart rate variability I want to introduce a new geometric measure based on relative RR intervals which is more reliable.
+
+2. Relative RR intervals
+
+To compare consecutive RR intervals I deﬁne the relative RR interval for i = 2, . . . , n:
+
+rri
+
+:=
+
+2(RRi − RRi−1) RRi + RRi−1
+
+(8)
+
+where n is the number of RR intervals. rr describes the relative variation of consecutive RR intervals with distance one, which is usually between −20% and +20%.
+
+RR sequence
++4.3%+2.1% -7.1% +5.2%+4.3% -4.7% +6.6% +1.1% -6.1% +5.1% 0.98 1.02 1.04 0.97 1.02 1.07 1.02 1.09 1.10 1.04 1.09
+
+Return map of relative RR intervals
+
+10%
+
+5% 396
+
+4
+
+0%
+
+17
+
+Euclidean distance to center point
+HRV = 6.84%
+
+rr
+i+1
+
+-5% -10%
+
+82 5
+
+-10% -5% 0% 5% 10%
+rr
+i
+
+2 4 6 8 10
+
+Figure 1. Top: RR intervals in seconds and corresponding relative intervals in percent. Bottom: The return map of rr intervals (left) provide insights into heart beat dynamics (quasi periodic orbit). The median distance to the center point can be used as HRV (right: kernel density function).
+
+2.1. HRV based on relative RR intervals
+
+Heart beat dynamics can be coherently represented using the return map of rr intervals. Figure 1 shows a short sequence of RR intervals and its corresponding relative RR intervals. The return map reveals a circular movement around the center point. To exclude certain outliers, the median distance to the center is suitable for HRV measurement:
+
+rrHRV := med ((di)i=2,...,n−1)
+
+(9)
+
+with di as euclidean distance between (rri, rri+1) and center point c, which is the average of relative RR intervals for which |rri| < 20%. The interquartile range (IQR) of (di) provides information about the annular intensity.
+
+2.2. Advantages and case examples
+
+It’s a standard principle and a kind of normalization of data to take relative changes of RR intervals while comparing successive values. Therefore, the proposed HRV measure (equation 9) is understandable and provides diagnostic possibilities of heart beat dynamics through its visualization.
+
+RR intervals
+
+sec
+
+Outliers and artifacts
+1.25 1.00 0.75 0.50
+
+5%
+rr intervals 0%
+-5%
+
+Filtered
+
++5%
+Return map of 0% rr intervals
+-5%
+
+Center point
+HRV measures
+Euclidean distance Median to center point IQR
+SDNN (ms) RMSSD (ms)
+pNN50 (%) HRV triangular index
+TINN (ms) LF/HF Ratio SD1/SD2 Ratio
+
+-5% 0% +5%
+(-0.32,-0.14)
+2.52 3.06 453.8 678.9 6.25 10.4 156 1.30 1.12
+
+(-0.25,-0.11)
+2.37 2.45 49.0 17.6 0.00 9.9 156 NaN 0.18
+
+Figure 2. Robustness of HRV measures using a raw sequence of RR intervals and the ﬁltered sequence. Robust against outliers and artifacts beside the new measure are the HRV Triangular index and TINN. Spectral measures are not suitable for sequences with missing values.
+
+The measure can be applied even for short sequences as well as for sequences with missing values. Figure 2 demonstrates the robustness against outliers and artifacts.
+The synthetic signal in ﬁgure 4 shows the effect of heart rate changes on HRV measures. Just rrHRV remains constant for each of the ﬁve sequences of RR intervals.
+Given a long term ECG (electrocardiogram) local heart rate variability can be continuously measured by taking the last 60 RR intervals for instance. Figure 3 shows an excerpt from a record of an indoor football playing man using a Polar heart rate sensor (Polar Electro Oy, Kempele, Finland). There is a small break beginning at minute 86, reducing the heart rate from about 170 to 100 beats per minute. The immediate heart rate change is reﬂected in an increased RMSSD and TINN and a very low SD1/SD2 ratio due the prolonged shape of the ”Poincare´ plot”. The RR sequence is ﬁltered from artifacts and therefore the LF/HF ratio could not be computed anywhere.
+
+bpm
+
+sec
+
+0.6
+
+100
+
+0.5
+
+120
+
+0.4
+
+150
+
+zscore zscore zscore
+
+4
+
+RMSSD
+
+TINN
+
+2
+
+0
+
+-2
+
+LF/HF ratio
+
+SD1/SD2 ratio
+
+4 2 0 -2
+
+4
+
+rrHRV
+
+2
+
+0 -2
+
+80
+
+82
+
+84
+
+86
+
+88
+
+90
+
+92
+
+94
+
+minutes
+
+Figure 3. Continuous HRV measures during sports. Top: RR tachogram (ﬁltered from artifacts) and average heart rate. Bottom: Retrospectively computed HRV measures of 60 successive RR intervals. For comparison, the standard scores are shown (mean: zero, standard deviation: one).
+
+3. Conclusions
+Simple and reliable measures are even more necessary in the face of technological progress. The proposed measure based on relative RR intervals is robust and reasonable for heart rate variability. Furthermore relative RR intervals can be used for ﬁltering outliers and artifacts from RR sequences. rr intervals of higher grades, when comparing RRi with RRi−d, can be used to evaluate the signal quality and to detect pacemaker [10]. Taking relative intervals of grade d reminds of auto-correlation.
+A Matlab class containing the source code for computing HRV measures continuously and for artifact ﬁltering is available on GitHub (tag: MarcusVollmer/HRV/), as well as a Matlab GUI showing animations of heart beat dynamics and for comparison of HRV measures.
+
+RR intervals rr intervals
+
+sec
+
+A
+
+1.00
+
+0.75
+
+60 bpm
+
+0.50
+
+5% 0% -5%
+
+B
+
+C
+
+D
+
+120 bpm
+
+E
+60 bpm
+
+Return map of
+
++5%
+
+0%
+
+rr intervals
+
+-5%
+
+-5% 0%+5%
+
+Center point
+
+HRV measures
+
+Euclidean distance Median
+
+to the mean point
+
+IQR
+
+SDNN (ms) RMSSD (ms)
+pNN50 (%) HRV triangular index
+TINN (ms)
+LF/HF Ratio
+
+SD1/SD2 Ratio
+
+(-0.19,+0.22)
+6.93 1.75 25.7 51.2 46.7 2.8 23 0.24 7.86
+
+(-2.79,-2.78)
+6.72 1.14 135.6 39.5 21.7 12.0 16 1.64 0.14
+
+(+0.08,-0.10)
+
+(+2.80,+2.96)
+
+(-0.18,+0.19)
+
+6.77
+
+6.39
+
+6.38
+
+1.28
+
+1.24
+
+0.89
+
+12.4
+
+143.1
+
+24.2
+
+24.5
+
+38.4
+
+48.0
+
+0.0
+
+26.1
+
+25.0
+
+2.5
+
+12.0
+
+2.9
+
+47
+
+16
+
+23
+
+0.30
+
+1.23
+
+0.31
+
+6.26
+
+0.12
+
+8.41
+
+Figure 4. Short synthetic signal with ±5% variablity of RR intervals (jittered and downsampled to 128 Hz). HRV measures are given for constant heart rate conditions at 60 bpm (A,E) and 120 bpm (C) and for increasing (B) and decreasing heart rates (D).
+
+References
+[1] Malik M, Bigger JT, Camm AJ, Kleiger RE, Malliani A, Moss AJ, Schwartz PJ. Heart rate variability. European Heart Journal 1996;17(3):354–381. ISSN 0195-668X.
+[2] Oweis RJ, Al-Tabbaa BO. Qrs detection and heart rate variability analysis: A survey. Biomedical Science and Engineering 2014;2(1):13–34. ISSN 2333-438X.
+[3] Geisler FC, Vennewald N, Kubiak T, Weber H. The impact of heart rate variability on subjective well-being is mediated by emotion regulation. Personality and Individual Differences 2010;49(7):723–728.
+[4] Berntson GG, Bigger JT, Eckberg DL, Grossman P, Kaufmann PG, Malik M, Nagaraja HN, Porges SW, Saul JP, Stone PH, et al. Heart rate variability: origins, methods, and interpretive caveats. Psychophysiology 1997;(34):623–48.
+[5] Karmakar C, Khandoker A, Gubbi J, Palaniswami M. Complex correlation measure: a novel descriptor for poincare plot. BioMedical Engineering OnLine 2009;8(1):17. ISSN 1475-925X.
+[6] Ahmad S, Ramsay T, Huebsch L, Flanagan S, McDiarmid S, Batkin I, McIntyre L, Sundaresan SR, Maziak DE, Shamji FM, Hebert P, Fergusson D, Tinmouth A, Seely AJE. Continuous multi-parameter heart rate variability analysis heralds onset of sepsis in adults. PLoS ONE 08
+
+2009;4(8):e6642. [7] Abildstrom SZ, Jensen BT, Agner E, Torp-Pedersen C, Ny-
+vad O, Wachtell K, Ottesen MM, Kanters JK. Heart rate versus heart rate variability in risk prediction after myocardial infarction. Journal of Cardiovascular Electrophysiology 2003;14(2):168–173. ISSN 1540-8167. [8] dos Santos L, Barroso JJ, Macau EE, de Godoy MF. Application of an automatic adaptive ﬁlter for heart rate variability analysis. Medical Engineering Physics 2013; 35(12):1778 – 1785. ISSN 1350-4533. [9] de Carvalho J, da Rocha A, de Oliveira Nascimento F, Neto J, Junqueira L.F. J. Development of a matlab software for analysis of heart rate variability. In Signal Processing, 2002 6th International Conference on, volume 2. Aug 2002; 1488–1491 vol.2. [10] Vollmer M. Robust detection of heart beats using dynamic thresholds and moving windows. In Computing in Cardiology 2014. ISSN 2325-8861, Sept 2014; 569–572.
+Address for correspondence:
+Marcus Vollmer / marcus.vollmer@uni-greifswald.de Institut fu¨r Mathematik und Informatik / Universtita¨t Greifswald Walther-Rathenau-Str. 47 / 17487 Greifswald / Germany
+
