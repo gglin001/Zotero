@@ -1,0 +1,965 @@
+2
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+Breathing Rate Estimation From the Electrocardiogram and Photoplethysmogram:
+A Review
+Peter H. Charlton , Drew A. Birrenkott , Timothy Bonnici , Marco A. F. Pimentel , Alistair E. W. Johnson, Jordi Alastruey, Lionel Tarassenko, Peter J. Watkinson, Richard Beale,
+and David A. Clifton
+
+Abstract—Breathing rate (BR) is a key physiological parameter used in a range of clinical settings. Despite its diagnostic and prognostic value, it is still widely measured by counting breaths manually. A plethora of algorithms have been proposed to estimate BR from the electrocardiogram (ECG) and pulse oximetry (photoplethysmogram,
+Manuscript received June 6, 2017; revised September 6, 2017; accepted September 15, 2017. Date of publication October 24, 2017; date of current version July 24, 2018. This work was supported in part by the UK Engineering and Physical Sciences Research Council (EPSRC) under Grant EP/H019944/1, in part by the Oxford and King’s College London Centres of Excellence in Medical Engineering funded by the Wellcome Trust and EPSRC under Grant WT88877/Z/09/Z and Grant WT088641/Z/09/Z, in part by the Wellcome EPSRC Centre for Medical Engineering at Kings College London (WT 203148/Z/16/Z), in part by the National Institute for Health Research (NIHR) Biomedical Research Centre based at Guy’s & St Thomas’ NHS Foundation Trust and King’s College London, in part by the NIHR Oxford Biomedical Research Centre Programme, and in part by the Rhodes Trust. The work of D. A. Clifton was supported in part by a Royal Academy of Engineering Research Fellowship award and in part by an EPSRC Challenge Award. (Corresponding author: Peter H. Charlton.)
+P. H. Charlton is with the Department of Biomedical Engineering, King’s College London, London SE1 7EH, U.K., and also with the Department of Engineering Science, University of Oxford, Oxford OX3 7DQ, U.K. (e-mail: peter.charlton@kcl.ac.uk).
+D. A. Birrenkott, M. A. F. Pimentel, L. Tarassenko, and D. A. Clifton are with the Department of Engineering Science, University of Oxford, Oxford OX3 7DQ, U.K. (e-mail: drew.birrenkott@eng.ox.ac.uk; marco.pimentel@eng.ox.ac.uk; lionel.tarassenko@eng.ox.ac.uk; david. clifton@eng.ox.ac.uk).
+T. Bonnici is with the Nufﬁeld Department of Medicine, University of Oxford, Oxford OX3 9DU, U.K., and also with the Department of Asthma, Allergy, and Lung Biology, King’s College London, London SE1 7EH, U.K. (e-mail: timothy.bonnici@ndm.ox.ac.uk).
+A. E. W. Johnson is with the Laboratory for Computational Physiology, Massachusetts Institute of Technology, Cambridge, MA 02139 USA (e-mail: aewj@mit.edu).
+J. Alastruey is with the Department of Biomedical Engineering, King’s College London, London SE1 7EH, U.K. (e-mail: jordi.alastrueyarimon@kcl.ac.uk).
+P. J. Watkinson is with the Kadoorie Centre for Critical Care Research and Education, Oxford University Hospitals NHS Foundation Trust, Oxford OX3 9DU, U.K. (e-mail: peter.watkinson@ndcn.ox.ac.uk).
+R. Beale is with the Department of Asthma, Allergy and Lung Biology, King’s College London, London SE1 7EH, U.K. (e-mail: richard. beale@gstt.nhs.uk).
+This paper has supplementary downloadable material available at http://ieeexplore.ieee.org, provided by the author. The material consists of data and code and additional details of the review methodology and results. Further information about the data and conditions of access can be found by emailing research.data@kcl.ac.uk.
+Digital Object Identiﬁer 10.1109/RBME.2017.2763681
+
+PPG) signals. These BR algorithms provide opportunity for automated, electronic, and unobtrusive measurement of BR in both healthcare and ﬁtness monitoring. This paper presents a review of the literature on BR estimation from the ECG and PPG. First, the structure of BR algorithms and the mathematical techniques used at each stage are described. Second, the experimental methodologies that have been used to assess the performance of BR algorithms are reviewed, and a methodological framework for the assessment of BR algorithms is presented. Third, we outline the most pressing directions for future research, including the steps required to use BR algorithms in wearable sensors, remote video monitoring, and clinical practice.
+Index Terms—Biomedical signal processing, breathing rate (BR), electrocardiogram (ECG), photoplethysmogram (PPG), respiratory rate.
+I. INTRODUCTION
+B REATHING rate (BR) is a key physiological parameter used in a range of clinical settings for identiﬁcation of abnormalities. Despite this, it is still widely measured by counting breaths manually. This approach is both labor intensive and unsuitable for use in unobtrusive monitoring devices for early detection of deteriorations. Recently, a plethora of algorithms have been proposed to estimate BR from the electrocardiogram (ECG) and pulse oximetry (photoplethysmogram, PPG) signals. Both the ECG and PPG are commonly acquired during clinical assessment, and also by many wearable sensors in healthcare and ﬁtness monitoring. Therefore, BR algorithms could provide automated, electronic BR measurements without the need for additional sensors.
+The aims of this paper are: to provide a comprehensive review of the literature on BR estimation from the ECG and PPG; to present a methodological framework for the assessment of BR algorithms; and to highlight the most pressing directions for future research. The background to the problem is summarized in the remainder of this section. In Section II, we present the methodology and results of a review of the literature on the topic. The BR algorithms reported in the literature are reviewed in Section III. Section IV-A provides a critical review of the experimental methodologies used previously to assess the performance of BR algorithms. In Section IV-B, we present a methodological framework for assessment of BR al-
+
+This work is licensed under a Creative Commons Attribution 3.0 License. For more information, see http://creativecommons.org/licenses/by/3.0/
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+3
+
+gorithms. Finally, in Section V, we highlight the most pressing directions for future research. This review builds on the work presented in [1].
+
+A. Importance of BR
+BR is a valuable diagnostic and prognostic marker of health (also known as respiratory rate). In hospital healthcare, it is a highly sensitive marker of acute deterioration [2]. For instance, elevated BR is a predictor of cardiac arrest [3] and in-hospital mortality [4], and can indicate respiratory dysfunction [5]. Consequently, BR is measured every 4–6 h in acutely ill hospital patients [6]. BR is also used in emergency department screening [7]. In primary care, BR is used in the identiﬁcation of pneumonia [8], [9] and sepsis [10], [11], and as a marker of hypercarbia [12] and pulmonary embolism [13], [14]. However, BR is usually measured by manually counting chest wall movements (outside of intensive care). This process is time consuming, inaccurate [15], [16], and poorly carried out [12], [17]. Furthermore, BR monitoring is not widely incorporated into wearable sensors such as ﬁtness devices [18]. Therefore, there is potentially an important role for an unobtrusive, electronic method for measuring BR, such as the estimation of BR from the ECG or PPG.
+B. ECG and PPG
+The ECG and PPG are easily and widely acquired by noninvasive sensors in both healthcare and consumer electronics devices, making them suitable candidates for BR measurement in a range of settings.
+The ECG is a measure of the electrical current generated by the action potentials in the myocardium (heart muscle) each heartbeat. It is acquired by measuring the voltage difference between two points on the body surface over time caused by this current [19]. The ECG can be measured using low-cost circuitry and electrodes (typically applied to the thorax) [20]. Static monitors are used to obtain single ECG measurements during screening for heart disorders and for continuous monitoring in critical care units. ECG monitoring is also incorporated into wearable sensors for use with ambulatory patients to identify changes in heart rate (HR) and rhythm [21] and in personal ﬁtness devices.
+The PPG is a measure of changes in blood volume over time in a bed of tissue [22]. It is measured by applying a sensor to the skin, or by noncontact imaging of a region of the skin using a camera [23]. A tissue bed is illuminated by either a supplementary light source (such as an LED) [24] or ambient light [25]. The intensity of light transmitted through or reﬂected from the bed is then measured by a photodetector [26]. Contact PPG measurements are commonly performed at peripheral sites (such as the ﬁnger or ear) using a low-cost pulse oximeter probe, which can be quickly attached [10]. Noncontact measurements are performed by measuring the light reﬂected from areas of exposed skin, such as the face or hand [23], [27]. Smartphones and tablets can also be used to acquire contact and noncontact PPG signals [28], [29]. The PPG is routinely measured in a wide range of clinical settings to obtain peripheral arterial blood oxygen saturation (SpO2) and pulse rate measurements.
+
+Fig. 1. ECG and PPG are subject to three respiratory modulations: baseline wander (BW), amplitude modulation (AM), and frequency modulation (FM). Source: [33] (CC BY-NC 4.0: http://creativecommons.org/licenses/by-nc/4.0/).
+It is continuously monitored in critically ill patients and can be monitored in ambulatory patients using wearable sensors [30]. In addition, the PPG is used for continuous HR monitoring in ﬁtness devices [31]. Further applications of the PPG are being developed, including blood perfusion assessment and pulse transit time measurement. These use PPG signals obtained simultaneously at multiple sites from a single noncontact imaging PPG [23].
+C. Respiratory Modulation of the ECG and PPG
+It is widely reported that the ECG and PPG both exhibit three respiratory modulations as illustrated in Fig. 1: baseline wander (BW), amplitude modulation (AM), and frequency modulation (FM) [8], [13], [18], [32]. BR algorithms estimate BR by analyzing one or more of these modulations [8], [31].
+The physiological mechanisms that cause respiratory modulations can be summarized as follows [34]. BW and AM of the ECG are caused by changes in the orientation of the heart’s electrical axis relative to the electrodes and changes in thoracic impedance [35]. BW of the PPG is due to changes in tissue blood volume caused by: changes in intrathoracic pressure transmitted through the arterial tree; and vasoconstriction of arteries during inhalation transferring blood to the veins [36]. AM of the PPG is caused by reduced stroke volume during inhalation due to changes in intrathoracic pressure, reducing pulse amplitude [37]. FM is the manifestation of the spontaneous increase in HR during inspiration, and decreases during exhalation, known as respiratory sinus arrhythmia (RSA) [38]. RSA is caused by at least three mechanisms [34], which are as follows:
+1) changes in intrathoracic pressure during inhalation stretch the sinoatrial node, increasing HR;
+2) increased vagal outﬂow during exhalation reduces HR; and
+3) reduced intrathoracic pressure during inhalation decreases left ventricular stroke volume, causing a baroreﬂex-mediated increase in HR [39].
+The strengths of each modulation may differ between subjects and between patient groups [13]. Indeed, large intersubject variations have been observed [34], [40]. Furthermore, particular modulations may be diminished in certain groups, such as
+
+4
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+Fig. 2. Stages of a BR algorithm. Dashed stages are optional.
+
+FM in elderly subjects [34]. Consequently, many BR algorithms analyze multiple modulations, providing improved performance [8], [18].
+
+II. SEARCH STRATEGY AND RESULTS
+A review of the literature was performed to identify publications describing BR algorithms for use with the ECG or PPG. Publications were identiﬁed through manual searches and searches of online databases (Google Scholar, IEEE Xplore, PubMed, Science Direct, and Scopus). Additional details of the search strategy are provided in Section S1 (Supplimentary Material), allowing the search to be reproduced and updated.
+A total of 196 publications describing BR algorithms were identiﬁed, which form the basis for this review [8], [10], [13], [18], [24], [28], [29], [31]–[33], [41]–[226]. The earliest publication was in 1971 [211], and only nine more were published between then and 1998. Since 1999, the rate of publication has risen steadily to the present rate of approximately 20 publications per year (see Fig. S2 [Supplimentary Material]). This demonstrates the increasing interest in BR algorithms and the importance placed upon the topic. Approximately half of the publications (101, 51.5%) were presented at conferences. The remainder were journal articles (88, 44.9%), theses (5, 2.6%), or book chapters (2, 1.0%).
+III. BR ALGORITHMS
+BR algorithms can be considered to consist of up to ﬁve stages, as illustrated in Fig. 2.
+The role of each stage is as follows. 1) Extract Respiratory Signal(s): consists of extracting one
+or more signals dominated by respiratory modulation. 2) Fusion of Respiratory Signals: multiple respiratory sig-
+nals can be fused to give one respiratory signal (optional). 3) Estimate BR(s): consists of estimating a BR from a win-
+dow of a respiratory signal. 4) Fuse BR(s): multiple BR estimates can be fused to obtain
+one ﬁnal estimate (optional). 5) Quality Assessment: used to reject or mitigate against
+imprecise estimates (optional). The mathematical techniques that have been used at each stage are summarized in this section. Some of the content in this section has been adapted from [18] and [34] (CC BY 3.0: http://creativecommons.org/licenses/by/3.0/) and [1] (CC BY 4.0: http://creativecommons.org/licenses/by/4.0/).
+A. Extraction of Respiratory Signals
+ECG and PPG signals are primarily cardiac in origin, with secondary respiratory modulations of much lower magnitudes.
+
+Fig. 3. Extraction of exemplary respiratory signals: ECG (upper plot) and PPG (lower plot) signals and extracted respiratory signals (grey) are shown on the left. The corresponding frequency spectra are shown on the right. The frequency spectra of the raw ECG and PPG signals are dominated by cardiac frequency content at 1.2 Hz. In contrast, the extracted respiratory signals are dominated by respiration at 0.3 Hz, which is approximately the BR provided by a reference respiratory signal (shown by the dashed line).
+Therefore, the ﬁrst stage of a BR algorithm is the extraction of a signal dominated by respiratory modulation from which BR can be more easily estimated, as demonstrated in Fig. 3.
+Techniques for extraction of a respiratory signal fall into two categories: ﬁlter based or feature based [13]. Filter-based techniques consist of ﬁltering the raw signal to attenuate nonrespiratory frequency components (e.g., bandpass ﬁltering the PPG to extract a respiratory signal exhibiting BW). Feature-based techniques consist of extracting beat-by-beat feature measurements (e.g., the amplitude of each QRS complex). The individual processing steps used for extracting a respiratory signal are now described.
+1) Elimination of Very Low Frequencies: The ﬁrst step is the elimination of very low frequency (VLF) components of the PPG and ECG, i.e., those at subrespiratory frequencies. VLFs have been eliminated through high-pass ﬁltering using: a median ﬁlter [74], [174], [179]; subtraction of a baseline trend calculated using a linear or polynomial ﬁt [10], [148]; or measurements of the baseline at a speciﬁc point in the cardiac cycle (e.g., shortly before the QRS complex [147], or at midpoints between successive R waves [47] in the ECG). A cutoff frequency between 0.03 and 0.05 Hz is typically chosen [148], [196], [197], [205]. This step is beneﬁcial regardless of whether a ﬁlter- or feature-based technique is being used, unless VLFs are removed during data acquisition, for instance by some commercial monitors [26].
+2) Filter-Based Techniques: Filter-based techniques for extraction of a respiratory signal are performed in a single step. Several techniques have been proposed, as listed in Table I.
+3) Feature-Based Techniques: Feature-based techniques involve several steps to extract a time series of beat-by-beat features. Examples of the use of feature-based techniques are shown in Fig. 4. The ﬁrst step is the elimination of very high frequency (VHF) noise by low-pass ﬁltering to improve the accuracy of beat detection and feature measurements. Higher cutoff frequencies are used for the ECG (e.g., 40, 75, or 100 Hz [61], [97], [197]) than the PPG (e.g., 10 or 35 Hz [97], [114]), to preserve the high-frequency content of the QRS complex. In addition, the ECG is particularly susceptible to power-line inter-
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+5
+
+TABLE I FILTER-BASED TECHNIQUES FOR EXTRACTION OF RESPIRATORY SIGNALS
+
+TABLE II FEATURE-BASED TECHNIQUES FOR EXTRACTION OF RESPIRATORY SIGNALS
+
+• Bandpass ﬁlter to eliminate frequencies outside the range of plausible respiratory frequencies [132]. • Use (ensemble) empirical mode decomposition to extract a respiratory signal as either one particular oscillation mode (intrinsic mode function, IMF) or the sum of the IMFs indicative of respiration [170], [193]. • Decompose signal using the discrete wavelet transform to reconstruct the detail signal at a predeﬁned decomposition scale [59], optionally with automated selection of the mother wavelet [77]. • Extract respiratory oscillation using principal component analysis (PCA) [144] or singular spectrum analysis [134] after identifying the periodicity using singular value decomposition. The use of PCA has been reﬁned using multiscale PCA [137], and modiﬁed multiscale PCA [140], in which wavelet decomposition was combined with PCA. PCA has also been applied to intrinsic mode functions extracted using ensemble empirical mode decomposition [157], [158]. • Extract the instantaneous amplitudes or frequencies of cardiac modulation using the continuous wavelet transform [41], the Teager-Kaiser energy operator [204], variable frequency complex demodulation [28], [67], the Hilbert transform [129], or the synchrosqueezing transform [79]. • Filter using the centered correntropy function [90]. • Decimate by detrending the signal, low-pass ﬁltering to eliminate frequencies higher than respiration, and resampling at a reduced sampling frequency [85] of 1–2 Hz [10]. • Extract an electromyogram signal from the high-frequency content (> 250 Hz) of the ECG caused by the activation of the diaphragm and intercostal muscles during respiration [95].
+
+• Extract BW as the mean amplitude of peaks and preceding troughs [18] or the mean signal value between consecutive troughs [180]. • Extract AM as the difference between the amplitudes of peaks and preceding troughs [8]. • Extract FM as the time interval between consecutive peaks [8]. • Extract peak amplitudes [8]. • Extract trough amplitudes [180]. • PCA of heartbeats [181], [227]. • Extract the kurtosis between adjacent peaks [80]. • Extract the morphological scale variation of part of the signal (e.g., QRS complexes) by comparing the current beat to a template beat [45]. • Extract QRS durations [179]. • Extract QRS areas [196]. • Extract maximum Q–R or R–S slopes (using either a straight line ﬁt [113] or fourth-order central moments [185]) or QRS-wave angles from the
+difference between them [113]. • Extract PPG pulse widths [111]. • Extract the difference between the durations of the upslope and downslope of the PPG [207]. • Extract the direction or magnitude of the mean QRS vector axis using the arctangent of the ratio of QRS complex areas from two simultaneous ECG
+leads [195], [224]. • Extract rotation angles of vectorcardiogram loops using multiple ECG leads [53]. • Extract the main direction of the electric heart vector at a speciﬁc phase in the cardiac cycle (e.g., T-wave) [165]. • Extract the pulse transit time using the R-wave of the ECG and the subsequent PPG pulse onset [44], [97], peak [213], or upslope midpoint [110] . • Extract the maximum upslope during diastole of a venous signal extracted from dual wavelength PPG signals [219].
+
+Fig. 4. Exemplary feature-based techniques for extraction of respiratory signals from ECG (left) and PPG (right) signals: measurements of baseline wander (BW), amplitude modulation (AM), and frequency modulation (FM) have been extracted for each beat from ﬁducial points (shown as dots). Adapted from [33] (CC BY-NC 4.0).
+ference, which may be eliminated using an additional band-stop ﬁlter [110]. Commercial monitoring devices typically remove VHFs internally, similar to VLFs [26]. Next, individual beats are detected (see Section S2-A [Supplimentary Material] for details of beat detectors used in the literature). Fiducial points (such as Q- and R-waves, shown as black dots in Fig. 4) are then identiﬁed for each beat. These are used to measure a feature that varies with respiration (such as the difference in amplitudes between Q- and R-waves for AM). The ﬁducial points identiﬁed and subsequent feature measurements are speciﬁc to the particular feature-based technique being used, as summarized in Table II (additional features are proposed in [40]). Several feature-based
+
+techniques use multilead ECG signals [35] or nonstandard leads derived from them [113]. Lastly, the time series of beat-by-beat feature measurements is resampled at a regular sampling frequency of approximately 4–10 Hz. This is usually necessary since signals obtained from beat-by-beat feature measurements are irregularly sampled (once per beat), whereas subsequent processing often requires a regularly sampled signal. Often linear [8], [210] or cubic spline interpolation [110] is used. More complex methods include: Berger’s algorithm, designed for use with an FM signal [228], used in [8] and [101], the integral pulse frequency modulation model, also designed for use with FM signals [229], used in [193]; and the discrete wavelet transform [179].
+4) Elimination of Nonrespiratory Frequencies: Nonrespiratory frequencies should be removed from respiratory signals to avoid erroneously identifying spurious frequency content as the BR. Bandpass ﬁltering has been used, with cutoffs at either end of the range of plausible respiratory frequencies [50], [74], [110], [114], [171]. There is no consensus on the optimal range of plausible respiratory frequencies. Furthermore, it may need to be adjusted according to the patient population, particularly for children [230]. Indeed, some BR algorithms use a range that adapts to the HR [85], [128], [159], [160], [209]. As a guideline, Karlen et al. used a conservative range of 4–65 breaths per minute (bpm) [8].
+B. Fusion of Respiratory Signals
+The second stage is the fusion of multiple respiratory signals to provide one respiratory signal from which BR can be
+
+6
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+TABLE III TECHNIQUES FOR FUSION OF RESPIRATORY SIGNALS
+
+TABLE IV TECHNIQUES TO ESTIMATE BR FROM A RESPIRATORY SIGNAL
+
+• Spectral averaging: calculate the individual power spectra of multiple respiratory signals, and then ﬁnd the average spectrum [110], [114], [196]. • Peak-conditioned spectral averaging [110], [114]: only sufﬁciently peaked spectra are included in calculation of a peak-conditioned average power spectrum. To qualify, a spectrum must have a certain proportion of its power within an interval surrounding the frequency corresponding to the maximum power [51] or the previous BR estimate [114]. • Cross power spectral analysis: calculate the individual power spectra of multiple respiratory signals, and then multiply the spectra [117]. • Cross time–frequency analysis [168]: use the smoothed pseudo Wigner–Ville distribution to estimate time–frequency spectra between two signals. • Time–frequency coherence [168]: used to measure the degree of coupling between two signals. • Vector autoregressive (AR) modeling [138]: the poles of multiple AR models (one for each respiratory signal) are calculated. Only those poles that are common to both models, and which fall within the range of plausible respiratory frequencies, are used to extract a respiratory signal. • Point-by-point multiplication of signals [109]. • Use of a neural network with multiple input signals to identify periods of inhalation and exhalation [32], [44].
+estimated. Multiple respiratory signals can be obtained either by extracting multiple signals simultaneously (e.g., by using both the ECG and PPG [44] or by using multiple extraction methods [109]) or by segmenting a respiratory signal into several (often overlapping) windows and treating these as individual signals [51]. Techniques for fusion of multiple respiratory signals are listed in Table III. This stage is optional and is intended to increase the accuracy and robustness of BR estimates [44].
+Techniques for fusion of simultaneous respiratory signals result in a single respiratory signal with enhanced respiratory content and reduced spurious frequency content. These techniques, such as spectral averaging, can improve BR algorithm accuracy even beyond that achieved by using the respiratory signal with the strongest respiratory modulation [110], [114]. This is beneﬁcial since the relative strengths of different modulations are often unknown, since it can vary between individuals and with BR [40]. The contribution of spurious frequencies, such as Traube– Hering–Mayer waves at ≈0.1 Hz [132], is reduced since these are unlikely to be manifested consistently across all respiratory signals. Fusion of spectra obtained from short segments of a single respiratory signal reduces variance and increases robustness [110]. This is particularly advantageous during exercise, when there is signiﬁcant motion artifact [53]. Fusion techniques often incorporate quality assessment that excludes signals from the calculation which exhibit little respiratory modulation [110]. This can prevent a BR from being calculated if there is insufﬁcient respiratory modulation [114], which is appropriate when monitoring BR continuously to detect abnormalities.
+C. Estimation of BRs
+The third stage of BR algorithms is the estimation of BR. The input to this stage is a window of a respiratory signal and the output is a BR estimate. The techniques used for this stage, listed in Table IV, act in either the time or frequency domain. Time-domain techniques involve detecting individual
+
+Frequency-based techniques
+• Spectral analysis: identify the respiratory frequency from a power spectrum calculated using either: the fast Fourier Transform [8] (which can operate on unevenly sampled signals [87]), AR spectral analysis using Burg or Yule–Walker algorithms [199], the Welch periodogram [111], the short-time Fourier transform [192], the Lomb–Scargle periodogram (which can operate on unevenly sampled signals) [52], or sparse signal reconstruction (which can be applied to multiple respiratory signals) [222], [223]. The BR is usually identiﬁed as the frequency corresponding to the maximum spectral power in the range of plausible respiratory frequencies although other approaches have been proposed [224]. • Identify the respiratory frequency as the dominant frequency of a scalogram calculated using the continuous wavelet transform [41]. • Identify the common frequency component in multiple respiratory signals using the weighted multisignal oscillator based least-mean-square algorithm [92]. • Estimate instantaneous BR [92] using an adaptive notch ﬁlter [106], [173] or an adaptive bandpass ﬁlter [155]. • Find periodicity using the autocorrelation function [184]. • Estimate the instantaneous BR from either a single signal or multiple signals using a bank of notch ﬁlters [153], [154]. • Autoregressive all-pole modeling, with BR estimated from the frequency of either the highest magnitude pole [10], or the lowest frequency pole [85]. The (order reduced) modiﬁed covariance method has also been used [136], [139] • Use Gaussian process regression to estimate periodicity [177].
+Time-domain breath detection techniques
+• Detect breaths using peak detection. • Detect breaths by identifying zero-crossings with a positive gradient (after detrending) [32]. • Detect breaths from peaks and troughs using (adaptive) thresholding to identify those breaths that have been reliably detected [74], [147], [184]
+breaths, followed by calculation of the BR as the mean breath duration. Time-domain techniques have the advantage of not requiring a quasi-stationary BR although they are susceptible to spurious breath detection due to abnormal respiratory signal morphology [18]. Frequency-domain techniques involve identifying the frequency component related to respiration, typically through spectral analysis or identiﬁcation of the instantaneous dominant frequency. One aspect of using AR frequency-domain techniques is the selection of a model order, detailed in Section 2-B (Supplementary Material). The BR estimation stage may be the last in a BR algorithm. However, two further stages can optionally be used and are now described.
+D. Fusion of BRs
+Techniques for fusion of multiple BR estimates can be used to improve the robustness of a ﬁnal BR estimate. Several approaches have been used to fuse simultaneous BR estimates derived from different respiratory signals. First, BRs can be fused by averaging using the mean, median, or mode [8], [64], [176], optionally after exclusion of outliers [64], [113]. The quality of the ﬁnal estimate can then be assessed from the standard deviation of the individual estimates [8]. Second, BRs can be combined by weighting them according to their variances [13], [226]. Third, a Kalman ﬁlter can be used to fuse BRs, which can be weighted according to conﬁdence metrics [128], [163]. Fourth, candidate BRs obtained through AR modeling can be fused using the pole magnitude criterion [169] or the
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+7
+
+pole ranking criterion [171]. Finally, BRs derived from a single respiratory signal at different time points can be fused using temporal smoothing [114] or particle ﬁltering [122].
+
+TABLE V METHODS USED TO ASSESS BR ALGORITHM PERFORMANCE
+
+Category
+
+No. publications (%)
+
+E. Quality Assessment
+Quality assessment techniques are optional and fall into two categories: signal quality indices (SQIs) and respiratory quality indices (RQIs).
+SQIs are used to identify segments of ECG or PPG data of low quality, which are typically rejected based on the assumption that BRs derived from them are likely to be inaccurate [8]. SQIs based on template matching involve constructing a template of average beat morphology and calculation of the correlation between individual beats and the template [231]. A signal segment is deemed to be of high or low quality by comparing the average correlation coefﬁcient for that segment to an empirically determined threshold. Hjorth parameters have also been used, quantifying the strength of an oscillation in a signal [176]. Furthermore, signal quality can be assessed using multiple beat detectors, with agreement between detectors indicating high quality [161]. Beat-by-beat characteristics have also been analyzed to identify low-quality input signals, including beat-to-beat intervals, pulse amplitudes, and clipped pulses [8].
+In addition to SQIs, a relatively recent development in the quality assessment of BR algorithms has been the derivation of RQIs [56], [65], [101], [163], [232]. RQIs are used to assess the quality of extracted respiratory signals. RQIs are an important development since the presence or absence of respiratory modulations of the ECG or PPG is independent of the overall quality of those signals and instead varies based on factors such as gender, age, pre-existing health conditions, level of hydration, body position, and the value of the BR itself [40], [163], [233]. Presently, RQIs assess the quality of respiratory signals based on the regularity of breathing peaks and the periodicity of the respiratory waveform. Time- and frequency-domain techniques have been used including: statistical analysis of the variations in the respiratory peaks [65], Hjorth descriptors, Fourier transform, autoregression, and autocorrelation [56], [163]. Because RQIs return a range of values (often between 0 and 1) as opposed to a binary outcome, one of the important considerations in RQI implementation is the compromise between data retention and improved estimation accuracy. Recent results using RQIs to fuse BR estimates from multiple ECG and PPG modulations have shown that RQIs both increase data retention and decrease estimation error compared to existing fusion methods [232]. Further work is required to investigate the performance of RQIs in the presence of diseases that cause irregular or shallow breathing, such as in premature infants at risk of apnoea.
+IV. ASSESSMENT OF BR ALGORITHMS
+A. Assessment Methodologies Used in the Literature
+A wide range of methodologies were used to assess the performance of BR algorithms in the 196 publications. These are summarized in Table V and critically reviewed in this section.
+
+Application of BR algorithms
+
+Number of algorithms assessed
+
+1
+
+94 (48.0)
+
+2–5
+
+76 (38.8)
+
+6–10
+
+17 (8.7)
+
+11–15
+
+6 (3.1)
+
+≥ 16
+
+3 (1.5)
+
+Input signal(s)
+
+ECG
+
+98 (50.0)
+
+PPG
+
+112 (57.1)
+
+Fusion of ECG and PPG
+
+5 (2.6)
+
+Pulse transit time
+
+8 (4.1)
+
+Window duration [s]
+
+< 30
+
+10 (5.1)
+
+30–59
+
+46 (23.5)
+
+60–89
+
+50 (25.5)
+
+≥ 90
+
+10 (5.1)
+
+Unknown
+
+78 (39.8)
+
+Datasets
+
+Age(s) of subjects [years]
+
+0–0.1: Neonate
+
+5 (2.6)
+
+0.1–17: Pediatric
+
+27 (13.8)
+
+18–39: Young adult
+
+122 (62.2)
+
+40–69: Middle-aged adult
+
+76 (38.8)
+
+≥ 70: Elderly adult
+
+50 (25.5)
+
+Unknown
+
+57 (29.1)
+
+Level(s) of illness
+
+Healthy
+
+127 (64.8)
+
+Sick in community
+
+22 (11.2)
+
+Acutely ill
+
+15 (7.7)
+
+Critically ill
+
+52 (26.5)
+
+unknown
+
+9 (4.6)
+
+Type(s) of breathing
+
+Spontaneous
+
+150 (76.5)
+
+Metronome
+
+45 (23.0)
+
+Ventilated
+
+32 (16.3)
+
+Simulated
+
+7 (3.6)
+
+unknown
+
+25 (12.8)
+
+Number of datasets used
+
+1
+
+164 (83.7)
+
+2
+
+30 (15.3)
+
+3
+
+1 (0.5)
+
+4
+
+1 (0.5)
+
+Comparison with reference BRs
+
+Reference BR equipment
+
+Air ﬂow or pressure
+
+45 (23.0)
+
+Impedance pneumography (ImP)
+
+48 (24.5)
+
+Capnography
+
+33 (16.8)
+
+Inductance plethymography (InP)
+
+14 (7.1)
+
+Piezoelectric
+
+9 (4.6)
+
+Strain gauge
+
+19 (9.7)
+
+Metronome
+
+9 (4.6)
+
+Other
+
+22 (11.2)
+
+None
+
+5 (2.6)
+
+unknown
+
+26 (13.3)
+
+Common statistical measures
+
+Error statistic
+
+127 (64.8)
+
+Breath detection statistic
+
+19 (9.7)
+
+Bias
+
+46 (23.5)
+
+Limits of agreement (LOAs)
+
+46 (23.5)
+
+Correlation
+
+27 (13.8)
+
+Proportion of windows
+
+14 (7.1)
+
+The methods used to obtain Table V are described in Section S3 (Supplimentary Material).
+The literature has focused on the development of novel BR algorithms rather than comparisons of existing algorithms. This is shown by approximately half (48.0%) of publications assessing
+
+8
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+the performance of only one algorithm, without any comparator. Furthermore, only nine publications (4.6%) compared more than ten algorithms. Several issues make it difﬁcult to compare the reported performance of algorithms between different publications: the use of different statistical measures, the use of data from different subject populations, and the lack of standardized implementations of algorithms (with the exception of [227]), to name but a few [18]. Consequently, it is not possible to determine from the literature which algorithms perform best. The RRest Toolbox (http://peterhcharlton.github.io/RRest) has been designed to address these issues [18], [33], [34]. It provides standardized implementations of several algorithms, as well as code to assess their performance using a range of statistics across multiple publicly available datasets. Further comparisons of algorithms would provide equipment designers with much needed evidence to determine which algorithms are most suitable for implementation.
+Most algorithms assessed in the literature take either the ECG or PPG as the input signal (used in 50.0% and 57.1% of publications, respectively). Very few publications reported algorithms using both ECG and PPG [44], [81], [138], [145], [170] or pulse transit time [44], [69], [81], [97], [110], [111], [114], [213]. It may be beneﬁcial to use multiple input signals when they are available, such as in wearable sensors [170].
+There are pros and cons to the use of shorter and longer window durations with BR algorithms. Most studies used durations of between 30 and 90 s although durations of 5–300 s have been used [184], [216]. Several studies have investigated the impact of window duration on performance [8], [31], [51], [55], [71], [108], [184], [206], [216]. A (nonsigniﬁcant) trend toward lower errors at longer window durations has been reported [8], [31] although there is not yet a consensus as to the optimal window length. The optimal length is likely to differ between populations and applications [55]. On one hand, using shorter windows reduces both the time required to measure BR and the computational requirements of BR algorithms [8]. It also increases the likelihood that the BR is stable throughout the window and allows variations in BR to be tracked more accurately, both of which are concerns during exercise [51]. On the other hand, longer windows may improve the accuracy of algorithms and increase the range of detectable BRs [31]. Consequently, a duration of 32 s was chosen as a compromise in [8] and [206].
+The datasets used were often not representative of target populations and not publicly available. Datasets were often acquired from young, healthy subjects. Fewer publications used data acquired from elderly adults (25.5%), patients suffering from chronic diseases in the community (11.2%), or acutely ill patients in hospital (7.7%), who are more representative of target patient populations. In addition, few publications used ambulatory data (16.3%). Some publications used data from ventilated patients (16.3%) or subjects breathing in time with a metronome (23.0%). It is not yet clear whether the respiratory mechanics of these subjects can be presumed to be similar to those of spontaneously breathing patients [18]. Consequently, it is not clear whether the performance of BR algorithms reported in these studies is truly indicative of expected performance in tar-
+
+get populations. A total of 13 publicly available datasets have been used to assess BR algorithms (see Table VI). However, only two publications have used more than two datasets [57], [111]. The range of available datasets makes it possible to assess algorithms across multiple datasets, which is important as performance may differ signiﬁcantly between datasets [31].
+A range of techniques have been used to acquire reference BRs. Typically, a respiratory signal such as ImP was acquired from which reference BRs were estimated using a bespoke algorithm. Many bespoke algorithms were used although often there was no assessment of the performance of these algorithms. This makes it difﬁcult to know whether errors in BR estimates derived from the ECG and PPG were solely due to poor BR algorithm performance or contributed to by inaccuracies in reference BRs. Notable exceptions are [18], [155], and [184]. In [155], eight methods were used to obtain reference BRs and the ﬁnal estimate was calculated as the mean of the three estimates closest to the median. In [184], several algorithms for obtaining reference BRs were compared and time-domain breath detection methods were found to be “the only serious candidates,” with frequency-domain spectral methods and an autocorrelation method performing poorly. In [18], a time-domain breath detection algorithm was also used and its performance was quantiﬁed by comparing the reference BRs provided by the algorithm to those obtained from manual annotations of a subset of the data. An alternative approach is to manually annotate individual breaths in the entire dataset [8], [31]. Regardless of the approach chosen, it is important that reference BRs are accurate for robust assessment of BR algorithms.
+A wide range of statistics have been used to assess BR algorithm performance. Statistics were most commonly calculated from the errors between reference and estimated BRs (used in 64.8% of publications), including the mean (absolute) error, root-mean-square error, and the percentage error. The related LOAs method, consisting of the systematic bias and LOAs within which 95% of errors are expected to lie, was used less often (23.5%) even though this has the advantage of quantifying both accuracy and precision [18]. This method is useful because certain applications require greater accuracy (such as identiﬁcation of pneumonia indicated by BR > 40 bpm [8]), whereas others require greater precision (such as detection of acute changes in BR indicative of deterioration [18]). Statistics indicating the reliability with which individual breaths are detected were used in 9.7% of publications. These included statistics such as sensitivity, speciﬁcity, false negative, and false positive rates. Correlation coefﬁcients were used in a minority of publications (13.8%). The wide range of statistics reﬂects the difﬁculty of quantifying the performance of algorithms using one single metric.
+B. Methodological Framework for Algorithm Assessments
+We now present a general methodological framework for assessment of BR algorithms. The reader is referred to [1, Chs. 6–7] for examples of BR algorithm assessments conducted in line with this framework.
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+9
+
+TABLE VI PUBLICLY AVAILABLE DATASETS USED TO ASSESS BR ALGORITHMS
+
+Dataset
+
+Ref No subjs
+
+Age
+
+ECG PPG Resp sigs Type of breathing Level of illness
+
+Datasets containing breath annotations
+
+BIDMC CapnoBase
+
+[31]
+
+53
+
+adult
+
+Y
+
+Y
+
+ImP
+
+[8]
+
+42
+
+paed, adult Y
+
+Y
+
+CO2
+
+Datasets without breath annotations
+
+spont, vent spont, vent
+
+critical surgery, anesthesia
+
+MIMIC-II
+
+[234] 23,180 paed, adult Y
+
+MGH/MF
+
+[235] 250 paed, adult Y
+
+MIMIC
+
+[236]
+
+72
+
+unk
+
+Y
+
+VORTAL
+
+[18]
+
+57
+
+adult
+
+Y
+
+Fantasia
+
+[237]
+
+40
+
+adult
+
+Y
+
+UCD Sleep Apnea
+
+[238]
+
+25
+
+adult
+
+Y
+
+CEBS
+
+[239]
+
+20
+
+adult
+
+Y
+
+ECG and resp
+
+[240]
+
+20
+
+adult
+
+Y
+
+MIT-BIH Polysomnographic [241]
+
+18
+
+adult
+
+Y
+
+Apnea-ECG
+
+[242]
+
+8
+
+adult
+
+Y
+
+Portland State
+
+[243]
+
+1
+
+paed
+
+Y
+
+Y
+
+ImP
+
+N ImP, CO2
+
+Y
+
+ImP
+
+Y ImP, Press
+
+N
+
+unk
+
+N
+
+ﬂow
+
+N
+
+piezo
+
+N ﬂow, pleth
+
+N
+
+ﬂow
+
+Y InP, ﬂow
+
+Y
+
+unk
+
+spont, vent spont, vent spont, vent
+spont spont spont spont spont spont, vent spont unk
+
+critical critical critical healthy healthy healthy, apnea healthy healthy healthy, apnea healthy, apnea critical
+
+Deﬁnitions: Age—pediatric (paed); respiratory signals (Resp Sigs)—capnometry (CO2 ), piezoresistive thoracic band (piezo), oral or nasal ﬂow (ﬂow), oral–nasal pressure (press), inductance plethysmography (InP), impedance pneumography (ImP), body plethysmography (pleth); Breathing—spontaneous (spont), ventilated (vent); unknown (unk).
+
+1) Purpose of Assessment: It is important to identify the purpose of an algorithm assessment: either exploratory analysis or validation of a BR algorithm. Exploratory analyses are used to determine the performance of a novel algorithm, often in comparison to existing algorithms [31], [90]. They provide evidence to inform the direction of algorithm development and can be used to identify candidate algorithms for validation studies. Validation studies assess BR algorithms to determine whether they are suitable for a particular application [43]. The purpose of the assessment informs the study design.
+2) Dataset(s): The dataset required for an assessment differs according to its purpose. In a validation study, the dataset should be as representative as possible of the intended application, to ensure the results indicate the expected performance. The subject population should be closely matched to the intended users, including: age, level of illness, range of BRs, and type of breathing. Signal acquisition equipment should be similar to that which will be used, considering: transducers, signal ﬁdelity (sampling frequency and resolution), and any signal ﬁltering. The recording setting, including the presence or absence of subject movement, should also be similar. If any publicly available datasets (see Table VI) meet these criteria, then they can be used. Otherwise, a novel dataset should be acquired. The requirements for datasets in exploratory analyses are less stringent. In fact, variation within a dataset can allow a greater range of hypotheses to be tested, such as: multiple heart rhythms [216]; young and elderly subjects [169]; multiple input signals (both ECG and PPG) [18]; and the presence and absence of movement [171]. An assessment’s generalizability can be increased by using multiple datasets.
+The methodology used to obtain reference BRs is highly important (see Section IV-A). If possible, reference BRs should be obtained independently from the input signals (ECG or PPG). For instance, ImP signals are often acquired using the same electrodes as the ECG. In contrast, gold standard spirometry signals
+
+are measured from air ﬂow at the mouth (and nostrils) avoiding dependencies with input signals. Methods for estimating BRs from a reference signal should be carefully chosen and preferably evaluated. The reliability of manual breath annotations can be improved by using two independent annotators, particularly when signal periods containing disagreements between annotators are discarded [31]. Reliability can be assessed using interannotator agreement. When using an automated algorithm, its performance can be evaluated using manual annotations on a subset of the data [18].
+3) BR Algorithm(s): The choice of BR algorithm(s) is straightforward in validation studies. The performance of one or a few algorithms is evaluated, without the need for additional comparator algorithms, to determine whether the proposed algorithm(s) perform sufﬁciently well for the chosen application.
+There are additional considerations when choosing BR algorithms for exploratory studies. First, additional comparator algorithms should be included to contextualize the results, particularly if using a novel dataset since no comparative results will be available. Comparator algorithms should include leading algorithms from the literature (the Smart Fusion algorithm [8] is often used for this purpose [31], [106], [223], [226]). It may also be beneﬁcial to include algorithms created by varying the technique used at a particular stage of the algorithm to identify techniques that improve performance [18], [226]. Second, the BR algorithms can be optimized in a preliminary analysis prior to assessment (ideally using a separate dataset). Aspects suitable for optimization include: window duration, whether or not to use a fusion technique [8], choice of beat detector, which respiratory signals to use, and the threshold for quality assessment [1]. For instance, the simulated dataset in [18] is suitable for verifying algorithm implementations. Third, the range of BRs that can be outputted by an algorithm should be ﬁxed.
+4) Statistical Analysis: The nature of the statistical analysis differs between exploratory and validation studies. In ex-
+
+10
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+ploratory studies, a wide range of statistics should be used to quantify different aspects of algorithm performance (such as errors, the proportion of windows for which a BR estimate is provided, power requirements, and the time delay between the start of signal acquisition and a BR estimate being outputted). The analysis need not identify the best algorithm. Rather, it should identify algorithm techniques that lead to improved performance. This may be aided by subgroup analyses of algorithms that use different techniques and of different subject populations. In validation studies, a primary statistic should be identiﬁed a priori with which to determine whether the algorithm performs sufﬁciently well. Ideally, a threshold value of this statistic, indicating sufﬁcient performance, should be chosen a priori (such as a mean absolute error of < 2 bpm). Although there are no standardized performance thresholds, further guidance on selecting primary endpoints is provided in Section V-C. Additional statistics can also be used to quantify secondary aspects of algorithm performance.
+The following should also be considered: 1) whether a statistical test is required to identify improved
+performance (such as the Wilcoxon signed rank test for paired data or the Wilcoxon rank sum test for unpaired data [34]); 2) the expected distribution of errors since parametric statistics such as LOAs are inﬂuenced more by nonnormal error distributions than nonparametric statistics such as coverage probability [18]; and 3) whether statistics are required to assess ability to detect apnoea [200], [203]. 5) Reproducibility: It is helpful to decide at the outset whether study resources will be made publicly available (including datasets, BR algorithms, and evaluation code) [18], particularly if ethical approval is needed. One should also decide whether the analysis should be reproducible [33].
+V. FUTURE RESEARCH DIRECTIONS
+A. Areas for Algorithm Development
+There are several promising areas for BR algorithm development. First, little research has been conducted into the use of models of respiratory modulations in BR algorithms. Womack presented a model relating RSA to respiration [211]. If mathematical models such as this were incorporated into BR algorithms, then this could improve performance, particularly if they exploit relationships between the different respiratory modulations. Second, it has recently been proposed that the BRs provided by many different BR algorithms could be fused to improve performance [64], consequently reducing errors and increasing the proportion of windows for which a BR estimate is provided [226]. Further work is required to determine which BR algorithms should be used in this approach. Third, as the availability of annotated data increases, there is opportunity to use machine learning techniques in BR algorithms. Fourth, the utility of BR algorithms would be greatly enhanced if the uncertainty associated with a BR estimate was quantiﬁed since unreliable BR estimates could be easily discarded [13]. Fifth, further research is required to identify BR algorithms with low-
+
+computational requirements that are suitable for use in miniaturized devices such as wearable sensors [88], [221]. Finally, BR algorithms that use a breath detection technique could be used to estimate BR variability, which may have utility as a marker of mental state and disease progression [210].
+B. Equipment
+Research into BR algorithms has mostly used ECG and PPG signals acquired from routine equipment to assess the performance of algorithms. Some research has investigated alternative equipment for acquiring ECG and PPG signals, to either improve the performance of BR algorithms or to increase their utility.
+Design considerations when using PPG signals include the following:
+1) the anatomical site for PPG measurement (such as ﬁnger, ear, forehead, forearm, shoulder, wrist, and sternum), which may inﬂuence the strength of respiratory modulations [34], [68], [244]–[246];
+2) the wavelength of emitted light [28], [247]; and 3) the use of transmission or reﬂection mode PPG [245]. Each of these factors may inﬂuence algorithm performance. Recent research indicates that low-ﬁdelity PPG signals can be used with BR algorithms, such as those acquired at low sampling frequencies [34] or from smartphones or tablets [28], [29], [102], [115], [116]. This will potentially increase the utility of BR algorithms since they could be used in ubiquitous devices such as smartphones in resource-constrained settings [29], [102], [115], [116]. Design considerations when using ECG signals include: 1) whether suitable signals can be acquired without needing electrodes to be attached at several anatomical sites; and 2) whether multilead signals confer a signiﬁcant beneﬁt over single-lead signals. Klum et al. proposed that ECG electrodes positioned as little as 24 mm apart can be used to acquire respiratory signals [248]. This is promising for the implementation of BR algorithms in patch-style wearable sensors [249]. The use of textile-based systems to acquire ECG signals has also been investigated [174], [198], [215]. This could allow BR to be monitored by incorporating sensors into bed sheets [215] or a specialized t-shirt [128]. It has also been proposed that ECG signals could be acquired at locations other than the thorax such as the wrist [82] when an FM-based BR algorithm is used. Some studies have investigated the relative merits of single- and multilead ECG signals [197], [250] or fusion of respiratory signals acquired from single- and multilead signals [117]. It is not yet clear whether multilead signals provide improved performance, and therefore whether this should be considered when designing ECG acquisition equipment.
+C. Applications
+BR algorithms may have utility in a range of clinical and personal settings, with each setting having different requirements. The beneﬁts and challenges of using algorithms in each setting are now described.
+1) Clinical Assessment: At present, BR is usually measured manually in clinical assessment in both hospitals and the
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+11
+
+community (as described in Section I-A). In contrast, BR algorithms could provide automated BR measurements. The key design challenges in this setting are to provide an accurate and precise BR, for most windows of input signal, preferably using the PPG since pulse oximeters can be attached quickly and easily, without any additional disposables. In particular, BR algorithm designs often include a tradeoff between performance and the proportion of windows for which BR estimates are provided [8]. The latter is likely to be more important since the present manual BR measurements have been reported to have poor performance (e.g., LoAs of −8.6 to 9.5 bpm [15]). An attractive case can be made for the use of BR algorithms in 4–6 hourly assessment of hospital inpatients since the time saved by using an automated method could reduce healthcare costs, and if BR algorithms provide improved performance, then this could improve patient safety.
+2) Clinical Monitoring Using Wearable Sensors: It is important that wearable sensors are capable of monitoring BR since BR is a sensitive marker of physiological deterioration preceding adverse events (see Section I-A). However, existing approaches for monitoring BR using wearable sensors are not ideal [18]. Many use impedance pneumography [251]. This is unobtrusive, involving measurement of variations in thoracic impedance with respiration through injection of a high frequency current into the thorax at ECG electrodes [252]. However, it is prone to errors caused by posture changes and motion [251], and has been observed to be imprecise (e.g., LoAs of −9.9 to 7.5 bpm [15] and −11.1 to 11.9 bpm [253]). Inductance plethysmography has also been used to monitor BR although this requires cumbersome chest bands [251], which may be too uncomfortable for prolonged monitoring [254]. More recently accelerometers have been used for BR monitoring [30] although this is still an ongoing area of research [255].
+An alternative approach is to estimate BR from the ECG or PPG signals already acquired by many wearable sensors. This would allow BR to be monitored relatively unobtrusively, without an additional transducer. Wearable sensors can acquire ECG and PPG continuously, whereas clinical deterioration usually occurs over several hours. Therefore, one has the luxury of being able to discard data from which a BR cannot be conﬁdently estimated. The key challenge is to provide accurate BR estimates since erroneous estimates may trigger false alerts, which are resource consuming and can erode trust in the wearable sensor [256]. Fusion techniques can reduce the frequency of erroneous estimates [18]. An additional challenge arises due to ambulatory data being highly susceptible to artifact, caused by poor sensor contact or movement [13], [198]. Methods for improving BR algorithms for use with wearable sensors include the following:
+1) using SQIs to identify (and discard) artifactual data [231]; 2) using techniques to reduce the inﬂuence of motion artifact
+[55], [88], [107], [135], [144], [198]; and 3) fusing BRs according to the uncertainties associ-
+ated with each determined by either deriving features from extracted respiratory signals (such as variation in breath-to-breath intervals) [65] or analyzing the respiratory signals using Gaussian processes [13].
+
+Furthermore, wearable sensors often acquire more than one signal from which BR could be estimated to improve robustness to artifact, such as ECG and PPG [44], [170] or ECG and accelerometry [65], [128]. The impact of motion on BR algorithms should be investigated further [59], as it is important both in clinical settings (such as during mobilization after surgery) and for ﬁtness applications. Such a study would require reliable reference respiratory monitoring (such as spirometry) and would beneﬁt from incremental increases in the level of motion (such as on a treadmill).
+3) Exercise Monitoring: It has been proposed that BR algorithms could be used in exercise monitoring. In healthcare, BR algorithms could be used during stress tests, which otherwise require a device (such as a spirometer), which is uncomfortable and may interfere with breathing [51]. Typically the ECG signal would be used since it is already monitored during exercise tests. This is a particularly challenging setting because: 1) input signals are greatly contaminated with motion artifact; and 2) ideally BR would be provided continuously, making it difﬁcult to reject periods of low quality data. Temporal ﬁltering has been widely used in this setting to increase BR algorithm performance [51], [53], [112]. In addition, multilead ECG signals have been used to improve performance, involving deriving cardiac rotation angles, including correction and rejection of outlying measurements [53].
+BR algorithms could also be used in ﬁtness devices. Many ﬁtness trackers do not measure BR, but do acquire PPG for HR monitoring [31]. The ability to measure BR would be a valuable addition. This setting is less challenging than that of exercise tests since continuous BRs are not required, but could be provided only when expected to be reliable. In addition, BRs do not need to be as accurate as in healthcare. However, in this setting, the PPG is likely to be highly corrupted by motion artifact [13].
+4) Telemonitoring in the Home: Telemonitoring can be used to conduct frequent assessment of physiology in patients with chronic diseases living at home [257]. Telemonitoring setups often include a pulse oximeter, which patients use to assess their own HR and SpO2 [31]. However, it is difﬁcult to measure BR remotely. A simple solution would be to incorporate a BR algorithm into a pulse oximeter. Indeed, Shah et al. recently found that BRs estimated from telemonitoring PPG data were predictive of exacerbations in chronic obstructive pulmonary (COPD) disease [258]. The design challenges in this setting are similar to those for clinical assessment although greater importance should be placed on obtaining an accurate BR than obtaining the measurement quickly. Ideally, a telemonitoring device would estimate BR in real time, continuing until an estimate with a high degree of conﬁdence was available. The user would then be prompted to remove the device. Furthermore, if an abnormal BR was detected, then the user could be prompted to repeat the measurement to reduce the likelihood of false alerts.
+5) Remote Video Monitoring: The applications presented so far require sensors to be attached to the subject [259]. This requires manual intervention, may be poorly tolerated [260] and may cause discomfort and skin irritation [259], particularly when used over prolonged time periods. It has recently been pro-
+
+12
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+posed that BR algorithms could be applied to imaging-PPG signals acquired using noncontact video cameras [23]–[25], [27], [152]. Additional preprocessing steps are required to extract PPG signals from imaging-PPG videos for use with BR algorithms [23]: automatic detection of a region of interest (such as the face); synthesis of spatial information to extract a signal from the region; and color channel selection (using information from either a single or multiple color channels). HR and SpO2 can also be estimated from imaging-PPG signals, increasing their utility [25], [27]. Further work is required to determine whether BR measurements are best extracted from the cardiacsynchronous component of imaging-PPG signals, or from the changes in reﬂected light caused by the motion of breathing.
+D. Translation Into Clinical Practice
+Three key areas for future work to translate BR algorithms into clinical practice are now considered.
+First, it is not clear whether different patient populations and clinical settings require different BR algorithms. This may arise due to differences in the requirements of algorithms (e.g., precision versus the proportion of windows for which an estimate is provided) or differences in respiratory physiology between patient groups (such as breathing patterns or the strength of respiratory modulations). Therefore, the ﬁrst area for future work is to assess the performance of BR algorithms in the patient populations in which they are intended to be used. This will provide evidence for the expected performance of a BR algorithm in a particular target population (such as children [125], [189], [209]), and it will allow the most suitable BR algorithm for that population to be identiﬁed. For instance, Addison et al. have conducted several studies to assess the performance of BR algorithm performance across a range of populations (low-acuity hospitalized patients [43], [54] and patients in the postanesthesia care unit [151]) and in the presence of several pathophysiologies (respiratory disease [72], congestive heart failure [150], and COPD disease [149]). This provides an understanding of the performance of the Medtronic Nellcor BR algorithm (found to have LoAs of 0.07 ± 3.90 bpm in hospitalized patients [54]) and how its performance may be affected by pathophysiologies. Further, investigation of the impact of cardiac arrhythmias on performance is much needed [216] since arrhythmias may affect the physiological mechanisms responsible for respiratory modulation of the ECG and PPG [261].
+Second, BR algorithms must be implemented in clinical monitors to be widely used in clinical practice. This review identiﬁed one clinical monitor in which a BR algorithm has been implemented: the Nellcor bedside patient monitoring system with reported LoAs of 2.25 ± 10.60 bpm when assessed against capnography derived BRs in patients undergoing procedural sedation and analgesia for endoscopy procedures [200]. This clinical implementation of a BR algorithm marks the beginning of a new phase in the use of BR algorithms since research into the potential clinical beneﬁt of BR algorithms can be conducted with greater ease after clinical implementation. The process of implementing BR algorithms in monitors is likely to beneﬁt from collaboration across multiple disciplines.
+
+The third key area for future work is to conduct clinical trials to determine how BR algorithms can be used to deliver beneﬁt to patients. These are likely to consist of two stages: an observational trial to determine whether a BR algorithm could be expected to be beneﬁcial, followed by an interventional trial in which clinicians respond to the BRs, prompting changes in treatment. The ﬁrst stage could be conducted using retrospective analysis of ECG or PPG signals, whereas the second is likely to require a clinical monitor in which a BR algorithm has been implemented. For example, Shah et al. used a PPG-based BR algorithm to perform a retrospective analysis of the utility of BR for prediction of exacerbations in COPD patients [258]. They observed that BRs derived from the PPG were predictive of exacerbations although the clinical utility of this approach needs to be assessed in an interventional trial.
+E. Novel Physiological Insights
+Novel insights into respiratory physiology can be gained by using BR algorithms in settings where it would otherwise not be practical to either measure BR or to monitor it continuously. In [195] and [262], an ECG-based BR algorithm was used to study changes in BR in the days following an acute myocardial infarction through secondary analysis of Holter ECG monitoring. This led to the insight that an elevated nocturnal BR (of ≥ 18.6 bpm) was associated with an increased risk of nonsudden cardiac death. It has also been suggested that BR algorithms can be used to investigate changes in breathing patterns due to pathology. In [185], an ECG-based BR algorithm was used to study changes in inspiration time, exhalation time, and the ratio of inspiration to exhalation time (as well as BR), associated with schizophrenia. In this particular study, no respiratory signal was available, so the BR algorithm provided additional insights.
+VI. CONCLUSION
+A wide range of algorithms to estimate BR from the ECG and PPG have been reported in the literature. These mostly conform to a standardized structure, with many different mathematical techniques proposed for each stage. BR algorithms are now being incorporated into clinical devices, with encouraging initial studies of their performance and utility in both hospitals and the community. Further work is required to identify the most suitable BR algorithms for use in different settings and to determine how BR algorithms can be used to deliver patient beneﬁt. The great potential of BR algorithms is only likely to be realized through close collaboration between researchers, clinicians, and industrial partners.
+ACKNOWLEDGMENT
+The views expressed in this paper are those of the authors and not necessarily those of the Engineering and Physical Sciences Research Council, Wellcome Trust, National Institute for Health Research, NHS, Department of Health, Royal Academy of Engineering, or Rhodes Trust.
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+13
+
+REFERENCES
+[1] P. H. Charlton, “Continuous respiratory rate monitoring to detect clinical deteriorations using wearable sensors,” Ph.D. dissertation, King’s College London, London, U.K., 2017.
+[2] M. Cretikos et al., “The objective medical emergency team activation criteria: A case-control study,” Resuscitation, vol. 73, no. 1, pp. 62–72, 2007. [Online]. Available: http://doi.org/10.1016/j.resuscitation.2006. 08.020
+[3] R. M. Schein et al., “Clinical antecedents to in-hospital cardiopulmonary arrest,” Chest, vol. 98, no. 6, pp. 1388–1392, 1990. [Online]. Available: http://doi.org/10.1378/chest.98.6.1388
+[4] R. W. Duckitt et al., “Worthing physiological scoring system: derivation and validation of a physiological early-warning system for medical admissions. An observational, population-based single-centre study,” Brit. J. Anaesthesia, vol. 98, no. 6, pp. 769–774, 2007. [Online]. Available: http://doi.org/10.1093/bja/aem097
+[5] T. R. Gravelyn and J. G. Weg, “Respiratory rate as an indicator of acute respiratory dysfunction.” J. Amer. Med. Assoc., vol. 244, no. 10, pp. 1123–1125, 1980. [Online]. Available: http://doi.org/10.1001/jama.1980.03310100041029
+[6] Royal College of Physicians, “National Early Warning Score (NEWS): Standardising the assessment of acute-illness severity in the NHS,” Report of a working party. London. U.K.: Roy. College Phys., 2012. [Online]. Available: https://www.rcplondon.ac.uk/projects/ outputs/national-early-warning-score-news
+[7] N. Farrohknia et al., “Emergency department triage scales and their components: A systematic review of the scientiﬁc evidence,” Scand. J. Trauma, Resuscitation Emerg. Med., vol. 19, 2011, Art. no. 42. [Online]. Available: http://doi.org/10.1186/1757-7241-19-42
+[8] W. Karlen, S. Raman, J. M. Ansermino, and G. A. Dumont, “Multiparameter respiratory rate estimation from the photoplethysmogram,” IEEE Trans. Biomed. Eng., vol. 60, no. 7, pp. 1946–1953, Jul. 2013. [Online]. Available: http://doi.org/10.1109/TBME.2013.2246160
+[9] A. Khalil, G. Kelen, and R. E. Rothman, “A simple screening tool for identiﬁcation of community-acquired pneumonia in an inner city emergency department,” Emergency Med. J., vol. 24, no. 5, pp. 336– 338, 2007. [Online]. Available: http://doi.org/10.1136/emj.2007. 045989
+[10] S. Fleming et al., “Non-invasive measurement of respiratory rate in children using the photoplethysmogram,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2008, pp. 1886–1889. [Online]. Available: http://doi.org/10.1109/IEMBS.2008.4649554
+[11] C. W. Seymour et al., “Assessment of clinical criteria for sepsis: For the third international consensus deﬁnitions for sepsis and septic shock (Sepsis-3),” J. Amer. Med. Assoc., vol. 315, no. 8, pp. 762–774, 2016. [Online]. Available: http://doi.org/10.1001/jama.2016.0288
+[12] M. A. Cretikos et al., “Respiratory rate: the neglected vital sign,” Med. J. Australia, vol. 188, no. 11, pp. 657–659, 2008. [Online]. Available: https://www.ncbi.nlm.nih.gov/pubmed/18513176
+[13] M. A. F. Pimentel, P. H. Charlton, and D. A. Clifton, “Probabilistic estimation of respiratory rate from wearable sensors,” in Wearable Electronics Sensors, vol. 15, S. C. Mukhopadhyay, Ed. New York, NY, USA: Springer, 2015, pp. 241–262. [Online]. Available: http://doi.org/10.1007/978-3-319-18191-2 10
+[14] S. Z. Goldhaber, L. Visani, and M. De Rosa, “Acute pulmonary embolism: Clinical outcomes in the international cooperative pulmonary embolism registry (ICOPER),” Lancet, vol. 353, no. 2182, pp. 1386–1389, 1999. [Online]. Available: http://doi.org/ 10.1016/S0140-6736(98)07534-5
+[15] P. B. Lovett et al., “The vexatious vital: Neither clinical measurements by nurses nor an electronic monitor provides accurate measurements of respiratory rate in triage,” Ann. Emergency Med., vol. 45, no. 1, pp. 68–76, 2005. [Online]. Available: http://doi.org/10.1016/j.annemergmed.2004.06.016
+[16] K. E. J. Philip et al., “The accuracy of respiratory rate assessment by doctors in a London teaching hospital: A cross-sectional study,” J. Clin. Monit. Comput., vol. 29, no. 4, pp. 455–460, 2015. [Online]. Available: http://doi.org/10.1007/s10877-014-9621-3
+[17] K. Philip, R. Richardson, and M. Cohen, “Staff perceptions of respiratory rate measurement in a general hospital,” Brit. J. Nursing, vol. 22, no. 10, pp. 570–574, 2007. [Online]. Available: http://doi.org/10.12968/bjon.2013.22.10.570
+[18] P. H. Charlton et al., “An assessment of algorithms to estimate respiratory rate from the electrocardiogram and photoplethysmogram,” Physiol. Meas., vol. 37, no. 4, pp. 610–626, 2016. [Online]. Available: http://doi.org/10.1088/0967-3334/37/4/610
+
+[19] A. T. Reisner, G. Clifford, and R. G. Mark, “The physiological basis of the electrocardiogram,” in Advanced Methods and Tools for ECG Data Analysis, G. D. Clifford, F. Azuaje, and P. E. McSharry, Eds. London, U.K.: Artech House, 2006, ch. 1, pp. 1–25. [Online]. Available: http:// www.robots.ox.ac.uk/∼gari/teaching/cdt/A3/readings/ECG/ch1.pdf
+[20] G. Clifford and M. B. Oeﬁnger, “ECG acquisition, storage, transmission, and representation,” in Advanced Methods and Tools for ECG Data Analysis, G. D. Clifford, F. Azuaje, and P. E. McSharry, Eds. London, U.K.: Artech House, 2006, ch. 2, pp. 27–53. [Online]. Available: http://www.robots.ox.ac.uk/∼gari/ecgbook/ch2.pdf
+[21] J. A. Walsh, E. J. Topol, and S. R. Steinhubl, “Novel wireless devices for cardiac monitoring,” Circulation, vol. 130, no. 7, pp. 573–581, 2014. [Online]. Available: http://doi.org/10.1161/CIRCULATIONAHA. 114.009024
+[22] J. Allen, “Photoplethysmography and its application in clinical physiological measurement,” Physiol. Meas., vol. 28, no. 3, pp. R1–R39, 2007. [Online]. Available: http://doi.org/10.1088/0967-3334/28/3/R01
+[23] Y. Sun and N. Thakor, “Photoplethysmography revisited: From contact to noncontact, from point to imaging,” IEEE Trans. Biomed. Eng., vol. 63, no. 3, pp. 463–477, Mar. 2016. [Online]. Available: http://doi.org/10.1109/TBME.2015.2476337
+[24] M. van Gastel, S. Stuijk, and G. de Haan, “Robust respiration detection from remote photoplethysmography,” Biomed. Opt. Express, vol. 7, no. 12, 2016, Art. no. 4941. [Online]. Available: http://doi.org/10.1364/BOE.7.004941
+[25] M. Villarroel et al., “Continuous non-contact vital sign monitoring in neonatal intensive care unit,” Healthcare Technol. Lett., vol. 1, no. 3, pp. 87–91, 2014. [Online]. Available: http://doi.org/10. 1049/htl.2014.0077
+[26] K. H. Shelley, “Photoplethysmography: Beyond the calculation of arterial oxygen saturation and heart rate,” Anesthesia Analgesia, vol. 105, no. 6, pp. S31–36, 2007. [Online]. Available: http://doi.org/10.1213/01.ane.0000269512.82836.c9
+[27] L. Tarassenko et al., “Non-contact video-based vital sign monitoring using ambient light and auto-regressive models,” Physiol. Meas., vol. 35, no. 5, pp. 807–831, 2014. [Online]. Available: http://doi.org/10.1088/0967-3334/35/5/807
+[28] Y. Nam, J. Lee, and K. H. Chon, “Respiratory rate estimation from the built-in cameras of smartphones and tablets,” Ann. Biomed. Eng., vol. 42, no. 4, pp. 885–898, 2014. [Online]. Available: http://doi.org/10.1007/s10439-013-0944-x
+[29] W. Karlen et al., “Respiratory rate assessment from photoplethysmographic imaging,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2014, pp. 5397–5400. [Online]. Available: http://doi.org/10.1109/EMBC.2014. 6944846
+[30] P. Hubner et al., “Surveillance of patients in the waiting area of the department of emergency medicine,” Medicine, vol. 94, no. 51, 2015, Art. no. e2322. [Online]. Available: http://doi.org/10.1097/MD.0000000000002322
+[31] M. A. Pimentel et al., “Towards a robust estimation of respiratory rate from pulse oximeters,” IEEE Trans. Biomed. Eng., vol. 64, no. 8, pp. 1914–1923, Aug. 2017. [Online]. Available: http://doi.org/10.1109/TBME.2016.2613124
+[32] A. Johansson, “Neural network for photoplethysmographic respiratory rate monitoring,” Med. Biol. Eng. Comput., vol. 41, no. 3, pp. 242–248, 2003. [Online]. Available: http://doi.org/10.1007/BF02348427
+[33] P. H. Charlton, M. Villarroel, and F. Salguiero, “Waveform analysis to estimate respiratory rate,” in Secondary Analysis of Electronic Health Records. New York, NY, USA: Springer, 2016, ch. 26, pp. 377–390. [Online]. Available: http://doi.org/10.1007/978-3-319-43742-2 26
+[34] P. H. Charlton et al., “Extraction of respiratory signals from the electrocardiogram and photoplethysmogram: Technical and physiological determinants,” Physiol. Meas., vol. 38, no. 5, pp. 669–690, 2017. [Online]. Available: http://doi.org/10.1088/1361-6579/aa670e
+[35] R. Bailon, L. Sornmo, and P. Laguna, “ECG-derived respiratory frequency estimation,” in Advanced Methods and Tools for ECG Data Analysis, G. D. Clifford, F. Azuaje, and P. E. McSharry, Eds. London, U.K.: Artech House, 2006, ch. 8, pp. 215–244. [Online]. Available: http://www.mit.edu/∼gari/chapter8.html
+[36] M. Nitzan, I. Faib, and H. Friedman, “Respiration-induced changes in tissue blood volume distal to occluded artery, measured by photoplethysmography,” J. Biomed. Opt., vol. 11, no. 4, 2006, Art. no. 040506. [Online]. Available: http://doi.org/10.1117/1.2236285
+[37] D. J. Meredith et al., “Photoplethysmographic derivation of respiratory rate: A review of relevant physiology,” J. Med. Eng. Technol., vol. 36, no. 1, pp. 1–7, 2012. [Online]. Available: http://doi.org/10.3109/03091902.2011.638965
+
+14
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+[38] G. G. Berntson, J. T. Cacioppo, and K. S. Quigley, “Respiratory sinus arrhythmia: Autonomic origins, physiological mechanisms, and psychophysiological implications,” Psychophysiology, vol. 30, no. 2, pp. 183–196, 1993. [Online]. Available: http://doi.org/10.1111/j.1469-8986.1993.tb01731.x
+[39] P. D. Larsen et al., “Respiratory sinus arrhythmia in conscious humans during spontaneous respiration,” Respiratory Physiol. Neurobiol., vol. 174, no. 1, pp. 111–118, 2010. [Online]. Available: http://doi.org/10.1016/j.resp.2010.04.021
+[40] J. Li et al., “Comparison of respiratory-induced variations in photoplethysmographic signals,” Physiol. Meas., vol. 31, no. 3, pp. 415–425, 2010. [Online]. Available: http://doi.org/10.1088/0967-3334/31/3/009
+[41] P. S. Addison and J. N. Watson, “Secondary transform decoupling of shifted nonstationary signal modulation components: Application to photoplethysmography,” Int. J. Wavelets, Multiresolution Inf. Process., vol. 2, no. 1, pp. 43–57, 2004. [Online]. Available: http://doi.org/10.1142/S0219691304000329
+[42] P. S. Addison et al., “Developing an algorithm for pulse oximetry derived respiratory rate (RR(oxi)): A healthy volunteer study,” J. Clin. Monit. Comput., vol. 26, no. 1, pp. 45–51, 2012. [Online]. Available: http://doi.org/10.1007/s10877-011-9332-y
+[43] P. S. Addison et al., “Pulse oximetry-derived respiratory rate in general care ﬂoor patients,” J. Clin. Monit. Comput., vol. 29, no. 1, pp. 113–120, 2014. [Online]. Available: http://doi.org/10.1007/s10877-014-9575-5
+[44] C. Ahlstrom et al., “A respiration monitor based on electrocardiographic and photoplethysmographic sensor fusion,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2004, pp. 2311–2314. [Online]. Available: http://doi.org/10.1109/IEMBS.2004.1403671
+[45] I. Alikhani et al., “Spectral data fusion for robust ECG-derived respiration with experiments in different physical activity levels,” in Proc. Conf Proc. Biomed. Eng. Syst. Technol., 2017, pp. 88–95. [Online]. Available: http://doi.org/10.5220/0006144100880095
+[46] M. R. Ambekar and S. Prabhu, “A novel algorithm to obtain respiratory rate from the PPG signal,” Int. J. Comput. Appl., vol. 126, no. 15, pp. 9–12, 2015. [Online]. Available: http://doi.org/10.5120/ ijca2015906263
+[47] S. P. Arunachalam and L. F. Brown, “Real-time estimation of the ECG-derived respiration (EDR) signal using a new algorithm for baseline wander noise removal,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2009, pp. 5681–5684. [Online]. Available: http://doi.org/10.1109/IEMBS.2009.5333113
+[48] S. Babaeizadeh et al., “A comparison of three ECG-derived respiration techniques during cardiac magnetic resonance image acquisition,” J. Electrocardiol., vol. 45, no. 6, p. 696, 2012. [Online]. Available: http://doi.org/10.1016/j.jelectrocard.2012.08.035
+[49] S. Babaeizadeh and P. Healthcare, “Cost-efﬁcient accurate monitoring of respiration rate using ECG,” in Proc. Comput. Cardiol. Conf., 2015, pp. 1009–1012. [Online]. Available: http://doi.org/10.1109/CIC.2015.7411084
+[50] S. Babaeizadeh et al., “Electrocardiogram-derived respiration in screening of sleep-disordered breathing,” J. Electrocardiol., vol. 44, no. 6, pp. 700–706, 2011. [Online]. Available: http://doi.org/10.1016/j.jelectrocard.2011.08.004
+[51] R. Bailon et al., “Robust electrocardiogram derived respiration from stress test recordings: Validation with respiration recordings,” in Proc. Comput. Cardiol. Conf., 2004, pp. 293–296. [Online]. Available: http://doi.org/10.1109/CIC.2004.1442930
+[52] R. Bailo´n et al., “Robust estimation of respiratory frequency from exercise ECGs,” in Proc. Comput. Cardiol. Conf., 2003, vol. 30, pp. 299–302. [Online]. Available: http://doi.org/10.1109/CIC.2003.1291150
+[53] R. Bailo´n, L. So¨rnmo, and P. Laguna, “A robust method for ECGbased estimation of the respiratory frequency during stress testing,” IEEE Trans. Biomed. Eng., vol. 53, no. 7, pp. 1273–1285, Jul. 2006. [Online]. Available: http://doi.org/10.1109/TBME.2006.871888
+[54] S. D. Bergese et al., “Multicenter study validating accuracy of a continuous respiratory rate measurement derived From pulse oximetry: A comparison with capnography,” Anesthesia Analgesia, vol. 124, no. 4, pp. 1153–1159, 2017. [Online]. Available: http://doi.org/10.1213/ANE.0000000000001852
+[55] T. Berset, I. Romero, A. Young, and J. Penders, “Robust heart rhythm calculation and respiration rate estimation in ambulatory ECG monitoring,” in Proc. Eng. Med. Biol. Soc. Int. Conf. Biomed. Health Inf., 2012, vol. 25, pp. 400–403. [Online]. Available: http://doi.org/10.1109/BHI.2012.6211599
+
+[56] D. Birrenkott et al., “Robust estimation of respiratory rate via ECG- and PPG-derived respiratory quality indices,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2016, pp. 676–679. [Online]. Available: http://doi.org/10.1109/EMBC.2016.7590792
+[57] D. Birrenkott, “Respiratory quality index design and validation for ECG and PPG derived respiratory data,” Report for transfer of status, Dept. Eng. Sci., Univ. Oxford, Oxford, U.K., 2015. [Online]. Available: http://www.robots.ox.ac.uk/∼davidc/pubs/transfer_db.pdf
+[58] E. Bowers, A. Murray, and P. Langley, “Respiratory rate derived from principal component analysis of single lead electrocardiogram,” in Proc. Comput. Cardiol. Conf., 2008, pp. 437–440. [Online]. Available: http://doi.org/10.1109/CIC.2008.4749072
+[59] J. Boyle et al., “Automatic detection of respiration rate from ambulatory single-lead ECG,” IEEE Trans. Inf. Technol. Biomed., vol. 13, no. 6, pp. 890–896, Nov. 2009. [Online]. Available: http://doi.org/10.1109/TITB.2009.2031239
+[60] L. F. Brown and S. P. Arunachalam, “Real-time estimation of the ECG-derived respiration (EDR) signal,” Biomed. Sci. Instrum., vol. 45, pp. 59–64, 2009. [Online]. Available: http://www.ncbi. nlm.nih.gov/pubmed/19369740
+[61] M. Campolo et al., “ECG-derived respiratory signal using empirical mode decomposition,” in Proc. Int. Symp. Med. Meas. Appl., 2011, pp. 399–403. [Online]. Available: http://doi.org/10.1109/ MeMeA.2011.5966727
+[62] A. Canu and M. Canu, “Embedded low-power system for respiration rate calculation,” MSc. thesis, University College Cork, Cork, Ireland, 2010.
+[63] A. Canu et al., “Respiration rate calculation using low power DSP processor and SpO2 sensor,” in Proc. Int. Symp. Med. Meas. Appl., 2011, pp. 517–520. [Online]. Available: http://doi.org/ 10.1109/MeMeA.2011.5966757
+[64] R. A. Cernat et al., “Recording system and data fusion algorithm for enhancing the estimation of the respiratory rate from photoplethysmogram,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2015, pp. 5977– 5780. [Online]. Available: http://doi.org/10.1109/EMBC.2015.7319753
+[65] A. M. Chan, N. Ferdosi, and R. Narasimhan, “Ambulatory respiratory rate detection using ECG and a triaxial accelerometer,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2013, pp. 4058–4061. [Online]. Available: http://doi.org/10.1109/EMBC.2013.6610436
+[66] P. Charlton et al., “The inﬂuence of recording equipment on the accuracy of respiratory rate estimation from the electrocardiogram and photoplethysmogram,” in Proc. MEC Annu. Meeting Bioeng.14, 2014, p. 96. [Online]. Available: http://doi.org/10.5281/zenodo.439955
+[67] K. H. Chon, S. Dash, and K. Ju, “Estimation of respiratory rate from photoplethysmogram data using time-frequency spectral estimation,” IEEE Trans. Biomed. Eng., vol. 56, no. 8, pp. 2054–2063, Aug. 2009. [Online]. Available: http://doi.org/10.1109/TBME.2009.2019766
+[68] S. S. Chreiteh et al., “Estimation of respiratory rates based on photoplethysmographic measurements at the sternum,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2015, pp. 6570–6573. [Online]. Available: http://doi.org/10.1109/EMBC.2015.7319898
+[69] C. P. Chua and C. Heneghan, “Pulse transit time-derived respiratory parameters and their variability across sleep stages,” in Proc. Conf Proc. Eng. Med. Biol. Soc., 2005, pp. 6153–6156. [Online]. Available: http://doi.org/10.1109/IEMBS.2005.1615899
+[70] A. Cicone and H.-T. Wu, “How mathematics can help in sensing instantaneous physiological information from photoplethysmography in a fast and reliable way,” arXiv:1701.02072, 2017. [Online]. Available: http://arxiv.org/abs/1701.02072
+[71] D. A. Clifton et al., “Home monitoring: breathing rate from PPG and ECG,” Inst. Biomed. Eng., Univ. Oxford, Oxford, U.K, 2012. [Online]. Available: http://www.robots.ox.ac.uk/∼davidc/pubs/WT2012.pdf
+[72] D. Clifton et al., “Measurement of respiratory rate from the photoplethysmogram in chest clinic patients,” J. Clin. Monit. Comput., vol. 21, no. 1, pp. 55–61, 2007. [Online]. Available: http://doi.org/10.1007/s10877-006-9059-3
+[73] S. Cohen et al., “Robust respiratory rate detection using alar photoplethysmography and a thermistor,” Amer. Society Anesthesiologists, Schaumburg, IL, USA, 2013. [Online]. Available: http://www. asaabstracts.com/strands/asaabstracts/abstract.htm?year=2013&index= 8&absnum=4428
+[74] D. Cysarz et al., “Comparison of respiratory rates derived from heart rate variability, ECG amplitude, and nasal/oral airﬂow,” Ann. Biomed. Eng., vol. 36, no. 12, pp. 2085–2094, 2008. [Online]. Available: http://doi.org/10.1007/s10439-008-9580-2
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+15
+
+[75] S. Dabiri and M. A. M. Shirazi, “Estimation of respiratory rate from photoplethysmogram signal of sleep apnea patients: A comparative study of different methods,” in Proc. Conf. Proc. Telecommun. Signal Process., 2015, pp. 440–443. [Online]. Available: http://doi.org/10.1109/TSP.2015.7296300
+[76] N. Daimiwal, M. Sundhararajan, and R. Shriram, “Respiratory rate, heart rate and continuous measurement of BP using PPG,” in Proc. Int. Conf. Commun. Signal Process., 2014, pp. 999–1002. [Online]. Available: http://doi.org/10.1109/ICCSP.2014.6949996
+[77] G. Dan, Z. Li, and H. Ding, “A mother wavelet selection algorithm for respiratory rate estimation from photoplethysmogram,” in IFMBE Proceedings, vol. 51, D. A. Jaffray, Ed. New York, NY, USA: Springer, 2015, pp. 962–965. [Online]. Available: http://doi.org/10.1007/978-3-319-19387-8 234
+[78] S. Dash, K. H. Shelley, D. G. Silverman, and K. H. Chon, “Estimation of respiratory rate from ECG, photoplethysmogram, and piezoelectric pulse transducer signals: a comparative study of time-frequency methods,” IEEE Trans. Biomed. Eng., vol. 57, no. 5, pp. 1099–1107, May 2010. [Online]. Available: http://doi.org/10.1109/TBME.2009.2038226
+[79] P. Dehkordi et al., “Estimating instantaneous respiratory rate from the photoplethysmogram,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2015, pp. 6150–6153. [Online]. Available: http://doi.org/10.1109/EMBC.2015.7319796
+[80] S. Ding et al., “Derivation of respiratory signal from singlechannel ECGs based on source statistics,” Int. J. Bioelectromagn., vol. 6, no. 1, pp. 1–7, 2004. [Online]. Available: http://www.ijbem. org/volume6/number2/004.htm
+[81] X. Ding et al., “A pulse transit time based fusion method for the noninvasive and continuous monitoring of respiratory rate,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2016, pp. 4240–4243. [Online]. Available: http://doi.org/10.1109/EMBC.2016.7591663
+[82] D. N. Dutta, R. Das, and S. Pal, “Automated real-time processing of single lead ECG for simultaneous heart rate and respiratory rate monitoring,” J. Med. Devices, vol. 11, no. 2, 2017, Art. no. 024502. [Online]. Available: http://doi.org/10.1115/1.4035982
+[83] A. Espiritu Santo and C. Carbajal, “Respiration rate extraction from ECG signal via discrete wavelet transform,” in Proc. 2nd Circuits Syst. Med. Environ. Appl. Workshop, 2010, pp. 1–4. [Online]. Available: http://doi.org/10.1109/CASME.2010.5706679
+[84] R. Firoozabadi, E. D. Helfenbein, and S. Babaeizadeh, “Monitoring respiration rate in sleep-disordered breathing patients using chest belts or ECG,” J. Electrocardiol., vol. 47, no. 6, p. 908, 2014. [Online]. Available: http://doi.org/10.1016/j.jelectrocard.2014.08.020
+[85] S. G. Fleming and L. Tarassenko, “A comparison of signal processing techniques for the extraction of breathing rate from the photoplethysmogram,” Int. J. Biol. Life Sci., vol. 2, no. 4, pp. 233–237, 2006. [Online]. Available: http://www.waset.org/publications/13323
+[86] J. Y. a. Foo and S. J. Wilson, “Estimation of breathing interval from the photoplethysmographic signals in children,” Physiol. Meas., vol. 26, no. 6, pp. 1049–1058, 2005. [Online]. Available: http://doi.org/10.1088/0967-3334/26/6/014
+[87] G. D. Furman et al., “Electrocardiogram derived respiration during sleep,” in Proc. Comput. Cardiol. Conf., 2005, pp. 351–354. [Online]. Available: http://doi.org/10.1109/CIC.2005.1588109
+[88] A. Fusco, D. Locatelli, F. Onorati, G. C. Durelli, and M. D. Santambrogio, “On how to extract breathing rate from PPG signal using wearable devices,” in Proc. Biomed. Circuits Syst. Conf., 2015, pp. 3–6. [Online]. Available: http://doi.org/10.1109/BioCAS.2015.7348369
+[89] A. Garde et al., “Empirical mode decomposition for respiratory and heart rate estimation from the photoplethysmogram,” in Proc. Comput. Cardiol. Conf., 2013, pp. 799–802. [Online]. Available: http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber= 6713498&contentType=Conference+Publications
+[90] A. Garde et al., “Estimating respiratory and heart rates from the correntropy spectral density of the photoplethysmogram,” PLoS One, vol. 9, no. 1, 2014, Art. no. e86427. [Online]. Available: http://doi.org/10.1371/journal.pone.0086427
+[91] L. Guo, S. Lei, and M. Pan, “The methods and limitations of extracting respiratory rhythm utilizing photoplethysmographic signals,” in Proc. Int. Conf. Biomed. Eng. Informat., 2010, pp. 1059–1062. [Online]. Available: http://doi.org/10.1109/BMEI.2010.5640545
+[92] S. Gupta and J. B. Sharma, “Estimation of respiratory rate from the ECG using instantaneous frequency tracking LMS algorithm,” in Proc. Int. Conf. Adv. Comput. Commun. Autom., 2016, pp. 88–90. [Online]. Available: http://doi.org/10.1109/ICACCAF.2016. 7748987
+
+[93] E. Helfenbein et al., “Electrocardiogram/electromyogram-derived respiration in the presence of simulated respiratory disease,” J. Electrocardiol., vol. 44, no. 6, pp. 751–752, 2011. [Online]. Available: http://doi.org/10.1016/j.jelectrocard.2011.09.034
+[94] E. Helfenbein et al., “ECG/EMG-derived respiration during cardiac magnetic resonance imaging,” J. Electrocardiol., vol. 45, no. 6, pp. 693–694, 2012. [Online]. Available: http://doi.org/ 10.1016/j.jelectrocard.2012.08.028
+[95] E. Helfenbein et al., “Development of three methods for extracting respiration from the surface ECG: A review,” J. Electrocardiol., vol. 47, no. 6, pp. 819–825, 2014. [Online]. Available: http://doi.org/10.1016/j.jelectrocard.2014.07.020
+[96] I. Isasi, U. Irusta, E. Aramendi, G. Peralta, and E. Alonso, “Cerebral oximetry versus pulse photoplethysmography to monitor respiration rate,” in Proc. Comput. Cardiol. Conf., 2016, pp. 853–856. [Online]. Available: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7868877
+[97] A. Johansson et al., “Pulse wave transit time for monitoring respiration rate,” Med. Biol. Eng. Comput., vol. 44, no. 6, pp. 471–478, 2006. [Online]. Available: http://doi.org/10.1007/s11517-006-0064-y
+[98] A. Johansson, P. A. Oberg, and G. Sedin, “Monitoring of heart and respiratory rates in newborn infants using a new photoplethysmographic technique,” J. Clin. Monit. Comput., vol. 15, no. 7–8, pp. 461–467, 1999. [Online]. Available: http://www.ncbi.nlm.nih.gov/pubmed/12578044
+[99] W. S. Johnston and Y. Mendelson, “Extracting breathing rate information from a wearable reﬂectance pulse oximeter sensor,” in Conf. Proc. IEEE Eng. Med. Biol. Soc., 2004, pp. 5388–5391. [Online]. Available: http://doi.org/10.1109/IEMBS.2004.1404504
+[100] T. Kagawa, A. Kawamoto, and N. Nakajima, “System for simultaneous measurement of breathing rate and heart rate using photoplethysmogram,” in Proc. Int. Conf. Body Area Netw., 2013, pp. 519–525. [Online]. Available: https://dl.acm.org/citation.cfm?id=2555437
+[101] W. Karlen et al., “Respiratory rate estimation using respiratory sinus arrhythmia from photoplethysmography,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2011, pp. 1201–1204. [Online]. Available: http://doi.org/10.1109/IEMBS.2011.6090282
+[102] W. Karlen et al., “Estimation of respiratory rate from photoplethysmographic imaging videos compared to pulse oximetry,” IEEE J. Biomed. Health Informat., vol. 19, no. 4, pp. 1331–1338, Jul. 2015. [Online]. Available: http://doi.org/10.1109/JBHI.2015.2429746
+[103] S. A. Kazmi et al., “Respiratory rate (RR) based analysis of PPG signal for different physiological conditions,” in Proc. Int. Conf. Smart Sensors Appl., 2015, pp. 166–171. [Online]. Available: http://doi.org/10.1109/ICSSA.2015.7322531
+[104] V. Khambhati and M. B. Patel, “Extraction of a respiration rate from ECG signal using discrete wavelet transform during exercise,” Imperial J. Interdiscip. Res., vol. 3, no. 2, pp. 1238–1241, 2017. [Online]. Available: https://www.onlinejournal.in/IJIRV3I2/208.pdf
+[105] A. Kikta and P. Augustyniak, “Comparing methods of ECG respiration signals derivation based on measuring the amplitude of QRS complexes,” J. Med. Informat. Technol., vol. 11, pp. 155–163, 2007. [Online]. Available: http://jmit.us.edu.pl/cms/jmitjrn/11/MIT 2007-15.pdf
+[106] H. Kim, J.-Y. Kim, and C.-H. Im, “Fast and robust real-time estimation of respiratory rate from photoplethysmography,” Sensors, vol. 16, no. 9, 2016, Art. no. 1494. [Online]. Available: http://doi.org/10.3390/s16091494
+[107] V. Kumar and G. Singh, “Estimation of respiration rate from ECG using canonical components analysis and ensemble empirical mode decomposition,” Int. J. Bio-Sci. Bio-Technol., vol. 7, no. 3, pp. 139–146, 2015. [Online]. Available: http://doi.org/10.14257/ijbsbt.2015.7.3.14
+[108] H. H. Kuo et al., “Using ECG surface electrodes in measurement of respiration rate for preterm infants,” in Proc. IEEE Int. Symp. Bioelectron. Bioinformat., 2014, pp. 12–15. [Online]. Available: http://doi.org/10.1109/ISBB.2014.6820926
+[109] M. M. Lakdawala, “Derivation of the respiratory rate signal from a single lead ECG,” MSc. thesis, New Jersey Inst. Technol., Newark, NJ, USA, 2008. [Online]. Available: http://archives.njit.edu/vol01/etd/2000s/ 2008/njit-etd2008-084/njit-etd2008-084.pdf
+[110] J. La´zaro, E. Gil, R. Bailn, and P. Laguna, “Deriving respiration from the pulse photoplethysmographic signal,” in Proc. Comput. Cardiol., 2011, pp. 713–716. [Online]. Available: http://ieeexplore.ieee.org/document/6164665/
+[111] J. La´zaro, “Non-invasive techniques for respiratory information extraction based on pulse photoplethysmogram and electrocardiogram,” PhD. dissertation, Univ. Zaragoza, Zaragoza, Spain, 2015. [Online]. Available: http://diec.unizar.es/˜laguna/personal/publicaciones/ThesisJesusLazaro. pdf
+
+16
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+[112] J. Lazaro et al., “Electrocardiogram derived respiration from QRS slopes: Evaluation with Stress Testing Recordings,” in Proc. Comput. Cardiol., 2013, pp. 655–658. [Online]. Available: http://doi.org/10.1109/EMBC.2013.6610400
+[113] J. La´zaro et al., “Electrocardiogram derived respiratory rate from QRS slopes and R-wave angle,” Ann. Biomed. Eng., vol. 42, no. 10, pp. 2072– 2083, 2014. [Online]. Available: http://doi.org/10.1007/s10439-0141073-x
+[114] J. La´zaro et al., “Deriving respiration from photoplethysmographic pulse width,” Med. Biol. Eng. Comput., vol. 51, no. 1–2, pp. 233–242, 2013. [Online]. Available: http://doi.org/10.1007/s11517-012-0954-0
+[115] J. La´zaro et al., “Respiratory rate derived from smartphonecamera-acquired pulse photoplethysmographic signals,” Physiol. Meas., vol. 36, no. 11, pp. 2317–2333, 2015. [Online]. Available: http://doi.org/10.1088/0967-3334/36/11/2317
+[116] J. Lazaro et al., “Smartphone-camera-acquired pulse photoplethysmographic signal for deriving respiratory rate,” in Proc. Conf. Eur. Study Group Cardiovascular Oscillations, 2014, pp. 121–122. [Online]. Available: http://doi.org/10.1109/ESGCO.2014.6847549
+[117] S. Leanderson, P. Laguna, and L. So¨rnmo, “Estimation of the respiratory frequency using spatial information in the VCG,” Med. Eng. Phys., vol. 25, no. 6, pp. 501–507, 2003. [Online]. Available: http://doi.org/10.1016/S1350-4533(03)00017-1
+[118] E. M. Lee et al., “Respiratory rate detection algorithms by photoplethysmography signal processing,” in Proc. Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 2008, pp. 1140–1143. [Online]. Available: http://doi.org/10.1109/IEMBS.2008.4649362
+[119] J. Lee and K. H. Chon, “Respiratory rate extraction via an autoregressive model using the optimal parameter search criterion,” Ann. Biomed. Eng., vol. 38, no. 10, pp. 3218–3225, 2010. [Online]. Available: http://doi.org/10.1007/s10439-010-0080-9
+[120] J. Lee and K. H. Chon, “Time-varying autoregressive model-based multiple modes particle ﬁltering algorithm for respiratory rate extraction from pulse oximeter,” IEEE Trans. Biomed. Eng., vol. 58, no. 3, pp. 790– 794, 2011. [Online]. Available: http://doi.org/10.1109/TBME.2010. 2085437
+[121] J. Lee and K. H. Chon, “An autoregressive model-based particle ﬁltering algorithms for extraction of respiratory rates as high as 90 breaths per minute from pulse oximeter,” IEEE Trans. Biomed. Eng., vol. 57, no. 9, pp. 2158–2167, 2010. [Online]. Available: http://doi.org/10.1109/TBME.2010.2051330
+[122] J. Lee, J. P. Florian, and K. H. Chon, “Respiratory rate extraction from pulse oximeter and electrocardiographic recordings,” Physiol. Meas., vol. 32, no. 11, pp. 1763–1773, 2011. [Online]. Available: http://doi.org/10.1088/0967-3334/32/11/S04
+[123] M. Leier, G. Jervan, and W. Stork, “Respiration signal extraction from photoplethysmogram using pulse wave amplitude variation,” in Proc. Int. Conf. Commun., 2014, pp. 3535–3540. [Online]. Available: http://doi.org/10.1109/ICC.2014.6883869
+[124] P. Leonard et al., “Standard pulse oximeters can be used to monitor respiratory rate,” Emergency Med. J., vol. 20, no. 6, pp. 524–525, 2003. [Online]. Available: http://doi.org/10.1136/emj.20.6.524
+[125] P. A. Leonard et al., “An automated algorithm for determining respiratory rate by photoplethysmogram in children,” Acta Paediatrica, vol. 95, no. 9, pp. 1124–1128, 2006. [Online]. Available: http://doi.org/10.1080/08035250600612280
+[126] P. A. Leonard et al., “A fully automated algorithm for the determination of respiratory rate from the photoplethysmogram,” J. Clin. Monit. Comput., vol. 20, no. 1, pp. 33–36, 2006. [Online]. Available: http://doi.org/10.1007/s10877-005-9007-7
+[127] P. Leonard et al., “An algorithm for the detection of individual breaths from the pulse oximeter waveform,” J. Clin. Monit. Comput., vol. 18, no. 5–6, pp. 309–312, 2004. [Online]. Available: http://doi.org/10.1007/s10877-005-2697-z
+[128] N. N. Lepine et al., “Robust respiration rate estimation using adaptive Kalman ﬁltering with textile ECG sensor and accelerometer,” in Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 2016, pp. 3797–3800. [Online]. Available: http://doi.org/10.1109/EMBC.2016.7591555
+[129] D. Li, H. Zhao, and S. Dou, “A new signal decomposition to estimate breathing rate and heart rate from photoplethysmography signal,” Biomed. Signal Process. Control, vol. 19, pp. 89–95, 2015. [Online]. Available: http://doi.org/10.1016/j.bspc.2015.03.008
+[130] S. L. Lin, C. K. Chen, and C. S. Chien, “Implementation and validation of ECG-derived respiration with QRS characteristics,” Appl. Mech. Mater., vol. 479–480, pp. 457–462, 2013. [Online]. Available: http://doi.org/10.4028/www.scientiﬁc.net/AMM.479-480.457
+
+[131] Y.-D. Lin, Y.-H. Chien, and Y.-S. Chen, “Wavelet-based embedded algorithm for respiratory rate estimation from PPG signal,” Biomed. Signal Process. Control, vol. 36, pp. 138–145, 2017. [Online]. Available: http://doi.org/10.1016/j.bspc.2017.03.009
+[132] L. G. Lindberg, H. Ugnell, and P. A˚ . O¨ berg, “Monitoring of respiratory and heart rates using a ﬁbre-optic sensor,” Med. Biol. Eng. Comput., vol. 30, no. 5, pp. 533–537, 1992. [Online]. Available: http://doi.org/10.1007/BF02457833
+[133] G. Liu et al., “Automatic detection of respiratory rate from electrocardiogram, respiration induced plethysmography and 3D acceleration signals,” J. Central South Univ., pp. 2423–2431, 2013. [Online]. Available: http://doi.org/10.1007/s11771-013-1752-z
+[134] K. V. Madhav, E. H. Krishna, and K. A. Reddy, “Extraction of surrogate respiratory activity from pulse oximeter signals using SSA,” in Proc. Int. Conf. Elect., Electron., Optim. Techn., 2016, pp. 1717–1721. [Online]. Available: http://doi.org/10.1109/ICEEOT.2016.7754979
+[135] K. V. Madhav, E. H. Krishna, and K. A. Reddy, “Extraction of respiratory activity from pulse oximeter’s PPG signals using MSICA,” in Proc. Int. Conf. Wireless Commun., Signal Process. Netw., 2016, pp. 823–827. [Online]. Available: http://doi.org/10.1109/WiSPNET.2016.7566248
+[136] K. V. Madhav et al., “A model based method for deriving respiratory activity from photoplethysmographic signals,” in Proc. Int. Conf. Inf. Sci. Signal Process. Appl., 2010, pp. 312–315. [Online]. Available: http://doi.org/10.1109/ISSPA.2010.5605464
+[137] K. V. Madhav et al., “Use of multi scale PCA for extraction of respiratory activity from photoplethysmographic signals,” in Proc. IEEE Int. Instrum. Meas. Technol. Conf., 2012, pp. 1784–1787. [Online]. Available: http://doi.org/10.1109/I2MTC.2012.6229406
+[138] K. V. Madhav et al., “Extraction of respiratory activity from ECG and PPG signals using vector autoregressive model,” in Proc. Int. Symp. Med. Meas. Appl., 2012, pp. 1–4. [Online]. Available: http://doi.org/10.1109/MeMeA.2012.6226650
+[139] K. V. Madhav et al., “Extraction of respiration rate from ECG and BP signals using order reduced-modiﬁed covariance AR technique,” in Proc. Int. Congr. Image Signal Process., 2010, vol. 9, pp. 4059–4063. [Online]. Available: http://doi.org/10.1109/CISP.2010.5647507
+[140] K. V. Madhav et al., “Robust extraction of respiratory activity from PPG signals using modiﬁed MSPCA,” IEEE Trans. Instrum. Meas., vol. 62, no. 5, pp. 1094–1106, 2013. [Online]. Available: http://doi.org/10.1109/TIM.2012.2232393
+[141] K. V. Madhav, M. R. Ram, E. H. Krishna, N. R. Komalla, and K. A. Reddy, “Estimation of respiration rate from ECG, BP and PPG signals using empirical mode decomposition,” in Proc. IEEE Int. Instrum. Meas. Technol., 2011, pp. 1–4. [Online]. Available: http://doi.org/10.1109/IMTC.2011.5944249
+[142] K. V. Madhav, M. R. Ram, E. H. Krishna, K. Nagarjuna Reddy, and K. A. Reddy, “Extraction of respiratory activity from PPG and BP signals using principal component analysis,” in Proc. Int. Conf. Commun. Signal Process., 2011, pp. 452–456. [Online]. Available: http://doi.org/10.1109/ICCSP.2011.5739359
+[143] K. V. Madhav, M. R. Ram, E. H. Krishna, K. N. Reddy, and K. A. Reddy, “A robust signal processing method for extraction of respiratory activity from artifact corrupted PPG signal,” in Proc. IEEE Recent Adv. Intell. Comput. Syst., 2011, pp. 451–456. [Online]. Available: http://doi.org/10.1109/RAICS.2011.6069353
+[144] K. V. Madhav, M. R. Ram, E. H. Krishna, K. N. Reddy, and K. A. Reddy, “Estimation of respiratory rate from principal components of photoplethysmographic signals,” in Proc. IEEE EMBS Conf. Biomed. Eng. Sci., 2010, pp. 311–314. [Online]. Available: http://doi.org/10.1109/IECBES.2010.5742251
+[145] S. Mann and R. Orglmeister, “ECG, PPG and ABP sensor fusion for a PCA-based respiratory activity estimation,” Biomedizinische Technik, vol. 57, no. Suppl. 1, pp. 232–235, 2012. [Online]. Available: http://doi.org/10.1515/bmt-2012-4207
+[146] C. Mason and L. Tarassenko, “Quantitative assessment of respiratory derivation algorithms,” in Proc. Conf Proc. 23rd Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 2001, pp. 1998–2001. [Online]. Available: http://doi.org/10.1109/IEMBS.2001.1020622
+[147] B. Mazzanti, C. Lamberti, and J. de Bie, “Validation of an ECG-derived respiration monitoring method,” in Proc. Comput. Cardiol., 2003, pp. 613–616. [Online]. Available: http://doi.org/10.1109/CIC.2003.1291230
+[148] O. Meste, G. Blain, and S. Bermon, “Analysis of the respiratory and cardiac systems coupling in pyramidal exercise using a time-varying model,” in Proc. Comput. Cardiol., 2002, pp. 429–432. [Online]. Available: http://doi.org/10.1109/CIC.2002.1166801
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+17
+
+[149] M. Mestek et al., “Accuracy of continuous noninvasive respiratory rate derived from pulse oximetry in chronic obstructive pulmonary disease patients,” Chest, vol. 142, no. 4, 2012. [Online]. Available: http://doi.org/10.1378/chest.1390308
+[150] M. Mestek et al., “Accuracy of continuous noninvasive respiratory rate derived from pulse oximetry in congestive heart failure patients,” Chest, vol. 142, no. 4, p. 113A, 2012. [Online]. Available: http://doi.org/10.1378/chest.1390275
+[151] M. Mestek et al., “Accuracy of continuous non-invasive respiratory rate derived from pulse oximetry in the post-anesthesia care unit,” in Proc. Anesthesiology Annu. Meeting, Amer. Soc. Anesthesiologists, Schaumburg, IL, USA, 2012. [Online]. Available: http://www.asaabstracts.com/strands/asaabstracts/abstract.htm%20%20? year=2012&index=8&absnum=5031
+[152] L. Mirmohamadsadeghi et al., “Real-time respiratory rate estimation using imaging photoplethysmography inter-beat intervals,” in Proc. Comput. Cardiol., 2016, pp. 861–864. [Online]. Available: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7868879
+[153] L. Mirmohamadsadeghi and J.-M. Vesin, “Real-time multi-signal frequency tracking with a bank of notch ﬁlters to estimate the respiratory rate from the ECG,” Physiol. Meas., vol. 37, no. 9, pp. 1573–1587, 2016. [Online]. Available: http://doi.org/10.1088/0967-3334/37/9/1573
+[154] L. Mirmohamadsadeghi and J.-M. Vesin, “Estimating the real-time respiratory rate from the ECG with a bank of notch ﬁlters,” in Proc. Comput. Cardiol., 2015, pp. 581–584. [Online]. Available: http://doi.org/10.1109/CIC.2015.7410977
+[155] L. Mirmohamadsadeghi and J.-M. Vesin, “Respiratory rate estimation from the ECG using an instantaneous frequency tracking algorithm,” Biomed. Signal Process. Control, vol. 14, pp. 66–72, 2014. [Online]. Available: http://doi.org/10.1016/j.bspc.2014.07.003
+[156] M. Momot et al., “Estimation of respiratory rate based on ECG signal using regression coefﬁcients and spectral analysis,” in Proc. 14th Int. Conf. Biomed. Eng, Kaunas, Lithuania, 2010, pp. 49–52.
+[157] M. A. Motin, C. Karmakar, and M. Palaniswami, “Ensemble empirical mode decomposition with principal component analysis: A novel approach for extracting respiratory rate and heart rate from photoplethysmographic signal,” IEEE J. Biomed. Health Informat., to be published. [Online]. Available: http://doi.org/10.1109/JBHI.2017. 2679108
+[158] M. A. Motin, C. K. Karmakar, and M. Palaniswami, “An EEMDPCA approach to extract heart rate, respiratory rate and respiratory activity from PPG signal,” in Proc. Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 2016, pp. 3817–3820. [Online]. Available: http://doi.org/10.1109/EMBC.2016.7591560
+[159] K. Nakajima, T. Tamura, and H. Miike, “Monitoring of heart and respiratory rates by photoplethysmography using a digital ﬁltering technique,” Med. Eng. Phys., vol. 18, no. 5, pp. 365–372, 1996. [Online]. Available: http://doi.org/10.1016/1350-4533(95)00066-6
+[160] K. Nakajima, T. Tamura, T. Ohta, H. Miike, and P. A. Oberg, “Photoplethysmographic measurement of heart and respiratory rates using digital ﬁlters,” in Proc. Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 1993, vol. 18, no. 5, pp. 1006–1007. [Online]. Available: http://doi.org/10.1109/IEMBS.1993.978978
+[161] A. Nayan, N. Risman, and R. Jaafar, “Breathing rate estimation from a single-lead electrocardiogram acquisition system,” Int. J. Appl. Eng. Res., vol. 10, no. 17, pp. 38 154–38 158, 2015. [Online]. Available: http://nazrulanuar.com/author/wp-content/uploads/2011/12/2 38813IJAER-ok-38154-38158.pdf
+[162] N. A. Nayan, N. S. Risman, and R. Jaafar, “A portable respiratory rate estimation system with a passive single-lead electrocardiogram acquisition module,” Technol. Health Care, vol. 24, pp. 591–597, 2016. [Online]. Available: http://doi.org/10.3233/THC-161145
+[163] S. Nemati, A. Malhotra, and G. D. Clifford, “Data fusion for improved respiration rate estimation,” EURASIP J. Adv. Signal Process., vol. 2010, 2010. [Online], Art. no. 926 305. Available: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2929127/
+[164] L. Nilsson, A. Johansson, and S. Kalman, “Monitoring of respiratory rate in postoperative care using a new photoplethysmographic technique,” J. Clin. Monit. Comput., vol. 16, no. 4, pp. 309–315, 2000. [Online]. Available: http://doi.org/10.1023/A:1011424732717
+[165] M. Noriega, E. Carcases, K. Duran, E. J. Maran, J. P. Martnez, and R. Almeida, “Respiratory rate estimation from multilead directions, based on ECG delineation,” in Proc. Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 2016, pp. 3813–3816. [Online]. Available: http://doi.org/10.1109/EMBC.2016.7591559
+
+[166] M. Noriega et al., “Instantaneous respiratory rate estimation from multilead ECG delineation using VCG directions on ﬁducial points,” in Proc. Comput. Cardiol. Conf., 2016, pp. 397–400. [Online]. Available: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7868763
+[167] E. Olsson et al., “Photoplethysmography for simultaneous recording of heart and respiratory rates in newborn infants,” Med. Biol. Eng. Comput., vol. 34, no. Suppl. 1, p. 277, 1996. [Online]. Available: https://www.ncbi.nlm.nih.gov/pubmed/10943970
+[168] M. Orini et al., “Estimation of spontaneous respiratory rate from photoplethysmography by cross time-frequency analysis,” in Proc. Comput. Cardiol., 2011, pp. 661–664. [Online]. Available: http:// ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=6164652& contentType=Conference+Publications
+[169] C. Orphanidou et al., “Data fusion for estimating respiratory rate from a single-lead ECG,” Biomed. Signal Process. Control, vol. 8, no. 1, pp. 98–105, 2013. [Online]. Available: http://doi.org/10.1016/j.bspc.2012.06.001
+[170] C. Orphanidou, “Derivation of respiration rate from ambulatory ECG and PPG using ensemble empirical mode decomposition: Comparison and fusion,” Comput. Biol. Med., vol. 81, pp. 45–54, Feb. 2017. [Online]. Available: http://doi.org/10.1016/j.compbiomed.2016.12.005
+[171] C. Orphanidou et al., “Spectral fusion for estimating respiratory rate from the ECG,” in Proc. Int. Conf. Inf. Technol. Appl. Biomed., 2009, pp. 1–4. [Online]. Available: http://doi.org/10.1109/ITAB.2009.5394435
+[172] R. Paamand et al., “Reliable monitoring of respiration rate with reﬂectance-mode photoplethysmography,” Clin. Neurophysiol., vol. 125, no. 2014, pp. S177–S178, 2014. [Online]. Available: http://doi.org/10.1016/S1388-2457(14)50581-0
+[173] C. Park and B. Lee, “Real-time estimation of respiratory rate from a photoplethysmogram using an adaptive lattice notch ﬁlter,” Biomed. Eng. OnLine, vol. 13, 2014, Art. no. 170. [Online]. Available: http://doi.org/10.1186/1475-925X-13-170
+[174] S.-B. Park et al., “An improved algorithm for respiration signal extraction from electrocardiogram measured by conductive textile electrodes using instantaneous frequency estimation,” Med. Biol. Eng. Comput., vol. 46, no. 2, pp. 147–58, 2008. [Online]. Available: http://doi.org/10.1007/s11517-007-0302-y
+[175] R. Pehrson and A. Bulhak, “Respiration rate derived from ECG in dogs,” J. Pharmacol. Toxicol. Methods, vol. 66, no. 2, p. 183, 2012. [Online]. Available: http://doi.org/10.1016/j.vascn.2012.08.086
+[176] M. D. Pela´ez-Coca et al., “Cross time-frequency analysis for combining information of several sources: Application to estimation of spontaneous respiratory rate from photoplethysmography,” Comput. Math. Methods Med., vol. 2013, 2013, Art. no. 631 978. [Online]. Available: http://doi.org/10.1155/2013/631978
+[177] M. A. F. Pimentel et al., “Probabilistic estimation of respiratory rate using Gaussian processes,” in Proc. Conf. Proc. IEEE Eng. Med. Biol. Soc., 2013, pp. 2902–2905. [Online]. Available: http://doi.org/10.1109/EMBC.2013.6610147
+[178] B. Prathyusha, T. Rao, and D. Asha, “Extraction of respiratory rate from PPG signals using PCA and EMD,” Int. J. Res. Eng. Technol., vol. 1, no. 2, pp. 164–184, 2012. [Online]. Available: http://esatjournals.net/ijret/2012v01/i02/IJRET20120102016.pdf
+[179] K. Rajkumar and K. Ramya, “Respiration rate diagnosis using single lead ECG in real time,” Global J. Med. Res., vol. 13, no. 1, pp. 7–11, 2013. [Online]. Available: http://www.medicalresearchjournal. org/index.php/GJMR/article/view/315
+[180] R. Ruangsuwana, G. Velikic, and M. Bocko, “Methods to extract respiration information from ECG signals,” in Proc. Int. Conf. Acoust., Speech Signal Process, 2010, pp. 570–573. [Online]. Available: http://doi.org/10.1109/ICASSP.2010.5495584
+[181] M. Sakai, X. Zhu, Y. Yoshida, and D. Wei, “Development of lead system for ECG-derived respiration aimed at detection of obstructive sleep apnea syndrome,” in Proc. Int. Conf. Signal-Image Technol. Internet-Based Syst., 2013, pp. 971–975. [Online]. Available: http://doi.org/10.1109/SITIS.2013.157
+[182] J. Salinger et al., “Measurement of breathing frequency from ECG in the examination of autonomous nervous system activities: suggested methods and their veriﬁcation,” Acta Univ. Palacki. Olomuc., vol. 35, no. 2, pp. 95–103, 2005. [Online]. Available: https://www.gymnica.upol.cz/pdfs/gym/2005/02/12.pdf
+[183] S. Sarkar, S. Bhattacherjee, and S. Pal, “Extraction of respiration signal from ECG for respiratory rate estimation,” in Proc. Michael Faraday IET Int. Summit 2015, 2015, pp. 336–340. [Online]. Available: http://doi.org/10.1049/cp.2015.1654
+
+18
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+[184] A. Scha¨fer and K. W. Kratky, “Estimation of breathing rate from respiratory sinus arrhythmia: comparison of various methods,” Ann. Biomed. Eng., vol. 36, no. 3, pp. 476–485, 2008. [Online]. Available: http://doi.org/10.1007/s10439-007-9428-1
+[185] M. Schmidt et al., “ECG derived respiration: comparison of timedomain approaches and application to altered breathing patterns of patients with schizophrenia,” Physiol. Meas., vol. 38, no. 4, pp. 601–615, Apr. 2017. [Online]. Available: http://doi.org/10.1088/1361-6579/aa5feb
+[186] N. Selvaraj and K. H. Chon, “Algorithms for real-time detection of motion artifacts and accurate estimation of respiratory rates using pulse oximeter.” [Online]. Available: http://www.wpi.edu/Images/CMS/ECE/ Selvaraj-Poster.pdf
+[187] R. Sethi et al., “Comparison of respiration rate derived from pulse oximetry and transthoracic impedance,” Eur. J. Anaesthesiology, vol. 31, pp. 30–31, 2014. [Online]. Available: http://journals.lww.com/ ejanaesthesiology/Fulltext/2014/06001/Comparison of respiration rate derived from pulse.85.aspx
+[188] S. A. Shah et al., “Continuous measurement of respiration rate using the photoplethysmogram and the electrocardiogram,” in Proc. UK RI Postgraduate Conf. Biomed. Eng. Med. Phys., 2009, pp. 11–12. [Online]. Available: http://openwetware.org/ images/5/5b/Pgbiomed1.pdf#page=24
+[189] S. A. Shah et al., “Respiratory rate estimation during triage of children in hospitals,” J. Med. Eng. Technol., vol. 39, no. 8, pp. 514–524, 2015. [Online]. Available: http://doi.org/10.3109/03091902.2015.1105316
+[190] H. Sharma, K. Sharma, and O. L. Bhagat, “Respiratory rate extraction from single-lead ECG using homomorphic ﬁltering,” Comput. Biol. Med., vol. 59, pp. 80–86, 2015. [Online]. Available: http://doi.org/10.1016/j.compbiomed.2015.01.024
+[191] A. Shayei, S. P. Ehsani, and M. Shabany, “Efﬁcient implementation of real-time ECG derived respiration system using cubic spline interpolation,” in Proc. IEEE Int. Symp. Circuits Syst., 2013, pp. 1083–1086. [Online]. Available: http://doi.org/10.1109/ISCAS.2013.6572038
+[192] K. H. Shelley et al., “The use of joint time frequency analysis to quantify the effect of ventilation on the pulse oximeter waveform,” J. Clin. Monit. Comput., vol. 20, no. 2, pp. 81–87, 2006. [Online]. Available: http://doi.org/10.1007/s10877-006-9010-7
+[193] E. F. Sierra-Alonso, L. M. Sep, and R. Bail, “Estimating respiratory frequency from HRV during treadmill exercise testing,” in Proc. Comput. Cardiol. Conf., 2013, pp. 121–124. [Online]. Available: http://ieeexplore.ieee.org/document/6712426/?reload=true&arnumber= 6712426
+[194] R. Singhathip et al., “Extracting respiration rate from ECG raw signals,” Biomed. Eng., Appl., Basis Commun., vol. 22, no. 4, pp. 307–314, 2010. [Online]. Available: http://doi.org/10.4015/S1016237210002079
+[195] D. Sinnecker et al., “Assessment of mean respiratory rate from ECG recordings for risk stratiﬁcation after myocardial infarction,” J. Electrocardiol., vol. 47, no. 5, pp. 700–704, 2014. [Online]. Available: http://doi.org/10.1016/j.jelectrocard.2014.04.021
+[196] A. Sobron, I. Romero, and T. Lopetegi, “Evaluation of methods for estimation of respiratory frequency from the ECG,” in Proc. Comput. Cardiol., 2010, pp. 513–516. [Online]. Available: http:// ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=5738022& contentType=Conference+Publications
+[197] L. Sohrt-Petersen, “Evaluation of algorithms for ECG derived respiration in the context of heart rate variability studies,” Master’s thesis, Aalborg Univ., Aalborg, Denmark, 2013. [Online]. Available: http://projekter.aau.dk/projekter/ﬁles/176767860/Speciale.pdf
+[198] K. T. Sweeney et al., “Employing ensemble empirical mode decomposition for artifact removal: extracting accurate respiration rates from ECG data during ambulatory activity,” in Proc. 35th Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 2013, pp. 977–980. [Online]. Available: http://doi.org/10.1109/EMBC.2013.6609666
+[199] J. Thayer, J. J. Sollers, E. Ruiz-Padial, and J. Vila, “Estimating respiratory frequency from autoregressive spectral analysis of heart period,” IEEE Eng. Med. Biol. Mag., vol. 21, no. 4, pp. 41–45, Jul./Aug. 2002. [Online]. Available: http://doi.org/10.1109/MEMB.2002.1032638
+[200] H. R. W. Touw et al., “Photoplethysmography respiratory rate monitoring in patients receiving procedural sedation and analgesia for upper gastrointestinal endoscopy,” J. Clin. Monit. Comput., vol. 31, no. 4, pp. 747–754, 2017. [Online]. Available: http://doi.org/10.1007/s10877-016-9890-0
+[201] H. Ugnell, L.-G. Lindberg, and P. Oberg, “Monitoring of heart- and respiration rates using a ﬁber optic sensor,” in Proc. Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 1991, vol. 13, pp. 1566–1567. [Online]. Available: http://doi.org/10.1109/IEMBS.1991.684640
+
+[202] M. Varanini et al., “Adaptive ﬁltering of ECG signal for deriving respiratory activity,” in Proc. Comput. Cardiol., 1991, pp. 621–624. [Online]. Available: http://doi.org/10.1109/CIC.1990.144296
+[203] M. Vegfors et al., “Experimental evaluation of two new sensors for respiratory rate monitoring,” Physiol. Meas., vol. 14, no. 2, pp. 171– 181, 1993. [Online]. Available: http://doi.org/10.1088/0967-3334/14/2/ 008
+[204] N. Vinh et al., “Comparison of two methods for demodulation of pulse signals—Application in case of central sleep apnea,” J. Sci. Technol., vol. 49, no. 1, 2011. [Online]. Available: https://hal.archives-ouvertes.fr/hal-00673701/document
+[205] C. Wang, Z. Li, and X. Wei, “Monitoring heart and respiratory rates at radial artery based on PPG,” Optik, Int. J. Light Electron. Opt., vol. 124, no. 19, pp. 3954–3956, 2013. [Online]. Available: http://doi.org/10.1016/j.ijleo.2012.11.044
+[206] E. H. Weiss et al., “An optimized method for the estimation of the respiratory rate from electrocardiographic signals: Implications for estimating minute ventilation,” Amer. J. Physiol., Heart Circulatory Physiol., vol. 307, no. 3, pp. H437–H447, 2014. [Online]. Available: http://doi.org/10.1152/ajpheart.00039.2014
+[207] S. M. Wendelken et al., “Monitoring respiration rate in PACU patients using the plethysmogram from a pulse oximeter,” in Proc. Soc. Technol. Anesthesia, vol. 3, no. 4, 2005, Paper 89. [Online]. Available: http://www.ists.dartmouth.edu/library/85.pdf
+[208] D. Wertheim et al., “Extracting respiratory data from pulse oximeter plethysmogram traces in newborn infants,” Arch. Disease Childhood, Fetal Neonatal Ed., vol. 94, no. 4, pp. F301–F303, 2009. [Online]. Available: http://doi.org/10.1136/adc.2008.145342
+[209] D. Wertheim et al., “Monitoring respiration in wheezy preschool children by pulse oximetry plethysmogram analysis,” Med. Biol. Eng. Comput., vol. 51, no. 9, pp. 965–970, 2013. [Online]. Available: http://doi.org/10.1007/s11517-013-1068-z
+[210] D. Widjaja et al., “ECG-derived respiration: comparison and new measures for respiratory variability,” in Proc. Comput. Cardiol., 2010, pp. 149–1452. [Online]. Available: http://ieeexplore.ieee.org/xpl/ articleDetails.jsp?tp=&arnumber=5737931&contentType=Conference +Publications
+[211] B. F. Womack, “The analysis of respiratory sinus arrhythmia using spectral analysis and digital ﬁltering,” IEEE Trans. Biomed. Eng., vol. BME-18, no. 6, pp. 399–409, Nov. 1971. [Online]. Available: http://doi.org/10.1109/TBME.1971.4502881
+[212] D. Wu, M. Y. M. Wong, and Y.-T. Zhang, “The accuracy of respiratory rate estimation using electrocardiography and photoplethysmography,” in Proc. IEEE Int. Conf. Inf. Technol. Appl. Biomed., 2010, pp. 1–3. [Online]. Available: http://doi.org/10.1109/ITAB.2010.5687633
+[213] D. Wu et al., “Automatic estimation of respiratory rate from pulse transit time in normal subjects at rest,” in Proc. IEEE Eng. Med. Biol. Soc. Int. Conf. Biomed. Health Informat., 2012, vol. 25, pp. 779–781. [Online]. Available: http://doi.org/10.1109/BHI.2012.6211699
+[214] B. Yang and K. H. Chon, “A novel approach to monitor nonstationary dynamics in physiological signals: Application to blood pressure, pulse oximeter, and respiratory data,” Ann. Biomed. Eng., vol. 38, no. 11, pp. 3478–3488, 2010. [Online]. Available: http://doi.org/10.1007/s10439-010-0090-7
+[215] W. Yi and K. Park, “Derivation of respiration from ECG measured without subject’s awareness using wavelet transform,” in Proc. Eng. Med. Biol. Soc., 2002, pp. 130–131. [Online]. Available: http://doi.org/10.1109/IEMBS.2002.1134420
+[216] C. Yi-Hsin, W. Hau-Tieng, and H. Shu-Shya, “ECG-derived respiration and instantaneous frequency based on the synchrosqueezing transform: application to patients with atrial ﬁbrillation,” 2011. [Online]. Available: https://arxiv.org/vc/arxiv/papers/1105/1105.1571v1.pdf
+[217] Y. Yoshida, K. Yokoyama, and N. Ishii, “Real-time continuous estimation of respiratory frequency during sleep based on heart rate time series,” in Proc. Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 2007, pp. 648–651. [Online]. Available: http://doi.org/10.1109/IEMBS.2007.4352373
+[218] T. Yoshimura et al., “An ECG electrode-mounted heart rate, respiratory rhythm, posture and behavior recording system,” in Proc. Conf. Proc. IEEE Eng. Med . Biol. Soc., 2004, pp. 2373–2374. [Online]. Available: http://doi.org/10.1109/IEMBS.2004.1403687
+[219] R. Youseﬁ and M. Nourani, “Separating arterial and venous-related components of photoplethysmographic signals for accurate extraction of oxygen saturation and respiratory rate,” IEEE J. Biomed. Health Informat., vol. 19, no. 3, pp. 848–857, 2015. [Online]. Available: http://doi.org/10.1109/JBHI.2014.2334697
+
+CHARLTON et al.: BREATHING RATE ESTIMATION FROM THE ELECTROCARDIOGRAM
+
+19
+
+[220] N. A. Zainudin et al., “Respiratory rate of photoplethysmogram signal from anaesthetic patients,” in Proc. IEEE Symp. Comput. Appl. Ind. Electron., 2015, pp. 171–174. [Online]. Available: http://doi.org/10.1109/ISCAIE.2015.7298350
+[221] X. Zhang and Q. Ding, “Fast respiratory rate estimation from PPG signal using sparse signal reconstruction based on orthogonal matching pursuit,” in Proc. 2016 50th Asilomar Conf. Signals, Syst. Comput., 2016, pp. 1631–1635. [Online]. Available: http://doi.org/10.1109/ACSSC.2016.7869656
+[222] X. Zhang and Q. Ding, “Respiratory rate estimation from the photoplethysmogram via joint sparse signal reconstruction and spectra fusion,” Biomed. Signal Process. Control, vol. 35, pp. 1–7, 2017. [Online]. Available: http://doi.org/10.1016/j.bspc.2017.02.003
+[223] X. Zhang and Q. Ding, “Respiratory rate monitoring from the photoplethysmogram via sparse signal reconstruction,” Physiol. Meas., vol. 37, no. 7, pp. 1105–1119, 2016. [Online]. Available: http://doi.org/10.1088/0967-3334/37/7/1105
+[224] L. Zhao, S. Reisman, and T. Findley, “Derivation of respiration from electrocardiogram during heart rate variability studies,” in Proc. Comput. Cardiol., 1994, pp. 53–56. [Online]. Available: http://doi.org/10.1109/CIC.1994.470251
+[225] L. Zhao, S. Reisman, and T. Findley, “Respiration derived from the electrocardiogram during heart rate variability studies,” in Proc. Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 1994, pp. 123–124. [Online]. Available: http://doi.org/10.1109/IEMBS.1994. 412074
+[226] T. Zhu et al., “Bayesian fusion of algorithms for the robust estimation of respiratory rate from the photoplethysmogram,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 2015, pp. 6138–6141. [Online]. Available: http://doi.org/10.1109/EMBC.2015.7319793
+[227] D. Widjaja et al., “Application of kernel principal component analysis for single-lead-ECG-derived respiration,” IEEE Trans. Biomed. Eng., vol. 59, no. 4, pp. 1169–1176, Apr. 2012. [Online]. Available: http://doi.org/10.1109/TBME.2012.2186448
+[228] R. D. Berger et al., “An efﬁcient algorithm for spectral analysis of heart rate variability,” IEEE Trans. Biomed. Eng., vol. BME-33, no. 9, pp. 900–904, Sep. 1986. [Online]. Available: http://doi.org/10.1109/TBME.1986.325789
+[229] R. Bailo´n et al., “The integral pulse frequency modulation model with time-varying threshold: Application to heart rate variability analysis during exercise stress testing.” IEEE Trans. Biomed. Eng., vol. 58, no. 3, pp. 642–652, Mar. 2011. [Online]. Available: http://doi.org/10.1109/TBME.2010.2095011
+[230] S. Fleming et al., “Normal ranges of heart rate and respiratory rate in children from birth to 18 years of age: a systematic review of observational studies,” Lancet, vol. 377, no. 9770, pp. 1011–1018, 2011. [Online]. Available: http://doi.org/10.1016/S0140-6736(10)62226-X
+[231] C. Orphanidou, T. Bonnici, P. Charlton, D. Clifton, D. Vallance, and L. Tarassenko, “Signal-quality indices for the electrocardiogram and photoplethysmogram: Derivation and applications to wireless monitoring,” IEEE J. Biomed. Health Informat., vol. 19, no. 3, pp. 832–838, May 2015. [Online]. Available: http://doi.org/10.1109/JBHI.2014.2338351
+[232] D. Birrenkott et al., “A robust fusion model for estimating respiratory rate from photoplethysmography and electrocardiography,” to be published.
+[233] F. Yasuma and J. I. Hayano, “Respiratory sinus arrhythmia: Why does the heartbeat synchronize with respiratory rhythm?” Chest, vol. 125, no. 2, pp. 683–690, 2004. [Online]. Available: http://doi.org/10.1378/chest.125.2.683
+[234] M. Saeed et al., “Multiparameter intelligent monitoring in intensive care II: A public-access intensive care unit database,” Crit. Care Med., vol. 39, no. 5, pp. 952–960, 2011. [Online]. Available: http://doi.org/10.1097/CCM.0b013e31820a92c6
+[235] J. Welch et al., “The Massachusetts General Hospital-Marquette Foundation Hemodynamic and Electrocardiographic Database— Comprehensive collection of critical care waveforms,” J. Clin. Monit., vol. 7, no. 1, pp. 96–97, 1991.
+[236] G. Moody and R. Mark, “A database to support development and evaluation of intelligent intensive care monitoring,” in Proc. Comput. Cardiol., 1996, pp. 657–660. [Online]. Available: http://doi.org/10.1109/CIC.1996.542622
+[237] N. Iyengar et al., “Age-related alterations in the fractal scaling of cardiac interbeat interval dynamics,” Amer. J. Physiol., vol. 271, no. 4 Pt 2, pp. R1078–R1084, 1996. [Online]. Available: http://ajpregu.physiology.org/content/271/4/R1078
+
+[238] A. L. Goldberger et al., “PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals,” Circulation, vol. 101, no. 23, pp. E215–E220, 2000. [Online]. Available: http://doi.org/10.1161/01.CIR.101.23.e215
+[239] M. A. Garc´ıa-gonza´lez et al., “A comparison of heartbeat detectors for the seismocardiogram,” in Proc Comput. Cardiol., 2013, pp. 461–464. [Online]. Available: http://ieeexplore.ieee.org/document/6713413/
+[240] F. Pinciroli et al., “A respiration-related EKG database,” in Proc. Comput. Cardiol., 1988, pp. 477–480. [Online]. Available: http://doi.org/10.1109/CIC.1988.72664
+[241] Y. Ichimaru and G. B. Moody, “Development of the polysomnographic database on CD-ROM,” Psychiatry Clin. Neurosci., vol. 53, no. 2, pp. 175–177, 1999. [Online]. Available: http://doi.org/10.1046/ j.1440-1819.1999.00527.x
+[242] T. Penzel et al., “The apnea-ECG database,” in Proc Comput. Cardiol., 2000, pp. 255–258. [Online]. Available: http://doi.org/ 10.1109/CIC.2000.898505
+[243] Portland State University Biomedical Signal Processing Lab, “Traumatic brain injury data,” [Online]. Available: https://www.pdx.edu/ biomedical-signal-processing-lab/traumatic-brain-injury-data
+[244] P. D. Larsen et al., “Spectral analysis of AC and DC components of the pulse photoplethysmograph at rest and during induction of anaesthesia,” Int. J. Clin. Monit. Comput., vol. 14, no. 2, pp. 89–95, 1997. [Online]. Available: http://doi.org/10.1007/BF03356582
+[245] L. Nilsson et al., “Combined photoplethysmographic monitoring of respiration rate and pulse: A comparison between different measurement sites in spontaneously breathing subjects,” Acta Anaesthesiologica Scandinavica, vol. 51, no. 9, pp. 1250–1257, 2007. [Online]. Available: http://doi.org/10.1111/j.1399-6576.2007.01375.x
+[246] K. H. Shelley et al., “What is the best site for measuring the effect of ventilation on the pulse oximeter waveform?” Anesthesia Analgesia, vol. 103, no. 2, pp. 372–377, 2006. [Online]. Available: http://doi.org/10.1213/01.ane.0000222477.67637.17
+[247] H. Ugnell, “The respiratory synchronous photoplethysmographic signal. Its dependence on tight wavelength and sample volume,” in Proc. Conf. Proc. Eng. Med. Biol. Soc., 1996, pp. 275–276. [Online]. Available: http://www.isbem.org/conf/1996/1996nbc/1-4-1-03.pdf
+[248] M. Klum et al., “Minimally spaced electrode positions for multifunctional chest sensors: ECG and respiratory signal estimation,” Current Directions Biomed. Eng., vol. 2, no. 1, pp. 695–699, 2016. [Online]. Available: http://doi.org/10.1515/cdbme-2016-0151
+[249] N. Selvaraj, “Long-term remote monitoring of vital signs using a wireless patch sensor,” in IEEE Healthcare Innov. Conf., 2014, pp. 83–86. [Online]. Available: http://doi.org/10.1109/HIC.2014.7038880
+[250] C. O’Brien and C. Heneghan, “A comparison of algorithms for estimation of a respiratory signal from the surface electrocardiogram,” Comput. Biol. Med., vol. 37, no. 3, pp. 305–314, Mar. 2007. [Online]. Available: http://doi.org/10.1016/j.compbiomed.2006.02.002
+[251] T. Yilmaz, R. Foster, and Y. Hao, “Detecting vital signs with wearable wireless sensors,” Sensors, vol. 10, no. 12, pp. 10 837–10 862, 2010. [Online]. Available: http://doi.org/10.3390/s101210837
+[252] M. Młyn´czak and G. Cybulski, “Impedance pneumography: is it possible?” in Photonics Applications in Astronomy, Communications, Industry, and High-Energy Physics Experiments 2012, vol. 8454, R. S. Romaniuk, Ed. Wilga, Poland: SPIE, 2012, p. 84541T. [Online]. Available: http://doi.org/10.1117/12.2000223
+[253] B. G. Goudra, “Comparison of acoustic respiration rate, impedance pneumography and capnometry monitors for respiration rate accuracy and apnea detection during GI endoscopy anesthesia,” Open J. Anesthesiol., vol. 3, pp. 74–79, 2013. [Online]. Available: http://doi.org/10.4236/ojanes.2013.32019
+[254] C. Orphanidou et al., “Telemetry-based vital sign monitoring for ambulatory hospital patients,” in Proc. Annu. Int. Conf. IEEE Eng. Med. Biol. Soc., 2009, pp. 4650–4653. [Online]. Available: http://doi.org/10.1109/IEMBS.2009.5332649
+[255] S. Lapi et al., “Respiratory rate assessments using a dual-accelerometer device,” Respiratory Physiol. Neurobiol., vol. 191, no. 1, pp. 60–66, 2014. [Online]. Available: http://doi.org/10.1016/j.resp.2013.11.003
+[256] M. Cvach, “Monitor alarm fatigue: an integrative review,” Biomed. Instrum. Technol., vol. 46, no. 4, pp. 268–277, 2012. [Online]. Available: http://doi.org/10.2345/0899-8205-46.4.268
+[257] V. Nangalia, D. R. Prytherch, and G. B. Smith, “Health technology assessment review: Remote monitoring of vital signs—Current status and future challenges,” Crit. Care, vol. 14, no. 5, p. 233, 2010. [Online]. Available: http://doi.org/10.1186/cc9208
+
+20
+
+IEEE REVIEWS IN BIOMEDICAL ENGINEERING, VOL. 11, 2018
+
+[258] S. A. Shah et al., “Exacerbations in chronic obstructive pulmonary disease: Identiﬁcation and prediction using a digital health system,” J. Med. Internet Res., vol. 19, no. 3, 2017, Art. no. e69. [Online]. Available: http://doi.org/10.2196/jmir.7207
+[259] F. Zhao et al., “Remote measurements of heart and respiration rates for telemedicine.” PloS One, vol. 8, no. 10, Jan. 2013, Art. no. e71384. [Online]. Available: http://doi.org/10.1371/journal.pone.0071384
+[260] T. Bonnici et al., “Testing of Wearable Monitors in a Real-World Hospital Environment: What Lessons Can Be Learnt?” in Proc. 2012 9th Int. Conf. Wearable Implantable Body Sensor Netw., 2012, pp. 79–84. [Online]. Available: http://doi.org/10.1109/BSN.2012.31
+[261] M. V. Pitzalis et al., “Respiratory systolic pressure variability during atrial ﬁbrillation and sinus rhythm,” Hypertension, vol. 34, no. 5, pp. 1060–1065, 1999. [Online]. Available: http://doi.org/10.1161/01.HYP.34.5.1060
+[262] M. Dommasch et al., “Nocturnal respiratory rate predicts non-sudden cardiac death in survivors of acute myocardial infarction,” J. Amer. College Cardiol., vol. 63, no. 22, pp. 2432–2433, 2014. [Online]. Available: http://doi.org/10.1016/j.jacc.2014.02.525
+
+Timothy Bonnici’s, photograph and biography not available at the time of publication.
+Marco A. F. Pimentel’s, photograph and biography not available at the time of publication.
+Alistair E. W. Johnson’s, photograph and biography not available at the time of publication.
+Jordi Alastruey’s, photograph and biography not available at the time of publication.
+
+Peter H. Charlton received the M.Eng. degree in engineering science from the University of Oxford, Oxford, U.K., and the Ph.D. degree in bioinformatics from King’s College London, London, U.K. in 2010 and 2017, respectively
+His thesis focused on continuous BR monitoring to detect clinical deterioration using wearable sensors. He is an Investigator on two national clinical trials investigating the performance and clinical utility of BR algorithms. His current research focuses on assessment of arterial stiffness through pulse wave analysis.
+
+Lionel Tarassenko’s, photograph and biography not available at the time of publication.
+Peter J. Watkinson’s, photograph and biography not available at the time of publication.
+Richard Beale’s, photograph and biography not available at the time of publication.
+
+Drew A. Birrenkott’s, photograph and biography not available at the David A. Clifton’s, photograph and biography not available at the time
+
+time of publication.
+
+of publication.
+

@@ -1,0 +1,2493 @@
+Pedro Miguel Caridade Gomes
+Student No.: 2078186
+Development of an Open-Source Python Toolbox for Heart Rate
+Variability (HRV)
+Thesis submitted to the University of Applied Sciences Hamburg for the degree of
+Master in Biomedical Engineering
+Supervisors: Prof. Dr. Petra Margaritoﬀ, University of Applied Sciences Hamburg Hugo Silva, PhD, PLUX wireless biosignals, S.A. and IT - Instituto de Telecomunicac¸˜oes
+Hamburg, 2018
+
+This work was supported by:
+Faculty Life Sciences | Department of Biomedical Engineering Ulmenliet 20 | 21033 Hamburg | Germany
+Av. 5 de Outubro, 70-8 | 1050-059 Lisbon | Portugal
+Instituto Superior T´ecnico - Torre Norte - Piso 10 Av. Rovisco Pais, 1 | 1049 - 001 Lisboa | Portugal
+i
+
+This copy of the thesis has been supplied on condition that anyone who consults it is understood to recognize that its copyright rests with its author and that no quotation from the thesis and no information derived from it may be published without proper acknowledgement.
+ii
+
+Development of an Open-Source Python Toolbox for Heart Rate Variability (HRV) Pedro Miguel Caridade Gomes
+Abstract
+Heart Rate Variability (HRV) is a continuously growing research sector, for which an increasing number of new measures have been introduced over the recent decades. For this reason, many software tools have been developed to support researchers of this sector. However, closed-source tools prevent source code access to developers, while many open-source solutions face diﬀerent issues, such as limited methods of HRV feature extraction, lack of technical documentation, or support for less mainstream programming languages. The goal of this work is to provide a fully open-source Python 2.7 toolbox named pyHRV for HRV research and application development.
+The implementation of this toolbox is supported by several open-source packages to compute Time Domain, Frequency Domain, and Nonlinear HRV parameters. As for the evaluation, HRV parameters have been computed from 50 Normal-to-Normal Interval (NNI) series of 5 minutes in duration and 50 NNI series of 60 minutes in duration using pyHRV and KUBIOS HRV, the reference software. The NNI series show no sign of pathological arrhythmias.
+A multilevel package architecture has been implemented for pyHRV, which gives the user the following computational options using a single line of code: (Level 1) computation of all HRV parameters, (Level 2) computation of domain-speciﬁc parameters, or (Level 3) computation of individual parameters. In-code and support documentation is provided for support the implementation of pyHRV. Error catching capabilities (e.g. automatic second to millisecond conversion) have been implemented to reduce the occurrence of errors and increase the toolbox’s robustness. pyHRV computes a total of 78 HRV parameters (23 Time Domain, 48 Frequency Domain, 7 Nonlinear), from which in a direct comparison with KUBIOS 12 have achieved identical results, with 38 parameters showing marginal diﬀerences, and 26 showing signiﬁcant diﬀerences, thus, computing questionable results.
+Overall, pyHRV provides a reliable, versatile, robust and user-friendly toolbox for HRV researchers and application developers using the Python 2.7 programming language. pyHRV has been publicly released on the GitHub repository system.
+iii
+
+Acknowledgments
+I would like to take the opportunity to start this work by thanking those persons who have supported (or endured) me during my studies and during the development of pyHRV, the HRV toolbox developed within the scope of this work. First of all, I would like to thank Hugo Silva for giving me the opportunity to develop the opensource pyHRV toolbox which allowed me to further explore the ﬁeld of ECG signals - a signal that has earned my special interest over the last months - and for the continued outstanding support and valuable lessons at PLUX. I would also like to thank Prof. Petra Margaritoﬀ for supporting this work, especially as it is thanks to her, that I have achieved the software development skills that I have now during my studies at the HAW Hamburg. A tremendous ’thank you!’ goes out to my family, especially my parents, Fernanda and Manuel, and my brother Diogo, who have supported me in every way possible throughout the last years to help me get to the point where I am right now. Nothing could pay respect to the support that I have experienced from them. This thank you is also directed to Larissa Montenegro, who has supported me many times during this work... and who endured my moods whenever my ”let’s-change-this-parameter-andsee-what-happens” approach during desperate debugging sessions did not provide positive results. Finally, I would also like to thank my friends and colleagues, who made all the years at the HAW Hamburg (or in Hamburg in general) an unforgettable experience. May you all be repaid with many Past´eis de Nata in the future.
+iv
+
+List of Figures
+1 Stages of cardiac tissue excitation and ECG curve proﬁles . . . . . . . . 7 2 ECG electrode placement for Einthoven Leads. . . . . . . . . . . . . . . 9 3 ECG signal with falsely detected R-peak due to motion artifacts. . . . . 10 4 ECG signal at diﬀerent sampling frequencies. . . . . . . . . . . . . . . . 11 5 Relationship between R-peaks, NN intervals, and NN interval diﬀerences. 15 6 Sample ECG signal and Tachogram with the derived NNI and HR series. 16 7 Block diagram of the SDNN Index computation. . . . . . . . . . . . . . . 18 8 Block diagram of the SDANN computation. . . . . . . . . . . . . . . . . 18 9 Visualization of the geometrical parameters . . . . . . . . . . . . . . . . 22 10 Sample PSD computed using the Welch’s method . . . . . . . . . . . . . 27 11 Sample PSD computed using the Autoregressive method . . . . . . . . . 28 12 Sample PSD computed using the Lomb-Scargle periodogram. . . . . . . . 29 13 Comparison of Poincar´e plots with low and high HRV. . . . . . . . . . . 33 14 The Poincar´e plot and parameters . . . . . . . . . . . . . . . . . . . . . . 34 15 Detrended Fluctuation Analysis plot . . . . . . . . . . . . . . . . . . . . 38
+16 BITalino (r)evolution ECG sensor. . . . . . . . . . . . . . . . . . . . . . 40 17 BITalino (r)evolution Board kit. . . . . . . . . . . . . . . . . . . . . . . . 40 18 Illustration of the intended workﬂow. . . . . . . . . . . . . . . . . . . . . 41 19 Flowchart of the evaluation metrics computation process. . . . . . . . . . 45 20 Tachogram comparison (outliers vs. ﬁltered). . . . . . . . . . . . . . . . . 46
+21 Multilevel architecture of the Heart Rate Variability (HRV) package. . . 50 22 Sample ECG signals with diﬀerent interval lengths. . . . . . . . . . . . . 53 23 Flowchart of the pyHRV function architecture. . . . . . . . . . . . . . . . 59 24 Flowchart of the tools.check input() function. . . . . . . . . . . . . . . . . 60
+25 Example KUBIOS NNI histogram. . . . . . . . . . . . . . . . . . . . . . 69 26 PSD NFFT Comparison - Welch vs. Lomb . . . . . . . . . . . . . . . . . 71 27 Illustration of the Diﬀerential Index computation [9]. . . . . . . . . . . . 73
+v
+
+List of Tables
+1 Overview of time domain parameters. . . . . . . . . . . . . . . . . . . . . 14 2 Overview of frequency domain parameters [86]. . . . . . . . . . . . . . . 25 3 Frequency bands for ECG acquisitions of diﬀerent durations. . . . . . . . 25 4 Overview of nonlinear parameters. . . . . . . . . . . . . . . . . . . . . . 32 5 Third party packages & versions used in this work. . . . . . . . . . . . . 44 6 Selected parameter settings set in the toolbox and KUBIOS software to
+compute HRV results on the same datasets and using equal parameters. . 47 7 pyHRV package modules, ﬁles and descriptions. . . . . . . . . . . . . . . 50 8 Functions of the Tools Module. . . . . . . . . . . . . . . . . . . . . . . . 52 9 Functions of the time domain module. . . . . . . . . . . . . . . . . . . . 55 10 Frequency Domain Module functions. . . . . . . . . . . . . . . . . . . . . 57 11 Functions of the nonlinear parameters module. . . . . . . . . . . . . . . . 58 12 Evaluation results for the Time Domain parameters (pyHRV vs. KUBIOS) 63 13 Evaluation results for the parameters extracted with Welch’s method
+(pyHRV vs. KUBIOS) . . . . . . . . . . . . . . . . . . . . . . . . . . . . 64 14 Evaluation results for the frequency domain parameters extracted using
+the Lomb-Scargle PSD (pyHRV vs. KUBIOS) . . . . . . . . . . . . . . . 65 15 Evaluation results for the parameters extracted using the Autoregressive
+Method (pyHRV vs. KUBIOS) . . . . . . . . . . . . . . . . . . . . . . . 66 16 Evaluation results for the Nonlinear parameters (pyHRV vs. KUBIOS) . 67 A1 Time domain parameter keys and report descriptions. . . . . . . . . . . .XVI A2 Frequency domain parameter keys and report descriptions. . . . . . . . .XVI A3 Nonlinear parameter keys and report descriptions. . . . . . . . . . . . . X. VII A4 Plot keys. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . X. VII
+vi
+
+List of Equations
+1 Normal-to-Normal intervals (NNI) . . . . . . . . . . . . . . . . . . . . . 14 2 Normal-to-Normal interval diﬀerences . . . . . . . . . . . . . . . . . . . 15 3 Heart rate . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 4 Standard deviation of successive NN intervals (SDNN) . . . . . . . . . . 17 5 Mean of SDNN values of long-term ECG acquisitions (SDNN-Index) . . 18 5 Standard Deviation of the Mean NN intervals of 5min segments (SDANN) 18 7 Root Mean Square of the Successive NN Interval Diﬀerences (RMSSD) . 19 8 Standard Deviation of Successive Diﬀerences (SDSD) . . . . . . . . . . . 20 9 Ratio between NNx and Total Number of NN intervals (pNNx) . . . . . 21 10 Triangular Index (TI) . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22 11 Least squares method for the computation of the TINN parameter. . . . 23 12 Triangular Interpolation of the NNI Histogram (TINN) . . . . . . . . . . 23 13 Absolute power of a frequency band . . . . . . . . . . . . . . . . . . . . 29 14 Total power of all frequency bands (discrete integration) . . . . . . . . . 30 15 Total power of all frequency bands (sum of absolute powers) . . . . . . . 30 16 Relative power of in a frequency band . . . . . . . . . . . . . . . . . . . 30 17 Logarithmic power of a frequency band . . . . . . . . . . . . . . . . . . . 30 19 Normalized powers of the LF or HF frequency band . . . . . . . . . . . 31 20 LF/HF ratio . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31 21 Standard deviation along the minor axis of the Poincar´e plot (time do-
+main parameter based) . . . . . . . . . . . . . . . . . . . . . . . . . . . 34 22 Standard deviation along the minor axis of the Poincar´e plot (vector
+based) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34 23 Standard deviation along the major axis of the Poincar´e plot (time do-
+main parameter based) . . . . . . . . . . . . . . . . . . . . . . . . . . . 35 24 Standard deviation along the major axis of the Poincar´e plot (vector
+based) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35 25 Area of the ﬁtted ellipse in the Poincar´e plot . . . . . . . . . . . . . . . 35 26 Sample Entropy - Template vector . . . . . . . . . . . . . . . . . . . . . 36 27 Sample Entropy - Chebyshev distance of vector pairs i + n and k + n . . 36
+vii
+
+List of Equations 28 Sample Entropy - Count condition of the parameter A . . . . . . . . . . 36 29 Sample Entropy - Count condition of the parameter B . . . . . . . . . . 36 30 Sample Entropy - Negative logarithm of the A and B ratio . . . . . . . . 36
+viii
+
+List of Python Snippets
+1 Minimum working example of the Python code used for the intended workﬂow. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+2 Minimum working example of the Tool Module’s functions. . . . . . . . . . 54 3 Minimum working example of the Time Domain functions. . . . . . . . . . 55 4 Minimum working example of the Frequency Domain functions. . . . . . . 57 5 Minimum working example of the Nonlinear Parameter functions. . . . . . 59 6 General architecture of the HRV parameter functions shown on the exam-
+ple of the RMSSD function. . . . . . . . . . . . . . . . . . . . . . . . . . . 61 A1 Minimum working example of the OpenSignalsReader package and class. .XIX
+ix
+
+List of Acronyms
+
+ANS AR BPM DFA ECG FB FFT GUI HF HR HRV HRVA IBI IDE LF LSP NNI NNx PNS pNNx
+
+Autonomic Nervous System Autoregression Beats per Minute Detrended Fluctuation Analysis Electrocardiography Frequency Band Fast Fourier Transform Graphical User Interface High Frequency Heart Rate Heart Rate Variability Heart Rate Variability Analysis Inter-Beat-Interval Integrated Development Environment Low Frequency Lomb-Scargle Periodogram Normal-to-Normal Interval Number of NN Interval Diﬀerences Greater than x milliseconds Parasympathetic Nervous System Ratio between NNx and Total Number of NN intervals
+
+x
+
+List of Python Snippets
+
+PPG Photoplethysmography
+
+PSD Power Spectral Density
+
+RMSSD Root Mean Square of the Successive NN Interval Diﬀerences
+
+RRI
+
+Interval Between Successive R peaks
+
+SamPen Sample Entropy
+
+SD
+
+Standard Deviation
+
+SDANN Standard Deviation of the Mean of NN Intervals in all 5 minute Segments
+
+SDNN Standard Deviation of Successive NN Intervals
+
+SDNNI Standard Deviation of Successive NN Intervals Index
+
+SDSD Standard Deviation of Successive Diﬀerences
+
+SNS
+
+Sympathetic Nervous System
+
+TINN Triangular Interpolation of the NNI Histogram
+
+TI
+
+Triangular Index
+
+ULF Ultra Low Frequency
+
+VLF
+
+Very Low Frequency
+
+xi
+
+Contents
+
+List of Figures
+
+v
+
+List of Tables
+
+vi
+
+List of Equations
+
+vii
+
+List of Python Snippets
+
+ix
+
+List of Acronyms
+
+x
+
+1 Introduction
+
+1
+
+1.1 A Brief History of Heart Rate Variability . . . . . . . . . . . . . . . . 1
+
+1.2 State-of-the-Art of Heart Rate Variability Measures . . . . . . . . . . 2
+
+1.3 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+
+1.4 Goal of this Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+
+2 Fundamentals of Heart Rate Variability
+
+6
+
+2.1 Physiological Background . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+2.1.1 Heart Rate Regulation Mechanisms . . . . . . . . . . . . . . . 6
+
+2.1.2 Electrocardiography and Electrocardiogram . . . . . . . . . . 7
+
+2.2 Single Lead ECG Signals . . . . . . . . . . . . . . . . . . . . . . . . . 8
+
+2.2.1 Acquisition of Electrocardiography Signals . . . . . . . . . . . 8
+
+2.2.2 Signal Filtering, RR Intervals and NN Intervals . . . . . . . . 9
+
+2.2.3 Sampling Frequency Selection . . . . . . . . . . . . . . . . . . 11
+
+2.3 Overview of Heart Rate Variability . . . . . . . . . . . . . . . . . . . 13
+
+2.3.1 Time Domain Parameters . . . . . . . . . . . . . . . . . . . . 13
+
+2.3.1.1 NN Interval Parameters . . . . . . . . . . . . . . . . 14
+
+2.3.1.2 Heart Rate . . . . . . . . . . . . . . . . . . . . . . . 15
+
+2.3.1.3 Tachogram . . . . . . . . . . . . . . . . . . . . . . . 16
+
+2.3.1.4 SDNN . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+
+2.3.1.5 SDNN Index . . . . . . . . . . . . . . . . . . . . . . 17
+
+2.3.1.6 SDANN . . . . . . . . . . . . . . . . . . . . . . . . . 18
+
+xii
+
+Contents
+
+2.3.2
+2.3.3
+2.3.4 2.3.5 2.3.6
+
+2.3.1.7 RMSSD . . . . . . . . . . . . . . . . . . . . . . . . . 19 2.3.1.8 SDSD . . . . . . . . . . . . . . . . . . . . . . . . . . 20 2.3.1.9 NNx and pNNx . . . . . . . . . . . . . . . . . . . . . 20 Geometrical Parameters . . . . . . . . . . . . . . . . . . . . . 21 2.3.2.1 Triangular Index . . . . . . . . . . . . . . . . . . . . 21 2.3.2.2 Triangular Interpolation of NNI Histogram (TINN) . 22 2.3.2.3 Physiological Context of Geometrical Parameters . . 23 Frequency Domain Parameters . . . . . . . . . . . . . . . . . . 24 2.3.3.1 Frequency Components . . . . . . . . . . . . . . . . 25 2.3.3.2 Welch’s Periodogram . . . . . . . . . . . . . . . . . . 26 2.3.3.3 Autoregression Periodogram . . . . . . . . . . . . . . 26 2.3.3.4 Lomb-Scargle Periodogram . . . . . . . . . . . . . . 28 2.3.3.5 Frequency Parameters . . . . . . . . . . . . . . . . . 29 Nonlinear Parameters . . . . . . . . . . . . . . . . . . . . . . . 32 2.3.4.1 Poincar´e Plot . . . . . . . . . . . . . . . . . . . . . . 32 Sample Entropy (SampEn) . . . . . . . . . . . . . . . . . . . . 35 Detrended Fluctuation Analysis (DFA) . . . . . . . . . . . . . 37
+
+3 Materials and Methods
+
+39
+
+3.1 Intended Workﬂow . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+
+3.2 Third-Party Tools, Software and Packages . . . . . . . . . . . . . . . 42
+
+3.3 Evaluation Procedures . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+
+4 Results
+
+49
+
+4.1 Implementation of the HRV Toolbox . . . . . . . . . . . . . . . . . . 49
+
+4.1.1 Package Architecture . . . . . . . . . . . . . . . . . . . . . . . 49
+
+4.1.1.1 HRV Tools Module . . . . . . . . . . . . . . . . . . . 51
+
+4.1.1.2 Time Domain Module . . . . . . . . . . . . . . . . . 54
+
+4.1.1.3 Frequency Domain Module . . . . . . . . . . . . . . 56
+
+4.1.1.4 Nonlinear Parameters Module . . . . . . . . . . . . . 58
+
+4.1.2 Function Architecture . . . . . . . . . . . . . . . . . . . . . . 59
+
+4.2 Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 63
+
+4.2.1 Time Domain Parameters . . . . . . . . . . . . . . . . . . . . 63
+
+4.2.2 Frequency Domain Parameters . . . . . . . . . . . . . . . . . . 64
+
+4.2.3 Nonlinear Parameters . . . . . . . . . . . . . . . . . . . . . . . 67
+
+5 Conclusions
+
+68
+
+5.1 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 68
+
+xiii
+
+Contents
+
+5.2 Future Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72 Bibliography . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . I
+
+Appendices
+
+X
+
+A Sample HRV Report . . . . . . . . . . . . . . . . . . . . . . . . . . . XI
+
+B Parameter Keys & Report Descriptions . . . . . . . . . . . . . . . . . XV
+
+C Developed Support Packages . . . . . . . . . . . . . . . . . . . . . .X.VIII
+
+D BITalino (r)evolution Board Datasheet . . . . . . . . . . . . . . . . . XX
+
+E BITalino (r)evolution ECG Sensor Datasheet . . . . . . . . . . . . .X.XIV
+
+F OpenSignals (r)evolution Datasheet . . . . . . . . . . . . . . . . . X. X. VII
+
+G OpenSignals (r)evolution File Format Description . . . . . . . . . .X.XIX
+
+xiv
+
+Chapter 1
+Introduction
+1.1 A Brief History of Heart Rate Variability
+The Chinese physician Wang Shu He (180-270 A.D.) was one of the ﬁrst documented physicians to have had observed the pulse-to-pulse variability of sickened patients and recognized its role as indicator of mortality stating that ”if the pattern of the heartbeat becomes as regular as the tapping of a woodpecker or the dripping of rain from the roof, the patient will be dead in four days” [54]. Although other physicians have investigated the human pulse and its nature even the centuries before (between ca. 200 B.C. and ca. 200 A.A.) and despite the technical limitations of that time especially compared to the modern times of multi-lead Electrocardiography (ECG) acquisition and processing systems - Wand Shu He had discovered a remarkable indicator for cardiac health, which only centuries after his observation has been continued to be investigated [8]. In modern medicine, the importance of pulse-to-pulse variability as measure of cardiac and overall health has been established due to the extensive research conducted over the last decades. This has been made possible thanks to the fast pace of technical advancements in the medical ﬁeld [1, 86]. While Wang Shu He measured the pulse using a palpation method, by placing three ﬁngers on diﬀerent locations near the patient’s wrist, modern physicians and researchers use ECG or Photoplethysmography (PPG) systems and computational methods to extract the Heart Rate (HR) information and to derive a variety of parameters to assess its variability. Thanks to these eﬀorts, this method of Heart Rate Variability Analysis (HRVA) has seen an increasing growth in application ﬁelds and number of parameters that can be derived from the Inter-Beat-Interval (IBI) series, i.e. the
+1
+
+1. Introduction
+intervals between successive heart beats [8, 32].
+In the 1960’s, the ﬁrst Time Domain parameters have been introduced, which consisted of a series of basic statistical parameters derived from the IBI series. In the following three decades, many methods of frequency analysis and non-linear assessments have been suggested and partially added to the family of HRV parameters. This increase in HRVA methods have primarily been made possible thanks to the technical advancements in computational resources, which allowed the computation of more complex methods [8]. However, a practical problem existed for cardiologists, where due to the great variety of computational methods, and the lack of knowledge in the ﬁeld of HRV, misleading physiological interpretation of the results could potentially occur. The Task Force of The European Society of Cardiology and The North American Society of Pacing Electrophysiology tackled this problem, conducted a more in-depth investigation of suggestion methods, and issued the HRV guidelines (”Heart Rate Variability: Standard of Measurement, Physiological Interpretation, and Clinical Use”) in 1996, where a selection of suitable parameters has been made according to clinical standards and physiological context known at the time [86]. Nowadays, the role of HRV is well-known in modern medicine. However, its appearance in clinical applications is still rare due to its complexity and yet lack of a general and standardized selection of parameter values that deﬁne a healthy subject. It is, however, a very popular research ﬁeld with approx. 1100 HRV related works being published within the ﬁrst 9 months of 2018 alone1.
+1.2 State-of-the-Art of Heart Rate Variability Measures
+The HRV guidelines managed to conduct a rigorous and in-depth review of the suggested HRV measures at the time. This review did not only put many measures into clinical and physiological contexts, but also established standards for minimum requirements for ECG signal acquisitions and HRV parameters [86]. For instance, many of the suggested Time Domain parameters (e.g., SDNN, RMSSD) have been thoroughly investigated over the last two decades, and their importance has been recognized [24, 48, 93, 98]. In the Frequency Domain, the application of the Fast Fourier Transform (FFT)-based Welch’s and the Autoregression (AR) methods of Power Spectral Density (PSD) estimation have been established as popular tools for
+1Number of works based on the search results of the search term ”heart rate variability” in the pubmed.gov platform (search term in the title/abstract, human research only)
+2
+
+1. Introduction
+spectral analysis of IBI variability [42, 58]. However, new measures have been introduced to HRVA, especially for the Nonlinear analysis domain, where the guidelines failed to establish common standards due to the lack of clinical evidence.
+The Poincar´e plot, for example, is a popular scatter plot of IBI series often found in HRV research. This tool provides a graphical visualization of the overall HRV, which facilitates the identiﬁcation of healthy patients vs. patients with existing cardiac conditions, solely based on the form of the scatter plot [25, 46, 102]. Additionally, other measures for the analysis of non-linearity have been introduced such as the Approximate Entropy, the Sample Entropy (SamPen), Detrended Fluctuation Analysis (DFA), and Multi-Scale Entropy analysis, which are commonly in HRV research [22, 64, 73, 82]. In the Frequency domain, an additional method of PSD estimation has also been introduced, the Lomb-Scargle Periodogram (LSP) [27]. This method, in comparison with FFT and AR methods, has the main advantage that it is cable compute PSD estimation for irregularly sampled times series, which is the case in IBI series. Reason for which it is an interesting measure for newer HRV applications, such as real-time HRVA [71].
+1.3 Motivation
+There are many HRV software libraries available in the open- and closed-source domain, with some of them being well-known in the ﬁeld of HRVA. However, their functionality or usability exhibits several shortcomings when it comes to software development and integration. For instance, commercially available tools, such as the well-established KUBIOS HRV 2 software provide well-designed Graphical User Interface (GUI), but lack insights into the source code underneath the GUI with no possibility of extracting single algorithms or features for integration into custom software. Additionally, although free versions of such commercial tools are mostly available, those versions have only limited functionality (e.g. limited duration of processable signals), and the non-restricted usage of all features is only available after the purchase of the software [65].
+Available open-source alternatives, on the other hand, do not require purchases of the software and provide open source codes, allowing users to modify the code to ﬁt their speciﬁc needs (e.g. extracting only a selection of algorithms). Such solutions are openly available, with many of them being found on the popular GitHub
+2Developed by Kubios Oy, Kuopio, Finland; https://www.kubios.com
+3
+
+1. Introduction
+repository system3. These tools are also available in a variety of diﬀerent programming languages, including Swift, Python, Matlab and R [6, 60, 72, 74]. However, these open-source solutions face three major problems. First, the most sophisticated solutions are usually found for less mainstream programming languages, which are designed for speciﬁc ﬁelds of application or purposes, such as the case of the RHRV project for the R programming language [74]. Second, these solutions often provide only limited documentation or poorly commented source code, which complicates the usage and integration of the available libraries [6]. This issue can be frustrating for new entrants in the already highly complex ﬁeld of HRV. Third, in the speciﬁc case of the Python programming language, the available solutions are still limited in the number of the computed HRV parameter functions, thus failing to provide the full range of parameter computations as recommended by the HRV guidelines and newer measures [6]. Forth, some available tools may be argued to be too complex in their use, which may also be an additional hurdle for new entrants [95]. Finally, the solutions above do not provide any evaluation metrics on their performance, i.e. they have not been tested against gold standard solutions.
+1.4 Goal of this Work
+The goal of this work is to develop a robust, versatile, and user-friendly HRV software toolbox named pyHRV for the Python programming language. This toolbox shall comply with the HRV guidelines, should be easily extended in the future to be updated with new achievements in HRV research. Implementation of error-catching features with understandable exception raisings and automatic data conversion to suitable data formats (ensuring the use of the highly eﬃcient NumPy array format) as well as physical units (converting input data in s to ms) are intended to ensure the robustness of this toolbox. Versatility is ensured by providing both functions designed for the computation of a single, speciﬁc HRV parameter and functions which compute a series of HRV parameters, allowing users to either call individual algorithms or entire domain-speciﬁc algorithm sets with a single line of code. This toolbox will then be an extension to the open-source biosignal processing toolbox BioSPPy [17]. Additionally, a step-by-step-like written source code style with comprehensive function, variable and parameter names is applied in this toolbox to help and guide the users - especially new entrants in the ﬁeld of HRV - through the implemented HRV algorithms, and their application. This is supported by a
+3Web-based version control service using Git (https://github.com)
+4
+
+1. Introduction thorough publicly available technical documentation (API reference) on ReadTheDocs, a platform to support continuous documentation of open-source software4. User-friendliness is also supported by the implementation of a multilevel toolbox architecture. This architecture is designed to support the software development process of diﬀerent types of users, allowing them to either compute individual parameters, entire parameter series of a speciﬁc domain, or to compute the entire set of HRV parameters over all domains using only a single line of code. Finally, the results computed with pyHRV are validated, by determining evaluation metrics from the computed results in direct comparison with the HRV gold standard software KUBIOS.
+4https://docs.readthedocs.io/
+5
+
+Chapter 2
+Fundamentals of Heart Rate Variability
+2.1 Physiological Background
+2.1.1 Heart Rate Regulation Mechanisms
+The Autonomic Nervous System (ANS) is a subsystem of the central nervous system of the human body, which inﬂuences the functionality of the internal organs, including the heart. This system can be divided into three divisions of which two, the Parasympathetic Nervous System (PNS) and the Sympathetic Nervous System (SNS), play a signiﬁcant role in the regulation of cardiac and other vital activities (e.g. respiration) [55]. The ANS responds to sensory input from the environment or the body itself and responds by stimulating physiological processes through the SNS or by inhibiting them through the PNS. For this reason, the SNS has also become known as the ﬁght or ﬂight division, which increases the activity of physiological mechanisms to ensure that all the necessary resources are available in situation of high stress [3]. The PNS, on the other hand, has become known as the rest and digest division which reduces the activity of the controlling organs and is linked to relaxation [3, 55]. The activity of these counterpart divisions play a critical role in heart rate regulation, which can be observed and anlysed using HRVA methods. For instance, it is known that physical or emotional stress results in an increase in HR which can be indexed as increased activity of the SNS [91]. This alteration in HR is the fundamental information used in HRVA, from which a series of features can be derived to identify the dominant physiological mechanisms
+6
+
+within this process [1].
+
+2. Fundamentals of Heart Rate Variability
+
+2.1.2 Electrocardiography and Electrocardiogram
+The Electrocardiogram is one of the most characteristic signals of the human body, consisting of the sum of the electrical activity in the cardiac tissue, that triggers the pumping mechanisms of the heart, i.e. the heartbeat. It is the result of an ECG acquisition, one of the most important and well-established methods of cardiac monitoring, where the electrical potential of the cardiac activity is measured using purpose-built ECG sensors and surface electrodes placed on a subject’s skin. Its characteristic form is achieved from the successive contraction of diﬀerent sections of the cardiac tissue, with each section being present in the signal itself.
+
+Figure 1: Successive excitement stages of the diﬀerent cardiac tissues throughout the heart, during a heartbeat and the respective curve proﬁles of the caracteristic ECG signal [29].
+Figure 1 shows the diﬀerent stages of electrical excitation propagating throughout the diﬀerent tissue sections of the heart in a speciﬁc, successive order during a heartbeat. At the beginning of a heartbeat cycle, the heart chambers are ﬁlled with blood which will be pumped out of the heart (deoxygenated blood → lungs, oxygenated blood → body). The signal waveform resulting from the heartbeat is initiated at the Sinoatrial Node, Figure 1 (a), the heart’s primary pacemaker that is closely interconnected with the ANS and SNS, therefore being the main inﬂuencer of the HR. This excitation, followed by the excitation of the Atrioventricular Node, 1 (b), results in a slight elevation of the ECG signal known as the P- and PQ-segments. Afterwards, the propagation proceeds down the inner ventricular walls, stimulates the heart chambers, and causes the heart to contract and to empty its chambers, Figure 1 (c-e). For HRVA, this signal characteristic is the most important one of
+7
+
+2. Fundamentals of Heart Rate Variability
+the ECG signal as it is the crucial segment that deﬁnes the chamber contraction in the signal from which the fundamental IBI series, i.e. the measured time between successive heartbeats, are derived for HRV parameter computation. Depending on the methods being applied to extract this event from the ECG signal, the entire QRS-segment (shown in Figure 1 c-e) is used as a ﬁducial complex for heartbeat detection, although the most commonly used methods are designed for the detection of the R-peak only, Figure (d). After the heartbeat, the heart restores its original volume, to allow the chambers to be ﬁlled with blood again. During this action, some repolarisation occurs along the chambers resulting in the T-segment of the wave. The entire process is then repeated for each heartbeat [29].
+2.2 Single Lead ECG Signals
+HRVA is based on datasets of IBI, i.e. interval durations between successive heartbeats. Conventional applications in medical research and practices derive these datasets from ECG signals [3, 51, 52, 91]. It must be noted that other sensors besides ECG sensors can be used to derive series of IBI data on which HRVA can be conducted. For instance, sensors measuring blood ﬂow variations such as Photoplethysmography (PPG) sensors or SpO2 sensors, with the capability of measuring ﬂuctuations in blood oxygen saturation can be used for this purpose, given that the nature of both signals is found in the heart’s pumping mechanism [34, 79, 97].
+The work presented in this thesis is focused on single-lead ECG signals derived from the Einthoven Leads. For this reason, this section is intended to explain and raise awareness of technical speciﬁcations, processes, and concerns that should not be neglected when using single lead ECG signals for HRVA.
+2.2.1 Acquisition of Electrocardiography Signals
+Modern cardiac monitoring methods in medical applications acquire ECG data in standardized electrode conﬁgurations of 3, 6, 12 and even 22 ECG leads, among other possible and application-speciﬁc leads not named here [28, 39]. Although any of the acquired leads could technically be used for HRVA - after all, the signal peak (R-peak) is the most critical required information - commonly found derivations being used in HRV research are the Einthoven Leads [3, 51, 52, 91]. The 3 bipolar Einthoven leads (also known as the Standard Limb Leads) are acquired by placing positive (+) and negative (-) electrodes at the skin surface of a subject’s right arm
+8
+
+2. Fundamentals of Heart Rate Variability
+Figure 2: Illustration of the electrode placement for the Einthoven Leads (left) and the EinthovenTriangle (right) [89].
+(RA), left arm (LA) and left foot (LF) where the potential diﬀerence of the heart is measured in the following directions as illustrated in Figure 2:
+• Lead I: RA(-) → LA(+) • Lead II: RA(-) → LF(+) • Lead III: LA(-) → LF(+) The Lead I derivation has the advantage of its simplicity, which makes it attractive even for applications outside the medical ﬁeld. In the recent past, oﬀ-the-person ECG acquisition methods have been investigated and even implemented in endconsumer products using the Lead I conﬁguration [18].
+2.2.2 Signal Filtering, RR Intervals and NN Intervals
+In most cases, signal processing methods must be applied on single lead ECG signals before conducting a HRVA, given that noise or other signal artifacts can inﬂuence the overall results. For this reason, ﬁlters are applied on the signal to ﬁlter out noise, ectopic heartbeats, baseline wandering (e.g. T-P knot algorithm, high-pass ﬁlter) and signal artifacts (e.g. motion artifacts) before applying R-peak detection algorithms to prevent the detection of false R-peaks, i.e. to prevent the detection of signal peaks that are not caused by an actual heartbeat. Many algorithms and signal processing methods, both in the analog and digital domain, have already been proposed for this purpose, such as the application of high-pass and band-pass ﬁlters, morphological transformation algorithms, wavelet transformation, and many others [13, 62, 63]. Due to the complexity of such signal processing methods, and given that there is already an extensive amount of literature about such methods, those
+9
+
+2. Fundamentals of Heart Rate Variability will not be further discussed in this work. Nonetheless, their importance must not be neglected. After ﬁltering the signal, R-peak or QRS-complex detection algorithms (e.g. Pan Tompkins Algorithm [68]) are applied to identify the R-peaks in the ECG signal. This information allows one to measure the duration between successive R-peaks upon which the HRV parameters can be computed. In HRV applications, two commonly used terms for the derived IBI series are used: RR-intervals and NN-intervals. RR-intervals, i.e. Interval Between Successive R peaks (RRI), are the durations between detected R-peaks in the ECG signal, where it is often not immediately clear whether this includes or not falsely detected Rpeaks, due to signal artifacts or ectopic heartbeats. These falsely detected R-peaks could have unwanted inﬂuences in the HRVA and distort the actual results. For instance, when conducting frequency analysis, such ’R-peaks’ can introduce incorrect frequency components and signiﬁcantly alter the results due to the distortion of the fundamental RRI series [69]. An example of such a problem is illustrated in Figure 3 (top), where it can be observed that an additional (false) RRI has been detected leading to a signiﬁcant separation of a single RRI of 760ms into two individual intervals of 532ms and 228ms, thus signiﬁcantly altering the actual information.
+Figure 3: ECG signal with falsely detected R-peak due to motion artifacts.
+Normal-to-Normal Interval (NNI) also measure intervals between detected R-peaks, 10
+
+2. Fundamentals of Heart Rate Variability
+however, it emphasizes that signal (pre-)processing techniques have been applied to the ECG signal before the application of R-peak detection algorithms, thus, providing interval measures between real R-peaks with no inﬂuences of falsely detected signal peaks or ectopic heartbeats. An example of a ﬁltered signal with detected normal R-peaks and RRI - or in this case NNI - intervals is illustrated in Figure 3 (bottom). The present work uses the NNI series as the fundamental input for HRVA.
+2.2.3 Sampling Frequency Selection
+The selection of a proper sampling frequency for ECG recordings is a technical aspect that must not be neglected, as it can have a signiﬁcant impact on the accuracy of HRV results. Detection of the QRS-complexes (or of the R-peaks only) in the ECG signal, should be as accurate as possible to ensure a good determination of NNI. Figure 4 shows the issues resulting from the use of low sampling frequencies. Higher sampling frequencies (e.g. 1000Hz; left) provide a higher number of ECG samples near R-peaks allowing more accurate detection of R-peaks and NNI. Lower sampling frequencies, on the other hand, can vary signiﬁcantly in distance between the actual R-peak location and the available ECG samples due to the decreased number of samples within a set interval (e.g. 250Hz or 100Hz; middle and right respectively1. These inaccuracies in R-peak detection can signiﬁcantly inﬂuence the measurement of NNI and HRV results [1].
+Figure 4: Example of ECG data with diﬀerent sampling frequencies to illustrate the inﬂuence of sample sparsity in R-peak detection as a results of lower sampling frequencies. This inaccuracy
+can cause NNI variations that greatly inﬂuence HRV analysis results.
+The guidelines propose a minimum sampling frequency of 128Hz when interpolation is conducted on the signal to increase the accuracy in R-peak detection [86]. Madhiani et al. [52] even went one step further and investigated the reliability of 50Hz
+1ECG samples 250Hz and 100Hz sampling frequencies are downsampled signals of the 1000Hz signal (Figure 4, left)
+11
+
+2. Fundamentals of Heart Rate Variability sampling frequency, considering the importance of such low frequencies in wireless and wearable body monitoring platforms to enable greater power eﬃciency. Their research showed that reasonable time domain results could be achieved by applying a cubic spline interpolation on ECG data sampled at 50Hz from healthy subjects. However, it must be noted that the cubic spline interpolation is a suitable method for R-peak interpolation in ECG signals of healthy individuals, which containing no pathological arrhythmia, as the symmetric characteristics of the QRS-complex allow an accurate R-peak interpolation. This might be less accurate in non-symmetric QRS-complexes of subjects with existing heart conditions where these symmetric characterstics are distorted (e.g. ST segment elevation) [52]. Hejjel et al. [35] on the other hand have searched for the most adequate sampling frequency, i.e. the frequency at which an interpolation is not required and where the use of higher sampling frequencies would not provide any beneﬁt for ECG signal processing methods. According to their ﬁndings, they recommended 1kHz as the most suitable option for ECG acquisitions, providing high accuracy without the need of an additional interpolation.
+12
+
+2. Fundamentals of Heart Rate Variability
+2.3 Overview of Heart Rate Variability
+Generally speaking, HRV describes the variation of IBI from which time, frequency and nonlinear components can be extracted, computed and analysed to assess cardiac and overall health. It is the ability of the HR regulating mechanisms of the human body to react to sensory inputs such as physical or emotional stress or relaxation and other outer inﬂuences, by adjusting the HR - and therefore the IBI - accordingly [1]. A simple example of this ability can be observed by comparing the HR of a subject in a resting position with the HR of the same subject during or after physical activity, where an increase in HR can be experienced. Savonen et al. [76] have also observed increases in HR with increasing intensities of physical training. In such cases, the heart is able to adjust its performance by increasing the HR which ensures that freshly oxygenated blood is distributed within the body to keep up with the increased consumption of oxygen in the body in physically or emotionally stressful situations is satisﬁed at a suitable rate [11].
+2.3.1 Time Domain Parameters
+The Time Domain parameters contain statistical information from three diﬀerent classes as recommended by the HRV guidelines: (a) parameters derived directly from NNI or instantaneous HR (e.g., SDNN, SDANN), (b) those derived from the diﬀerences between successive NNI (e.g. SDSD, RMSSD, NNx, pNNx), and (c) geometrical paramaters that are derived from the NNI histogram (e.g., Triangular Index, TINN) [86]. This section aims to present the commonly used time domain parameters including information and equations about their computation and physiological context. An overview of these parameters is presented in Table 1.
+13
+
+2. Fundamentals of Heart Rate Variability
+
+Table 1: Overview of time domain parameters.
+
+Time Domain Parameters
+
+Parameter Unit Description
+
+NNI
+
+ms NN interval parameters (min, max, mean, max diﬀerence)
+
+HR SDNN
+
+BPM General heart rate parameters (min, max, mean) ms Standard deviation of NN intervals
+
+SDNN-i ms Mean of SDNN values of long-term ECG acquisitions
+
+SDANN ms Std. deviation of the mean NN intervals in 5min segments
+
+SDSD
+
+ms Std. deviation of successive NN interval diﬀerences
+
+RMSSD ms Root mean square of successive NN interval diﬀerences
+
+NNx pNNx
+
+- Number of NN interval diﬀerences greater the threshold x % Ratio between NNx and total number of NN intervals
+
+NN50
+
+- Number of NN interval diﬀerences greater 50ms
+
+pNN50
+
+% Ratio between NN50 and total number of NN intervals
+
+NN20
+
+- Number of NN interval diﬀerences greater 20ms
+
+pNN20
+
+% Ratio between NN20 and total number of NN intervals
+
+Geometrical Parameters
+
+TriIndex
+
+- Triangular index (# of NNI/max of NNI histogram)
+
+TINN
+
+ms Baseline width of the NNI histogram
+
+2.3.1.1 NN Interval Parameters
+The computation of a NNI series from a dataset with n R-peaks will returns a dataset with n − 1 NNI elements as two R-peaks are required to determine the interval between them and given that the last R-peak Rn has no succesive R-peak to conduct such an operation (compare with Figure 5). The computation of a NNI is done according to Equation 1 for 0 < i < n − 1.
+
+N Nj = Rj+1 − Rj
+
+(1)
+
+with:
+
+N Nj : NN interval i in [ms] RRj : Current R-peak in [ms] or [s] RRj+1 : Successive R-peak in [ms] or [s]
+
+Conventional parameters extracted from this dataset are minimum NNI, maximum NNI, mean NNI duration and the maximum diﬀerence between successive intervals. For the latter parameter, an additional computation has to be conducated which create a dataset of length n − 2 with the diﬀerences between adjecent NNI according to Equation 2. The relationship between R-peaks, NNI, and NNI diﬀerences is illustrated in Figure 5.
+
+14
+
+2. Fundamentals of Heart Rate Variability
+
+∆N Nj = |N Nj+1 − N Nj|
+
+(2)
+
+with:
+
+∆N Nj : NN interval diﬀerence in [ms] N Nj : Current NNI in [ms] N Nj+1 : Successive NNI in [ms]
+
+Figure 5: Relationship between the ECG signal (red) R-peaks, NN intervals (blue), and NN interval diﬀerences (green). From a signal with n R-peaks and n − 1 NN intervals, n − 2 NN
+interval diﬀerences can be derived.
+The NN parameters are usually not very meaningful parameters when used alone, especially when based on a single NNI. For instance, the maximum or minimum value of an NNI series alone does not provide enough signiﬁcant information to make any proper HRV assessment of a data set. For this reason, these parameters should be used in relation with other time domain parameters presented on the following pages.
+
+2.3.1.2 Heart Rate
+
+Heart Rate (HR) is the standard measure to indicate the number of occurring heartbeats per minute (bpm) [2]. It is computed according to Equation 3 and is an userfriendly measure of general monitoring of cardiac activity and the heart’s response to physical or emotional stress [1, 86].
+
+60000[ms] 60[s]
+
+HR =
+
+=
+
+(3)
+
+N N I[ms] N N I[s]
+
+with: HR : Heart rate in [bpm]
+N N I : NN interval in [ms] or [s]
+
+15
+
+2. Fundamentals of Heart Rate Variability The HR is known to adjust to physical and emotional conditions of the subject as observed by Tolg et al. [91] in research conducted on subjects experiencing performance anxiety in virtual reality environments, were increasing HR have been observed with the increase of emotional stress. The most commonly used parameters which are directly related to HR and used in HRVA are minimum HR, maximum HR, mean HR and diﬀerence between maximum and minimum HR [1, 82]. 2.3.1.3 Tachogram HR series are often plotted with the NNI series in a plot named Tachogram, where both series are plotted against their temporal occurrence. This plot provides a clearer visual representation of both datasets, thus being a useful tool for a primary visual inspection of HRV. Figure 6 (bottom) shows an example Tachogram with NNI and HR series derived from a ECG signal (top).
+Figure 6: Sample ECG signal (top) and Tachogram with the derived NNI and HR series (bottom).
+2.3.1.4 SDNN Standard Deviation (SD) is generally a measure to quantify the amount of dispersion in a dataset. The Standard Deviation of Successive NN Intervals (SDNN) quantiﬁes this variation in NNI durations around the mean value of the NNI, and is computed
+16
+
+2. Fundamentals of Heart Rate Variability
+
+according to Equation 4.
+
+SDNN =
+
+1 ·
+n−1
+
+n
+
+(N Nj − N N )2
+
+(4)
+
+j=1
+
+with:
+
+SDN N : Standard deviation of the NNI series in [ms]
+
+n
+
+: Number of NN intervals in [ms]
+
+N Nj : NN interval i in [ms]
+
+N N : Mean of NN intervals in [ms]
+
+SDNN serves as a measure for the activity of the entire autonomic nervous system (the aggregated ANS and PNS) which is ultimately reﬂected in the NNI. ECG datasets with low HRV, i.e. low variation in NNI durations, have been observed in subjects with existing medical conditions (e.g., after myocardial infarction, diabetes mellitus) and lead to small SDNN results, while higher SDNN results were observed in datasets acquired from healthy subjects with greater NNI variations [81, 93]. As for other HRV parameters, it is recommended to determine SDNN values on ECG datasets with conventional durations of 5 minutes or 24 hours, although it has to be noted that the duration itself inﬂuences the result given that the total variance does naturally increase with the duration of the recording session [86]. For this reason, it is recommended to split long-term acquisitions into shorter segments (with 5 minutes of duration), and to individually analyse each segment to counteract against the lack of robustness of the SD against outliers or non-stationary data series, as it is done with the Standard Deviation of Successive NN Intervals Index (SDNNI) parameter.
+Salahuddin et al. [75] have studied the possibilities and reliability of shorter recording periods as an alternative to conventional 5 minutes short-term recordings, to meet the increasing demand of mobile applications for clinical monitoring where data acquisitions may only be possible during short intervals. Proposals of 60 seconds recordings have shown to be insuﬃcient for reliable measurements of SDNN values, while recordings of 240 seconds in duration have shown to be good surrogates for SDNN values derived from 5 minute recordings [4].
+
+2.3.1.5 SDNN Index
+The Standard Deviation of Successive NN Intervals Index (SDNNI) is an analysis parameter based on SDNN takin into account the considerations of long-term ECG acquisitions, and is most commonly applied to acquisitions of 24 hours in duration.
+
+17
+
+2. Fundamentals of Heart Rate Variability
+For this parameter, the 24 hour ECG recording is split into segments of 5 minutes in duration resulting in a total of 288 segments (24 hours · 60 minutes = 1440 minutes → 1440 minutes / 5 minutes = 288 (segments)). It is the mean of all SDNN values computed from all 288 segments of the long-term ECG acquisition, and it is computed through the steps shown in Figure 7, with the mean value being computed according to Equation 5 [86].
+
+Figure 7: Block diagram of the SDNN Index computation.
+
+1n
+
+SDNNI = · N
+
+SDN Nj
+
+(5)
+
+j=1
+
+with:
+
+SDN N I : SDNN index in [ms]
+
+n
+
+: Number of computed SDNN values from 5 minute segments
+
+SDN Nj : SDNN of the 5 minute segment j in [ms]
+
+It is assumed that the SDNNI is primarily a measure of the ANS impact on the HRV as it does also correlate with the Low Frequency (LF) spectral components (which represent ANS activity) in 24 hour datasets [92].
+
+2.3.1.6 SDANN
+The SDANN is the SD of the mean of NNI within individual 5 minute segments in long-term ECG acquisitions [1]. Similar to the process followed in the computation of the SDNNI, the NNI series of a 24 hour ECG acquisition is split into 288 segments of 5min in duration, followed by the computation of the mean value of each segment. Afterwards, the SD of all mean values is computed. A visualization of the individual steps of this computation is shown in Figure 8 and shown in Equation 6.
+
+Figure 8: Block diagram of the SDANN computation.
+18
+
+2. Fundamentals of Heart Rate Variability
+
+1
+
+n
+
+SDAN N =
+
+·
+
+n−1
+
+(N N Ij − N N I)2
+
+(6)
+
+j=1
+
+with:
+
+SDAN N : Standard deviation of the mean of NNI in all 5 minute segments in [ms]
+
+n
+
+: Number of 5 minute segments
+
+N N Ij : Mean value of the 5 minute segment j in [ms]
+
+N N I : Mean value of the means of the 5 minute segments in [ms]
+
+2.3.1.7 RMSSD
+The RMSSD is the root mean of the sum of the squares diﬀerences between successive NN intervals. This parameter is determined by ﬁrst computing all diﬀerences between adjacent NN intervals (see Equation 2), which are then used to compute the RMSSD parameter according to Equation 7 [1, 86].
+
+RMSSD =
+
+1 ·
+n−1
+
+n
+
+∆N N Ij2
+
+(7)
+
+j=1
+
+with:
+
+RM SSD : Root mean square of successive NNI diﬀerences in [ms]
+
+n
+
+: Number of computed NNI diﬀerences
+
+∆N N Ii : NNI diﬀerences in [ms]
+
+RMSSD measures the short-term variations of successive NNI and provides information about the activity of the PNS. It is often used as an indicator for rehabilitation, ﬁtness, and health and is the primary parameter in the time domain for estimations of vagally mediated changes in HRV [55]. High RMSSD indicates the ability of rapid adaptations of the HR, while low RMSSD indicates a low ability of HR adjustments, generally caused by physical, mental stress, or sickness with, the latter cause being observed (e.g.) in patients with diabetes mellitus where signiﬁcantly lower RMSSD results could be derived when compared to healthy subjects [81].
+Similarly to the SDNN, this parameter is generally applied on short-term ECG recordings, although Thong et al. [90] have investigated the applicability and reliability of this parameter in ultra short-term recordings of 10 seconds, showing a high correlation between the obtained values and values from 5 minute recordings. This correlation opens new possibilities of RMSSD-based monitoring applications in sports research and medical monitoring, by using only small sample sizes which
+19
+
+2. Fundamentals of Heart Rate Variability
+provides an almost immediate biofeedback parameter. This is a characteristic which can be useful for the development of wearable systems in both medical and consumer applications.
+
+2.3.1.8 SDSD
+The SDSD is the SD of the diﬀerences of successive NNI and shares a great similarity with the RMSSD parameter. However, the major diﬀerence between the SDSD and the RMSSD is its dependence on the stationary characteristics of the NNI series. This parameter is computed according to Equation 8.
+
+SDSD =
+
+1 ·
+n−1
+
+n
+
+(∆N N Ij − ∆N N I)2
+
+(8)
+
+j=1
+
+with:
+
+SDSD : Standard deviation of the successive NNI diﬀerences in [ms]
+
+n
+
+: Number of NNI diﬀerences
+
+∆N N Ij : NNI diﬀerence j in [ms] ∆N N I : Mean of NNI diﬀerences in [ms]
+
+The SDSD provides the same results as the RMSSD parameter when applied on stationary time series, i.e. time series with no base level shifting of the signal or timeindependent spectra, thus sharing a similar physiological context as the RMSSD [42, 65]. However, as the SD is not robust against outliers or non-stationary time series, an application of this parameter on such datasets will not provide proper results, reason for which the usage of the RMSSD parameter is recommended. Both the RMSSD and SDSD share a similar physiological context and clinical application.
+
+2.3.1.9 NNx and pNNx
+NNx parameters are based on the total count of diﬀerences between successive NNI which are greater than a speciﬁc threshold x in milliseconds. Ewing et al. [26] were the ﬁrst to propose and explore this parameter in long-term recordings, with a threshold set to 50 milliseconds, establishing it as a standard threshold used in conventional HRVA. This proposal urged from the observation and comparison of ECG datasets from healthy subjects and subjects with diabetes mellitus, where healthy subjects showed signiﬁcantly higher random occurrences of greater diﬀerences between successive NNI. The pNNx parameter has been added as a second parameter
+
+20
+
+2. Fundamentals of Heart Rate Variability
+
+computed as the division of the NNx value by the total number of ∆NNI [86]. This parameter facilitates the interpretation of the NNx parameters, as it provides a ratio rather than an integer number, which is harder to interpret without if the total number of ∆NNI is unknown.
+
+NNx
+
+pN N x =
+
+(9)
+
+n
+
+with: N N x : Number of ∆NNI > x in [ms]
+n : Number of ∆NNI diﬀerences
+
+Newer studies have re-examined the 50 millisecond threshold to assess the applicability of threshold variations ranging from 1 to 100 milliseconds. These studies show that thresholds lower than 50 milliseconds were able to create signiﬁcant distinctions between healthy and pathological patients, where NN50 parameters failed to do so. However, these thresholds have been criticized for depending too much on the methods of statistical comparison, when compared with the 50ms threshold, and worked only in explicit comparisons rather than in general applications [57, 80].
+
+2.3.2 Geometrical Parameters
+The geometrical parameters are derived from the histograms of NNI series, with a standard bin size set to 7.8125 millieconds due to the minimum recommended sampling frequency of 128Hz as set forth by the HRV guidelines (1/128Hz = 0.0078125s = 7.8125ms) [86]. Although ECG acquisitions are nowadays usually performed with a diversity of sampling frequencies (e.g. 1000Hz), this bin size has been considered as the reference bin size for comparison purposes. Any deviation is usually noted in the HRV results [35, 86]. An example of a NNI histogram is visualized in Figure 9, with detailed explanations about the most commonly used parameters being presented throughout the following pages.
+
+2.3.2.1 Triangular Index
+The Triangular Index (TI) is the most basic parameter that can be derived from the NNI histogram. This parameter is the division between the integral over the entire histogram, i.e. the total number of NNI of the distribution, and the distribution’s maximum D[X] with X being the bin containing the distribution’s maximum. The
+
+21
+
+2. Fundamentals of Heart Rate Variability
+
+formula for the computation of this parameter is presented in Equation 10, with an example of a distribution with a given maximum D(X) visualized in Figure 9 [86].
+
+n T riangularIndex =
+D[X ]
+
+with:
+
+n : Total number of NNIs D[X] : Distribution’s maximum X : Bin at which the distribution’s maximum occurs in [ms]
+
+(10)
+
+2.3.2.2 Triangular Interpolation of NNI Histogram (TINN)
+
+Figure 9: Histogram of an artiﬁcial NNI series to show the geometrical parameters with the distributions maximum D[X] and the resulting function of the triangular interpolation in dependence
+of the N and M parameters.
+The TINN is deﬁned by the baseline width of the histogram, based on the approach of ﬁnding the triangular interpolation with the best ﬁt to the NNI histogram. For this approach, a triangle is ﬁt in the NNI histogram with its corners being set at the points (N, 0), (X, D(X)), and (M, 0) where N < X and M > X. The linear functions between the points (N, 0) and (X, D(X)) and the points (X, D(X)) and (M, 0) construct the triangular function q(bin, N, M ) which, for values outside the [N, M ] interval, is 0. N and M are then set by ﬁnding the q(t, N, M ) with the lowest error, i.e. deviation, from the original distribution function using the least-squares method as presented in Equation 11. Afterwards, the computation of the baseline
+22
+
+2. Fundamentals of Heart Rate Variability
+
+width of the histogram (TINN) can be computed by Equation 12 [86, 96].
+
+bmax
+
+∆ = argmin{ (D − q(bin, N, M ))2}
+
+(11)
+
+b=bmin
+
+TINN = M − N
+
+(12)
+
+with:
+
+∆
+
+: Triangular interp. with the best ﬁt to the NNI histogram
+
+bmin bmax D
+
+: Lowest bin containing non-zero value of the distribution in [ms] : Highest bin containing non-zero value of the distribution in [ms] : NNI distribution
+
+q(bin, N, M ) : Triangular interpolation function
+
+N
+
+: Left corner of the interp. triangle with the best ﬁt to the NNI histogram in [ms]
+
+M
+
+: Right corner of the interp. triangle with the best ﬁt to the NNI histogram in [ms]
+
+TINN
+
+: Baseline width of the histogram in [ms]
+
+An example of a triangular interpolation with the deﬁned points in dependence of N, M, and D(X) (and X) is presented in the histogram in Figure 9. The distribution function D (blue) is deﬁned by the histogram of the NNI series with q(bin, N, M ) (green) being deﬁned by the N and M values that generate a triangular interpolation with the lowest error compared to D.
+
+2.3.2.3 Physiological Context of Geometrical Parameters
+Given that the NNI histogram is highly dependent on the standard deviation of the NNI series, i.e. the SDNN which has been observed to be signiﬁcantly decreased in subjects with existing medical conditions (e.g. diabetes mellitus), its form and the derived geometrical parameters are known to be a measure of overall HRV [81, 86]. Similarly to the case of the SDNN parameter, both the TI and TINN have been observed to be smaller in patients with existing medical conditions where reduced HRV could be found. A lower SDNN leads to a decrease in overall histogram width while causing an increase in the histogram’s values around its mean NNI (smaller SD → compressed histogram → smaller histogram baseline and increased D) [81, 84, 94].
+
+23
+
+2. Fundamentals of Heart Rate Variability
+2.3.3 Frequency Domain Parameters
+Frequency analysis is generally a method to determine periodicity in a given signal or dataset. It has been introduced in the 1970’s to the ﬁeld of HRV research as a new and interesting measure to reveal periodicities in NNI. With this method, the estimation of a PSD in the form of a periodogram (a commonly used tool to estimate the power in a signal in dependence of its frequencies) is used to identify dominant, high powered frequencies and to link them to physiological mechanisms [8, 86].
+The general procedure of frequency domain analysis starts with the computation of a PSD, followed by splitting the PSD into Frequency Band (FB)s and deriving a series of overall parameters related with speciﬁc frequency bands. The guidelines, among other HRV related publications, recommend diﬀerent methods for the computation of the PSD, which can be classiﬁed as (a) non-parametric and (b) parametric methods. Although both provide meaningful results, each method has its advantages over the other: (a) non-parametric methods require no prior knowledge about the signal model or its form. Additionally, these methods can be eﬃciently computed with simple algorithms at high processing speeds (e.g., FFT and derived metrics, LombScargle peridogram). (b) Parametric methods, on the other hand, provide smoother spectral components and, accurate PSD estimations even on small sample numbers [86]. However, parametric methods are highly dependent on the selection of suitable parameters to ensure the accuracy of the PSD estimation, as such methods assume that the given data ﬁts a speciﬁc signal model for which it is necessary to deﬁne a suitable estimation model order. This can constitute a practical issue, as the ideal model order varies in dependence of the ECG duration and no one-size-ﬁts-all order is available [15].
+The frequency domain parameters are derived from the methods presented on the following pages. Additionally, this section aims to present some example of the relationship between physiological mechanisms and FB, the most commonly used frequency analysis methods, and the computation of the frequency parameters as recommended by the HRV guidelines shown in Table 2 [86]. It has to be noted that, due to the high complexity of the diﬀerent PSD estimation methods, only their HRV speciﬁc implementation will be presented rather than going into detail into their mathematical background.
+24
+
+2. Fundamentals of Heart Rate Variability
+
+Table 2: Overview of frequency domain parameters [86].
+
+Frequency Domain Parameters - FFT Based
+
+Parameter
+
+Unit Description
+
+Total Power
+
+ms2 Power over all FC
+
+Absolute Power ms2 Power of each FC
+
+Relative Power
+
+% Relative power of each FC
+
+Log(Power)
+
+- Natural logarithm of FC’s absolute power
+
+Normalized Power - Normalized powers of each LF & HF components
+
+Peak Frequency Hz Frequency where maximum power of the FC occurs
+
+LF/HF Ratio
+
+% Ratio between the LF & HF components
+
+2.3.3.1 Frequency Components
+
+In HRVA, the computed PSD is segmented into three FB, when analyzing shortterm recordings of usually 5 minutes in duration, or four frequency bands when analyzing long-term recordings of usually 24 hours, in duration as presented in Table 3. Segmenting the PSD into speciﬁc frequency bands provides a method to determine dominant frequencies in a NNI series, which are ultimately linked to autonomic responses of a subject’s body.
+
+Table 3: Frequency bands for ECG acquisitions of diﬀerent durations, as recommended by the HRV guidelines [86].
+
+Component ULF VLF LF HF
+
+Short-term (5 minutes)
+
+Min [Hz] Max [Hz2]
+
+-
+
+-
+
+0.003
+
+0.040
+
+0.040
+
+0.150
+
+0.150
+
+0.400
+
+Long-term (24 hours)
+
+Min [Hz] Max [Hz]
+
+0.000
+
+0.003
+
+0.003
+
+0.040
+
+0.040
+
+0.150
+
+0.150
+
+0.400
+
+The Ultra Low Frequency (ULF) band is the only FB applied on long-term recordings. For the time being, it is still uncertain which physiological rhythms have the greatest inﬂuence in this frequency band, although it is highly hypothesized that circadian rhythms (periodic biological rhythms with 24 hour periods, e.g. sleep/wake cycle) may be the most dominant [82, 83, 99]. By this hypothesis, applying this FB on short-term recordings would ot provide much added value for analytical purposes.
+The Very Low Frequency (VLF) band ranges between 0.003Hz (or in some cases 0Hz if the ULF is not computed) and 0.04Hz [86]. Research has shown that thermoregulatory mechanisms inﬂuence the energy in this FB [55]. Additionally, it has been observed that lower power within this FB may be associated with pathological
+
+25
+
+2. Fundamentals of Heart Rate Variability
+causes (e.g. inﬂammation) [45].
+The LF band ranges between 0.04Hz and 0.15Hz, and reﬂects primarily baroreceptor activity (blood pressure regulation) in resting positions. However, it has to be noted that low breathing periods (approx. 7 to 10 seconds) can also inﬂuence the power in this frequency band [82].
+The last FB, the High Frequency (HF) band, ranges between 0.15Hz and 0.4Hz, and is essentially known to reﬂect respiratory inﬂuences in the HRV and, therefore, reﬂecting vagal inhibition (inhaling → increases HR) and activation (exhaling → decreases HR), which are the fundamental mechanisms of respiratory regulation. The respiratory inﬂuence causing these ﬂuctuations in HR is known as Respiratory Sinus Arrhythmia [55, 82, 103].
+2.3.3.2 Welch’s Periodogram
+The FFT based PSD estimation is a non-parametric method, i.e. a method that does not make any assumption on the model which generates the NNI data [85]. This method requires some pre-processing of the NNI time series before it can be properly computed. First, the NNI series has an unknown and uneven sampling rate, reason for which it needs to be resampled to provide a dataset with evenly spaced intervals. This step is required, as the FFT is designed to provide information about the periodicity of an evenly sampled signal, which results would be distorted when applied on unevenly sampled time series. The resampling is usually achieved by application of a cubic-spline interpolation to the NNI series and by deriving a new time series with a 4Hz sampling frequency from the interpolated signal [86]. However, it has to be noted that this resampling process can have a low-pass ﬁltering eﬀect on the original NNI series [43, 86]. Afterwards, every sample in this dataset is detrended, i.e. subtracted by the dataset’s mean value, to remove the DC-oﬀset, which would be reﬂected in the PSD as a high energy component around the 0Hz frequency [41]. In HRVA applications, the recommended method for the PSD estimation is the Welch’s Method [86, 100]. An example of a FFT based PSD using the Welch’s method can be seen in Figure 10.
+2.3.3.3 Autoregression Periodogram
+The Autoregression (AR) based PSD estimation is a parametric method. This estimation method assumes that each value of a given time series does linearly
+26
+
+2. Fundamentals of Heart Rate Variability
+Figure 10: Sample PSD computed using the Welch’s method (NNI series segment extracted from: [31]).
+depend on one or multiple previous values. Due to this assumption, it diﬀers from the FFT-based method as the latter method does not assume the time series to be generated by a speciﬁc signal model [15, 40]. As previously stated, this method has the advantages of providing smoother spectral components and providing accurate PSD estimations. However, due to the signal model assumptions, the selection of a suitable model order, i.e. the number of previous samples being used for the estimation of future samples, may cause a practical problem as investigated by Kuusela et al. [42]. Choosing too low model orders can smooth and vanish PSD peaks, while too high model orders can increase the inﬂuence of noise present the NNI series. Reason for which the selection of suitable model orders has been thoroughly investigated, with recommended model orders ranging from 9 to 25 with 16 being the recommended minimum order for short NNI segments [10, 58]. An example of an Autoregressive PSD plot is shown in Figure 11.
+27
+
+2. Fundamentals of Heart Rate Variability
+Figure 11: Sample PSD computed using the Autoregressive (Yule-Walker) method (NNI series segment extracted from: [31]).
+2.3.3.4 Lomb-Scargle Periodogram The Lomb-Scargle Periodogram (LSP) is a method for PSD estimation in nonuniformly sampled datasets, and has originated from such problems in astrophysics. Although the cause for non-uniformity in this ﬁeld is of entirely diﬀerent nature compared to the causes for non-uniformity in NNI series (e.g. observational restrictions due to bad weather conditions vs. spontaneous HR regulation), the obstacles for PSD estimations for unevenly sampled datasets remain the same, and require resampling and interpolation methods to minimize distortions in the frequency domain, when applying traditional estimation methods (e.g. FFT) [44, 49, 61, 77]. The LSP uses the least-squares method to ﬁt sinusoids to a dataset to compute a FFT-like PSD. This method requires fewer additional steps than traditional FFTbased PSD, considering that it does not require any pre-processing of the dataset to conduct a resampling or interpolation in order to deal with the dataset’s nonuniformity. However, this method does have its limitations, given that it requires a warm-up phase, during which a minimum amount of samples or acquisition duration for which the lower limit has yet to be further investigated. [19, 42, 61]. An example of a possible HRV based LSP with the segmentation into the diﬀerent FB is shown in Figure 12.
+28
+
+2. Fundamentals of Heart Rate Variability
+
+Figure 12: Sample PSD computed using the Lomb-Scargle periodogram (NNI series segment extracted from: [31]).
+
+2.3.3.5 Frequency Parameters
+The absolute power of each FB is computed by integration of the PSD over the component’s frequency band. As the signal used for HRVA is of discrete nature, the sum of the power samples over the FB multiplied by the frequency resolution is equal to the sum over the same interval (Equation 13).
+
+fmax
+
+Pabs,z = ∆f ·
+
+S
+
+f =fmin
+
+with:
+
+z
+
+: Frequency band (ULF, VLF, LF or HF) [n.u.]
+
+Pabs,z : Absolute power of the frequency band z in [ms2]
+
+∆f : Frequency resolution in [Hz]
+
+fmin,z : Minimum frequency of the frequency band z in [Hz]
+
+fmax,z : Maximum frequency of the frequency band z in [Hz]
+
+S
+
+: PSD function (unit: [ms2])
+
+(13)
+
+The total power can either be computed by integrating the signal over the interval between the lowest frequency band limit (lower limit of the ULF or VLF at 0Hz, depending on which is being used) and the highest frequency of the HF frequency band (at 0.4Hz). The total power is computed as the sum of the absolute powers of all frequency bands (Equation 15).
+
+29
+
+2. Fundamentals of Heart Rate Variability
+
+fmax
+T P = ∆f · S
+fmin
+
+with:
+
+T P : Total power in [ms2] ∆f : Frequency resolution in [Hz] fmin : Minimum frequency of the lowest frequency band (ULF or VLF) in [Hz] fmax : Maximum frequency of the HF frequency band in [Hz] S : PSD function (unit: [ms2])
+
+(14)
+
+T P = PULF + PV LF + PLF + PHF
+
+(15)
+
+with:
+
+T P : Total power in [ms2] PULF : Absolute power of the ULF band in [ms2] PV LF : Absolute power of the VLF in [ms2] PLF : Absolute power of the LF in [ms2] PHF : Absolute power of the HF in [ms2]
+
+Relative powers are the ratio between the absolute power of the individual frequency band and the total power of the PSD within the speciﬁed minimum and maximum frequency interval, and are therefore expressed as percent (Equation 16). Newer suggested implementations of the frequency domain parameters also provide the logarithmic value of the absolute powers (Equation 17) [66].
+
+Prel,z
+
+=
+
+Pabs,z TP
+
+·
+
+100%
+
+with:
+
+z : Frequency band (ULF, VLF, LF or HF) [n.u.]
+Prel,z : Relative power of FB z in [%] Pabs,z : Absolute power of the FB z in [ms2] T P : Total power in [ms2]
+
+(16)
+
+Plog,z = log(Pabs,z)
+
+with:
+
+z : Frequency band (ULF, VLF, LF or HF)) [n.u.]
+Plog,z : Logarithmic power value of FB z [n.u.] Pabs,z : Absolute power of the FB z in [ms2]
+
+(17)
+
+Normalized powers are usually only computed for the LF and HF frequency band and are computed as presented in Equations 18 and 19 [14].
+
+30
+
+2. Fundamentals of Heart Rate Variability
+
+Pnorm,LF
+
+=
+
+Pabs,LF Pabs,LF + Pabs,HF
+
+∗ 100
+
+Pnorm,H F
+
+=
+
+Pabs,H F Pabs,LF + Pabs,HF
+
+∗ 100
+
+with:
+
+Pnorm,LF : Normalized power of the LF band [n.u.]
+Pnorm,HF : Normalized power of the HF band [n.u.] Pabs,LF : Absolute power of the LF band in [ms2] Pabs,HF : Absolute power of the HF band in [ms2]
+
+(18) (19)
+
+The LF/HF ratio can be computed as the ratio between the absolute powers in the LF and HF FB (Equation 20)[86].
+
+LF = Pabs,LF HF Pabs,HF
+
+with:
+
+LF/HF : LF/HF ratio [n.u.] Pabs,LF : Absolute power of the LF band in [ms2] Pabs,HF : Absolute power of the HF band in [ms2]
+
+(20)
+
+31
+
+2. Fundamentals of Heart Rate Variability
+
+2.3.4 Nonlinear Parameters
+
+The Nonlinear parameters are intended to enhance nonlinear characteristics and unpredictability of NNI series, which are caused by the diﬀerent complex physiological dynamics of the human body that lead to HRV (e.g. SNS vs. PNS) [8, 82]. The HRV guidelines named multiple methods to derive a variety of parameters, but failed to establish a selection of reliable and meaningful nonlinear methods for clinical contexts, due to the lack of scientiﬁc evidence and technological advancements at the time [86].
+
+Over the last recent years, a variety of mathematical methods for nonlinearity analysis have been applied in HRV research. However, many of them have not been found to be suitable for HRVA due to their complexity or lack of suﬃcient scientiﬁc backing, with only a few methods being commonly found in HRV research [8, 42]. Table 4 presents a selection of the most commonly found methods [42, 70, 82, 87, 102].
+
+Table 4: Overview of nonlinear parameters.
+
+Nonlinear Parameters
+
+Parameter Poincare Plot - SD1 - SD2 -S - SD1/SD2 Sample Entropy DFA
+
+Unit ms ms − % -
+beats
+
+Description Scatter plot of NN intervals (N Ni+1 against N Ni) Standard deviation along the minor axis Standard deviation along the major axis Area of the ﬁtted ellipse (focus points SD1 & SD2) Ratio between SD1 & SD2 Sample entropy of the NNI series Detrended ﬂuctuation analysis
+
+2.3.4.1 Poincar´e Plot
+The Poincar´e plot is a scatter plot where a given N N Ij is plotted against its successor N N Ij+1. It is a graphical tool for HRV analysis of a NNI dataset, which allows a rapid ﬁrst judgment of a subject’s health, as the shape of the scatter plot provides a visual representation of the overall HRV [87]. Woo et al. [102] have investigated the patterns of healthy subjects with advanced heart failure and observed torpedo or comet-like shaped Poincar´e plots in datasets of healthy subjects while circular, chaotic or fan-like shape, with multiple clusters of points, were observed in datasets of patients with the named heart conditions.
+Figure 13 (a) demonstrates an example Poincar´e plot of a NNI dataset with relatively
+32
+
+2. Fundamentals of Heart Rate Variability
+low HRV, as the majority of points is closely clustered around the dataset’s mean point (at N Ni+1 = N Ni = N N , which in this case is 775.19ms). Figure 13(b) on the other hand demonstrates an example Poincar´e plot of an NNI dataset with high HRV, with points being widely spread around the dataset’s mean value along the plot’s major axis (identity line with y = x), creating a comet-like shape.
+
+(a)
+
+(b)
+
+Figure 13: (a) Poincar´e plot of an NNI dataset of a normal subject while in rest. The points of the plot are closely clustered around the dataset’s mean value. (b) Poincar´e plot of an NNI dataset with high HRV. The points of the plot are widely spread along the identity line and create
+a comet-like shape (dataset source: [31]).
+
+Besides the plot itself, the Poincar´e method provides parameters that can be used for a more detailed analysis of the NNI based scatter plot: SD1, SD2, ellipse area, and SD1/SD2 ratio. SD1, the standard deviation of the points perpendicular to the major axis along the minor axis, is a measure of instant beat-to-beat variability, i.e. short-term variability, and is correlated with the HF powers of the NNI series [12, 33, 87]. This parameter can either be computed based on the SDSD time domain parameter - the standard deviation of successive diﬀerences (see Chapter 2.3.1.8) according to Equation 21, or on a vector based computation as suggested by Tayel
+−−−−→ et al. [87] according to Equation 22 - as the variance of the diﬀerence of the N Ni+1
+−−→ and N Ni vectors [12]. The SD1 parameter is usually visualized in the plot as a vector with its origin at the mean of the scatter plot and the length of SD1 along the axis perpendicular to the major axis, as visualized in Figure 14 with the SD1 vector (green arrow) and the minor axis (green dotted line).
+
+33
+
+2. Fundamentals of Heart Rate Variability
+
+Figure 14: Poincar´e plot depicting of the SD1 parameter (green arrow) along the axis perpendicular to the identity line (green dotted), the SD2 parameter (blue arrow) along the identity line
+(blue dotted) and the ellipse with its center at the mean of the scatter plot.
+
+SD1 = 1 · SDSD2 2
+
+1 −−−−→ −−→
+
+SD1
+
+=
+
+√ 2
+
+·
+
+σ(N Ni+1
+
+−
+
+N Ni)
+
+with:
+
+SDSD : Standard deviation of successive diﬀerences in [ms] −−−−→ N Ni+1 : Vector of successive NN intervals in [ms] −−→ N Ni : Vector of current NN intervals in [ms]
+
+(21) (22)
+
+SD2, on the other hand, is the standard deviation of the points along identity line, and is a measure of both short and long-term variability that correlates with the LF power [82]. This parameter can be either computed based on the SDNN the standard deviation of successive NNI (see Chapter 2.3.1.4) - and the SDSD time domain parameters according to equation 23, or also on a vector based computation, as suggested by Tayel et al. [87] in Equation 24 - as the variance of the sum of the −−−−→ −−→ N Ni+1 and N Ni vectors [12]. The SD2 parameter is commonly depicted as a vector with its origin at the mean of the scatter plot and the length of SD2 along the identity
+
+34
+
+2. Fundamentals of Heart Rate Variability
+
+line, as presented in Figure 14, with the SD2 vector (blue arrow) and the identity line (blue dotted line). Additionally, the SD1 and SD2 ratio, which measures both the randomness of an NNI series and, with a suﬃciently long monitoring duration, the balance between sympathetic and parasympathetic activity, is another important parameter of the Poincar´e parameter family [47, 82].
+
+1 SD2 = 2 · SDNN2 − · SDSD2
+2
+
+1 −−−−→ −−→ SD2 = √ · σ(N Ni+1 + N Ni)
+2
+
+with:
+
+SDN N : Standard deviation of successive NN intervals in [ms] SDSD : Standard deviation of successive diﬀerences in [ms] −−−−→ N−−N→i+1 : Vector of successive NN intervals in [ms] N Ni : Vector of current NN intervals in [ms]
+
+(23) (24)
+
+Another commonly adapted method used in Poincar´e based analysis is the ﬁtting of an ellipse in the plot, with dependence of the N N , SD1 and SD2 parameters, providing another visual highlight of such parameters. For this, the center of the ellipse is placed at the mean of the plot (i.e. N Ni+1 = N Ni = N N , in this case with775.19ms) with the ellipse’s focus points being the ends of the SD1 and SD2 vectors, as shown in Figure 14 (yellow ellipse). Tayel et al. [87] have shown that the area S (in in [ms2]) of the ellipse is greater in healthy subjects due to the overall higher HRV and very small for critical cases of subjects with existing heart conditions, reason for which the area of the ellipse can also be computed with accordance to Equation 25 [87].
+
+S = π · SD1 · SD2
+
+(25)
+
+2.3.5 Sample Entropy (SampEn)
+The SamPen is a measure of complexity or irregularity of a NNI series. It is a vector-based computation, which is an improved version of the regular Approximate Entropy algorithm as it can be applied on small sample sizes [42, 82]. The SamPen function (SamP en or sometimes found as SampEn(m, r, N )), is parametric function that depends on the embedding dimension m, the tolarance r, and
+35
+
+2. Fundamentals of Heart Rate Variability
+the number of NNI data points. The embedding dimension m deﬁnes the length of the vector Um(i) that is created from the original NNI series as presented in Figure 26.
+
+Um(i) = (N N Ii, N N Ii+1, ..., N N Ii+m−1)
+
+(26)
+
+i = 1, 2, 3, ..., n − m + 1
+
+with:
+
+Um(i) : Template vector n : Number of NNI m : Embedding dimension
+
+Next, the distance function d(Um(i), Um(j)) is computed using the Chebyshev or Euclidean distance, to determine the maximum distance between the vector pairs Um(i) and Um(j) (with i = j) constructed from the template vector resulting in Equation 26.
+
+d(Um(i), Um(j)) = max{|N N Ii+n − N N Ij+n|}
+
+(27)
+
+From these functions, the parameters A and B are computed as the number of vector pairs that are smaller than the deﬁned tolerance r, i.e.
+
+A = count{d(Um+1(i), Um+1(j)) < r}
+
+(28)
+
+of the length m + 1 and
+
+B = count{d(Um(i), Um(j)) < r}
+
+(29)
+
+of the length m. Finally, the SamPen is the negative logarithm of the ratio between A and B.
+
+A
+
+SamP en = −log( )
+
+(30)
+
+B
+
+In HRVA, the recommended default values for m and r are set to 2 and 2SDN N [73]. Statistically, the SamPen is the negative logarithm of the probabilities of both the template vector with the length m and the template vector with the length
+
+36
+
+2. Fundamentals of Heart Rate Variability
+m + 1 having distances < r within the tolerance limits (i.e. the probability that the additional data point m + 1 does not vary more than the tolerance r → low HRV).
+Physiologically, low HRV is present in the NNI series due to low ﬂuctuations in successive NNI. In this case, the predictability of the a vector of m + 1 in length and m are similar, i.e. the m+1 data point does not exceed the speciﬁed tolerance levels, thus resulting in low SamPen values (e.g. A = B = 1 ⇒ SampEn = −log(1/1) = −log(1) = 0). High HRV on the other hand least to a lower predictability of a given additional m + 1 point due to the greater ﬂuctuation between successive NNI durations, i.e. more m + 1 data points reach outside the speciﬁed tolerance levels. This decrease of m + 1 predictability results in smaller A values, thus decreasing the overall SamPen (e.g. A = 0.1, B = 1 ⇒ SampEn = −log(0.1/1) = 1).
+
+2.3.6 Detrended Fluctuation Analysis (DFA)
+
+The DFA is an index that expresses the correlation within the NNI series in longterm acquisitions [65, 82]. This method has been introduced by Peng et al. and is computed as follows [70]:
+First, the sum of the NNI series is computed and detrended by the series’ mean.
+
+n
+Y [k] = (N N Ii − N N I)
+i=1
+
+with:
+
+Y [k] : Sum of the NNI series in [ms] n : Number of NNI N N I : Mean of the NNI series in [ms]
+
+(31)
+
+Next, Y [k] is segmented into individual segments of length m, for which a line is ﬁtted to each of the segments using the least-squares, and the removal of any local trends. The ﬂuctuation of each segment is then computed by the root-mean-square method of the detrended discrete integral function as presented in Equation 32.
+
+1n
+
+F [m] = n
+
+(Y [i] − Ym[i])2
+
+(32)
+
+i=1
+
+The computation of F [m] is repeated over diﬀerent segment lengths m, which for HRVA applications commonly range between 4 and 16 beats NNI to determine short-term ﬂuctuations and between 17 and 64 beats NNI for long-term ﬂuctuations
+
+37
+
+2. Fundamentals of Heart Rate Variability [101]. The results are plotted in a double logarithmic plot containing the ﬂuctuation results, with individual linear functions of slopes α1 and α2 ﬁtted to the short and long-term ﬂuctuations. An example plot of the DFA results is presented in Figure 15 2.
+Figure 15: Resulting plot of a Detrended Fluctuation Analysis visualizing the short-term ﬂuctuations (blue) and long-term ﬂuctuations (green) [31].
+2DFA computed based on a randomly selected 1 hour interval of NNI data from the MIT-BIH NSRDB database (signal 19090) using pyHRV
+38
+
+Chapter 3
+Materials and Methods
+3.1 Intended Workﬂow
+The pyHRV toolbox developed in the scope of this work is intended to provide functions to compute HRV parameters and other useful functionalities and features often required, found, and used in HRV research applications to facilitate the use and increase the usability of this toolbox (e.g., export of HRV results, generating HRV reports). Although this toolbox’s use is not restricted to speciﬁc devices but rather intended to be used with any ECG signal in combination with the BioSPPY toolbox (e.g. extract R-peaks) or NNI series, independently of the acquisition device being used, the intended workﬂow adopted in this work is focused on supporting PLUX’s BITalino (r)evolution (BITalino) biosignal acquisition hardware toolkits, their compatible OpenSignals (r)evolution software and the open-source BioSPPy BioSPPy toolbox for biosignal processing in Python, for which the pyHRV toolbox developed in this work will be integrated in the future. This approach is designed to demonstrate a possible workﬂow and usage example of this toolbox in real research applications. BITalino boards are Arduino-like modular devices with single lead ECG sensors (among other physiological sensors) designed for rapid-prototyping purposes in research, development, and education (e.g. classroom support and student projects) [7]. The BITalino ECG sensor used within this work (for testing purposes and to ensure compatibility of the intended workﬂow with BITalino devices and this toolbox) is shown in Figure 16. The BITalino system (Board Kit) used in this work is presented in Figure 17. The datasheets of the ECG sensor and the BITalino Board Kit can be found in Appendices D and E.
+39
+
+3. Materials and Methods
+Figure 16: BITalino (r)evolution ECG sensor with open pins for power and analog signal output (right) and pinout for a Lead I single channel ECG setup (left).
+Figure 17: BITalino (r)evolution Board Kit. The most important modules for the acquisition of a single channel ECG signal are highlighted in color.
+This workﬂow is split into two major steps: (a) signal acquisition and (b) script/software development in Python. In step (a) users are intended to use BITalino devices and the OpenSignals (r)evolution software to acquire ECG signals and to export the raw digitized signals in OpenSignals .TXT ﬁles. Afterwards in step (b), the ECG signal(s) are imported and converted using the additional opensignalsreader support packages developed within this work, which facilitates the signal import and automatically converts the acquired signals into their original units (mV ) (see Appendix C.1 and Appendix G)1. This step is followed by the use of the BioSPPy toolbox to ﬁlter the ECG signal(s) and extract the R-peak locations upon which the HRV are computed. The entire process is illustrated in Figure 18.
+1The BITalino device must be conﬁgured correctly in the OpenSignals (r)evolution software, i.e. the ECG channel must be conﬁgured as ECG, not as RAW or CUSTOM.
+40
+
+3. Materials and Methods
+Figure 18: Illustration of the intended workﬂow from the ECG electrode placement and signal acquisition until the application of the HRV toolbox.
+A minimal working example demonstrating step (b) of this workﬂow in the corresponding Python code is presented in the Python Snippet 1 which shows that only a few lines of code are necessary to go from the ECG signal import until the HRV parameter computation.
+1 # I m p o r t p a c k a g e s ( O p e n S i g n a l s , BioSPPy and pyHRV ) 2 from opensignalsreader import OpenSignalsReader 3 from bisppy . signals . ecg import ecg 4 from pyhrv . hrv import hrv
+5
+6 # Load ECG s i g n a l a c q u i r e d w i t h B I T a l i n o and O p e n S i g n a l s 7 e c g s i g n a l = O p e n S i g n a l s R e a d e r ( ’ SampleECG . t x t ’ ) . s i g n a l s ( ’ECG ’ )
+8
+9 # F i l t e r ECG s i g n a l and E x t r a c t R−peak l o c a t i o n s 10 r p e a k s = e c g ( e c g s i g n a l , show=F a l s e ) [ 2 ]
+11
+12 # Compute HRV p a r a m e t e r s 13 r e s u l t s = h r v ( r p e a k s=r p e a k s )
+Python Snippet 1: Minimum working example of the Python code required to import ECG signals acquired from and stored in OpenSignals ﬁles as .TXT ﬁles (line 7), followed by ECG ﬁltering and R-peak extraction using the BioSPPy toolbox (line 10) upon which the HRV
+parameters are computed using the HRV toolbox (line 13).
+41
+
+3. Materials and Methods
+3.2 Third-Party Tools, Software and Packages
+The main goal of this work was to create a novel toolbox named pyHRV for the Python programming language; as such, multiple Python open-source libraries are used for the computation of HRV parameters, ﬁle and data management, and plotting the acquired signals and results. The development of this toolkit has been conducted in a virtual environment created with the Conda package and virtual environment management software, using a Python v.2.7.15 distribution and the PyCharm Community 2017.2 Integrated Development Environment (IDE).
+The BioSPPy package (v.0.5.1) is an open-source toolbox for biosignal processing in which the HRV toolbox developed in this work will be integrated in the future [17]. For this reason, the HRV toolbox follows the same Python format and documentation style guide as set forth by the NumPy/SciPy style format [53] (e.g. for the docstrings2), and uses BioSPPy functions throughout its modules. For instance, the biosppy.signals.ecg.ecg() function is used in the example code implemented in each module, to demonstrate how to properly conduct signal pre-processing using BioSPPy (e.g., ECG ﬁltering, R-peak extraction), upon which the functions of the HRV toolbox can be applied. Additionally, results generated by the HRV toolbox are wrapped in objects of the BioSPPy ReturnTuple class found in the biosppy.tools module. This package-speciﬁc class combines the advantages of Python dictionaries, where values are stored in a mutable array-like object without a ﬁx order and indexed using keywords (dictionary keys)3, and Python tuples, an immutable array-like object that is indexed as regular arrays with sequential numbers. These advantages of immutability of the tuple format, combined with the advantages of the key-based value indexing of dictionaries, facilitates the access of storing and reading parameter results with a single object, without the need of additional index tracking (as would be the case when using regular arrays or tuples).
+The NumPy package provides an eﬃcient array data type which is far more superior - in both memory size and processing time - to Python’s native array-like list format [67]. Series of R-peak locations, NNI, or PSD results computed within this toolbox’s functions are stored and processed in the NumPy array format. Additionally, functions to determine basic statistical parameters, such as the minimum, maximum or mean value of a series, as well as array manipulation functions used in this work are
+2docstrings provide information about the function and are the output of the help() function when used in the Python interpreter (e.g. help(sdnn) prints the docstring of the SDNN function in the terminal).
+3Imagine a dictionary named results which stores a SDNN value (e.g. 800ms) with a string-key named sdnn: results[’sdnn’] = 800
+42
+
+3. Materials and Methods
+
+conducted using functions of this package.
+
+Frequency domain parameters are derived from PSD estimations obtained using different estimation methods. The computation of the FFT-based PSD estimation uses the interpolation (scipy.interpolate.interp1d()) and Welch’s method (scipy.signal.welch()) algorithms from the SciPy (v.1.1.0) package for scientiﬁc computing in Python [38]. The LSP has been computed using SciPy’s scipy.signal.lombscargle(). The AR PSD has been computed using the Yule-Walker algorithm implemented in the Spectrum package (spectrum.pyule(), v.0.5.2) [20, 40]. For the computation of the Nonlinear parameters (SamPen and DFA), an additional package known as nolds (NOnLinear measures for Dynamical Sytems) (v.0.4.1) has been used, which has been speciﬁcally developed for the computation and analysis of nonlinear measures in datasets.
+
+All functions with plotting capabilites use the Matplotlib package (v.2.2.2) [37]. Matplotlib is the most commonly used package for data visualization and plotting in Python, supported by many GUI development frameworks (e.g. TKinter4), and compatibility can be useful for future users of the pyHRV toolbox developed within the scope of this work and their application development.
+
+Additional native Python packages have been used in this toolbox such as the datetime package to create timestamps in ﬁles generated by this toolbox (e.g. reports), the os package to help generate operating system compatible ﬁle paths for ﬁle management purposes, and the warnings package to trigger warnings printed to the Python console to provide additional information to the user whenever required (e.g. insuﬃcient number of NNI samples to compute a parameter). Due to their implementation in the Python distribution, these packages do not provide individual version numbers, reason for which they will be listed as v.2.7.15 according to the Python version used during the development of this work. The exception here is the JSON package (v.2.0.9), which has been used to handle data import and export between Python and .JSON ﬁles. The .JSON format is a convenient format to store data in dictionary-like formats. Additionally, it also human-readable making it more user-friendly compared to other ﬁle formats. In this work, the JSON library has been used to read and write .JSON ﬁles storing parameter-speciﬁc information such as the parameter keys of the BioSPPy ReturnTuple objects, the parameter descriptions used when exporting HRVA results in HRV report ﬁles, and to read and write the results of HRVA stored as BioSPPy ReturnTuple objects. An overview of all third-party packages used in the HRV toolbox are listed in Table 5.
+
+4Matplotlib example code:
+
+https://matplotlib.org/gallery/user_interfaces/
+
+embedding_in_tk_canvas_sgskip.html
+
+43
+
+3. Materials and Methods
+
+Table 5: Third party packages & versions used in this work.
+
+Third-Party Packages & Versions
+
+Package Version Usage
+
+biosppy 0.5.1 Biosignal processing toolbox
+
+matplotlib 2.2.2 2D plotting library
+
+numpy
+
+1.15.1 Eﬃcient array manipulation library
+
+scipy
+
+1.1.0 Welch’s method & signal interpolation
+
+spectrum 0.5.2 Spectral analysis in Python
+
+nolds
+
+0.4.1 Nonlinear measures for nonlinear parameters
+
+json
+
+2.0.9 Import & Export of HRV results, keys and
+
+descriptionsn
+
+os
+
+-
+
+Tools for operating system-speciﬁc
+
+functionalityn
+
+datetime -
+
+Manipulation of dates and timesn
+
+warnings -
+
+Issues user warning notiﬁcationsn
+
+n Native Python package integrated in Python 2.7.15
+
+Sources [17] [37] [67] [38] [20] [78] -
+-
+-
+
+3.3 Evaluation Procedures
+
+In order to verify the correct functionality of the developed functions and tools of this toolbox, the developed parameter computation and helper functions (e.g. signal segmentation for SDANN and SDNN Index parameters) have been thoroughly tested and evaluated using the KUBIOS HRV software as reference software. KUBIOS is a MATLAB based software and, at the time being, a popular HRV software in HRV research, thus being considered as the gold standard among HRV tools [51, 52, 65, 66, 91]. The version used for the benchmarking in the scope of this work has been v.3.1. The approach followed in order to provide proper evaluation metrics, is summarized in Figure 19.
+Step 1: Series of NNI have been selected from the physionet.org platform [31]. Although the physiological context(s) of the computed parameter results were neglected in this evaluation approach - after all, this method is intended to measure the correct functionality of the developed functions only - the NNI series used for this purpose were taken from the MIT-BIH Normal Sinus Rhythm Database (MIT-BIH). This dataset consists of long-term ECG recordings of 18 healthy subjects (5 men between 26 and 40 years and 13 women between 20 and 50 years) with no observable pathological ECG arrhythmias, from which the NNI series have been downloaded directly from the physionet using the platforms PhysioBank ATM (Automated Teller Machine) [31]. The use of the NNI series has been preferred over the use of the raw ECG signals, to avoid possible diﬀerences in the implemented ECG pre-processing
+
+44
+
+3. Materials and Methods and R-peak detection algorithms between BioSPPy and KUBIOS. Such variations could cause diﬀerences in the extracted R-peak series and the derived NNI series, which could ultimately inﬂuence the parameters results. Additionally, NNI series detrending has been deactivated in the KUBIOS software to avoid further processing of the NNI series in the KUBIOS software, which may have not be reproduced with pyHRV. This way, it is ensured that both tools are computing the HRV paramaters on the exact same NNI series.
+Figure 19: Flowchart of the evaluation metrics computation process.
+Step 2: Outliers have been removed from the NNI series which have been introduced in the ECG recordings due to signal artifacts (e.g., movement artifacts, interrupted electrode-skin contact). In this series, NNI of up to approx. 42 seconds in duration (=ˆ 0.7 BPM) could be found which have been removed by applying a threshold of
+45
+
+3. Materials and Methods 1.2s5 as maximum allowed NNI. If not removed, these outliers could distort the Tachogram and the HRV parameter results and cause issues in the signal segmentation process used in the next step. An example of such issues is shown in Figure 20 (top), where the outliers stand out signiﬁcantly when compared to the rest of the NNI. The result of the ﬁltered signal is shown in Figure 20 (bottom).
+Figure 20: Tachogram comparison of a NNI series with NNI outliers caused by signal artifacts during the ECG acquisition (top), and the NNI series after applying a NNI threshold of 1.2 seconds
+(bottom) (signal 19090 [31]).
+Step 3: The NNI series were split into segments of shorter durations, upon which the HRV parameters could be computed and statistically compared. Given that 18 series of NNI could be insuﬃcient to conduct a signiﬁcant comparison, the segmentation process using the pyhrv.tools.segmentation() function has been conducted to extract a greater number of NNI series from the original MIT-BIH database. A duration of 5 minutes per segment has been set for the computation of most of the HRV parameters, except for the SDANN and SDNN Index parameters, which required segments of longer duration as their computation itself conducts an independent segmentation process (see Chapters 2.3.1.5 and 2.3.1.6). For these parameters, a duration of 60 minutes has been selected. Step 4: 50 segments of each duration have been randomly selected using the NumPy
+51.2 seconds =ˆ 50 BPM; 10 BPM lower than the lower limit of normal HR in healthy adult individuals according to the American Heart Association [2]
+46
+
+3. Materials and Methods
+
+numpy.random.randint() function to randomly select indices of the generated segment series.
+
+Step 5: The HRV parameters have been computed using pyHRV and KUBIOS and the results have been sorted by parameter. In order to derive comparable results, some parameter speciﬁc settings had to be equally set in pyHRV and KUBIOS. These settings consist of a selection of parameter values (e.g., frequency bands, embedding dimensions) that are listed in the table below.
+
+Table 6: Selected parameter settings set in the toolbox and KUBIOS software to compute HRV results on the same datasets and using equal parameters.
+
+Parameter Settings
+Parameter Speciﬁc Settings NNI detrending method HR parameters computed as average of X heart beats VLF Frequency Band LF Frequency Band HF Frequency Band FFT - Interpolation frequency FFT - Window width FFT - Window overlap Lomb - Smoothing AR - Model order Sample Entropy - Embedding dimension Sample Entropy - Tolerance DFA - Short term ﬂuctuations DFA - Long term ﬂuctuations
+k KUBIOS HRV speciﬁc parameter settings only.
+
+Set Value(s) Nonek 1 beatk 0.00Hz - 0.04Hz 0.04Hz - 0.15Hz 0.15Hz - 0.40Hz 4Hz 300s 50 % Nonek 16 2 0.2 · SD 4 - 16 beats 17 - 64 beats
+
+HRV results generated with KUBIOS were created by manually importing each NNI segment into KUBIOS and exporting the results in report ﬁles (.TXT, .MAT, and .PDF formats) of which a total of 200 KUBIOS6 individual reports of each ﬁle format have been created as follows:
+• 50 reports for the evaluation of FFT, time domain and nonlinear results
+• 50 reports for the evaluation of AR results
+• 50 reports for the evaluation of LSP results
+• 50 reports for the evaluation of the SDANN Index and SDANN results
+6The extensive amount of KUBIOS reports and NNI segments have also been generated to provide enough data for the evaluation of new HRV features implemented in future versions of the toolbox.
+
+47
+
+3. Materials and Methods
+Step 6: The results were exported using the toolbox’s hrv.tools.hrv export() function and were stored in the .JSON ﬁle format. Additionally, the results have been sorted and summarized by parameter leading to data series of 50 results for each parameter7. Step 7: A statistical analysis has been conducted. Although the NNI series have been randomly selected, it can be argued that the computed HRV results lost their characteristics of a random variable as their computation follow an non-random and structured method. Given that most statistical analysis methods depend on random variables (e.g. Chi-Square), their use might not be the most suitable option for the evaluation of the computed HRV results. Instead, the following statistical method has been used. The mean values, Px and Kx, and the SD, σ(Px) and σ(Kx) of each parameter series has been computed for the pyHRV (Px) and KUBIOS (Kx) results, with x being on of the computed HRV paramters. Additionally, the absolute diﬀerence ∆x between the Px and Kx values has been computed. Finally, the pyHRV results have been classiﬁed into 3 categories, Optimal, Acceptable, and Rejected, depending on ∆x and the σ(Kx):
+Optimal: ∆x = 0 The computed parameter results are identical, therefore, no diﬀerence exists between Px and Kx
+Acceptable: 0 < ∆x <= σ(Kx) The computed parameter results are not identical, but the diﬀerence is ≤ the SD of the KUBIOS results. The diﬀerence is acceptable, as the diﬀerences are not signiﬁcant.
+Divergent: ∆x > σ(Kx) The computed parameter results are not identical and a signiﬁcant difference exists. These computed results are questionable.
+7Import of the KUBIOS results has been achieved due to the development and use of the kubios support package (see Appendix C.2)
+48
+
+Chapter 4
+Results
+The implemented pyHRV toolbox has been developed in the Python package format, which allows developers to use it as an open-source library in their own software development applications. pyHRV has primarily been developed under and for Python 2.7 and has been publicly released on the GitHub repository system1. An extensive API reference, which is intended to support users to implement the pyHRV functions, has been released on the ReadTheDocs platform2. The entire list of computable parameters and the respective keys are presented in Appendix B.
+4.1 Implementation of the HRV Toolbox
+4.1.1 Package Architecture
+The toolbpx contains 2 package speciﬁc ﬁles (Table 7 ﬁles #1 and 2) required for Python-speciﬁc purposes (e.g., package initialization, version tracking, storing package metadata), and the Tools module (Table 7 ﬁles #3), which provides fundamental functions for the computation of HRV base data (e.g. NNI series) and other useful features for HRV research (e.g. data import and export). The 4 core modules of this package (Table 7 ﬁles #4 to 8) contain all the parameter functions to compute the Time Domain, Frequency Domain, and Nonlinear parameters. Additionally, the hrv keys.json ﬁle contains all the key and labels for the computed HRV parameters stored in the BioSPPy ReturnTuple objects (Table 7 ﬁle #8; see also Annex B).
+1pyHRV on GitHub: https://github.com/PGomes92/pyhrv 2pyHRV API Reference: https://pyhrv.readthedocs.io/en/latest/
+49
+
+4. Results
+
+The HRV feature extraction functions of the pyHRV toolbox have been implemented and categorized into three levels, which are intended to facilitate the usage and increase the usability of the toolbox according to the needs of the user or programming background. This multilevel-architecture is illustrated in Figure 21 and explained in greater detailed below.
+
+Table 7: pyHRV package modules, ﬁles and descriptions.
+
+pyHRV Package Files
+
+# Module
+
+File Name
+
+Description
+
+1 Package Init. 2 Version
+
+init .py version .py
+
+Package initialization ﬁle Package version tracker
+
+3 Tools
+
+tools.py
+
+Fundamental tools and functions
+
+4 HRV
+
+hrv.py
+
+Contains the hrv() function
+
+5 Time Domain time domain.py
+
+Time Domain parameter functions
+
+6 Frequency Do- frequency domain.py Frequency Domain parameter
+
+main 7 Nonlinear
+
+nonlinear.py
+
+functions Nonlinear parameter functions
+
+8 HRV Keys
+
+hrv keys.json
+
+Parameter keys and labels
+
+Figure 21: Multilevel architecture of the HRV package.
+Level 1 - HRV Level: Consists of a single function that allows users to compute the full range of HRV parameters using only a single line of code by calling the hrv() function found in the hrv.py. This function calls all underlying HRV parameter functions and returns the bundled results in a biosppy.utils.ReturnTuple() object. User-speciﬁc settings or parameters for the computation of these parameters can be passed to the hrv() function if needed. Otherwise, the pre-set default values will
+50
+
+4. Results
+be used. This function can be especially useful for users with little programming backgrounds.
+Level 2 - Domain Level: Consists of module/domain functions intended for users that only want to compute all the parameters of a speciﬁc domain. Using the example of the time domain, the time domain() function calls all the parameter functions of this domain and returns the results bundled in a biosppy.utils.ReturnTuple() object. As in the previous level, user-speciﬁc settings and parameters can be passed to the domain functions, which are found in the respective modules. The module level function can be found in the respective domain modules.
+Level 3 - Parameter Level: Contains parameter-speciﬁc functions for users that only want to compute single, speciﬁc parameters (individually) (e.g. sdnn() returns the SDNN parameter). This allows the user to select only the parameters or features required for their speciﬁc application with the advantage of avoiding unwanted additional processing time and memory spent on non-required parameters. User-speciﬁc settings and parameters can be made directly when overloading the function. The module level function can be found in the respective domain modules.
+4.1.1.1 HRV Tools Module
+The Tools Module (ﬁle: tools.py) contains functions with general purpose and key functionalities for the entire pyHRV toolbox, among other useful features designed to improve the usability of the entire toolbox. All functions are listed in Table 8 and can be categorized into four types of functions: (a) data series that generate data directly (functions #1-7), (b) plotting functions, (c) data import and export functions, and (d) data veriﬁcation functions.
+Functions of category (a) generate fundamental data series that are required for the computation of HRV parameters such as the NNI, ∆NNI, HR or signal segmentation series. Additionally, the time vector() computes a time vector from a given ECG signal, which can used for ECG visualization purposes. The join tuples() joins multiple biosppy.utils.ReturnTuple() objects and returns them in a single, bundled object as used in the package level and domain level functions of this toolbox.
+Functions of category (b) provide signal plotting facilities, commonly used in HRV applications. The resulting plots of the plot ecg() and tachogram() functions are shown in Figure 22 and Figure 6 (see also Section 2.3.1.3, page 16). The plot layout generated by the plot ecg() function resembles medical-grade ECG paper with the
+51
+
+4. Results
+
+Table 8: Functions of the Tools Module.
+
+Tools Module
+
+# Function Name 1 nn intervalss 2 nn diﬀs 3 heart rates 4 segmentations
+5 time vectors
+6 join tupless 7 stds 8 plot ecgs
+9 tachograms 10 hrv reports 11 hrv exports 12 hrv imports 13 check inputs 14 nn formats 15 check intervals
+16 check limitsw 17 check fnamew
+
+Description Computes a series of NNI from a series of R-peak locations Computes a series of ∆NNI from a series of NNI Computes HR value(s) from NNI or R-peak data Segmentation of R-peaks into individual segments of speciﬁed duration (e.g 5 minute) for computation of SDNN-index or SDANN) Computes time vector for an input ECG signal with speciﬁed sampling frequency Bundles multiple biosppy.utils.ReturnTuple() objects Computes standard deviation of an input array Plots ECG signal on a medical-grade ECG paper styled ﬁgure Plots NNI Tachogram Creates a HRV report ﬁle in .TXT or .CSV format Exports HRV results to .JSON ﬁle Imports HRV results from hrv export() .JSON ﬁle Veriﬁes and converts NNI and R-peak input data Veriﬁes that NNI series is in ms format (converts s to ms) Checks interval boundaries of a given interval and ﬁxes overlaps Helper function for the check interval() function Veriﬁes if given ﬁle name does not exists; creates a new ﬁle name otherwise
+
+s = strong function; callable outside the module
+
+w = weak function; only callable inside the module
+
+t-axis divisions being automatically adjusted depending on the visualized signal interval to provide better visualization of the ECG signal.
+The functions of category (c) are intended to facilitate the export and import of HRV features computed using this pyHRV. The hrv export() function exports results stored in a biosppy.utils.ReturnTuple() object into a .JSON ﬁle (e.g., to permanently save results, export data to 3rd party software); latter these can be imported using the hrv import(). Additionally, HRV reports in .TXT or .CSV format can be created using the hrv report() function. An example of such a report can be found in Appendix A.
+Functions of the last category (d) are designed for data veriﬁcation purposes and to catch erroneous data or data formats, which are either automatically ﬁxed due to the implemented default values (and mechanisms), or that raise exceptions and notify
+
+52
+
+4. Results
+Figure 22: Sample ECG signal plotted with diﬀerent intervals. The divisions are adjusted depending on the visualization interval (Top: 10 seconds signal interval with 1 second divisions;
+Bottom: 20 seconds signal interval with 2 seconds divisions).
+the user. The check input() and nn format() functions ensure that the NNI series are available in the correct NumPy array in millisecond format. The check interval() and its helper function check limits() verify interval limits and correct them if the intervals are overlapping or incorrect (e.g., lower boundary > upper boundary, used to check FB limits). The check fname() function is used by the functions of the category (c) and checks if the provided output ﬁle name to which data is meant to be written exist, and, if the ﬁle name exists, generates a new ﬁle name (e.g. ReportFile.txt → ReportFile 1.txt) to avoid accidental overwriting of ﬁles. A minimum working example of the Tool Module’s function is presented in the Python Snippet 2.
+53
+
+4. Results
+1 # Import l i b r a r i e s 2 import pyhrv . tools as tools 3 import pyhrv . time domain as td 4 from bisppy . signals . ecg import ecg 5 from opensignalsreader import OpenSignalsReader
+6
+7 # Load s a m p l e ECG s i g n a l & e x t r a c t R−p e a k s u s i n g BioSppy f u n c t i o n s 8 e c g r a w = O p e n S i g n a l s R e a d e r ( ’ SampleECG . t x t ’ ) . s i g n a l s [ ’ECG ’ ] 9 e c g f i l t e r e d , r p e a k s = e c g ( e c g r a w , show=F a l s e ) [ 1 : 3 ]
+10
+11 # P l o t ECG & Tachogram ( f i r s t 10 s v i s u a l i z e d by d e f a u l t ) 12 t o o l s . e c g p l o t ( e c g f i l t e r e d ) 13 t o o l s . t a c h o g r a m ( e c g f i l t e r e d )
+14
+15 # Compute NNI s e r i e s and an e x a m p l e p a r a m e t e r o f t h e Time Domain ( e . g . SDNN)
+16 n n i = t o o l s . n n i n t e r v a l s ( r p e a k s ) 17 r e s u l t s = t d . sdnn ( n n i )
+18
+19 # C r e a t e HRV r e p o r t , JSON e x p o r t & i m p o r t 20 h r v r e p o r t ( r e s u l t s ) 21 h r v e x p o r t ( r e s u l t s , ’ /my/ p a t h / ’ , ’ S a m p l e E x p o r t ’ ) 22 h r v i m p o r t ( r e s u l t s , f i l e n a m e= ’ /my/ p a t h / S a m p l e E x p o r t ’ )
+Python Snippet 2: Minimum working example of the Tools Module’s functions.
+4.1.1.2 Time Domain Module
+The Time Domain Module (ﬁle: time domain.py) contains all functions to compute the Time Domain parameters presented in Table 1, Chapter 2.3.1. Functions of the Tools Module are used within this module to compute the series of NNI, ∆NNI, and HR from which the time domain parameters are computed. In this module, each function has been implemented according to the function architecture presented in Chapter 4.1.2, and computes one speciﬁc time domain parameter (e.g. SDNN) or parameter set (e.g. basic statistical parameters of NNI series). These functions are listed in Table 9) and implemented according to the Equations 4-11 and the methods presented in Chapter 2.3.1. Additionally, the implemented time domain() function has been added, which calls all of the functions #1-11 in accordance with the package architecture presented in Chapter 4.1.1.
+A minimum working example to demonstrate the code required for the computation of an individual time domain parameter, as well as for the set of Time Domain
+54
+
+4. Results
+
+parameters using the time domain() function is shown in Python Snippet 3.
+
+Table 9: Functions of the time domain module.
+
+# Function Name 1 nn parameters 2 nn diﬀerences parameters 3 hr parameters 4 sdnn 5 sdnn index
+6 sdann
+7 rmssd 8 sdsd 9 nnXX
+10 nn50
+11 nn20
+12 time domain
+
+Time Domain Module
+Description Computation of NNI parameters (min, max, mean) Computation of ∆NNI parameters (min, max, mean) Heart rate parameters (min, max, mean) Standard deviation of a NNI series Standard deviation of the means of 5 minute segments of long-term recordings Mean of the standard deviations of 5 minute segments of long-term recordings Root mean of squared ∆NNI Standard deviation of ∆NNI Number & percentage of ∆NNI greater than threshold XX in a NNI series Number & percentage of ∆NNI greater than 50 milliseconds in a NNI series Number & percentage of ∆NNI greater than 20 milliseconds in a NNI series Calls all of the functions above and returns results in a single ReturnTuple object
+
+1 # Import l i b r a r i e s 2 import pyhrv . time domain as td 3 from bisppy . signals . ecg import ecg 4 from opensignalsreader import OpenSignalsReader
+
+5
+6 # Load s a m p l e ECG s i g n a l & e x t r a c t R−p e a k s u s i n g BioSppy f u n c t i o n s 7 e c g s i g n a l = O p e n S i g n a l s R e a d e r ( ’ SampleECG . t x t ’ ) . s i g n a l s [ ’ECG ’ ] 8 r p e a k s = e c g ( e c g s i g n a l , show=F a l s e ) [ 2 ]
+
+9
+10 # OPTION 1 : Compute p a r a m e t e r s & methods 11 r e s u l t s = t d . sdnn ( r p e a k s=r p e a k s ) 12 p r i n t ( r e s u l t s [ ’ sdnn ’ ] )
+
+individually
+
+13
+14 # OPTION 2 : Compute a l l Time Domain p a r a m e t e r s & methods u s i n g 15 r e s u l t s = t d . t i m e d o m a i n ( r p e a k s=r p e a k s ) 16 p r i n t ( r e s u l t s [ ’ sdnn ’ ] )
+
+Python Snippet 3: Minimum working example of the Time Domain Module’s individual parameter functions (in this case sdnn()) and the module level function time domain().
+
+55
+
+4. Results
+4.1.1.3 Frequency Domain Module
+The Frequency Domain Module (ﬁle: frequency domain.py) contains all functions to compute the Frequency Domain parameters listed in Table 2, Chapter 2.3.3 and presented in Chapter 2.3.3.5. These parameters are derived from the application of the 3 diﬀerent frequency analysis methods presented in Chapters 2.3.3.2 to 2.3.3.4, i.e. they are applied to each of the methods generating method-speciﬁc results. The FFT-based PSD estimation method has been implemented with the use of tools from the SciPy package. This implementation uses the scipy.interpolate.interp1d() function for the interpolation and re-sampling of the NNI series, followed by the computation of the PSD estimation using the scipy.signal.welch() algorithm (Welch’s method). The implementation of the Lomb-Scargle based PSD estimation has been implemented using the scipy.signal.lombscargle() function of the SciPy package [38]. The implementation of the AR PSD uses the scipy.interpolate.interp1d() function for the interpolation and re-sampling of the NNI series, followed by the computation of the PSD estimation using the spectrum.pyule() class of the Spectrum package [20]. For this function, a default model order of 16 has been set, according to the minimum recommended model order for short NNI segments [10]. The functions that compute the FFT-based and Lomb-Scargle frequency analysis methods are listed in Table 10 (functions #1 to 3), and have been implemented as strong functions of this module (i.e. they can be used outside the module). This module includes several additional functions to verify the correctness of the selected frequency band limits (function #4), proceed with signal segmentation according to the selected frequency bands (functions #5 and 6), compute the frequency domain parameters according to the Equations 13-20 (function #7), and plot the resulted PSD (function #8). These functions have been implemented as weak functions (i.e. they can only be used within the module) due to their nature of being helper functions for the functions #1 to 2. A minimum working example of this module’s functionality is presented in the Python Snippet 4.
+56
+
+4. Results
+
+Table 10: Frequency Domain Module functions.
+
+Frequency Domain Module
+
+# Function Name 1 welch psds 2 lomb psds 3 ar psds
+4 check frequency bandsw
+5 get frequency indicesw
+6 get frequency arraysw
+7 compute parametersw 8 plot psdw 9 frequency domains
+
+Description Computes the FFT-PSD (plot & parameters) Computes the Lomb-Scargle PSD (plot & parameters) Computes the Autoregressive PSD (plot & parameters) Veriﬁes the correctness of frequency band limits (e.g. preventing overlapping bands) Segments indices of the PSD frequency series according to the frequency band boundaries Segments sub-series of the PSD frequency series according to frequency band boundaries Computes Frequency Domain features Plots PSD and adds legends (optional) Calls all of the functions above and returns results as a single biosppy.utils.ReturnTuple() object
+
+s = strong function; callable outside the module
+
+w = weak function; only callable inside the module
+
+1 # Import l i b r a r i e s 2 import pyhrv . tools as tools 3 import pyhrv . frequency domain as fd 4 from biosppy . signals . ecg import ecg 5 from opensignalsreader import OpenSignalsReader
+
+6
+7 # Load s a m p l e ECG s i g n a l & e x t r a c t R−p e a k s u s i n g BioSppy f u n c t i o n s 8 e c g s i g n a l = O p e n S i g n a l s R e a d e r ( ’ SampleECG . t x t ’ ) . s i g n a l s [ ’ECG ’ ] 9 r p e a k s = e c g ( e c g s i g n a l , show=F a l s e ) [ 2 ]
+
+10
+11 # Compute NNI s e r i e s 12 n n i = t o o l s . n n i n t e r v a l s ( r p e a k s )
+
+13
+14 # OPTION 1 : Compute p a r a m e t e r s & methods 15 r e s u l t s = f d . w e l c h p s d ( n n i , show=True ) 16 p r i n t ( r e s u l t s [ ’ f f t a b s ’ ] )
+
+individually
+
+17
+18 # OPTION 2 : Compute a l l f r e q u e n c y p a r a m e t e r s & methods 19 r e s u l t s = f d . f r e q u e n c y d o m a i n ( n n i ) 20 p r i n t ( r e s u l t s [ ’ f f t a b s ’ ] ) 21 p r i n t ( r e s u l t s [ ’ l o m b a b s ’ ] )
+
+Python Snippet 4: Minimum working example of the Frequency Domain Module’s individual parameter functions (here: ﬀt analysis()) and the module level function frequency domain().
+
+57
+
+4. Results
+
+4.1.1.4 Nonlinear Parameters Module
+
+The Nonlinear Parameter Module (ﬁle: nonlinear.py) contains functions to compute the nonlinear HRV parameters listed in Table 11.
+
+Table 11: Functions of the nonlinear parameters module.
+
+# Function Name 1 poincare
+2 sample entropy 3 dfa
+4 nonlinear
+
+Nonlinear Parameters Module
+Description Plots Poincar´e plot and computes related parameters (SD1, SD2, ellipse area S, SD1/SD2 ratio) Sample Entropy Detrended Fluctuation Analysis for short and long term ﬂuctuations (α1 & α2) Calls all of the nonlinear functions above and returns results in a single biosppy.utils.ReturnTuple() object
+
+The poincare() function generates the Poincar´e plot presented in Chapter 2.3.4.1 and derives the Poincar´e parameters SD1, SD2, ellipse area (S), and SD1/SD2 ratio. The computation of the SD1 and SD2 parameters has been implemented according to the time domain based computations presented in Equations 21 and 23. The computation of the ellipse area S has been implemented according to Equation 25 with the SD1/SD2 ratio computed as the division of both parameters.
+The sample entropy() function has been implemented with the use of the nolds package with the default values set to embedding dimension = 2 and tolerance = 0.2 SDNN [73]. The DFA algorithm of the nolds package has been used and adjusted for the HRV speciﬁc application with default values set to 4-16 beats for short-term ﬂuctuations and 17-64 for long-term ﬂuctuations [101]. Additionally, error-catching capabilities have been implemented to catch errors if a DFA could not be conducted due to the lack of NNI samples (e.g. signal duration too short). In this case, an empty plot is returned and a warning message triggered to the user, otherwise a plot based on the DFA results will be returned as seen in Figure 15.
+Python Snippet 5 presents a minimum working example of this module’s functions using the example of the dfa() and nonlinear() functions.
+
+58
+
+4. Results
+
+1 # Import l i b r a r i e s 2 import pyhrv . nonlinear as nl 3 import pyhrv . tools as tools 4 from biosppy . signals . ecg import ecg 5 from opensignalsreader import OpenSignalsReader
+
+6
+7 # Load s a m p l e ECG s i g n a l & e x t r a c t R−p e a k s u s i n g BioSppy f u n c t i o n s 8 e c g s i g n a l = O p e n S i g n a l s R e a d e r ( ’ SampleECG . t x t ’ ) . s i g n a l s [ ’ECG ’ ] 9 r p e a k s = e c g ( e c g s i g n a l , show=F a l s e ) [ 2 ]
+
+10
+11 # Compute NNI s e r i e s 12 n n i = t o o l s . n n i i n t e r v a l s ( r p e a k s )
+
+13
+14 # OPTION 1 : Compute p a r a m e t e r s 15 r e s u l t s = n l . d f a ( n n i ) 16 p r i n t ( r e s u l t s [ ’ d f a ’ ] )
+
+individually
+
+17
+18 # OPTION 2 : Compute a l l n o n l i n e a r p a r a m e t e r s 19 r e s u l t s = n l . n o n l i n e a r ( n n i ) 20 p r i n t ( r e s u l t s [ ’ d f a ’ ] )
+
+Python Snippet 5: Minimum working example of the Nonlinear Parameter Module’s individual parameter functions (here: dfa()) and the module level function nonlinear().
+
+4.1.2 Function Architecture
+The functions of this toolkit were implemented according to a 4-element architecture, designed to improve their usability and robustness. This architecture is visualized in the ﬂow-chart presented in Figure 23.
+
+Figure 23: Flowchart of the function architecture used in parameter functions of the pyHRV toolkit.
+Element 1: Consists of a comprehensive docstring containing a short description of the function, the input and output parameters, a list of possible exceptions being raised and, in some cases, further information about the correct usage of the function.
+59
+
+4. Results This element does not have an inﬂuence in the function’s code, but is considered good practice in Python programming, to provide in-code documentation for the user. Element 2: Veriﬁes the correctness of the input data that the datasets used for feature extraction have the right structure and units; this is done using the implemented tools.check input() function. Depending on the provided input data, this step follows one of the following processes:
+(a) Input: R-peak series in [ms] or [s] ⇒ Computation of NNI series in milliseconds and NumPy array format
+(b) Input: NNI series in [ms] or [s] ⇒ Computation of NNI series in milliseconds and NumPy array format
+(c) Input: None or incompatible data format (not list or N umP y array) ⇒ Exception raised with comprehensive error descriptions to help the user during debugging processes
+This procedure is visualized in the ﬂowchart in Figure 24. It must be noted that the automatic second to millisecond conversion is conducted depending on the result of the maximum NNI and a threshold of 10. If the NNI series maximum is 10, then it is assumed that the input data is provided in ms given that a NNI of 10s (=ˆ 6BP M ) is highly unlikely to be of physiological nature. Additionally, this straightforward method assumes that the NNI series does not contain any erroneous NNI.
+Figure 24: Flowchart of the tools.check input() function.
+60
+
+4. Results
+
+Element 3: Computation of the HRV parameters according to the formulas, methods, and algorithms presented in Chapter 1.
+
+Element 4: The results are wrapped and returned in a biosppy.utils.ReturnTuple() object.
+
+1 d e f rmssd ( n n i=None , r p e a k s=None ) : 2 ””” Computes r o o t mean o f s q u a r e d d i f f e r e n c e s o f s u c c e s s i v e NN
+Intervals .
+
+3
+
+4 Parameters
+
+5 −−−−−−−−−−
+
+6 nni : array
+
+7
+
+NN i n t e r v a l s i n [ ms ] o r [ s ] .
+
+8 rpeaks : array
+
+9
+
+R−peak t i m e s i n [ ms ] o r [ s ] .
+
+10
+
+11 R e t u r n s ( b i o s p p y . u t i l s . R e t u r n T u p l e O b j e c t )
+
+12 −−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
+
+13 r m s s d : f l o a t
+
+14
+
+RMSSD v a l u e i n [ ms ] .
+
+15
+
+16 N o t e s
+
+17 −−−−−
+
+18 . . Only one t y p e o f i n p u t d a t a i s r e q u i r e d .
+
+19 . . I f b o t h ’ n n i ’ and ’ r p e a k s ’ a r e p r o v i d e d , ’ r p e a k s ’ w i l l be c h o s e n
+
+20
+
+over the ’ nni ’ and the ’ nni ’ data w i l l be computed from the ’ rpeaks
+
+’.
+
+21 . . NN and R−peak s e r i e s p r o v i d e d i n [ s ] f o r m a t w i l l be c o n v e r t e d t o
+
+22
+
+[ ms ] f o r m a t .
+
+23
+24 ””” 25 # Check i n p u t 26 nn = t o o l s . c h e c k i n p u t ( n n i , r p e a k s )
+
+27
+28 # Compute RMSSD 29 nnd = t o o l s . n n i d i f f ( nn ) 30 rmssd = np . sum ( x ∗∗ 2 f o r x i n nnd ) 31 rmssd = np . s q r t ( 1 . / nnd . s i z e ∗ rmssd )
+
+32
+33 # Output 34 r e t u r n u t i l s . R e t u r n T u p l e ( ( rmssd , ) , ( ’ rmssd ’ , )
+
+Python Snippet 6: General architecture of the toolbox parameter functions shown on the example of the RMSSD function.
+
+61
+
+4. Results An example of this function architecture is shown in Python Snippet 6. A comprehensive docstring is provided at the beginning of the function (Element 1, lines 2-23), follow by the veriﬁcation of the input data (Element 2, line 25), the computation of HRV feature, which in this case is the RMSSD parameter, (Element 3, line 28-29), and ﬁnally the output in a biosppy.utils.ReturnTuple() object (line 32-34). This architecture has not been implemented in the functions of the Tools Module (described in more detail in the following pages) as it might not be the most appropriate form of output. For instance, functions that create the NNI or ∆NNI series return their results in the regular N umP y array as there is no need for a key-based indexing method to access the data.
+62
+
+4.2 Evaluation
+
+4. Results
+
+4.2.1 Time Domain Parameters
+
+The evaluation results for Time Domain comparison of the pyHRV and KUBIOS results are presented in Table 12. Evaluation metrics could be computed from 12 of the 23 computable Time Domain parameters using pyHRV, with 11 parameters being not comparable as these are not computed by KUBIOS.
+
+Table 12: Evaluation results for the Time Domain parameters (pyHRV vs. KUBIOS)
+
+Time Domain Evaluation metrics
+
+Parameter
+
+Unit
+
+pyHRV
+
+KUBIOS
+
+Mean NNI
+
+[ms]
+
+836.884 ± 143.429
+
+836.884 ± 143.429
+
+Min HR
+
+[bpm]
+
+57.754 ± 7.508
+
+57.754 ± 7.508
+
+Max HR
+
+[bpm]
+
+91.048 ± 16.342
+
+91.048 ± 16.342
+
+Mean HR
+
+[bpm]
+
+74.505 ± 13.545
+
+73.953 ± 13.422
+
+SDNN
+
+[ms]
+
+65.937 ± 26.291
+
+65.937 ± 26.291
+
+SDNN Index
+
+[ms]
+
+60.018 ± 16.965
+
+60.338 ± 17.354
+
+SDANN
+
+[ms]
+
+41.397 ± 18.281
+
+42.113 ± 19.331
+
+RMSSD
+
+[ms]
+
+42.485 ± 22.611
+
+42.484 ± 22.611
+
+NN50
+
+[−]
+
+58.120 ± 46.789
+
+58.120 ± 46.789
+
+pNN50
+
+[%]
+
+17.187 ± 15.440
+
+17.187 ± 15.440
+
+Triangular Index
+
+[−]
+
+9.128 ± 3.503
+
+9.470 ± 3.886
+
+TINN
+
+[ms]
+
+110.313 ± 59.100
+
+305.200 ± 104.915
+
+Optimal
+
+Acceptable
+
+Divergent
+
+Uncomparable parameters: NNI (Min, Max), ∆NNI parameters, NN20, pNN20, TINN N and M
+
+∆: Diﬀerence between pyHRV and KUBIOS mean value
+
+∆
+0.000 0.000 0.000 0.552 0.000 0.320 0.716 0.001 0.000 0.000 0.342 194.887
+
+Overall 10 of the 11 comparable results lie within the optimal (A) and acceptable (B) ranges, with the TINN parameter being the only divergent (C) parameter. The TINN’s diﬀerence between the means is almost twice as high as the KUBIOS mean resultm with pyHRV’s mean value at roughly only a third of the KUBIOS mean (SD = 104.915ms vs. ∆ = 194.887ms), thus showing a signiﬁcant diﬀerence. Although KUBIOS does not return the N and M values of the TINN parameter computation, it can be assumed that these parameters are also divergent given that they are the base parameters for the computation of the TINN parameter (see Equation 12, page 23).
+The mean of the NNI, minimum HR, SDNN, NN50, and pNN50 parameter results show optimal performance being identical to the KUBIOS results. It can be assumed that the uncompared NN20 and pNN20 parameters also achieve optimal
+
+63
+
+4. Results
+results given that these parameters are computed by the same fundamental function as the NN50 and pNN50 parameters (tools.time domain.nnXX()). The mean HR (SD = 13.422bpm vs. ∆ = 0.552bpm), SDNN index (SD = 17.352ms vs. ∆ = 0.320ms), Standard Deviation of the Mean of NN Intervals in all 5 minute Segments (SDANN) (SD = 19.331ms vs. ∆ = 0.716ms), RMSSD (SD = 22.611ms vs. ∆ = 0.001ms), and the Triangular index (SD = 3.886[−] vs. ∆ = 0.342[−]) lie within acceptable limits, with the RMSSD being close the values computed by KUBIOS, with a marginal diﬀerence of 1µs.
+
+4.2.2 Frequency Domain Parameters
+
+The evaluation results of the Frequency Domain parameters consist of a comparison of 16 parameters for the three PSD estimations according to the Welch’s, LombScargle and Autoregressive methods, resulting in a total of 48 comparable parameters.
+Table 13: Evaluation results for the parameters extracted with Welch’s method (pyHRV vs. KUBIOS)
+
+Welch’s Method Evaluation Metrics
+
+Parameter
+
+Unit
+
+pyHRV
+
+KUBIOS
+
+Peak Frequencies (VLF)
+
+[H z ]
+
+0.012 ± 0.009
+
+0.012 ± 0.010
+
+Peak Frequencies (LF)
+
+[H z ]
+
+0.071 ± 0.023
+
+0.071 ± 0.023
+
+Peak Frequencies (HF) Abs. Powers (VLF) Absolute Powers (LF) Absolute Powers (HF)
+
+[H z ] [ms2] [ms2] [ms2]
+
+0.226 ± 0.066 2361.001 ± 2968.427 1518.788 ± 1292.658 883.304 ± 1561.402
+
+0.226 ± 0.066 2325.941 ± 2963.510 1510.333 ± 1313.584 884.503 ± 1568.995
+
+Log Powers (VLF)
+
+[log]
+
+7.192 ± 1.078
+
+7.168 ± 1.088
+
+Log Powers (LF)
+
+[log]
+
+6.954 ± 0.931
+
+6.933 ± 0.953
+
+Log Powers (HF)
+
+[log]
+
+6.115 ± 1.030
+
+6.102 ± 1.050
+
+LF/HF ratio Total Power
+
+[−] [ms2]
+
+3.234 ± 2.241 4763.093 ± 4214.227
+
+3.239 ± 2.280 4722.274 ± 4243.256
+
+Relative Powers (VLF)
+
+[%]
+
+45.752 ± 20.912
+
+45.594 ± 21.027
+
+Relative Powers (LF)
+
+[%]
+
+34.643 ± 14.488
+
+34.572 ± 14.607
+
+Relative Powers (HF)
+
+[%]
+
+19.605 ± 17.882
+
+19.793 ± 18.033
+
+Normalized Powers (LF)
+
+[−]
+
+67.638 ± 19.651
+
+67.381 ± 19.915
+
+Normalized Powers (HF)
+
+[−]
+
+32.362 ± 19.651
+
+32.548 ± 19.894
+
+Optimal
+
+Acceptable
+
+Divergent
+
+∆: Diﬀerence between pyHRV and KUBIOS mean value
+
+∆
+0.000 0.000 0.000 35.060 8.455 1.199 0.024 0.021 0.013 0.005 40.819 0.158 0.071 0.188 0.257 0.186
+
+The Frequency Domain parameters computed from the Welch’s method are presented in Table 13, and show overall optimal and acceptable results. pyHRV’s peak
+
+64
+
+4. Results
+
+frequencies in each frequency band are identical to the results obtained with KUBIOS. Diﬀerences can be found for the rest of the parameters, although marginal, given that the mean results exist within the acceptable ranges (see Table 13).
+
+Table 14: Evaluation results for the frequency domain parameters extracted using the LombScargle PSD (pyHRV vs. KUBIOS)
+
+Lomb-Scargle Method Evaluation Metrics
+
+Parameter
+
+Unit
+
+pyHRV
+
+KUBIOS
+
+Peak Frequencies (VLF)
+
+[H z ]
+
+0.017 ± 0.010
+
+0.011 ± 0.009
+
+Peak Frequencies (LF)
+
+[H z ]
+
+0.093 ± 0.032
+
+0.065 ± 0.019
+
+Peak Frequencies (HF) Abs. Powers (VLF) Absolute Powers (LF) Absolute Powers (HF)
+
+[H z ] [ms2] [ms2] [ms2]
+
+0.290 ± 0.045 216.763 ± 49.541 608.678 ± 155.304 1463.945 ± 267.442
+
+0.227 ± 0.066 2709.483 ± 3700.016 1508.002 ± 1109.925 826.661 ± 1454.514
+
+Log Powers (VLF)
+
+[log]
+
+5.354 ± 0.221
+
+7.309 ± 1.038
+
+Log Powers (LF)
+
+[log]
+
+6.380 ± 0.251
+
+7.038 ± 0.806
+
+Log Powers (HF)
+
+[log]
+
+7.271 ± 0.190
+
+6.133 ± 0.911
+
+LF/HF ratio Total Power
+
+[−] [ms2]
+
+0.417 ± 0.077 2289.386 ± 414.363
+
+3.316 ± 2.111 5045.996 ± 4600.503
+
+Relative Powers (VLF)
+
+[%]
+
+9.558 ± 1.777
+
+46.894 ± 20.095
+
+Relative Powers (LF)
+
+[%]
+
+26.422 ± 3.418
+
+34.626 ± 13.803
+
+Relative Powers (HF)
+
+[%]
+
+64.020 ± 3.843
+
+18.432 ± 17.325
+
+Normalized Powers (LF)
+
+[−]
+
+29.225 ± 3.820
+
+69.102 ± 18.750
+
+Normalized Powers (HF)
+
+[−]
+
+70.775 ± 3.820
+
+30.809 ± 18.725
+
+Optimal
+
+Acceptable
+
+Divergent
+
+∆: Diﬀerence between pyHRV and KUBIOS mean values
+
+∆
+0.006 0.028 0.063 2492.720 899.324 637.284 1.955 0.658 1.138 2.899 2756.610 37.336 8.204 45.588 39.877 39.966
+
+The Frequency Domain parameters computed from the Lomb-Scargle method are presented in Table 14. The evaluation results of this method identify half of the parameters within acceptable ranges, with the other half providing rejected results. No optimal results are computed by pyHRV. The Peak Frequencies show acceptable results for the VLF (SD = 0.009Hz vs. ∆ = 0.006Hz) and HF (SD = 0.066Hz vs. ∆ = 0.063Hz) with the LF results being rejected due to a greater diﬀerence than the KUBIOS results’ SD (SD = 0.019Hz vs. ∆ = 0.028Hz). Other acceptable results could be achieved for the Absolute Powers in all FB, the Total Power, and the Relative and Logarithmic Powers in LF band. The remaining parameters have been rejected. It is worth mentioning that no consistency over FB-speciﬁc results can be observed. For instance, the Absolute Powers provide acceptable results in the VLF and HF band. However, parameters derived from these parameters (Log. Powers and Relative Powers) show rejected results in these bands. This inconsistency inﬂuences additional parameters which depend on the Absolute Powers of the HF
+65
+
+4. Results
+
+band (LF/HF ratio and Normalized Powers), leading to the rejection of the results.
+
+The evaluation results of the Autoregressive parameters are presented in Table 15. Overall the results of 6 parameters lie within acceptable ranges, with 10 parameter results being divergent due to diﬀerences greater than the SD of the KUBIOS results. The Peak Frequencies lie within acceptable ranges for every FB. Other acceptable parameter results were computed for the Absolute Powers (SD = 2666.353ms2 vs. ∆ = 645.599ms2), and Log. Powers (SD = 0.978ms2 vs. ∆ = 0.742ms2) of the VLF band, and the Relative Powers of the LF frequency band (SD = 14.716% vs ∆ = 6.466%). However, all remaining results lie outside the acceptable 1 SD limits. It should be noted that overall the Absolute Powers, with the exception of the VLF band, are signiﬁcantly higher and lie multiple SD apart from the KUBIOS results, being almost 4.3 times higher in the LF band (SD = 1137.171ms2 vs. ∆ = 4858.550ms2) 8 times higher in the HF band (SD = 1455.146ms2 vs. ∆ = 11512.643ms2).
+
+Table 15: Evaluation results for the parameters extracted using the Autoregressive Method (pyHRV vs. KUBIOS)
+
+Autoregressive Method Evaluation Metrics
+
+Parameter
+
+Unit
+
+pyHRV
+
+KUBIOS
+
+Peak Frequencies (VLF)
+
+[H z ]
+
+0.000 ± 0.000
+
+0.012 ± 0.015
+
+Peak Frequencies (LF)
+
+[H z ]
+
+0.040 ± 0.000
+
+0.045 ± 0.018
+
+Peak Frequencies (HF) Abs. Powers (VLF) Absolute Powers (LF) Absolute Powers (HF)
+
+[H z ] [ms2] [ms2] [ms2]
+
+0.155 ± 0.021 2940.517 ± 62.056 6411.443 ± 159.130 12379.985 ± 572.088
+
+0.206 ± 0.071 2294.918 ± 2666.343 1552.893 ± 1137.171 867.342 ± 1445.146
+
+Log Powers (VLF)
+
+[log]
+
+7.986 ± 0.021
+
+7.244 ± 0.978
+
+Log Powers (LF)
+
+[log]
+
+8.766 ± 0.025
+
+7.056 ± 0.847
+
+Log Powers (HF)
+
+[log]
+
+9.423 ± 0.046
+
+6.217 ± 0.903
+
+LF/HF ratio Total Power
+
+[−] [ms2]
+
+0.518 ± 0.015 21731.945 ± 748.929
+
+3.086 ± 1.943 4716.715 ± 3671.023
+
+Relative Powers (VLF)
+
+[%]
+
+13.539 ± 0.299
+
+44.497 ± 19.693
+
+Relative Powers (LF)
+
+[%]
+
+29.515 ± 0.492
+
+35.981 ± 14.719
+
+Relative Powers (HF)
+
+[%]
+
+56.946 ± 0.766
+
+19.482 ± 17.338
+
+Normalized Powers (LF)
+
+[−]
+
+34.138 ± 0.670
+
+67.972 ± 19.013
+
+Normalized Powers (HF)
+
+[−]
+
+65.862 ± 0.670
+
+31.949 ± 19.006
+
+Optimal
+
+Acceptable
+
+Divergent
+
+∆: Diﬀerence between pyHRV and KUBIOS mean value
+
+∆
+0.012 0.005 0.051 645.599 4858.550 11512.643 0.742 1.710 3.206 2.568 17015.230 30.958 6.466 37.464 33.834 33.913
+
+66
+
+4. Results
+
+4.2.3 Nonlinear Parameters
+
+The evaluation results for the Nonlinear parameters are listed in Table 16. Overall, the 7 comparable parameters provide acceptable results with the SD2/SD1 ratio showing even optimal results. Marginal diﬀerences are present for the SD1 (16.015msvs. ∆ = 0.044ms) and SD2 (SD = 35.962ms vs. 0.123ms) parameters, with the SamPen results achieving almost optimal results (SD = 0.366ms vs. ∆ = 0.001). The highest relative diﬀerences are present in the results of the DFA α1 (SD = 0.240[−] vs. ∆ = 0.022[−]) and α2 (SD = 0.199[−] vs. ∆ = 0.0.047[−]) parameters. The area of the ﬁtted ellipse in the Poincar´e plot could not be compared, as this parameter is not computed by KUBIOS. However, given that this parameters is computed based on a multiplication of the SD1 and SD2 parameters with Pi (see Equation 25, page 35), and considering that these parameters have low relative diﬀerences, it can be assumed that this parameter also lie within acceptable limits.
+Table 16: Evaluation results for the Nonlinear parameters (pyHRV vs. KUBIOS)
+
+Nonlinear Parameters Evaluation Metrics
+
+Parameter
+
+Unit
+
+pyHRV
+
+KUBIOS
+
+SD1
+
+[ms]
+
+30.041 ± 15.988
+
+30.085 ± 16.015
+
+SD2
+
+[ms]
+
+87.171 ± 35.907
+
+87.294 ± 35.962
+
+SD2/SD1
+
+[−]
+
+3.204 ± 1.306
+
+3.204 ± 1.306
+
+Sample Entropy
+
+[−]
+
+1.332 ± 0.365
+
+1.331 ± 0.366
+
+DFA - α1 DFA - α2
+
+[−]
+
+1.204 ± 0.264
+
+[−]
+
+0.886 ± 0.215
+
+1.182 ± 0.240 0.839 ± 0.199
+
+Optimal
+
+Acceptable
+
+Divergent
+
+Uncomparable parameter: Area of ﬁtted Ellipse (Poincar´e)
+
+∆: Diﬀerence between pyHRV and KUBIOS mean value
+
+∆
+0.044 0.123 0.000 0.001 0.022 0.047
+
+67
+
+Chapter 5
+Conclusions
+5.1 Discussion
+The presented work provides an open-source toolbox for HRV named pyHRV for the Python 2.7 programming language. The implemented multilevel package and function architectures allow user to compute the entire set of computable HRV parameters (Level 1 - HRV Level), domain-speciﬁc parameter sets (Level 2 - Domain Level), or individual parameters only (Level 3 - Parameter Level). The implemented error catching capabilities allow a reliable and robust use of this toolbox, even in cases where unsuitable input data formats are provided (NNI series in seconds) or where the selected method parameters are in conﬂict with the lenght of the analysed NNI series, as in the case of the dfa() function. The implemented functions compute a total of 87 parameters of the Time Domain (23), Frequency Domain (48) and Nonlinear (7) parameters from NNI series extracted from single-lead ECG signals. Additionally, pyHRV provides a series of tools with useful features for researchers and developers of HRV applications such as ECG and Tachogram plotting, HRV results exporting, importing, and HRV report generation. The parameter functions have been tested and evaluated in a direct comparison with the KUBIOS HRV software. For this purpose, 50 NNI series have been processed by both pyHRV and KUBIOS, which results have been compared and evaluated. The evaluation has been conducted by computing the diﬀerence between the mean of each series of parameter results and the SD of the KUBIOS results. Parameters with no diﬀerences between pyHRV and KUBIOS results have been classiﬁed as optimal parameter results. Diﬀerences lower or equal than the SD of the KUBIOS results were, although not optimal, considered acceptable, while parameter results
+68
+
+5. Conclusions
+with more signiﬁcant diﬀerences have been classiﬁed as divergent. In the latter, it means that the pyHRV function computed questionable results, which might require further investigation in future versions of the pyHRV toolbox. Overall, 12 HRV parameters computed with pyHRV have shown optimal results (identical to the KUBIOS results), with 38 parameter being within acceptable ranges and 26 parameters presenting divergent results, . In the Time Domain, the only concern lies within the computation of the TINN parameters, where signiﬁcant diﬀerences could be identiﬁed. Thorough revision of the tinn() function is required for future versions of pyHRV, to identify possible code segments that originate the diﬀerences and needs to be revised. On the other hand, it is necessary to identify potential diﬀerences in the KUBIOS software. For instance, pyHRV uses the 7.815 milliseconds bin size as recommended by the HRV guidelines [86]. However, in KUBIOS, the bin size being used is not speciﬁed. For instance, Figure 25 shows the histogram of a NNI series where 4 bins can be found within an approximated interval of 100 milliseconds resulting in a bin size of (approx.) 25 milliseconds, rather than the recommended 7.8125 milliseconds. With the information provided, it is unclear whether this is merely a graphical simpliﬁcation of the NNI histogram or whether this does, in fact, compute the TINN parameter on diﬀerent bin sizes. Besides, KUBIOS does not provide information about the number of NNI of each bin.
+Figure 25: Example KUBIOS NNI histogram.
+In the frequency domain, no adjustments are needed to the implemented Welch function (welch psd()), as all parameters lie within optimal or acceptable ranges. The results of Lomb-Scargle metho lomb psd() diﬀer signiﬁcantly from the KUBIOS results with most of the parameters being rejected due to signiﬁcant diﬀerences. For this reason, this functions requires additional development in future pyHRV versions, where the following aspects should be investigated: (1) frequency grid optimization,
+69
+
+5. Conclusions
+(2) moving average ﬁlter application, and (3) alternative algorithms.
+(1) The implementation of the Lomb-Scargle method uses SciPy’s lombscargle() function to compute the PSD. SciPy’s algorithm requires the speciﬁcation of a frequency grid, i.e., an array of frequencies, for which the PSD is computed. In pyHRV, the frequency grid is generated in dependence of the selected number of PSD samples (NFFT) using the nﬀt input parameter [38]. This algorithm is susceptible to the deﬁnition of the NFFT, which can greatly alter the results. For instance, increasing the NFFT in the Welch’s method increases the frequency resolution of the computed PSD, as shown in Figure 26 (a) (NFFT=28) compared to Figure 26 (b) (NFFT=212). However, for the Lomb-Scargle method, the NFFT selection has a diﬀerent eﬀect, where lower NFFT provides PSD estimations in which the dominant frequencies are more likely to be identiﬁed, as seen in Figure 26 (c), while an increase of the NFFT causes a more uniform PSD as seen in Figure 26 (d), resembling the white noise on which basis the Lomb-Scargle method is computed [49]. This behaviour must be further investigated to ﬁnd a suitable NFFT value for the Lomb-Scargle method in HRV applications. In the case of the present pyHRV version, the selection of a suitable NFFT lies within the responsibility of the user.
+(2) In combination with the NFFT review, it might be considered to investigate the use of moving average ﬁlters to improve the results of the Lomb-Scargle PSD, by smoothing the spectral components which can also be found in other HRV applications [66].
+(3) Ultimately, in case that none of the previous methods provides reasonable results, it might be considered to investigate the use of other Lomb-Scargle algorithms for HRV speciﬁc purposes. For instance, the AstroPy package’s Lomb() class has implemented methods to automatically determine the most suitable frequency grid, and has been successfully tested in HRV applications [71, 88]. However, ﬁrst tests have shown that although this feature provides promising results, a noticeable difference in run-time and system resources use does exist, which needs to be improved in future work.
+Although the pyHRV Autoregressive function has resulted in more rejected parameters than the Lomb-Scargle results (10 rejected parameters vs. 6), this method’s results show a signiﬁcant diﬀerence compared to the Lomb-Scargle results that, with other additional factors, might argue in favor of its functionality and reliability rather than the Lomb-Scargle method. As with the other methods, the majority of the Frequency Domain parameters have been computed based on the Absolute Powers of the Autoregressive PSD. Diﬀerences on these parameters have shown to
+70
+
+5. Conclusions
+
+(a)
+
+(b)
+
+(c)
+
+(d)
+
+Figure 26: Comparison of the eﬀects of NFFT selection on the PSD estimation methods (a: Welch’s method with nﬀt=28, b: Welch’s method with nﬀt=216, c: Lomb-Scargle method with
+nﬀt=28, d: Lomb-Scargle method with nﬀt=216.
+
+be signiﬁcantly higher in this method when compared to the KUBIOS results, especially for the LF and HF bands where the Absolute Powers are multiple times (4.2 and 8) greater than the KUBIOS results. However, when analysing the resulting Peak Frequencies, it is noticeable that the results are in accordance with the KUBIOS results. Given that the activity of a variety of physiological mechanisms is derived from the dominant frequencies within the individual FB, it can be argued that this method provides more reliable results than the implemented Lomb-Scargle function, which fails to accurately compute dominant frequencies in the LF band.
+As for the diﬀerences in the Absolute Powers, the following aspects are assumed to be the cause of this eﬀect. First, various models exist for AR PSD estimations, which may diﬀer in their fundamental computational methods (e.g., Burg, Yule). KUBIOS does not specify the method being used for its implemented PSD estimation which makes it diﬃcult to ensure an entirely fair comparison. Second, while KUBIOS allows the user to set the speciﬁcations of the moving average ﬁlter being applied
+
+71
+
+5. Conclusions
+to this method, the spectrum.pyule() function comes with built-in functions that automatically determine the optimal moving average ﬁlter speciﬁcations. These diﬀerences may be the leading causes of the increased PSD estimation. However, it is essential to acknowledge the usefulness of the pyHRV method, given that the dominant frequencies and alterations can still be identiﬁed, thus, being a reliable tool for HRV applications.
+The comparison of the Nonlinear parameters have shown positive results, with 6 out of 7 parameters showing acceptable results, and only marginal errors found when compared to the KUBIOS results, and the SD2/SD1 ratio achieving even optimal results. The functions of this module do not require any further optimization.
+5.2 Future Work
+In addition to the results discussed in the previous section, which require further revision and improvements in some parameter computation functions of the Time and Frequency Domains, the developed pyHRV toolbox will experience continued development with the implementation of new HRV methods and features in the future. Also, on a programming side, general improvements should be conducted such as adding full support for the Python 3 programming language. On a HRV feature extraction and method implementation side, the state-of-the-art methods described next can be implemented, which have been proposed by HRV researchers over the recent years.
+Bjo¨rkander et al. [9] have proposed a new geometrical Time Domain parameter named Diﬀerential Index, which is computed based on the same NNI histogram as shown in Figure 27. This parameter is computed from long-term ECG recordings and requires no pre-ﬁltering of the NNI series. For this parameter, the width of the histogram at 10 000 (R1) and 1000 (R2) NNI intervals is measured, and a triangular function is computed. The Diﬀerential Index is the baseline of the computed triangular function and is an index for overall HRV, with increasing baseline width presenting higher HRV.
+For the Frequency Domain, German-Zallo [30] has investigated the use of a Wavelet Package Transform as an alternative method to the FFT based PSD estimation method, to measure the power variance and to identify dominant frequencies in a NNI series. His approach has shown good time-frequency resolution and comparable results for the LF/HF ratio, however, it still requires further investigation. Adding
+72
+
+5. Conclusions
+Figure 27: Illustration of the Diﬀerential Index computation [9].
+this method to pyHRV would provide the tools for researchers to investigate this method in further detail. Another interesting method would be the implementation of adaptive frequency bands, as proposed by Long et al. [50], to increase the accuracy of identifying dominant HR regulation mechanisms in sleep and wake states. Here, the LF and HF frequency bands are adjusted based on time-frequency analysis of the NNI series, to compensate the time-varying behavior of the dominant frequencies in sleep vs. wake states. Costa et al. [21] have developed and proposed a new method to quantify the complexity of physiologic time series, the Multiscale Entropy. Traditional Nonlinear entropy methods (e.g. SamPen) can cause misleading results when applied on ECG recordings with pathological cardiac arrhythmia, where higher entropy values can be found compared to healthy individuals even when the underlying HR regulation systems show no sign of pathological inﬂuence. The Multiscale Entropy method analyses the entropy of a NNI series based on multiple time scales, thus avoiding the misleading characteristics of the traditional methods, and can now also be found in other ﬁelds of research (e.g. analysis of EEG signals) for which pyHRV might also be of added value [5, 16, 22, 23, 36] Another interesting option, the implementation of existing and recent HRV methods, could be the exploration and development of new methods that could be of additional value for the pyHRV toolbox. For instance, one possibility could be to focus on variations of commonly used parameters or methods that have shown to be easier to interpret such as the Poincar´e plot [33, 56, 59, 94]. The Poincar´e plot is one of the most comprehensive geometrical methods based on a N N Ij vs. N N Ij+1 scatter plot. The form of the scatter plot has been thoroughly investigated and its importance for
+73
+
+5. Conclusions the identiﬁcation of healthy (high) or pathological (low) HRV is widely recognized [102]. However, little to no research has yet been conducted to investigate scatter plots of other intervals (e.g., N N Ij vs. N N Ij+2, N N Ij vs. N N Ij+3) and their potential capability to identify diﬀerent scatter plot patterns as results of diﬀerent cardiac conditions.
+74
+
+Bibliography
+[1] Lohninger Alfred. Herzratenvariabilit¨at - Das HRV-Praxis-Lehrbuch. Vienna: facultas Universita¨tsverlag, 2017.
+[2] American Heart Association. All About Heart Rate (Pulse). 2018. url: http: / / www . heart . org / en / health - topics / high - blood - pressure / the facts - about - high - blood - pressure / all - about - heart - rate - pulse (visited on 06/17/2018).
+[3] Bradley Appelhans and Linda Luecken. “Heart rate variability as an index of regulated emotional responding”. In: Review of General Psychology 10.3 (2006), pp. 229–240.
+[4] Hyun Baek et al. “Reliability of Ultra-Short-Term Analysis as a Surrogate of Standard 5-Min Analysis of Heart Rate Variability”. In: Telemedicine and e-Health 21.5 (2015), pp. 404–414.
+[5] Heiko Balzter et al. “Multi-Scale Entropy Analysis as a Method for TimeSeries Analysis of Climate Data”. In: Climate 3.1 (2015), pp. 227–240.
+[6] Rhenan Bartels. Heart Rate Analysis Package. 2016. url: https://github. com/rhenanbartels/hrv (visited on 08/20/2018).
+[7] Diana Batista, Hugo Silva, and Ana Fred. “Experimental characterization and analysis of the BITalino platforms against a reference device”. In: Proceedings of the Annual International Conference of the IEEE Engineering in Medicine and Biology Society, EMBS (2017), pp. 2418–2421.
+[8] George Billman. “Heart rate variability - A historical perspective”. In: Frontiers in Physiology 2 NOV.November (2011), pp. 1–13.
+[9] Inge Bjo¨rkander et al. “Diﬀerential index, a novel graphical method for measurements of heart rate variability”. In: International Journal of Cardiology 98.3 (2005), pp. 493–499.
+[10] Anita Boardman et al. “A study on the optimum order of autoregressive models for heart rate variability”. In: Physiological Measurement 23.2 (2002), pp. 325–336.
+I
+
+Bibliography
+[11] Annette Bopp. Handbuch Herz und Kreislauf - Vorbeugen, erkennen, heilen. 2nd ed. Berlin: Stiftung Warentest, 1996, pp. 13–21.
+[12] M. Brennan, M. Palaniswami, and P. Kamen. “Do existing measures of Poincare´e plot geometry reﬂect nonlinear features of heart rate variability?” In: IEEE Transactions on Biomedical Engineering 48.11 (2001), pp. 1342– 1347.
+[13] Lewis Brown and Shivaram Arunachalam. “Real-time T-P knot algorithm for baseline wander noise removal from the electrocardiogram”. In: Biomedical Sciences Instrumentation 45.April (2009), pp. 65–70.
+[14] Robert Burr. “Interpretation of Normalized Spectral Heart Rate Variability Indices In Sleep Research: A Critical Review”. In: NeuroImage 9.2 (2014), pp. 1–6.
+[15] Robert L. Burr and Marie J. Cowan. “Autoregressive spectral models of heart rate variability. Practical issues”. In: Journal of Electrocardiology 25.SUPPL. (1992), pp. 224–233.
+[16] Michael A. Busa and Richard E.A. van Emmerik. “Multiscale entropy: A tool for understanding the complexity of postural control”. In: Journal of Sport and Health Science 5.1 (2016), pp. 44–51.
+[17] Carlos Carreiras et al. BioSPPy - Biosignal Processing in Python. url: https: //github.com/PIA-Group/BioSPPy/ (visited on 07/15/2018).
+[18] Carlos Carreiras et al. “Comparative Study of Medical-grade and Oﬀ-thePerson ECG Systems”. In: Proceedings of the International Congress on Cardiovascular Technologies (2013), pp. 115–120.
+[19] Joa˜o de Carvalho et al. “Development of a Matlab software for analysis of heart rate variability”. In: 6th International Conference on Signal Processing, 2002. 2.May (2014), pp. 1488–1491.
+[20] Thomas Cokelaer and Juergen Hasch. “’Spectrum’: Spectral Analysis in Python”. In: The Journal of Open Source Software 2.18 (2017), p. 348.
+[21] Madalena Costa, Ary Goldberger, and C.-K. Peng. “Multiscale Entropy Analysis of Complex Physiologic Time Series”. In: Physical Review Letters 92.8 (2004), pp. 6–9.
+[22] Madalena Costa, Ary L. Goldberger, and C. K. Peng. “Multiscale entropy analysis of biological signals”. In: Physical Review E - Statistical, Nonlinear, and Soft Matter Physics 71.2 (2005), pp. 1–18.
+[23] Julie Courtiol et al. “The multiscale entropy: Guidelines for use and interpretation in brain signal analysis”. In: Journal of Neuroscience Methods 273 (2016), pp. 175–190.
+II
+
+Bibliography
+[24] Ilaria Coviello et al. “Prognostic Role of Heart Rate Variability in Patients with ST-Segment Elevation Acute Myocardial Infarction Treated by Primary Angioplasty”. In: Cardiology 124.1 (2013), pp. 63–70.
+[25] Marianne P.C. de Rezende Barbosa et al. “Eﬀects of functional training on geometric indices of heart rate variability”. In: Journal of Sport and Health Science 5.2 (2016), pp. 183–189.
+[26] David Ewing, James Neilson, and Paul Travis. “New method for assessing cardiac parasympathetic activity using 24 hour electrocardiograms”. In: British Heart Journal 52.4 (1984), pp. 396–402.
+[27] D. S. Fonseca et al. “Lomb-scargle periodogram applied to heart rate variability study”. In: ISSNIP Biosignals and Biorobotics Conference, BRC 2 (2013), pp. 8–11.
+[28] Johnson Francis. “ECG monitoring leads and special leads”. In: Indian Pacing and Electrophysiology Journal 16.3 (2016), pp. 92–95.
+[29] Georg Thieme Verlag. EKG: Verlauf der EKG-Kurve und Vektorschleife. 2018. url: https://viamedici.thieme.de/lernmodule/physiologie/ ekg+verlauf+der+ekg-kurve+und+vektorschleife (visited on 10/04/2018).
+[30] Zoltan Germa´n-Sallo´. “Wavelet based HRV analysis”. In: IFMBE Proceedings 44 (2014), pp. 229–232.
+[31] Ary Goldberger et al. “The MIT-BIH Normal Sinus Rhythm Database PhysioBank, PhysioToolkit, and PhysioNet: Components of a New Research Resource for Complex Physiologic Signals.” In: Circulation 101 23.June 13 (2000), pp. 215–220.
+[32] Nathalia Gomes and Arthur Sa´. “Pulse Waveform Analysis of Chinese Pulse Images and Its Association with Disability in Hypertension”. In: JAMS Journal of Acupuncture and Meridian Studies 9.2 (2016), pp. 93–98.
+[33] Evgeniya Gospodinova et al. “Analysis of Heart Rate Variability by Applying Nonlinear Methods with Diﬀerent Approaches for Graphical Representation of Results”. In: International Journal of Advanced Computer Science and Applications 6.8 (2015), pp. 38–45.
+[34] Clinton Goss and Eric Miller. “Dynamic Metrics of Heart Rate Variability”. In: (2013), pp. 1–4.
+[35] Laszlo Hejjel and Elizabeth Roth. “What is the adequate sampling interval of the ECG signal for heart rate variability analysis in the time domain?” In: Physiological Measurement 25.6 (2004), pp. 1405–1411.
+[36] Anne Humeau-Heurtier. “The multiscale entropy algorithm and its variants: A review”. In: Entropy 17.5 (2015), pp. 3110–3123.
+III
+
+Bibliography
+[37] John D. Hunter. “Matplotlib - A 2D graphics environment”. In: Computing in Science and Engineering 9.3 (2007), pp. 99–104.
+[38] Eric Jones et al. SciPy: Open source scientiﬁc tools for Python. 2001. url: http://www.scipy.org/.
+[39] D L Justis and W T Hession. “Accuracy of 22-lead ECG analysis for diagnosis of acute myocardial infarction and coronary artery disease in the emergency department: a comparison with 12-lead ECG”. In: Ann Emerg Med 21.1 (1992), pp. 1–9.
+[40] Maya Kallas et al. “Prediction of time series using Yule-Walker equations with kernels”. In: ICASSP, IEEE International Conference on Acoustics, Speech and Signal Processing - Proceedings 1 (2012), pp. 2185–2188.
+[41] Ulrich Karrenberg. Signale - Prozessem - Systeme: Eine multimediale und interaktive Einfu¨hrung in die Signalverarbeitung. 7th. Du¨sseldorf: Springer Vieweg, 2017, pp. 525–529.
+[42] Tom Kuusela. “Methodological Aspects of Heart Rate Variability Analysis”. In: Heart Rate Variability (HRV) Signal Analysis: Clinical Applications (2013), pp. 9–42.
+[43] Pablo Laguna, George B Moody, and Roger G Mark. “Power spectral density of unevenly sampled data by least-square analysis: Performance and application to heart rate signals”. In: IEEE Transactions on Biomedical Engineering 45.6 (1998), pp. 698–715.
+[44] Pablo Laguna et al. “Power Spectral Density of Unevenly Sampled Heart Rate Data”. In: (1995), pp. 157–158.
+[45] Rachel Lampert et al. “Decreased heart rate variability is associated with higher levels of inﬂammation in middle-aged men”. In: American Heart Journal 156.4 (2008), 759.e1–7.
+[46] Imad Libbus et al. “Quantitative evaluation of heartbeat interval time series using Poincar´e analysis reveals distinct patterns of heart rate dynamics during cycles of vagus nerve stimulation in patients with heart failure”. In: Journal of Electrocardiology 50.6 (2017), pp. 898–903.
+[47] Studies I N Logic. “Poincar´e Plots in Analysis of Selected Biomedical Signals”. In: Studies in Logic, Grammer and Rhetoric 35.48 (2013), pp. 117– 127.
+[48] Herbert L¨ollgen. “Neue Methoden in der kardialen Funktionsdiagnostik”. In: Deutsches A¨rzteblatt 45.31 (1999), pp. 2029–32.
+[49] N. R. Lomb. “Least-Squares Frequency Analysis of Unequally Spaced Data”. In: Astrophysics and Space Science 39 (1976), pp. 447–462.
+IV
+
+Bibliography
+[50] Xi Long et al. “Time-frequency analysis of heart rate variability for sleep and wake classiﬁcation”. In: IEEE 12th International Conference on BioInformatics and BioEngineering, BIBE 2012 (2012), pp. 85–90.
+[51] Ju¨rgen Lorenz et al. “Subjective and Autonomic Responses to a 3D-Virtual Reality Game”. In: Proceedings of the 11th European Conference on Games Based Learning, ECGBL 2017. Graz, 2017, pp. 387–393.
+[52] Shadi Mahdiani et al. “Is 50 Hz high enough ECG sampling frequency for accurate HRV analysis?” In: Proceedings of the Annual International Conference of the IEEE Engineering in Medicine and Biology Society, EMBS 2015-Novem (2015), pp. 5948–5951.
+[53] Numpydoc Maintainers. numpydoc docstring guide. 2018. url: https : / / numpydoc.readthedocs.io/en/latest/format.html (visited on 05/20/2018).
+[54] Peter Maud and Carl Foster. Physiological Assessment of Human Fitness. Champaign: Human Kinetics, 2006, pp. 39–62.
+[55] Rollin McCraty. Science of the Heart - Exploring the Role of the Heart in Human Performance. Vol. 2. Boulder Creek: HeartMath Institute, 2015.
+[56] Paolo Melillo, Marcello Bracale, and Leandro Pecchia. “Nonlinear Heart Rate Variability features for real-life stress detection. Case study: students under stress due to university examination”. In: Biomedical Engineering Online 10.96 (2011).
+[57] J. Mietus et al. “The pNNx ﬁles: re-examining a widely used heart rate variability measure”. In: Heart 88.4 (2002), pp. 378–380.
+[58] Eduardo Miranda Dantas et al. “Spectral analysis of heart rate variability with the autoregressive method: What model order to choose?” In: Computers in Biology and Medicine 42.2 (2012), pp. 164–170.
+[59] S¸. Mirescu and S. W. Harden. “Nonlinear Dynamics Methods for Assessing Heart Rate Variability in Patients with Recent Myocardial Infraction”. In: Romanian J. Biophys. 22.2 (2012), pp. 117–124.
+[60] Kosuke Miyoshi. Heart Rate Variabilty (HRV) Analysis Tool with Polar H7/H6 on MacOSX. 2016. url: https : / / github . com / miyosuda / heartrate monitor (visited on 08/20/2018).
+[61] George B Moody. “Spectral Analysis of Heart Rate Without Resampling”. In: (1993), pp. 715–718.
+[62] A. Muthuchudar and S. Santosh Baboo. “A Study of the Processes Involved in ECG Signal Analysis”. In: International Journal of Scientiﬁc and Research Publications 3.1 (2013), pp. 2250–3153.
+V
+
+Bibliography
+[63] Dib Nabil and F. Bereksi Reguig. “Ectopic beats detection and correction methods: A review”. In: Biomedical Signal Processing and Control 18 (2015), pp. 228–244.
+[64] Jose Naranjo et al. “Heart Rate Variability: a Follow-up in Elite Soccer Players Throughout the Season”. In: International Journal of Sports Medicine 36.11 (2015), pp. 881–886.
+[65] Juha Niskanen et al. “Software for advanced HRV analysis”. In: Computer Methods and Programs in Biomedicine 76.1 (2004), pp. 73–81.
+[66] Juha-pekka Niskanen and Perttu O Ranta-aho. Kubios User Manual. 2017. [67] Travis Oliphant. A guide to NumPy. USA: Trelgol Publishing, 2006. [68] Jiapu Pan and Willis J. Tompkins. “A Real-Time QRS Detection Algo-
+rithm”. In: IEEE Transactions on Biomedical Engineering BME-32.3 (1985), pp. 230–236. [69] Mirja Peltola. “Role of editing of R-R intervals in the analysis of heart rate variability”. In: Frontiers in Physiology 3.May (2012), pp. 1–10. [70] C. K. Peng et al. “Quantiﬁcation of scaling exponents and crossover phenomena in nonstationary heartbeat time series”. In: Chaos 5.1 (1995), pp. 82– 87. [71] Guilherme Ramos, Miquel Alfaras, and Hugo Gamboa. “Real-Time Approach to HRV Analysis”. In: Proceedings of the 11th International Joint Conference on Biomedical Engineering Systems and Technologies. Vol. 4. Biostec. 2018, pp. 208–215. [72] John Ramshur. “Design, Evaluation, and Application of Heart Rate Variability Analysis Software (HRVAS)”. Master Thesis. University of Memphis, 2010. [73] Joshua S Richman et al. “Physiological time-series analysis using approximate entropy and sample entropy”. In: Am J Physiol Hear Circ Physiol (2008), pp. 2039–2049. [74] L. Rodr´ıguez-Lin˜ares et al. “An open source tool for heart rate variability spectral analysis”. In: Computer Methods and Programs in Biomedicine 103.1 (2011), pp. 39–50. [75] Lizawati Salahuddin et al. “Ultra Short Term Analysis of Heart Rate Variability for Monitoring Mental Stress in Mobile Settings”. In: 2007 29th Annual International Conference of the IEEE Engineering in Medicine and Biology Society. 2007, pp. 4656–4659.
+VI
+
+Bibliography
+[76] Kai Savonen et al. “Heart rate response during exercise test and cardiovascular mortality in middle-aged men”. In: European Heart Journal 27.5 (2006), pp. 582–588.
+[77] J. D. Scargle. “Studies in astronomical time series analysis. II - Statistical aspects of spectral analysis of unevenly spaced data”. In: The Astrophysical Journal 263 (1982), p. 835. arXiv: 0003129v2 [hep-ph].
+[78] C. Schoel. NOnLinear measures for Dynamical Systems (nolds). 2016. url: https : / / github . com / CSchoel / nolds{\ # }nonlinear - measures - for dynamical-systems-nolds (visited on 10/02/2018).
+[79] Felix Scholkmann, Jens Boss, and Martin Wolf. “An eﬃcient algorithm for automatic peak detection in noisy periodic and quasi-periodic signals”. In: Algorithms 5.4 (2012), pp. 588–603.
+[80] Home Search et al. “Statistics and graphs for heart rate variability :” in: Physiological Measurement 24 (2003), pp. 8–14.
+[81] P Seyd et al. “Time and frequency domain analysis of heart rate variability and their correlations in diabetes mellitus”. In: International Journal of Medical, Health, Biomedical, Bioengineering and Pharmaceutical Engineering 2.3 (2008), pp. 85–88.
+[82] Fred Shaﬀer and J. P. Ginsberg. “An Overview of Heart Rate Variability Metrics and Norms”. In: Frontiers in Public Health 5.September (2017), pp. 1– 17.
+[83] Fred Shaﬀer, Rollin McCraty, and Christopher L. Zerr. “A healthy heart is not a metronome: an integrative review of the heart’s anatomy and heart rate variability”. In: Frontiers in Psychology 5.September (2014), pp. 1–19.
+[84] Naiara Maria Souza et al. “Geometric indexes of HRV in type 1 diabetes”. In: Curr Res Cardiol 3.2 (2016), pp. 38–42.
+[85] Umberto Spagnolini. Statistical Signal Processing in Engineering. John Wiley & Sons Ltd., 2017, p. 267.
+[86] Task Force of the European Society of Cardiology and the North American Society of Pacing And Electrophysiology. “Heart Rate Variability - Standards of measurement, physiological interpretation, and clinical use”. In: European Heart Journal 17 (1996), pp. 354–381.
+[87] Mazhar B Tayel and Eslam I Alsaba. “Poincar´e Plot for Heart Rate Variability”. In: International Journal of Medical, Health, Biomedical, Bioengineering and Pharmaceutical Engineering 9.9 (2015), pp. 708–711.
+VII
+
+Bibliography
+[88] The Astropy Collaboration et al. “The Astropy Project: Building an inclusive, open-science project and status of the v2.0 core package”. In: ArXiv e-prints (2018).
+[89] The Student Physiololgist. The ECG Leads Polarity And Einthovens-Triangle. 2017. (Visited on 10/05/2018).
+[90] Tran Thong et al. “Accuracy of ultra-short heart rate variability measures”. In: Proceedings of the 25th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (IEEE Cat. No.03CH37439). EMBC 2003. 2003, pp. 2424–2427.
+[91] Boris Tolg et al. “Re-test reliability of subjective and autonomic responses in a VR performance-anxiety test”. In: Proceedings of the 11th European Conference on Games Based Learning, ECGBL 2017. Graz, 2017, pp. 671– 676.
+[92] Ken Umetani et al. “Twenty-Four Hour Time Domain Heart Rate Variability and Heart Rate : Relations to Age and Gender Over Nine Decades”. In: Journal of the American College of Cardiology 31.3 (1998), pp. 593–601.
+[93] Merete Vaage-Nilsen et al. “Recovery of autonomic nervous activity after myocardial infarction demonstrated by short-term measurements of SDNN”. In: Scandinavian Cardiovascular Journal 35.3 (2001), pp. 186–191.
+[94] Luiz Carlos Marques Vanderlei et al. “Geometric indexes of heart rate variability in obese and eutrophic children.” In: Arquivos brasileiros de cardiologia 95.1 (2010), pp. 35–40.
+[95] Adriana Nicholson Vest et al. “An open source benchmarked toolbox for cardiovascular waveform and interval analysis”. In: Physiological Measurement (2018).
+[96] Marcus Vollmer. “A robust, simple and reliable measure of heart rate variability using relative RR intervals”. In: Computing in Cardiology 42.6 (2016), pp. 609–612.
+[97] Federico Wadehn, Yue Zhao, and Hans-andrea Loeliger. “Heart Rate Estimation in Photoplethysmogram Signals using Nonlinear Model-Based Preprocessing”. In: Computing in Cardiology 42 (2015), pp. 633–636.
+[98] Hui Min Wang and Sheng Chieh Huang. “SDNN/RMSSD as a surrogate for LF/HF: A revised investigation”. In: Modelling and Simulation in Engineering 2012 (2012).
+[99] Jim Waterhouse, Yumi Fukuda, and Takeshi Morita. “Daily rhythms of the sleep-wake cycle”. In: Journal of Physiological Anthropology 31.1 (2012), pp. 1–14.
+VIII
+
+Bibliography
+
+[100]
+[101] [102] [103]
+
+Peter Welch. “The Use of Fast Fourier Transform for the Estimation of Power Spectra: A Method Based on Time Averaging Over Short, Modiﬁed Periodograms”. In: IEEE Transaction on Audio and Electroacuistics AU-15.2 (1967), pp. 70–73. Keith Willson et al. “Relationship between detrended ﬂuctuation analysis and spectral analysis of heart-rate variability”. In: Physiological Measurement 23.2 (2002), pp. 385–401. Mary Woo et al. “Patterns of beat-to-beat advanced heart failure heart rate variability in”. In: American Heart Journal 123.3 (1992), pp. 704–710. F Yasuma and J Hayano. “Respiratory Sinus Arrhythmia - Why Does the Heartbeat Synchronize With Respiratory Rhythm?” In: CHEST 125.2 (2004), pp. 683–690.
+
+IX
+
+Appendices
+X
+
+Appendix A Sample HRV Report
+
+SampleReport.txt
+
+# BIOSPPY HRV REPORT - v.0.2.5
+
+# Sampling Rate
+
+;
+
+1000Hz
+
+# Date Time
+
+; 2018-11-18_18-48-17
+
+# File
+
+; SampleFile
+
+# Device
+
+; BITalino revolution Board
+
+# Identifier/MAC
+
+; A0:B1:C2:D3:F4:H5
+
+# Resolution
+
+; 10-bit
+
+----------------------------------------------------------------------
+
+COMMENTS
+
+This is a sample report.
+
+----------------------------------------------------------------------
+
+NN INTERVALS ms
+
+; n/a
+
+----------------------------------------------------------------------
+
+Time Domain
+
+----------------------------------------------------------------------
+
+Number of NNIs -
+
+; 4684.000
+
+Mean NNI ms
+
+; 768.438
+
+Minimum NNI ms
+
+; 562.000
+
+Maximum NNI ms
+
+; 1188.000
+
+Mean Delta-NNI ms
+
+; 42.199
+
+Minimum Delta-NNI ms
+
+; 0.000
+
+Maximum Delta-NNI ms
+
+; 360.000
+
+Mean Heart Rate bpm
+
+; 78.990
+
+Minimum Heart Rate bpm
+
+; 50.505
+
+XI
+

@@ -1,0 +1,681 @@
+TECHNOLOGY REPORT published: 04 October 2018 doi: 10.3389/fphys.2018.01390
+
+PhysioZoo: A Novel Open Access Platform for Heart Rate Variability Analysis of Mammalian Electrocardiographic Data
+Joachim A. Behar1*†, Aviv A. Rosenberg1,2†, Ido Weiser-Bitoun1, Ori Shemla1, Alexandra Alexandrovich1, Eugene Konyukhov1 and Yael Yaniv1*
+1 Faculty of Biomedical Engineering, Technion-IIT, Haifa, Israel, 2 Faculty of Computer Science, Technion-IIT, Haifa, Israel
+
+Edited by: Mark Potse, Inria Bordeaux – Sud-Ouest Research Centre, France
+Reviewed by: Jan Kors,
+Erasmus University Medical Center, Netherlands
+Dagmar Jarkovska, Charles University, Czechia
+Wayne Rodney Giles, University of Calgary, Canada
+*Correspondence: Joachim A. Behar
+jbehar@technion.ac.il Yael Yaniv
+yaely@bm.technion.ac.il; yanivyael@gmail.com
+†Co-ﬁrst authors
+Specialty section: This article was submitted to
+Cardiac Electrophysiology, a section of the journal Frontiers in Physiology
+Received: 30 April 2018 Accepted: 12 September 2018
+Published: 04 October 2018
+Citation: Behar JA, Rosenberg AA, Weiser-Bitoun I, Shemla O, Alexandrovich A, Konyukhov E and Yaniv Y (2018) PhysioZoo: A Novel Open Access Platform for Heart Rate Variability Analysis of Mammalian Electrocardiographic Data.
+Front. Physiol. 9:1390. doi: 10.3389/fphys.2018.01390
+
+Background: The time variation between consecutive heartbeats is commonly referred to as heart rate variability (HRV). Loss of complexity in HRV has been documented in several cardiovascular diseases and has been associated with an increase in morbidity and mortality. However, the mechanisms that control HRV are not well understood. Animal experiments are the key to investigating this question. However, to date, there are no standard open source tools for HRV analysis of mammalian electrocardiogram (ECG) data and no centralized public databases for researchers to access.
+Methods: We created an open source software solution speciﬁcally designed for HRV analysis from ECG data of multiple mammals, including humans. We also created a set of public databases of mammalian ECG signals (dog, rabbit and mouse) with manually corrected R-peaks (>170,000 annotations) and signal quality annotations. The platform (software and databases) is called PhysioZoo.
+Results: PhysioZoo makes it possible to load ECG data and perform very accurate R-peak detection (F1 > 98%). It also allows the user to manually correct the R-peak locations and annotate low signal quality of the underlying ECG. PhysioZoo implements state of the art HRV measures adapted for different mammals (dogs, rabbits, and mice) and allows easy export of all computed measures together with standard data representation ﬁgures. PhysioZoo provides databases and standard ranges for all HRV measures computed on healthy, conscious humans, dogs, rabbits, and mice at rest. Study of these measures across different mammals can provide new insights into the complexity of heart rate dynamics across species.
+Conclusion: PhysioZoo enables the standardization and reproducibility of HRV analysis in mammalian models through its open source code, freely available software, and open access databases. PhysioZoo will support and enable new investigations in mammalian HRV research. The source code and software are available on www.physiozoo.com.
+Keywords: heart rate variability, electrocardiography, animal models, R-peak detection, power law
+Abbreviations: BRV, beating rate variability; HRV, heart rate variability; NN, ﬁltered RR interval; NSR, normal sinus rhythm; PSD, power spectral density; RR, beat-to-beat interval derived from the ECG signal.
+
+Frontiers in Physiology | www.frontiersin.org
+
+1
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+INTRODUCTION
+Over the past few decades, numerous studies have explored the variation of the time interval between heartbeats, also known as HRV. Studies have shown that measures quantifying HRV together with heart rate (HR) can provide useful information on cardiovascular health (Pincus and Goldberger, 1994; Yaniv et al., 2015b). Use cases include prediction of sepsis in neonates (Lake et al., 2002), detection of atrial ﬁbrillation (Oster et al., 2013; Behar et al., 2017), detection of obstructive sleep apnea (Roche et al., 1999), or identifying intrauterine growth restricted fetuses (Henson et al., 1984). Importantly, loss of the so-called “complexity” in the HRV of a patient with cardiovascular disease has been correlated with an increase in both morbidity and mortality. Understanding the mechanisms that contribute to these changes is therefore essential. In recent years interest in HRV analysis has increased due to (i) the existence of large, publicly available biosignal databases [e.g., the Research Resource for Complex Physiologic Signals, or PhysioNet (Goldberger et al., 2000)], or similar private counterparts; (ii) the development of more advanced digital signal processing algorithms for exploiting the physiological content of the beat-to-beat interval time series; and (iii) the availability of aﬀordable, wearable medical devices and implantable telemetry devices from which continuous heart rate time series can be obtained. Despite these encouraging studies, the mechanisms that control HRV are not yet well understood, and the use of HRV analysis has remained limited in medical practice.
+With the recent advances in genome manipulation technologies, animals with mutations designed to overexpress or knock out genes implicated in human cardiovascular diseases have become an important focus of biological research (Thireau et al., 2008). HRV is a non-invasive tool that can be used to analyze the electrical heart activity of mutant animals and provide new insights into the pathophysiology and how these conditions may be diagnosed. HRV analysis has also been used to study the role of cardiac mediators and signaling pathways in heart rhythm (Uechi et al., 1998; Witte et al., 2004) and the eﬀect of pharmacological substances on the HRV (Elghozi et al., 2001; Tank et al., 2004). In addition, HRV can be used to characterize functional changes at diﬀerent levels of integration (Yaniv et al., 2013b, 2014) (i.e., whole heart, sinoatrial tissue, and single pacemaker cells) in disease or aging (Yaniv et al., 2016). Such experiments can only be performed using animal models.
+Despite the clear motivation for integrating HRV analysis into animal studies, some drawbacks prevent researchers from doing so: (i) there are no standard publicly available R-peak detector algorithms adapted for use with mammalian electrophysiological data; (ii) the HRV measures and available software implementing them are based on human electrophysiological data analysis, and there is no standard method for adapting them to other mammals; and (iii) there is no standardized annotated database that can be used as a reference when developing new programs for HRV analysis or new HRV indices. These limitations have motivated our creation of the PhysioZoo platform for HRV analysis of mammalian electrophysiological
+
+data. This new platform includes a set of standardized databases of electrophysiological data from common, healthy animals, an R-peak detector for accurately estimating the beat-to-beat intervals from electrophysiological data of diﬀerent mammals, and software implementing the state of the art HRV measures, with parameters adapted to each species. PhysioZoo was implemented in MATLAB (The MathWorks, Inc., Natick, MA, United States). A standalone compiled version of the software is also available for users without a MATLAB license.
+The platform introduced in this paper thus represents the ﬁrst step toward tackling the aforesaid limitations. The PhysioZoo platform enables the standardization and reproducibility of HRV analysis for human, dog, rabbit, and mouse electrocardiographic (ECG) data through its open source code, freely available software, and open access ECG databases. PhysioZoo will support and enable new developments in mammalian HRV research. We made available the source code, software and documentation on physiozoo.com and the databases on physionet.org.
+MATERIALS AND METHODS
+Databases and Annotations
+Electrocardiographic data from dogs (Billman, 2013), rabbits (Brunner et al., 2008; Odening et al., 2012), and mice (Yaniv et al., 2016) were obtained. All animal data used in the present paper were obtained from published studies for which the respective animal protocols and experimental procedures were approved by the original research committee (Brunner et al., 2008; Odening et al., 2012; Billman, 2013; Yaniv and Maltsev, 2014; Yaniv et al., 2016). Human ECG data were obtained from the public MITBIH Normal Sinus Rhythm (MIT-NSR) database (Goldberger et al., 2000). Human data consist of 18 long-term ECG recordings recorded at 128 Hz from individuals who had no signiﬁcant arrhythmias. Dog data were recorded at 500 Hz, and body surface electrodes were placed on either side of the animal’s chest and secured with surgical tape. Rabbit data were recorded by means of subcutaneous ECG recording using the Ponemah platform (DSI, MN, United States) at 1 kHz. ECG raw data were exported to text ﬁles from the Ponemah software using the maximal precision (four decimal places). All rabbits were female and free moving in a cage. Mouse data were recorded using Telemetry sensors (ETA-F20 or HDX-11, Data Sciences International, Saint Paul, MN, United States) with a sampling rate of 1000 Hz. All the mammals were conscious, and no drugs were administered prior to the recording. When multiple channels of ECG were available, only the ﬁrst channel was considered for analysis and stored in our databases.
+We performed peak detection to identify the R-peak locations (Behar et al., 2014b) in the animal databases. For the human database, the reference R-peaks available on PhysioNet were used (Goldberger et al., 2000). Because no state of the art R-peak detector has ever been designed and evaluated for data from animals (whose beating rates diﬀer from that of humans; see Figure 1), we manually corrected the peak locations. For that purpose, a single trained annotator reviewed all the recordings and corrected the inaccurate annotations (false positive and false
+
+Frontiers in Physiology | www.frontiersin.org
+
+2
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+FIGURE 1 | Representative example of the R-peaks detected using gqrs (left) and rqrs (right) on the same 2 s segment. (A) R-peaks detected by gqrs (state-of-the-art human R-peak detector). This ﬁgure illustrates the need for mammal-speciﬁc R-peak detectors to ensure accuracy. (B) R-peaks detected by rqrs (i.e., adapted for working with mammalian data).
+
+negative). In addition, segments were marked as bad quality when no R-peak could be visually identiﬁed by the annotator for at least three consecutive peaks. Annotations within these low quality segments were removed. Thus, for each record in our database, we obtained the reference (i.e., human corrected) R-peak annotations and the signal quality annotations (see Table 1 and Supplementary Tables S4–S6 for a summary of the databases). We used these reference annotations to evaluate the mammal-speciﬁc R-peak detector implemented in the PhysioZoo software as well as to provide standard ranges of the HRV measures.
+All mammalian ECG data and the manually corrected R-peak reference annotations were contributed to physionet.org (Goldberger et al., 2000).
+
+TABLE 1 | Summary of the PhysioZoo database content.
+
+Human
+
+Dog
+
+Rabbit
+
+Mouse
+
+Number of records Number of mammals Average length (hr:min:sec) Min length (hr:min:sec) Max length (hr:min:sec) Total length (hr:min:sec) Total R-peak annotations Bad quality, gross (%)
+
+18 18 24:18:18 23:08:00 25:57:20 437:29:36 1,806,792 –
+
+17 17 00:05:31 00:04:09 00:06:48 01:33:55 10,871 2.7%
+
+20 4 00:10:34 00:04:53 00:26:00 03:31:13 50,452 1.0%
+
+8 8 00:29:44 00:13:53 00:39:38 03:28:07 109,865 0.4%
+
+Data for humans (Goldberger et al., 2000), dogs (Billman, 2013), rabbits (Brunner et al., 2008; Odening et al., 2012), and mice (Yaniv et al., 2016).
+
+Peak Detection
+R-Peak Detection Algorithm
+To calculate HRV measures from ECG signals, we must ﬁrst detect R-peaks accurately. Numerous algorithms for ﬁnding QRS complexes in ECG signals exist and their performance has been studied (Pan and Tompkins, 1985; Llamedo and Martínez, 2014; Johnson et al., 2015). The gqrs detector, part of the PhysioNet WFDB Toolkit (Goldberger et al., 2000), has been shown to perform very accurately on several ECG databases (Llamedo and Martínez, 2014). In addition, gqrs can be conﬁgured to work for animal ECG recordings by changing its conﬁguration parameters.
+The gqrs algorithm detects the beginning of the entire QRS complex (Q onset) and not the R-peak itself. It is therefore not the best option for HRV calculation, because beat-to-beat analysis of the R-peak provides a more stable ﬁducial point than the QRS onset. A custom detector, rqrs, was created, with an additional step: for each QRS complex detected by gqrs, it searches for R-peaks in a small window around the time that the Q onset is detected. In order to ensure that this step works for ECG signals of diﬀerent polarities, both the minimal and maximal extremal points are searched within the window. The median of the absolute diﬀerences between the signal value at the Q-onset (as found by gqrs) and the signal amplitude at both extrema are evaluated. If the median diﬀerence is larger for the maximal extrema points, the maximal points are taken as R-peaks; otherwise, the minimal points are taken as R-peaks. The duration of the window the extrema are searched in was chosen to be 80% of the average duration of one QRS complex, thus making it species dependent. To ensure that rqrs provides robust R-peak
+
+Frontiers in Physiology | www.frontiersin.org
+
+3
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+detection, at least as accurate as gqrs for humans, the algorithm was tested on the updated 2014 PhysioNet Challenge training set of ECG recordings (Silva et al., 2015; see Supplementary Table S1).
+In order to adapt the R-peak detection algorithm to other mammalian ECG data, some parameter modiﬁcations were required. The parameters for humans were taken from the default PhysioNet conﬁguration ﬁle. For dog, rabbit, and mouse data, we used the physiological measurements reported in other studies (Hanton and Rabemampianina, 2006; Lord et al., 2010; SysaShah et al., 2015; Chapel et al., 2017; Cintra et al., 2017) and in the Research Animal Resources Center database (University of Wisconsin-Madison, 2018) in order to set the conﬁguration parameters and evaluate the newly conﬁgured R-peak detector on our databases.
+Statistics To assess the R-peak detection accuracy, the following standard statistical measures were used:
+• Sensitivity, Se. This is the fraction of correctly detected events (R-peaks),
+Se = TP , TP + FN
+where TP (True positive) is the number of detections that have a matching reference annotation and FN (False negative) is the number of reference annotations that were not matched with a detection (missed events).
+• Positive Predictive Value, PPV. This is the fraction of detections that were actual events (R-peaks):
+PPV = TP , TP + FP
+where FP (false positive) is the number of detections that do not have a matching reference annotation (incorrect detections).
+• The overall detection accuracy measure, F1 (Sasaki and Fellow, 2007), is deﬁned as:
+PPV Se F1 = 2 PPV + Se
+This statistic was suggested for assessing the performance of R-peak detection algorithms (Behar et al., 2014a) due to its ability to combine multiple fractional measures by using a harmonic mean between the Se and PPV.
+To assess an R-peak detector’s performance, the detected beat locations were compared to the reference manual annotations for that record. For humans, the detection locations were compared to the reference annotations using a 150 ms tolerance window around each detection as standardized by ANSI/AAMI (1998). This tolerance window needs to be mammal dependent to account for the variable HR range across mammals. For each mammal, we deﬁned the tolerance window as 150 ms times the ratio between the human to mammal mean HR. This led to tolerance window values of 90 ms, 40 ms and 17 ms for dogs, rabbits, and mice, respectively. These tolerance windows were
+
+used to compute the Se, PPV, and F1 statistics for assessing the R-peak detector accuracy for the diﬀerent mammals. Of note, this tolerance window is relatively large with respect to the RR interval of the corresponding mammal. For humans, for example, a 150 ms window around a reference annotation means that at a typical HR of 60 bpm the tolerance window will be 30% of the RR interval. Thus, practically speaking, an R-peak detector evaluates whether any point on the QRS complex was identiﬁed by the algorithm and not the R-peak speciﬁcally.
+Heart Rate Variability Measures
+Preﬁltering and Standard HRV Measures Numerous methods exist to quantify HRV by looking at the beat-to-beat interval length variations; see Malik et al. (1996) and Yaniv et al. (2013a) for reviews. The basic interval lengths can be obtained by measuring the time diﬀerences between consecutive R-peaks (RR intervals). However, by deﬁnition, only beats resulting from normal sinus node depolarizations (i.e., not arrhythmic, paced, ventricular, etc.) should be used for HRV measures calculations. The intervals between such normal beats are referred to as NN intervals. In order to obtain the NN intervals, RR intervals are found using an ECG R-peak detection algorithm, and then a preprocessing step (either manual or automatic) is performed to ﬁlter out suspected ectopic beats, missed beats, and artifacts. We implemented in PhysioZoo three methods for preﬁltering the RR-interval: range-based ﬁltering (Mietus and Goldberger, 2017), moving average ﬁltering (Mietus and Goldberger, 2017), and quotient ﬁltering (Piskorski and Guzik, 2005). An example of noise leading to inaccurate R-peak detection is given in Supplementary Figure S2. The importance of the preﬁltering step for managing these inaccurate detections is illustrated in Supplementary Figure S3. Supplementary Figure S4 shows a comparison of the combined range and moving average ﬁlters to the corresponding preﬁltering step used in the PhysioNet HRV Toolkit (Mietus and Goldberger, 2017).
+A number of HRV measures have been developed over the past three decades. They are traditionally divided into three categories: time domain, frequency domain, and non-linear (Malik et al., 1996). We implemented and included in PhysioZoo the classic HRV measures standardized in 1996 (Malik et al., 1996) and included other measures such as detrended ﬂuctuation analysis (Peng et al., 1995), sample entropy (Richman and Moorman, 2000) and the recently introduced fragmentation HRV measures (Costa et al., 2017).
+Adaptation to Other Mammals Because the HR range and dynamics can vary signiﬁcantly between mammals, some HRV measures need to be adapted. Figure 1 illustrates the important diﬀerences in the HR across mammals and thus the need to adapt some HRV measure parameters. Table 3 summarizes the parameters selected for each species.
+Preﬁltering The default parameters for the moving average ﬁlter and quotient ﬁlter were kept the same for all mammals and with the original parameters used for human RR interval preprocessing
+
+Frontiers in Physiology | www.frontiersin.org
+
+4
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+(Piskorski and Guzik, 2005; Mietus and Goldberger, 2017). For these two ﬁlters, the interface oﬀers three ﬁltering levels: weak, moderate, and strong. For the range ﬁlter, because the RR is diﬀerent across mammals, we used the RRmin and RRmax deﬁned in Table 2 for each mammal. Of note, the moving average ﬁlter was implemented using zero phase ﬁltering in order to avoid pruning a number of datapoints at the borders and corresponding to the window length. Note that the PhysioNet HRV toolkit preﬁltering step does not use a zero phase ﬁlter and prunes a non-negligible number of datapoints at the borders (see Supplementary Figure S4). This is particularly adverse when using small analysis windows such as the standard 5 min window.
+Time domain measures The percent of NN interval diﬀerences greater than xx milliseconds (denoted pNNxx measure, Table 3) uses a ﬁxed criterion for variability, based on a threshold that was found to work well for human ECG data (xx = 50 ms) to quantify vagal activity. This threshold needs to be adapted for diﬀerent mammals. Assuming that the respiratory rate frequency is characteristic of the vagal activity contribution to HRV, we took the ratio between the average breathing cycle length of the corresponding mammal divided by the average breathing cycle length of humans (rounded value). The respiratory rate range for humans is 12–18 breaths per minute (brpm) (Ganong, 2009), 20–40 brpm for dogs, 30–60 brpm for rabbits, and 60–220 brpm for mice (University of Wisconsin-Madison, 2018). This led to values of 25, 17, and 5 ms for dogs, rabbits, and mice, respectively (see Table 3).
+
+Frequency domain measures In healthy humans, the frequency of the PSD performed on a 5-min long RR time series is traditionally divided into three main bands (Malik et al., 1996): the very low frequency (VLF) band, the low frequency (LF) band, and the high frequency (HF) band.
+A number of methods exist for spectral estimation. These methods can be broadly categorized as parametric and nonparametric (Porat, 1996). Parametric methods rely on a predetermined model of the process producing the samples, usually an autoregressive (AR) moving average model. Nonparametric methods [typically the Welch (Welch, 1967) or Lomb methods (Lomb, 1976)] compute the spectrum directly usually using Fourier-based analysis of the data itself. In particular, many cardiologists prefer to use the AR model (Carvalho et al., 2003) because it is easier to visually identify the characteristic LF and HF peaks with this “smoother” representation versus the nonparametric methods. While the Lomb method eliminates the need for resampling and thus prevents the artifacts associated with it (Moody, 1993), the risk of aliasing (see Supplementary Figure S5) is higher with this method because the maximal frequency we can resolve without aliasing greatly depends on the average HR in the recording. For this reason, we only enable the AR and Welch methods for PSD analysis within the PhysioZoo user interface. See section “Power Spectral Estimation” Supplementary Material for more details on the PSD estimation methods.
+The frequency bands need to be redeﬁned for each mammal because sympathetic and parasympathetic activity manifest at
+
+TABLE 2 | R-peak detection parameters used to conﬁgure rqrs for the different mammalian ECG data.
+
+Parameter
+
+Description
+
+Values
+
+Units
+
+Human
+
+Dog
+
+Rabbit
+
+Mouse
+
+HRm QSm QT RRmin RRmax QRSa QRSamin
+
+Typical heart rate
+
+75
+
+109.5
+
+264
+
+608
+
+[beats/min]
+
+Typical QRS duration
+
+0.07
+
+0.04
+
+0.02
+
+0.00718
+
+[sec]
+
+Typical QT interval duration
+
+0.35
+
+0.19
+
+0.12
+
+0.03
+
+[sec]
+
+Minimum RR interval (“refractory period”)
+
+0.28
+
+0.25
+
+0.14
+
+0.05
+
+[sec]
+
+Maximum RR interval
+
+2.4
+
+1.2
+
+0.58
+
+0.24
+
+[sec]
+
+Typical QRS peak-to-peak amplitude
+
+750
+
+1120
+
+294
+
+1090
+
+[µV]
+
+Minimum QRS peak-to-peak amplitude
+
+130
+
+100
+
+114
+
+370
+
+[µV]
+
+More details about the choice of these parameters are provided in Section “Adaptation of the Parameters for Other Mammals” in Supplementary Material.
+
+TABLE 3 | Adaptation of HRV parameters in different mammals.
+
+Human (Task force)
+
+Human
+
+Dog
+
+Rabbit
+
+Mouse
+
+pNNxx threshold (ms) VLF band (Hz) LF band (Hz) HF band (Hz) Window size (min)
+
+50 0.003–0.04 0.04–0.15
+0.15–0.4 5
+
+50 0.0033–0.046 0.046–0.158 0.158–0.588
+5
+
+25 0.0033–0.067 0.067–0.235 0.235–0.877
+5
+
+17 0.0033–0.088 0.088–0.341 0.341–1.155
+5
+
+5 0.0056–0.152 0.152–1.240
+1.240–5 3
+
+HR, heart rate, LF, low frequency; HF, high frequency; PSD, power spectral density. The “Human (Task force)” column refers to parameters established by the Task Force (Malik et al., 1996). The “Human” column corresponds to the bands we found for humans. “Window size” refers to the typical window size used for PSD analysis. The frequency bands for the different mammals are based on Malik et al. (1996); Thireau et al. (2008), Behar et al. (2018), and the window size for the mouse is based on Thireau et al. (2008).
+
+Frontiers in Physiology | www.frontiersin.org
+
+5
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+FIGURE 2 | Example of power spectral estimation using an AR model and the Welch method. The three modes corresponding to the VLF, LF, and HF bands are illustrated. AR coefﬁcients: n = 20 for the (A) human, (B) dog, and (C) rabbit examples and n = 30 for (D) the mouse example.
+
+diﬀerent frequencies for diﬀerent mammals. Figure 2 shows an example of PSD obtained using the AR and Welch methods for diﬀerent mammals and how the frequency bands are to be adapted. For example, the typical peak in the HF band is characteristic of vagal stimulation (Akselrod et al., 1981). On the human database this peak is located at 0.3 Hz, whereas for the mouse database it is located at 1.77 Hz. In order to deﬁne mammal-speciﬁc bands, we suggested in a recent work (Behar et al., 2018) a Gaussian Mixture model (GMM) to learn these bands with a data-driven approach directly from mammalian ECG databases. The GMM was ﬁtted to the distribution of prominent frequency peaks found in the PSD of the NN time series. We ﬁtted three Gaussians corresponding to the three traditional frequency bands and deﬁned the band’s boundary as the crossing point between consecutive Gaussians. For the mouse data we take a larger upper bound of the HF band at 5 Hz in order to account for the experimental measurements obtained by others (Thireau et al., 2008). For the AR approach to PSD estimation, the order of the AR model must be deﬁned. Boardman et al. (2002) tested diﬀerent criteria for automatically deﬁning the AR order based on the data and sampling frequency. However, they concluded that a ﬁxed model order should be used because the automated criteria tend to underestimate the AR order. The authors found that an order in the range 16–22 worked well across their human dataset. Analysis of our data showed that an order of 20 was suitable for humans, dogs, and rabbits, and an order of 30 for mice. We set these as the default
+
+orders for the respective mammals. An example is provided in Figure 2.
+For the AR and Welch PSD estimation methods, a cubic spline was ﬁtted to the NN time series and resampled at a frequency 2.25 times greater than the upper bound of the HF band (thus the resampling rate is relative to the mammal type) in order to comply with the Nyquist criterion. The window size for power spectral analysis is also important and might diﬀer from one mammal to another. We found clear data only for mice; this data, from Thireau et al. (2008), suggests that a window of 3 min is appropriate. For dogs and rabbits, in the absence of further experimental insights, we kept the window size to 5 min as in humans.
+Non-linear measures The fractal methods require no adaptation (see section “Detrended Fluctuation Analysis” Supplementary Material). However, when using a PSD based estimate of the β coeﬃcient (slope of the linear interpolation of the spectrum in a loglog scale for frequencies below the upper bound of the VLF band), the appropriate VLF frequency band must be used for the corresponding mammal. Entropy methods do not require adaptation for diﬀerent mammals.
+Validation In order to validate the HRV time based measures, we ran the PhysioZoo code on the MIT NSR database (Goldberger et al.,
+
+Frontiers in Physiology | www.frontiersin.org
+
+6
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+2000) and compared its output to the measures generated by the PhysioNet HRV source codes (HRV toolkit1, DFA2, and MSE3), which are reference source codes for HRV analysis in humans.
+
+TABLE 4 | Summary of heart rate variability measures available in the PhysioZoo software.
+
+Measures
+
+Units Deﬁnition
+
+Power and Allometric Laws
+To illustrate the type of scientiﬁc applications enabled by PhysioZoo, we searched for power and allometric laws between the HRV measures and the typical heart rate (HRm) or the typical body mass (BMm) of the diﬀerent mammals included in this study. To search for power laws between the mean HRV measures and HRm/BMm, we used a double-logarithmic analysis of the mean HRV measures for each mammal type against HRm/BMm.
+RESULTS
+This section presents the results of the performance of the adapted R-peak detector for each mammal type, the PhysioZoo software interface, the range of HRV measures obtained for each mammal type using PhysioZoo to process the data, and an example of use of the program to ﬁnd the complexity relationship across mammals.
+R-Peak Detector
+To validate the ability of rqrs to perform at least as well as the standard gqrs R-peak detector on human ECG data, the algorithm was tested on the updated 2014 PhysioNet Challenge training set (Silva et al., 2015). The results are presented in Supplementary Table S1 and show that rqrs had F1 = 93.1% against F1 = 92.6% for gqrs. It is important to note that the input amplitude of the ECG data to rqrs must be in millivolts. Figure 1 shows an example of R-peak detection when using a standard human peak detector (Figure 1A) and when using the rqrs detector adapted for handling the ECG data of diﬀerent mammals (Figure 1B).
+The rqrs R-peak detector was adapted for each mammal (see section “Materials and Methods”) and evaluated on our databases with reference annotations.
+Table 5 provides the performance statistics of the detector for each mammal. The adapted detector very accurately detected the R-peak locations for all mammals, as indicated by the mean and gross statistics (F1 > 98%). The gross statistics are derived from the sums of all TP, FP, and FN over a mammalian dataset, and mean statistics are the means of the statistics (Se, PPV, and F1) calculated individually for each record of a mammalian dataset.
+HRV Algorithms
+Standard HRV measures were implemented. Table 4 summarizes the HRV measures implemented in the PhysioZoo software for the diﬀerent mammals (dogs, rabbits, and mice). See the supplement for further details and the mathematical background of the HRV measures. All HRV parameters can be manually changed by the user by editing a single conﬁguration ﬁle (stored in YAML format). This conﬁguration ﬁle may also be uploaded
+1https://www.physionet.org/tutorials/hrv-toolkit/ 2https://www.physionet.org/physiotools/dfa/ 3https://physionet.org/physiotools/mse/
+
+Time domain AVNN SDNN RMSSD
+pNNxx
+SEM PIP
+IALS
+PSS PAS
+Frequency Total power VLF LF HF VLF norm∗
+LF norm
+HF norm
+LF/HF
+LF peak HF peak β
+Non-linear SampEn SD1
+SD2
+α1 α2
+
+[ms] [ms] [ms]
+[%]
+[ms] [%]
+[n.u]
+[%] [%]
+[ms2 ] [ms2 ] [ms2 ] [ms2 ] [%]
+[%]
+[%]
+[n.u]
+[Hz] [Hz] [n.u]
+[n.u] [ms]
+[ms]
+[n.u] [n.u]
+
+Average NN interval duration Standard deviation of NN interval duration The square root of the mean of the sum of the squares of differences between adjacent NN intervals Percent of NN interval differences greater than xx milliseconds Standard error of the mean NN interval Percentage of inﬂection points in the NN interval time series Inverse average length of the acceleration/deceleration segments Percentage of short segments The percentage of NN intervals in alternation segments
+Total power Power in the very low frequency band Power in the low frequency band Power in the high frequency band Low frequency power in normalized units LF/(Total power) × 100 Low frequency power in normalized units LF/(Total power – VLF) × 100 High frequency power in normalized units HF/(Total power – VLF) × 100 Low frequency band to high frequency band power ratio (LF/HF) Peak frequency in the low frequency band Peak frequency in the high frequency band Slope of the linear interpolation of the spectrum in a log-log scale for frequencies below the upper bound of the VLF band
+Sample entropy Richman and Moorman, 2000 NN interval standard deviation along the perpendicular to the line-of-identity NN interval standard deviation along the line-of-identity DFA low-scale slope Peng et al., 1995 DFA high-scale slope
+
+VLF, very low frequency; LF, low frequency; HF, high frequency; DFA, detrended ﬂuctuation analysis; NN, interval between normal beats. ∗Note that the normalization factor for the VLF norm measure (Total power) is different from the LF norm and HF norm ones (Total power-VLF). This is because the LF norm and HF norm measures were deﬁned as such in the HRV standard. In the software we provide the option to change the normalization method to make it the same for all three frequency measures, i.e., divided by the total power.
+
+as a supplement to a publication in order to support the reproducibility of the results, as it contains all the parameters required to reproduce the analysis.
+The PhysioZoo HRV source code was compared against the HRV source code available from PhysioNet. Supplementary Table S3 demonstrates the very low NSMSE obtained for all the measures when comparing between the two toolboxes on
+
+Frontiers in Physiology | www.frontiersin.org
+
+7
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+TABLE 5 | Mean and gross R-Peak detection, rqrs, performance for human, dog, rabbit, and mouse ECG data.
+
+Mean (%)
+
+Gross (%)
+
+Humans Dogs Rabbits Mice
+
+Se
+96.47 99.20 99.74 98.92
+
+PPV
+99.87 98.53 99.81 99.87
+
+F1
+98.00 98.84 99.77 99.38
+
+Se
+96.24 99.03 99.75 98.96
+
+PPV
+99.87 98.35 99.80 99.88
+
+F1
+98.02 98.69 99.77 99.42
+
+the MIT NSR databases. The residual diﬀerences may be due to errors that result from the diﬀerence in rounding between code in MATLAB (PhysioZoo) and C (PhysioNet). However, the errors are minor and will not aﬀect HRV analysis.
+User Interface
+After the ECG data is loaded by the user, R-peak detection can be performed, the signal quality can be annotated, and HRV analysis can be performed.
+Figure 4 shows the interface used for R-peak detection, manual peak correction, and signal quality annotations. Using this interface, ECG data can be loaded (File Open data ﬁle) and R-peak detection can be performed by clicking the compute button with parameters relative to the mammal type. The interface also allows manual correction of the peak annotations and manual annotation of the signal quality of the underlying ECG. Signal quality provides contextual information on the reliability of the analyzed time series. Diﬀerent levels of signal quality can be considered in accordance with the analysis goal (Cliﬀord et al., 2012; Behar et al., 2013). Within the context of HRV analysis, we recommend three levels of signal quality, as follows: “A” indicates a very good quality ECG where the R-peaks and morphology (P-wave, T-wave, etc.) can be clearly identiﬁed; “B” indicates recordings where the R-peaks can be clearly identiﬁed but the quality is too low to allow morphological analysis; and “C” indicates a poor quality ECG where neither R-peak detection nor morphological analysis is possible.
+Figure 5 shows the interface for HRV analysis. The PhysioZoo software implements state of the art HRV measures (see section “Materials and Methods”). HRV measure parameters were adapted for diﬀerent mammals (dog, rabbit, and mouse) and can easily be deﬁned by the user for any other species. All computed measures can be exported together with standard data representation ﬁgures. The PhysioZoo software handles data in.txt, .mat (The MathWorks, Inc., Natick, MA, United States) and WFDB (Goldberger et al., 2000) formats. In addition, the PhysioZoo interface enables HRV analysis to be performed on multiple segments, thus allowing changes in HRV measures to be tracked over time for a given record. To load a record, the user should click File Open data ﬁle and select an annotation ﬁle for analysis. The HRV measures will be computed automatically. To perform batch processing, the user should click the “Single” menu and select the window size and section of the recording to be analyzed. More information on the user interface and its functionalities is available on physiozoo.com.
+
+Standard Ranges for HRV Measures
+Table 6 summarizes the median and interquartile interval for all the HRV measures implemented in the PhysioZoo software for all mammals. This provides a standard reference HRV range obtained from conscious and healthy mammals at rest.
+Studying HRV Across Species Using Sample Entropy
+Using the mean sample entropy (SampEn) measures computed in Table 6 for each mammal, we found a power law relationship between the mean SampEn and HRm (R2 = 0.92, Figure 6A) and an allometric law between SampEn and BMm (R2 = 0.91, Figure 6B) of the diﬀerent mammals included in our study. The results suggest that the complexity (represented by sample entropy) of the heart rate increases with HRm and decreases with BMm. This in turn suggests that the complexity of the heart rate decreases in smaller mammals.
+DISCUSSION
+PhysioZoo Contributions
+Our ﬁrst contribution is the creation of standardized databases of mammalian electrophysiological data for dogs, rabbits, and mice with reference R-peak annotations and signal quality. These data were obtained for conscious and healthy mammals at rest and contain over 170,000 reference (i.e., manually corrected) R-peak annotations (Table 1). A very small fraction of low quality data was included (between 0.4 and 2.7% of the overall data; Table 1). These databases can be used as references for future research in mammalian ECG analysis.
+Our second contribution is the adaptation of an open source human R-peak detector for other mammals and adaptation of HRV measures to other mammals. Using experimental ranges on the RR interval length and ECG morphology for the diﬀerent mammals, we conﬁgured the rqrs peak detector and evaluated its performance on our databases by comparing the output of rqrs to the manually annotated R-peak references. The rqrs R-peak detector demonstrated high accuracy (F1 > 98%) for all mammals (Table 5). We adapted diﬀerent HRV parameters to other mammals (see section “Materials and Methods”). For example, we adapted the pNNxx measure to dogs and rabbits. We could not ﬁnd any in-depth study reporting an optimal threshold value of the pNNxx measure for these species. For mice, Thireau et al., 2008 found the optimal threshold to be 6 ms, which is close to our approximation (i.e., xx = 5 ms, Table 3). Similarly, the frequency-based measures were adapted to the mammal type (Table 3).
+Our third and main contribution is the creation of open source software (algorithms and user interface) for HRV analysis in diﬀerent mammals. The software computes traditional HRV measures with parameters adapted to the mammal type. Figure 3 provides an example of the PSD obtained from a 3 min mouse RR time series before and after atropine injection. It can be observed how the energy in the mouse HF band is eliminated by atropine and that this can be captured by the mammal-speciﬁc
+
+Frontiers in Physiology | www.frontiersin.org
+
+8
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+FIGURE 3 | Example of power spectral estimation of a 3 min mouse RR time series before (yellow) and after (blue) atropine injection. The ﬁgure shows that the characteristic vagal peak in the mouse-speciﬁc HF band is eliminated with atropine. Some of the power in the LF band is also reduced with atropine.
+
+FIGURE 4 | PhysioZoo R-peak detection user interface. (A) Record panel. The mammal type dropdown menu is used to load the mammal-speciﬁc R-peak detector parameters. Detected R-peaks can be manually corrected using the “Manual annotations” option. Signal quality annotations can be performed. (B) Display of the ECG signal (in mV) with the detected R-peaks (red crosses) and RR interval time series. The boxes on the ECG signal highlight a segment labeled as bad quality by the annotator. (C) Statistics on R-peak detection and quality annotations.
+HF band deﬁned in PhysioZoo. The software outputs standard it is easy to add additional HRV measures to the software or HRV measures and standard visualization plots for analysis. adapt it to any research-speciﬁc usage. In addition, the PhysioZoo Because the algorithms and user interface are both open source, software has a number of novel functionalities: it allows manual
+
+Frontiers in Physiology | www.frontiersin.org
+
+9
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+FIGURE 5 | PhysioZoo HRV user interface. (A) “Main” tab for choosing the mammal type, RR preﬁltering method. The “Analysis” tab can be used for performing multiple window analysis (i.e., batch processing of the time series). The “Options” tab can be used to change all key parameters of the HRV measures. These “Options” are updated automatically in accordance with the chosen mammal; they can also be modiﬁed manually. (B) Graph displaying the RR or HR time series. In blue the raw time series and in green the ﬁltered time series. (C) Panels presenting the HRV measures. Under the tab “Time,” “Frequency,” and “Non-linear,” the HRV measures relative to each of these categories are repeated and the standard ﬁgures relative to each category are plotted (e.g., Poincare plots, Power spectrum). More details are available in the software documentation.
+
+annotation of the signal quality and correction of misdetected R-peaks; it also allows the PhysioZoo interface HRV analysis to be performed on multiple segments (batch processing), thus making it possible to track changes in HRV measures over time for a given record.
+Our fourth contribution is the discovery of a power law relationship between the mean SampEn and HRm across mammals. Similarly, an allometric law with power ∼1/16 was found between the mean SampEn and BMm of the diﬀerent mammals (Figure 6). The results suggest that the complexity (in the sense expressed by sample entropy) of the heart rate increases with HRm and decreases with BMm. This in turn suggests that the complexity of the heart rate decreases in smaller mammals. Beyond our analysis of SampEn, this ﬁnding opens an avenue for the study of HRV across species.
+Comparison With Existing Platforms
+A number of commercial and open source HRV software products are available, the most popular ones being the PhysioNet HRV Toolkit (Mietus and Goldberger, 2017), Kubios (Niskanen et al., 2004; Tarvainen et al., 2014), and the R-HRV toolbox (Rodríguez-Liñares et al., 2008). In general, existing HRV software are (1) not tailored to the analysis of mammalian data other than that of humans; (2) do not allow manual annotation of the signal quality and correction of misdetected R-peaks; (3) do not provide a comprehensive open source code together with a functional user-friendly interface. The PhysioNet Toolkit is
+
+an open-source package, written in C, which includes standard HRV measures. Although this toolbox has the advantage of being compatible with all standard PhysioNet tools, it is not easy to install and use without programming skills. In addition, the source code does not include all standard HRV measures: some measures, such as the newly introduced fragmentation measures (Costa et al., 2017), are missing. The Kubios application includes all standard HRV measures and a user-friendly interface. It is likely the current most popular software for HRV analysis because the software is stable and does not require technical knowledge. However, the software is not open source, and thus its source code cannot be used for batch processing or any not readily available functionality. In addition, it does not allow tailored conﬁguration ﬁles to be exported and reloaded for later analysis using the same user-speciﬁc parameters. R-HRV is a toolbox written in R. Like the PhysioNet HRV Toolkit, R-HRV presents a challenge for users without programming skills as it requires familiarity with the R environment. These limitations were addressed with the creation of the PhysioZoo platform.
+PhysioZoo was implemented in MATLAB (The MathWorks, Inc., Natick, MA, United States). A standalone compiled version of the software is also available for users without a MATLAB license. Although Python has gained popularity in the past few years, particularly because it is open source and provides state-ofthe-art open source libraries for machine learning, MATLAB still represents the reference platform for digital signal processing. Thus, we choose to implement PhysioZoo in MATLAB.
+
+Frontiers in Physiology | www.frontiersin.org
+
+10
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+TABLE 6 | Median (med) and interquartile range (Q1–Q3) of the HRV measures for the mammal databases included in PhysioZoo and from the PhysioNet normal sinus rhythm database for humans.
+
+HUMAN∗ (p = 4044, n = 16) MED (Q1–Q3)
+
+DOG (p = 17, n = 17) MED (Q1–Q3)
+
+RABBIT (p = 33, n = 4) MED (Q1–Q3)
+
+MOUSE (p = 64, n = 8) MED (Q1–Q3)
+
+AVNN (ms) SDNN (ms) RMSSD (ms) pNNxx (%) SEM (ms) PIP (%) IALS (n.u.) PSS (%) PAS (%) Total power (ms2) VLF (ms2) LF (ms2) HF (ms2) VLF norm (n.u.) LF norm (n.u.) HF norm (n.u.) LF/HF (n.u.) LF peak (Hz) HF peak (Hz) β (n.u.) SampEn (n.u.) SD1 (ms) SD2 (ms) α1 (n.u.) α2 (n.u.)
+
+786.53 (692.32–877.22)
+53.60 (40.57–70.85)
+31.28 (23.73–43.12)
+33.06 (19.87–48.69)
+2.75 (2.05–3.76)
+40.60 (34.48–46.50)
+0.41 (0.35–0.47)
+37.15 (26.75–51.35)
+5.81 (2.40–10.81)
+2.37e3 (1.32e3–4.21e3)
+1.17e3 (597.46–2.26e3)
+534.84 (274.57–988.91)
+217.90 (110.16–461.64)
+54.01 (41.69–65.41)
+70.09 (55.47–81.30)
+29.91 (18.70–44.53)
+2.34 (1.25–4.35)
+0.09 (0.08–0.11)
+0.30 (0.26–0.35)
+−0.82 (−1.28 to −0.36)
+1.38 (1.08−1.69)
+22.15 (16.80−30.53)
+70.88 (53.45–94.24)
+1.20 (1.03–1.33)
+0.82 (0.66–0.99)
+
+482.63 (455.02–562.03)
+69.20 (50.80–92.07)
+53.92 (41.24–89.84)
+52.88 (38.82–69.59)
+3.10 (1.98–4.00)
+47.05 (40.39–53.85)
+0.47 (0.41–0.54)
+47.08 (39.31–58.78)
+12.28 (4.33–19.73)
+4.80e3 (2.36e3–7.32e3)
+1.49e3 (980.73–1.88e3)
+707.40 (397.66–1.94e3)
+1.83e3 (769.72–4.10e3)
+28.64 (22.63–52.18)
+32.71 (24.84–47.40)
+67.29 (52.60–75.16)
+0.49 (0.33–0.90)
+0.15 (0.10–0.18)
+0.36 (0.30–0.42)
+−1.08 (−1.56 to −0.38)
+1.40 (1.16−1.66)
+38.17 (29.18–63.59)
+87.43 (64.88–115.93)
+0.86 (0.71–0.95)
+0.80 (0.70–1.10)
+
+264.95 (223.29–281.06)
+9.48 (5.92–12.55)
+4.24 (2.71–5.45)
+0.38 (0.00–0.95)
+0.29 (0.16–0.39)
+41.69 (39.99–49.68)
+0.42 (0.40–0.50)
+37.15 (31.19–46.75)
+15.07 (10.30–19.82)
+56.19 (25.77–120.36)
+25.92 (15.75–81.78)
+10.48 (5.01–22.61)
+4.81 (3.00–9.35)
+60.27 (55.93–69.21)
+62.69 (57.85–76.10)
+37.31 (23.90–42.15)
+1.68 (1.37–3.18)
+0.12 (0.11–0.14)
+0.67 (0.51–0.77)
+−0.68 (−0.90 to −0.32)
+1.06 (0.72−1.46)
+3.00 (1.91–3.86)
+12.66 (8.15–17.28)
+1.21 (1.11–1.34)
+1.06 (0.90–1.18)
+
+108.46 (101.86–130.70)
+10.39 (5.18–13.72)
+4.55 (2.61–6.45)
+16.46 (3.06–28.53)
+0.25 (0.12–0.34)
+43.09 (35.47–48.22)
+0.43 (0.36–0.48)
+38.74 (27.84–49.69)
+9.32 (7.13–13.66)
+94.57 (22.11–165.88)
+47.67 (12.66–79.56)
+15.98 (5.07–48.71)
+6.98 (2.05–14.49)
+49.28 (39.42–68.06)
+73.80 (65.68–80.16)
+26.20 (19.84–34.32)
+2.82 (1.91–4.04)
+0.26 (0.20–0.32)
+1.77 (1.35–2.51)
+−1.27 (−1.75 to −0.80)
+0.86 (0.55−1.32)
+3.22 (1.85–4.57)
+14.46 (7.10–18.69)
+1.17 (1.06–1.25)
+1.08 (0.98–1.21)
+
+The human, rabbit, and mouse databases were preprocessed with moderate combined ﬁltering (i.e., range plus moving average ﬁlter), and the dog database was preprocessed with the combined ﬁltering with a moving average ﬁlter threshold at 40%. ∗For the human database we excluded ﬁles “16773,” “19093” and also parts of “19088,” “18177” because of inaccurate annotations in large parts of the recordings. Abbreviations: p, the number of 5-min segments for humans, dogs, and rabbits and 3-min segments for mice; n, the number of animals.
+
+Frontiers in Physiology | www.frontiersin.org
+
+11
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+FIGURE 6 | Double-logarithmic plot of: (A) the mean SampEn vs. typical heart rate (HRm) and (B) the mean SampEn vs. body mass (BMm).
+
+Future Directions
+The PhysioZoo platform was developed with a focus on ECG data analysis. However, the electrical potential that is measured on the body surface results from the integration of many biological system functions. Thus, the HR and its variability can be viewed as the result of the integration of individual cardiac pacemaker cell mechanisms (Yaniv et al., 2015a), the interactions among neighboring pacemakers in a cluster, and the inﬂuences of the external environment (e.g., neural inﬂuence) (Binah et al., 2013). As such, in order to better understand what mechanisms control the HRV, it is important to study the BRV at diﬀerent levels of integration4: (1) the single pacemaker cell (BRV derived from the action potential ﬁring rate); (2) sinoatrial node tissue (SAN), i.e., a cluster of interconnected pacemaker cells (BRV derived from the electrogram); (3) the isolated heart (BRV derived from the electrocardiogram, ECG). Recent studies have suggested that HRV is inﬂuenced by the two branches of the autonomic nervous system and by intrinsic properties of pacemaker cells (Yaniv et al., 2014, 2016). Although PhysioZoo can be used for BRV analysis at diﬀerent levels, there are no existing recommendations on how to use the HRV measures for this type of data. We aim in the future to extend the capabilities of our software to enable working at diﬀerent biological system levels; e.g., electrogram data from SAN tissues and action potential data measured using the patch clamp technique on sinoatrial node cells.
+In addition, future development of PhysioZoo will include the incorporation of ECG morphological analysis tools (i.e., segmentation of the ECG cycles). Well known tools for Human ECG morphological analysis include the Glasgow program (Luo et al., 2004; MacFarlane et al., 2005) or the wavelet algorithm from Martínez et al. (2004).
+
+in cardiovascular research: humans, dogs, rabbits, and mice. However, contributions of electrophysiological data from other species such as pigs and sheep are welcome. The software conﬁguration ﬁle can easily be updated to support the analysis of data from other mammals. It is also important to note that, contrary to the human ECG lead locations, the locations of the electrodes are not standardized for other mammals. Thus, the morphology of the mammalian ECG contained in the PhysioZoo database may vary depending on the contributor of the data.
+From our experience with the PhysioZoo databases, we recommend that the sampling frequency of the ECG in mice be at least 1 kHz. Indeed, because of the high HR of mice, the R-peaks are usually represented using only a few samples, thus rendering the localization of the R-peaks challenging. In addition, despite using the maximal precision available when exporting the rabbit data, we noted that the quantization of the original ﬁles was not adequate. Although we could accurately detect the R-peak for HRV analysis, we do not recommend using the PhysioZoo rabbit ECG data for morphological analysis.
+CONCLUSION
+The PhysioZoo initiative enables the standardization and reproducibility of HRV analysis in mammalian models through its open source code, freely available software, and open access databases. It is intended to stimulate current research and new investigations in mammalian HRV analysis. We made available the source code and software on physiozoo.com and the databases on physionet.org.
+
+Limitations
+Our databases and HRV measure parameters have been created/adapted for four of the main mammalian species used
+4In the context of this paper HRV refers to the analysis of the beat-to-beat interval variations from in vivo ECG data and BRV to a more generic term used to denote the study of the beat-to-beat interval variations from any electrophysiological signal (e.g., sinoatrial note cell, tissue and whole vivo-heart).
+
+DATA AVAILABILITY
+The datasets for this study can be found on PhysioNet (https: //www.physionet.org/). The source code for the PhysioZoo software can be found on the PhysioZoo website https:// physiozoo.com/ and accessible on GitHub at https://github.com/ physiozoo/physiozoo.
+
+Frontiers in Physiology | www.frontiersin.org
+
+12
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+AUTHOR CONTRIBUTIONS
+JB and YY conceived and designed the research. AR, AA, JB, EK, IW-B, and OS implemented the source code, interfaced and formatted the databases. JB drafted the manuscript. AR, JB, and YY wrote the supplement. JB and YY edited and revised the manuscript. JB, YY, AR, OS, IW-B, AA, and EK approved the ﬁnal version.
+
+Science Foundation Joint Research Program, no. 398/14 (YY), and Ministry of Science and Technology, Israel (YY).
+ACKNOWLEDGMENTS
+We gratefully acknowledge Moran Davoodi, Dr. Fernando Andreotti, Rahul Singh, and Oliver Carr for testing the software.
+
+FUNDING
+
+SUPPLEMENTARY MATERIAL
+
+The work was supported by the Center for Absorption in Science, The Supplementary Material for this article can be found Ministry of Aliyah and Immigrant Absorption, State of Israel online at: https://www.frontiersin.org/articles/10.3389/fphys. (JB), the National Natural Science Foundation of China/Israel 2018.01390/full#supplementary-material
+
+REFERENCES
+Akselrod, S., Gordon, D., Ubel, F. A., Shannon, D. C., Berger, A. C., and Cohen, R. J. (1981). Power spectrum analysis of heart rate ﬂuctuation: a quantitative probe of beat-to-beat cardiovascular control. Science 213, 220–222. doi: 10.1126/science.6166045
+ANSI/AAMI. (1998). Testing and Reporting Performance Results of Cardiac Rhythm and ST Segment Measurement Algorithms. Washington, DC: ANSI.
+Behar, J., Johnson, A., Cliﬀord, G. D., and Oster, J. (2014a). A comparison of single channel fetal ECG extraction methods. Ann. Biomed. Eng. 42, 1340–1353. doi: 10.1007/s10439-014-0993-9
+Behar, J., Oster, J., and Cliﬀord, G. D. (2014b). Combining and benchmarking methods of foetal ECG extraction without maternal or scalp electrode data. Physiol. Meas. 35, 1569–1589. doi: 10.1088/0967-3334/35/8/1569
+Behar, J., Oster, J., Li, Q., and Cliﬀord, G. D. (2013). ECG signal quality during arrhythmia and its application to false alarm reduction. IEEE Trans. Biomed. Eng. 60, 1660–1666. doi: 10.1109/TBME.2013.2240452
+Behar, J., Rosenberg, A., Shemla, O., Murphy, K., Koren, G., Billman, G., et al. (2018). A universal scaling relation for deﬁning power spectral bands in mammalian heart rate variability analysis. Front. Physiol. 9:1001. doi: 10.3389/ fphys.2018.01001
+Behar, J. A., Rosenberg, A., Yaniv, Y., and Oster, J. (2017). Rhythm and quality classiﬁcation from short ECGs recorded using a mobile device. Comput. Cardiol. 44, 1–4. doi: 10.22489/CinC.2017.165-056
+Billman, G. E. (2013). The eﬀect of heart rate on the heart rate variability response to autonomic interventions. Front. Physiol. 4:222. doi: 10.3389/fphys.2013. 00222
+Binah, O., Weissman, A., Itskovitz-Eldor, J., and Rosen, M. R. (2013). Integrating beat rate variability: from single cells to hearts. Heart Rhythm 10, 928–932.
+Boardman, A., Schlindwein, F. S., Rocha, A. P., and Leite, A. (2002). A study on the optimum order of autoregressive models for heart rate variability. Physiol. Meas. 23, 325–336. doi: 10.1088/0967-3334/23/2/308
+Brunner, M., Peng, X., Liu, G. X., Ren, X.-Q., Ziv, O., Choi, B.-R., et al. (2008). Mechanisms of cardiac arrhythmias and sudden death in transgenic rabbits with long QT syndrome. J. Clin. Invest. 118, 2246–2259. doi: 10.1172/JCI3 3578
+Carvalho, J. L. H., Rocha, A. F., dos Santos, I., Itiki, C., Junqueira, L. F., and Nascimento, F. A. O. (2003). “Study on the optimal order for the auto-regressive time-frequency analysis of heart rate variability,” in Proceedings of the 25th Annual International Conference of the IEEE Engineering in Medicine and Biology Society, Piscataway, NJ, 2621–2624.
+Chapel, J., Castillo, C., Hernández, J., Cipone, M., and Benedito, J. (2017). Electrocardiographic reference values for healthy Netherland Dwarf rabbits and the inﬂuence of body position, age and gender. World Rabbit Sci. 25, 399–406. doi: 10.4995/wrs.2017.7424
+Cintra, P. P., Duque, C. T. N., Silveira, M. P., dos Santos, M. A. A. P., da Silva, M. M. V., Crivellenti, L. Z., et al. (2017). Cardiorespiratory and electrocardiographic eﬀects of methadone or morphine in the perioperative
+
+period in anesthetized dogs with continuous rate infusion of propofol and submitted to ovariohysterectomy. Semin. Ciênc. Agrár. 38, 209–220. doi: 10.5433/1679-0359.2017v38n1p209 Cliﬀord, G. D., Behar, J., Li, Q., and Rezek, I. (2012). Signal quality indices and data fusion for determining clinical acceptability of electrocardiograms. Physiol. Meas. 33, 1419–1433. doi: 10.1088/0967-3334/33/9/1419 Costa, M. D., Davis, R. B., and Goldberger, A. L. (2017). Heart rate fragmentation: a new approach to the analysis of cardiac interbeat interval dynamics. Front. Physiol. 8:255. doi: 10.3389/fphys.2017.00255 Elghozi, J., Girard, A., and Laude, D. (2001). Eﬀects of drugs on the autonomic control of short-term heart rate variability. Auton. Neurosci. 90, 116–121. doi: 10.1016/S1566-0702(01)00276-4 Ganong. (2009). Review of Medical Physiology. New York, NY: McGraw-Hill Medical. Goldberger, A. L., Amaral, L. A. N., Glass, L., Hausdorﬀ, J. M., Ivanov, P. C., Mark, R. G., et al. (2000). PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals. Circulation 101, E215–E220. doi: 10.1161/01.CIR.101.23.e215 Hanton, G., and Rabemampianina, Y. (2006). The electrocardiogram of the Beagle dog: reference values and eﬀect of sex, genetic strain, body position and heart rate. Lab. Anim. 40, 123–136. doi: 10.1258/002367706776319088 Henson, G., Dawes, G., and Redman, C. (1984). Characterization of the reduced heart rate variation in growth-retarded fetuses. Br. J. Obstet. Gynaecol. 91, 751–755. doi: 10.1111/j.1471-0528.1984.tb04844.x Johnson, A. E. W., Behar, J., Andreotti, F., Cliﬀord, G. D., and Oster, J. (2015). Multimodal heart beat detection using signal quality indices. Physiol. Meas. 36, 1665–1677. doi: 10.1088/0967-3334/36/8/1665 Lake, D. E., Richman, J. S., Griﬃn, M. P., and Moorman, J. R. (2002). Sample entropy analysis of neonatal heart rate variability. Am. J. Physiol. Regul. Integr. Comp. Physiol. 283, R789–R797. doi: 10.1152/ajpregu.00069. 2002 Llamedo, M., and Martínez, J. (2014). QRS detectors performance comparison in public databases. Comput. Cardiol. 41, 357–360. Lomb, N. R. (1976). Least-squares frequency analysis of unequally spaced data. Astrophys. Space Sci. 39, 447–462. doi: 10.1007/BF00648343 Lord, B., Boswood, A., and Petrie, A. (2010). Electrocardiography of the normal domestic pet rabbit. Vet. Rec. 167, 961–965. doi: 10.1136/vr.c3212 Luo, S., Michler, K., Johnston, P., and MacFarlane, P. W. (2004). A comparison of commonly used QT correction formulae: the eﬀect of heart rate on the QTc of normal ECGs. J. Electrocardiol. 37, 81–90. doi: 10.1016/j.jelectrocard.2004. 08.030 MacFarlane, P. W., Devine, B., and Clark, E. (2005). The university of glasgow (Uni-G) ECG analysis program. Comput. Cardiol. 32, 451–454. doi: 10.1109/ CIC.2005.1588134 Malik, M., Bigger, J., Camm, A., Kleiger, R., Malliani, A., Moss, A., et al. (1996). Heart rate variability: standards of measurement, physiological interpretation, and clinical use. Eur. Heart J. 17, 354–381. doi: 10.1093/oxfordjournals. eurheartj.a014868
+
+Frontiers in Physiology | www.frontiersin.org
+
+13
+
+October 2018 | Volume 9 | Article 1390
+
+Behar et al.
+
+PhysioZoo for Mammalian HRV Analysis
+
+Martínez, J. P., Almeida, R., Olmos, S., Rocha, A. P., and Laguna, P. (2004). A wavelet-based ECG delineator evaluation on standard databases. IEEE Trans. Biomed. Eng. 51, 570–581. doi: 10.1109/TBME.2003.821031
+Mietus, J., and Goldberger, A. (2017). Heart Rate Variability Analysis with the HRV Toolkit - PhysioNet. Available at: https://physionet.org/tutorials/hrv-toolkit/
+Moody, G. (1993). Spectral analysis of heart rate without resampling. Comput. Cardiol. 20, 715–718. doi: 10.1109/CIC.1993.378302
+Niskanen, J.-P., Tarvainen, M. P., Ranta-aho, P. O., and Karjalainen, P. A. (2004). Software for advanced HRV analysis. Comput. Methods Programs Biol. 76, 73–81. doi: 10.1016/j.cmpb.2004.03.004
+Odening, K. E., Choi, B.-R., Liu, G. X., Hartmann, K., Ziv, O., Chaves, L., et al. (2012). Estradiol promotes sudden cardiac death in transgenic long QT type 2 rabbits while progesterone is protective. Heart Rhythm 9, 823–832. doi: 10.1016/ j.hrthm.2012.01.009
+Oster, J., Behar, J., Colloca, R., Li, Q., and Li, Q. (2013). Open source Java-based ECG analysis software and android app for atrial ﬁbrillation screening. Comput. Cardiol. 40, 731–734.
+Pan, J., and Tompkins, W. J. (1985). A real-time QRS detection algorithm. IEEE Trans. Biomed. Eng. 32, 230–236. doi: 10.1109/TBME.1985.325532
+Peng, C. K., Havlin, S., Stanley, H. E., and Goldberger, A. L. (1995). Quantiﬁcation of scaling exponents and crossover phenomena in nonstationary heartbeat time series. Chaos 5, 82–87. doi: 10.1063/1.166141
+Pincus, S. M., and Goldberger, A. L. (1994). Physiological time-series analysis: what does regularity quantify? Am. J. Physiol. 266, H1643–H1656. doi: 10.1152/ ajpheart.1994.266.4.H1643
+Piskorski, J., and Guzik, P. (2005). Filtering poincaré plots. Comput. Methods Sci. Technol. 11, 39–48. doi: 10.1016/j.jneumeth.2008.11.004
+Porat, B. (1996). A Course in Digital Signal Processing. Hoboken, NJ: John Wiley. Richman, J. S., and Moorman, J. R. (2000). Physiological time-series analysis using
+approximate entropy and sample entropy. Am. J. Physiol. Heart. Circ. Physiol. 278, H2039–H2049. doi: 10.1152/ajpheart.2000.278.6.H2039 Roche, F., Gaspoz, J., Minini, P., Pichot, V., and Duverney, D. (1999). Screening of obstructive sleep apnea syndrome by heart rate variability analysis. Circulation 100, 1411–1415. Rodríguez-Liñares, L., Vila, X., Méndez, A. J., and Lado, M. J. (2008). “R-HRV: an R-based software package for heart rate variability analysis of ECG recordings,” in Proceedings of the 3rd Iberian Conference on Information Systems and Technologies, Cáceres, 565–574. Sasaki, Y., and Fellow, R. (2007). The Truth of the F-Measure. Available at: https://www.cs.odu.edu/~mukka/cs795sum09dm/Lecturenotes/Day3/Fmeasure-YS-26Oct07.pdf [Accessed January 5, 2018]. Silva, I., Moody, B., Behar, J., Johnson, A., Oster, J., Cliﬀord, G. D., et al. (2015). Robust detection of heart beats in multimodal data. Physiol. Meas. 36, 1629–1644. doi: 10.1088/0967-3334/36/8/1629 Sysa-Shah, P., Sørensen, L. L., Abraham, M. R., and Gabrielson, K. L. (2015). Electrocardiographic characterization of cardiac hypertrophy in mice that overexpress the ErbB2 receptor tyrosine kinase. Comp. Med. 65, 295–307. Tank, J., Jordan, J., Diedrich, A., Obst, M., Plehm, R., Luft, F. C., et al. (2004). Clonidine improves spontaneous baroreﬂex sensitivity in conscious mice through parasympathetic activation. Hypertension 43, 1042–1047. doi: 10.1161/ 01.HYP.0000125884.49812.72 Tarvainen, M. P., Niskanen, J.-P., Lipponen, J. A., Ranta-aho, P. O., and Karjalainen, P. A. (2014). Kubios HRV - Heart rate variability analysis software.
+
+Comput. Methods Programs Biomed. 113, 210–220. doi: 10.1016/j.cmpb.2013. 07.024 Thireau, J., Zhang, B. L., Poisson, D., and Babuty, D. (2008). Heart rate variability in mice: a theoretical and practical guide. Exp. Physiol. 93, 83–94. doi: 10.1113/ expphysiol.2007.040733 Uechi, M., Asai, K., Osaka, M., Smith, A., Sato, N., Wagner, T., et al. (1998). Depressed heart rate variability and arterial baroreﬂex in conscious transgenic mice with overexpression of cardiac Gsα. Am. Heart Assoc. 82, 416–423. doi: 10.1161/01.RES.82.4.416 University of Wisconsin-Madison. (2018). Animal Health: Normative Data. Available at: https://www.rarc.wisc.edu/animal_health/normative_data.html Welch, P. (1967). The use of fast Fourier transform for the estimation of power spectra: a method based on time averaging over short, modiﬁed periodograms. IEEE Trans. Acoust. Speech 15, 70–73. doi: 10.1109/TAU.1967.1161901 Witte, K., Engelhardt, S., Janssen, B., Lohse, M., and Lemmer, B. (2004). Circadian and short-term regulation of blood pressure and heart rate in transgenic mice with cardiac overexpression of the β1-adrenoceptor. Chronobiol. Int. 21, 205–216. doi: 10.1081/CBI-120037801 Yaniv, Y., Ahmet, I., Liu, J., Lyashkov, A. E., Guiriba, T.-R., Okamoto, Y., et al. (2014). Synchronization of sinoatrial node pacemaker cell clocks and its autonomic modulation impart complexity to heart beating intervals. Heart Rhythm 11, 1210–1219. doi: 10.1016/j.hrthm.2014.03.049 Yaniv, Y., Ahmet, I., Tsutsui, K., Behar, J., Moen, J. M., Okamoto, Y., et al. (2016). Deterioration of autonomic neuronal receptor signaling and mechanisms intrinsic to heart pacemaker cells contribute to age-associated alterations in heart rate variability in vivo. Aging Cell 15, 716–724. doi: 10.1111/acel.12483 Yaniv, Y., Lakatta, E. G., and Maltsev, V. A. (2015a). From two competing oscillators to one coupled-clock pacemaker cell system. Front. Physiol. 6:28. doi: 10.3389/ fphys.2015.00028 Yaniv, Y., Tsutsui, K., and Lakatta, E. G. (2015b). Potential eﬀects of intrinsic heart pacemaker cell mechanisms on dysrhythmic cardiac action potential ﬁring. Front. Physiol. 6:47. doi: 10.3389/fphys.2015.00047 Yaniv, Y., Lyashkov, A. E., and Lakatta, E. G. (2013a). Impaired signaling intrinsic to sinoatrial node pacemaker cells aﬀects heart rate variability during cardiac disease. J. Clin. Trials 4:152. doi: 10.4172/2167-0870.1000152 Yaniv, Y., Lyashkov, A., and Lakatta, E. (2013b). The fractal-like complexity of heart rate variability beyond neurotransmitters and autonomic receptors: signaling intrinsic to sinoatrial node pacemaker cells. Cardiovasc. Pharmacol. 2:111. doi: 10.1016/j.hrthm.2013.02.013 Yaniv, Y., and Maltsev, V. A. (2014). Numerical modeling calcium and CaMKII eﬀects in the SA node. Front. Pharmacol. 5:58. doi: 10.3389/fphar.2014.00058
+Conﬂict of Interest Statement: The authors declare that the research was conducted in the absence of any commercial or ﬁnancial relationships that could be construed as a potential conﬂict of interest.
+Copyright © 2018 Behar, Rosenberg, Weiser-Bitoun, Shemla, Alexandrovich, Konyukhov and Yaniv. This is an open-access article distributed under the terms of the Creative Commons Attribution License (CC BY). The use, distribution or reproduction in other forums is permitted, provided the original author(s) and the copyright owner(s) are credited and that the original publication in this journal is cited, in accordance with accepted academic practice. No use, distribution or reproduction is permitted which does not comply with these terms.
+
+Frontiers in Physiology | www.frontiersin.org
+
+14
+
+October 2018 | Volume 9 | Article 1390
+

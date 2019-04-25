@@ -1,0 +1,1979 @@
+See discussions, stats, and author profiles for this publication at: https://www.researchgate.net/publication/324038902
+Design, evaluation, and application of Heart Rate Variability Analysis Software (HRVAS)
+Thesis · July 2010
+DOI: 10.13140/RG.2.2.33667.81444
+
+CITATIONS
+59
+1 author: John T Ramshur 6 PUBLICATIONS 109 CITATIONS
+SEE PROFILE
+
+READS
+521
+
+Some of the authors of this publication are also working on these related projects: Wireless Simultaneous Stimulation-and-Recording Device (SRD) View project Design, Evaluation, and Application of Heart Rate Variability Analysis Software (HRVAS) View project
+
+All content following this page was uploaded by John T Ramshur on 27 April 2018.
+The user has requested enhancement of the downloaded file.
+
+DESIGN, EVALUATION, AND APPLICAION OF HEART RATE VARIABILITY ANALYSIS SOFTWARE (HRVAS) by John T. Ramshur
+A Thesis Submitted in Partial Fulfillment of the
+Requirements for the Degree of Master of Science
+Major: Biomedical Engineering
+The University of Memphis August 2010
+
+Acknowledgements
+I would like to thank my advisor, Amy de Jongh Curry, Ph.D., for providing help and guidance throughout the entire project. I would also like to thank my committee members, Eugene Eckstein, Ph.D. and Jack Buchanan, M.D., for their guidance and insights about the project.
+I would like to thank Seok Wong, Ph.D. for his help with statistical analysis. For help with HRV I would like to thank George B. Moody, Ph.D. (MIT), Gari Clifford, Ph.D. (MIT, Oxford), and Andre Aubert, Ph.D. (Katholieke University Leuven). For help with MATLAB and HRV I would like to thank Joao Luiz Carvalho, Ph.D. (USC). Finally I would like to thanks Leslie Hunt Fitch, M.S. for providing data for this project.
+
+Abstract Ramshur, John Thomas. M.S. The University of Memphis. August/2010. Design, Evaluation, and Application of Heart Rate Variability Software (HRVAS). Major Professor: Amy L. de Jongh Curry, Ph.D. The analysis of heart rate variability (HRV) has become an increasingly popular and important tool for studying many disease pathologies in the past twenty years. HRV analyses are methods used to non-invasively quantify variability within heart rate. Purposes of this study were to design, evaluate, and apply an easy to use and open-source HRV analysis software package (HRVAS). HRVAS implements four major categories of HRV techniques: statistical and time-domain analysis, frequency-domain analysis, nonlinear analysis, and time-frequency analysis. Software evaluations were accomplished by performing HRV analysis on simulated and public congestive heart failure (CHF) data. Application of HRVAS included studying the effects of hyperaldosteronism on HRV in rats. Simulation and CHF results demonstrated that HRVAS was a dependable HRV analysis tool. Results from the rat hyperaldosteronism model showed that 5 of 26 HRV measures were statistically significant (p<0.05). HRVAS provides a useful tool for HRV analysis to researchers.
+iii
+
+Table of Contents
+List of Tables ............................................................................................................. viii List of Figures .............................................................................................................. ix List of Abbreviations and Acronyms ........................................................................... xi 1 Introduction........................................................................................................... 1
+1.1 Background .................................................................................................... 1 1.2 Physiological Origins of HRV ....................................................................... 2
+1.2.1 Parasympathetic Nervous System...................................................... 3 1.2.2 Sympathetic Nervous System ............................................................ 3 1.2.3 Intrinsic Cardiac Nervous System ..................................................... 4 1.2.4 Reflex Control.................................................................................... 5 1.2.5 Respiratory Sinus Arrhythmia ........................................................... 6 1.2.6 Humoral Control ................................................................................ 7 1.2.7 ANS Components of HRV................................................................. 7 1.3 Justification and Purpose of Research ........................................................... 9 1.4 Thesis Guide ................................................................................................ 10 2 HRV Analysis ...................................................................................................... 11 2.1 IBI Extraction............................................................................................... 11 2.2 Preprocessing ............................................................................................... 12 2.2.1 Ectopic Interval Detection ............................................................... 14 2.2.2 Ectopic Interval Correction.............................................................. 15 2.2.3 IBI Detrending ................................................................................. 15
+2.2.3.1 Linear and Polynomial Detrending................................... 16
+iv
+
+2.2.3.2 Wavelet Detrending .......................................................... 16 2.2.3.3 Wavelet Packet Detrending............................................... 16 2.2.3.4 Smoothing Priors .............................................................. 17 2.2.4 IBI Resampling ................................................................................ 17 2.3 Time-Domain Analysis ................................................................................ 18 2.3.1 Statistical Measures ......................................................................... 18 2.3.2 Geometric Measures ........................................................................ 19 2.4 Frequency-Domain Analysis ....................................................................... 20 2.4.1 Welch Periodogram ......................................................................... 22 2.4.2 Burg Periodogram ............................................................................ 23 2.4.3 Lomb-Scargle Periodogram ............................................................. 24 2.5 Time-Frequency Analysis............................................................................ 25 2.5.1 Windowed Periodogram .................................................................. 26 2.5.2 Wavelet Transforms......................................................................... 29 2.5.2.1 Continuous Wavelet Transform ........................................ 30 2.5.2.2 Discrete Wavelet Transform ............................................. 31 2.6 Nonlinear Analysis....................................................................................... 34 2.6.1 Poincaré Plot .................................................................................... 34 2.6.2 Sample Entropy................................................................................ 36 2.6.3 Detrended Fluctuation Analysis....................................................... 37 3 Software Design................................................................................................... 40 3.1 Introduction.................................................................................................. 40 3.2 Graphical User Interface .............................................................................. 41
+v
+
+3.3 HRV Analysis in HRVAS ........................................................................... 42 3.4 Conclusion ................................................................................................... 45 4 Software Evaluation............................................................................................ 46 4.1 Introduction.................................................................................................. 46 4.2 Simulated Data............................................................................................. 46
+4.2.1 Methods............................................................................................ 46 4.2.1.1 Data ................................................................................... 46 4.2.1.2 HRV Analysis ................................................................... 47
+4.2.2 Results.............................................................................................. 47 4.2.3 Discussion ........................................................................................ 51 4.3 Congestive Heart Failure ............................................................................. 52 4.3.1 Methods............................................................................................ 52
+4.3.1.1 Data ................................................................................... 52 4.3.1.2 HRV Analysis ................................................................... 53 4.3.1.3 Statistical Analysis............................................................ 54 4.3.2 Results.............................................................................................. 55 4.3.3 Discussion ........................................................................................ 57 4.4 Conclusion ................................................................................................... 58 5 Software Application: HRV in Hyperaldosteronism .......................................... 59 5.1 Introduction.................................................................................................. 59 5.2 Methods........................................................................................................ 60 5.2.1 Data .................................................................................................. 60 5.2.2 ECG Filtering................................................................................... 61
+vi
+
+5.2.3 ECG Segmentation........................................................................... 61 5.2.4 QRS Detection ................................................................................. 62 5.2.5 HRV Analysis .................................................................................. 65 5.2.6 Statistical Analysis........................................................................... 66 5.3 Results.......................................................................................................... 67 5.4 Discussion .................................................................................................... 69 5.5 Conclusion ................................................................................................... 71 6 Summary and Conclusions ................................................................................ 72 References .................................................................................................................. 73 Appendix A – HRVAS Analysis Modules ............................................................... 85 Appendix B – Additional Statistics.......................................................................... 89
+vii
+
+List of Tables
+Table 1 – nLF and nHF results of simulated IBI ........................................................ 49 Table 2 –LFHF results of simulated IBI ..................................................................... 50 Table 3 – HRVAS Analysis Options for NSR/CHF Datasets .................................... 54 Table 4 – HRV Analysis Results for NSR/CHF Datasets .......................................... 56 Table 5 – HRVAS Analysis Options for Hyperaldosteronism Datasets..................... 66 Table 6 – HRV Anaylsis Results for Hyperaldosteronism Datasets........................... 68 Table 7 – Test of Within-Subjects Contrast for mean IBI .......................................... 89 Table 8 – Tests of Within-Subjects Contrast for mean HR ........................................ 89 Table 9 – Tests of Within-Subjects Contrast for RMSSD .......................................... 90 Table 10 – Tests of Within-Subjects Contrast for SDNN........................................... 90 Table 11 – Tests of Within-Subjects Contrast for SD1 .............................................. 91
+viii
+
+List of Figures
+Fig. 1 – Determination of IBI. Simulated ECG .......................................................... 12 Fig. 2 – IBI signal before and after detrending and ectopic interval removal ............ 14 Fig. 3 – Histogram of hypothetical IBI time series..................................................... 20 Fig. 4 – Comparison of PSD estimates ....................................................................... 25 Fig. 5 – Spectrogram and waterfall plot for windowed periodograms ....................... 28 Fig. 6 – CWT scalogram of IBI data........................................................................... 31 Fig. 7 – DWT decomposition tree............................................................................... 33 Fig. 8 – Poincare' Plot using healthy human IBI data................................................. 36 Fig. 9 – Detrended fluctuation analysis using healthy human data ............................ 39 Fig. 10 – HRVAS graphical user interface ................................................................. 42 Fig. 11 – HRV analysis process flowchart.................................................................. 44 Fig. 12 – Lomb-Scargle spectrogram and global PSD for simulated IBI ................... 48 Fig. 13 – LFHF equivalence test................................................................................. 51 Fig. 14 – QRS detection using template matching ..................................................... 65 Fig. 15 – Analysis Options Module ............................................................................ 85 Fig. 16 – Time-domain Analysis Module ................................................................... 86 Fig. 17 – Frequency-domain Analysis Module........................................................... 86 Fig. 18 – Poincaré Analysis Module........................................................................... 87 Fig. 19 – Nonlinear Analysis Module......................................................................... 87 Fig. 20 – Time-frequency Analysis Module ............................................................... 88 Fig. 21 – Distribution of mean IBI by treatment time and treatments group.............. 92 Fig. 22 – Distribution of mean HR by treatment time and treatments group ............. 93
+ix
+
+Fig. 23 – Distribution of RMSSD by treatment time and treatments group ............... 93 Fig. 24 – Distribution of SDNN by treatment time and treatments group.................. 94 Fig. 25 – Distribution of SD1 by treatment time and treatments group ..................... 95
+x
+
+List of Abbreviations and Acronyms
+ANS............................................................................................................................... 1 AR ............................................................................................................................... 21 AV................................................................................................................................. 2 aVLF, aLF, aHF .......................................................................................................... 21 CHF............................................................................................................................. 53 CWT............................................................................................................................ 31 DFA............................................................................................................................. 38 DWPT ......................................................................................................................... 17 DWT ........................................................................................................................... 16 FFT.............................................................................................................................. 21 GUI ............................................................................................................................. 42 HF ................................................................................................................................. 7 HR ................................................................................................................................. 1 HRV .............................................................................................................................. 1 HRVti .......................................................................................................................... 19 IBI ................................................................................................................................. 1 ICN................................................................................................................................ 4 LF .................................................................................................................................. 7 LFHF........................................................................................................................... 21 LS ................................................................................................................................ 25 LSP.............................................................................................................................. 24 nLF, nHF..................................................................................................................... 21
+xi
+
+NN............................................................................................................................... 11 NNx............................................................................................................................. 18 pLF, pHF..................................................................................................................... 21 pNNx........................................................................................................................... 18 PNS ............................................................................................................................... 3 PSD ............................................................................................................................. 21 rLFHF ......................................................................................................................... 30 RMSSD ....................................................................................................................... 18 RR ............................................................................................................................... 11 RSA............................................................................................................................... 6 SampEn ....................................................................................................................... 37 SD1 ............................................................................................................................. 36 SD2 ............................................................................................................................. 36 SDANN....................................................................................................................... 19 SDNN.......................................................................................................................... 18 SDNNi......................................................................................................................... 19 SNS ............................................................................................................................... 3 STFT ........................................................................................................................... 27 TINN ........................................................................................................................... 19 ULF ............................................................................................................................... 8 VLF ............................................................................................................................... 8
+xii
+
+1 Introduction
+The analysis of heart rate variability (HRV) has become a standard tool for studying a wide variety of clinical and research topics. These areas have ranged from autonomic nervous system (ANS) regulation, risk stratification for sudden cardiac death, diabetic neuropathy, pharmaceutical evaluations, to psychological disorders [1-5]. Heart rate variability, in its simplest form, is the variation in time between consecutive heart beats. HRV analysis attempts to non-invasively quantify these variations which in some instances can be markers of pathophysiology. Heart rate (HR), like many physiological set points, e.g., blood pressure and temperature, is not a static parameter, but rather changes within a range in reaction to bodily demands. Healthy cardiovascular systems are ready to quickly detect and respond to changing needs placed upon the system in order to restore homeostasis and permit directed activities. Conversely, it is often shown that invariant HR is linked to disease systems such as heart failure [2, 6]. HRV provides a means to assess overall cardiac health and its regulating system.
+1.1 Background In 1963 Hon and Lee were among the first to show the clinical significance of HRV
+by noting that changes in interbeat intervals (IBI) preceded both fetal distress and changes in overall heart rate [7]. In the late 1960’s and early 1980’s others began to describe physiological rhythms contained within the beat-to-beat HR signal [8-10]. A 10year study relating short-term IBI differences to autonomic neuropathy was published in 1985 by Ewing et al. [11]. Wolf et al. contributed substantially to the HRV community in 1977 by showing an association between higher mortality risks after myocardial
+1
+
+infarction and reduced HRV [12]. Again during the 1980’s HRV was established as a “strong and independent predictor” for post-infarction mortality [13-15]. The decades of 1970 and 1980 also produced strong evidence relating reduced HRV to severity of diabetic autonomic neuropathy [16, 17].
+The increasing availability and computational power of personal computers have contributed much to the increase in HRV analysis. In 1981, a signal analysis tool for quantifying spectral components of a time series was applied to HR fluctuations by Akselrod et al [18]. From the 1990’s to present there has been a greater effort to describe HRV as a nonlinear signal, and not just combinations of periodic oscillations [19-26].
+1.2 Physiological Origins of HRV In the absence of any outside influences spontaneous and periodic activation of the
+pacemaker cells within the sinoatrial (SA) node determines the intrinsic heart rate. Action potentials from the SA node spread throughout the atria to the atrioventricular (AV) node. The AV node provides a propagation delay that allows for complete atrial depolarization before action potentials propagate through the bundle of His, Purkinje fibers, and ultimately throughout the ventricles.
+Modulation of this inherent HR is accomplished by autonomic nervous system innervations, the intrinsic cardiac nervous system, reflexes, respiration, and humeral inputs. These modulating mechanisms not only act on the SA node but also on the atrioventrical (AV) node, myocytes, conduction pathways, and both coronary and peripheral vasculature. Correspondingly, cardiac chronotropism (heart rate), inotropism (contractility), dromotropism (conduction), and vascular dilation/contraction are adjusted to meet the dynamic cardiovascular demands of the body. The ultimate goal of the
+2
+
+cardiovascular system is to sustain and associated level of arterial blood pressure to ensure sufficient organ perfusion.
+1.2.1 Parasympathetic Nervous System Efferent nerve fibers of the parasympathetic nervous system (PNS) originate in
+collections of neurons in the dorsal vagal nucleus and the nucleus ambiguous of the medulla. From the medulla PNS neurons descend to cardiac tissues via the tenth cranial nerve (vagus) to a series of ganglia in and near the heart. Postsynaptic PNS neurons innervate the SA node, AV node, myocytes, conduction pathways, and coronary vasculature of the heart. The left vagal nerve primarily innervates the AV node while the right vagal nerve innervates the SA node. However, there is some crossover between the two.
+Effects of PNS activation on the cardiovascular system are mediated by the neurotransmitter acetylcholine. Acetylcholine (ACh) binds to postsynaptic M2 muscarinic receptors in both cardiac tissue and vessels. Acetylcholine decreases inotropy, chronotropy, and dromotropy in the heart and causes vasodilation in vessels including coronary arteries.
+1.2.2 Sympathetic Nervous System Efferent sympathetic nervous system (SNS) nerve fibers descend from centers in the
+medulla through the spinal cord and exit at the T1-L2 dorsal roots. Presynaptic neurons synapse with postganglionic neurons of paravertebral ganglia. These postganglionic neurons innervate the SA node, AV node, conduction system, myocytes, coronary vasculature, and other vessels.
+3
+
+Sympathetic neurons release the neurotransmitter norepinephrine (NE) which binds to postsynaptic β1, β2, and α1 adrenergic receptors on the heart with a higher affinity for β1. These receptors increase chronotropy, dromotropy, and inotropy. NE also binds to presynaptic α2-adrenoceptors at the heart and acts as a negative feedback loop that reduced NE release.
+At vessels, NE binds to postsynaptic α2 and α1-adrenoceptors to produce vasoconstriction and binds to β2-adrenoceptors to produce vasodilation. As with cardiac tissue, presynaptic binding of NE to α2-adrenoceptors in vessels produces a negative feedback reducing NE release. NE also binds to presynaptic β2 receptors, but produces a positive feedback of NE release. “Overall effects of sympathetic activation are to increase cardiac output, systemic vascular resistance (both arteries and veins), and arterial blood pressure” [27].
+1.2.3 Intrinsic Cardiac Nervous System Traditionally the ANS was thought to be the only nervous system directly associated
+with HR modulating capabilities. However, recent evidence has shown that there is an intrinsic cardiac network (ICN) capable of mediating intracardiac reflexes. In addition to the classically described parasympathetic postganglionic neurons, the ICN includes sensor neurons, interneurons, and catecholaminergic neurons [28]. “Thus, neural control of HR is likely a function of both the intrinsic cardiac and autonomic nervous system” [28].
+4
+
+1.2.4 Reflex Control
+The previous few sections primarily discussed efferent pathways and mechanism for modulating HR and other cardiovascular significant events. Cardiovascular control, as with most physiological control systems, is not a simple feed-forward control system. Autonomic feedback loops or feedback reflexes exist to allow hemodynamic homeostasis. Receptor types involved in reflex control can include pressure, stretch, chemical, pain, and thermal receptors.
+Reflexes involved in autonomic control of HR are many, e.g., baroreceptor, Baingridge, Cushing, pain, diving, and temperature reflex. The most often described reflex associated with HR, in context to HRV, is the baroreceptor reflex or baroreflex [29-31]. Baroreceptors located in the aortic arch and carotid sinus synapse with neurons that project superiorly to the brainstem. The aortic arch is innervated by afferent neurons from the aortic nerve which combines with other afferent neurons in the vagus nerve. Afferent neurons innervating the carotid sinus receptors connect to the brainstem using the glossopharyngeal nerve (cranial nerve IX). Both groups of afferent neurons synapse with interneurons of the nucleus tractus solitaries (NTS) within the brainstem and modulate the activity of both the PSN and SNS. Excitatory interneurons from the NTS, which normally are excited by tonic baroreceptor activity, stimulate vagal activity and inhibit sympathetic activity. Connections also exist between the NTS and hypothalamus.
+To illustrate how the baroreflex works, consider the course of events that occur in response to a person moving from supine to standing. Gravity simultaneously causes blood to pool in the venous system and decreases venous return, which results in lower central venous pressure, ventricular preload, and thus decreased arterial blood pressure.
+5
+
+Reduced arterial pressure results in less baroreceptor firing. The NTS responds by reducing parasympathetic outflow and un-inhibiting (increasing) sympathetic outflow. These ANS changes produce increases in chronotropy, inotropy, and vascular resistance. The inability of the body to react in this manner would result in syncope (fainting).
+Other types of reflexes incorporate chemical sensitive receptors. These chemoreceptors are typically sensitive to partial pressures of O2 (pO2), CO2 (pCO2), and to pH. Peripheral chemoreceptors within the carotid and aortic bodies, like the baroreceptors, project to the medulla via the sinus (then the glossopharyngeal) nerve and the vagus nerve respectively. Peripheral chemoreceptors increase firing in response to reduced arterial pO2 (hypoxemia), increased pCO2 (hypercapnia), and increased pH (acidosis). Central chemoreceptors located in the medulla regions that control cardiovascular and respiratory activity respond similarly, but not directly in response to hypoxia.
+1.2.5 Respiratory Sinus Arrhythmia Another type of reflex often mentioned in HRV literature is the respiratory sinus
+arrhythmia (RSA) [32]. RSA is a cyclic modulation in the HR correlated with respiration. Vagal afferent nerves in the lungs are excited during inhalation due to distention. The result is similar to the increased baroreceptor firing of the baroreflex. Increase afferent vagal activity during inhalation produces lowered vagal efferent activity and increased sympathetic activity, thereby increasing HR. The opposite is true for expiration.
+6
+
+1.2.6 Humoral Control Lastly there exist means of modulating HR (directly and indirectly) by circulating and
+localized release of humoral substances. Indirect effects on the heart and vessels come from changes in blood volume. One set of humoral substances are the circulating catecholamines released from the adrenal medulla and sympathetic nerves that innervate blood vessels. The adrenal medulla primarily releases epinephrine, and sympathetic nerves primarily release norepinephrine. Both of these releases causes increase in HR, however, other reflex controls may secondarily lead to a decrease [27]. Natriuretic peptides, arginine vasopressin, nitric oxide, neuropeptides Y, and factors related to the renin-angiotensin-aldosterone system (see Chapter 5) also contribute to changes in HR [27, 33].
+1.2.7 ANS Components of HRV HRV studies describe distinct oscillations contained in IBI time series linked to
+autonomic influences of HR [34-38]. With the use of computer analysis and pharmacological studies, two primary HR oscillations have been defined. The high frequency (HF) oscillation is often associated with the RSA and has nominal range of 0.15-0.4 Hz [39]. Because RSA is regarded as being mediated by vagus activity, the HF oscillation is often denoted as a measure of vagal activity [40]. The other primary HR oscillation described in HRV is the low frequency (LF) oscillation existing between 0.040.15 Hz [39]. This band includes the 10 second rhythm or Mayer wave [41]. Some controversy exists on whether only sympathetic activity is represented in the LF oscillation, but most consider LF a combination of sympathetic and vagal activity [40].
+7
+
+To validate the aforementioned HR oscillations, both electrophysiological and pharmacological studies have been performed on the SNS and PNS [34, 35, 37, 42]. Selectively blocking or stimulating sympathetic activity, vagal activity, or both provided a means to link frequency bands with the ANS branches. Specifically, an antagonist for the muscarinic acetylcholine receptors, atropine, was used in vagal blockades, while betaadrenergic antagonists such as propranolol were used for sympathetic blockade.
+These studies further revealed that the vagal mediated changes of HR are faster than sympathetically mediated changes [40]. The primary reason for differences of response rates is attributed to the receptor processes and postsynaptic responses. It was demonstrated that the majority of molecules involved in muscarinic binding processes are mostly located within the cell membrane [43]. Conversely, adrenergic receptor binding processes involve secondary messaging pathways before membrane ion channel changes and thus causing a longer response time [43].
+In addition to LF and HF oscillations, two lesser described HR oscillations exist below 0.04 Hz. The very low frequency oscillation (VLF; 0.003-0.05 Hz) and ultra low frequency oscillation (ULF; below 0.003 Hz) have been studied less than the preceding two bands. Thermoregulatory cycles and fluctuations of plasma renin activity may contribute to VLF [44-46]. Circadian rhythms are typically the acknowledged primary contributor to the ULF frequency band [40, 44]. These two oscillations, particularly ULF, are often contaminated with low frequency trends resulting from possible intrinsic nonstationarities of IBI signals [47].
+The above descriptions of physiological mechanisms that affect HR are by no means an exhaustive list. Heart rate is controlled by many feed-back and feed-forward systems
+8
+
+that are directly and/or indirectly integrated together. The complex interplay of these systems leads to variations in HR that are used in HRV analysis.
+1.3 Justification and Purpose of Research HRV analysis has become a widespread tool used by researchers and clinicians and
+the interest is continuing to increase. A literature search in the National Library of Medicine’s Medline database show that more than 1,000 HRV articles were published in 2009, over 4,000 in the last 5 years, and a two fold increase in HRV publication per year compared to 10 years ago. Interest has increase to the point that commercial HRV software is now available for clinicians to aid in cardiovascular disease diagnosis, and for continuous monitoring. Disease classification, treatment planning, progress monitoring, and outcome predicting are primary goals in health care that generate much interest with HRV.
+Though the use of HRV is prevalent, there is a continuing need for software packages that include updated and validated HRV analysis methods in an easy to use platform for both researchers and clinicians. Because any novel techniques and some current techniques can produce obscure results, there is a need for interpretive methods to give physiological meaning to HRV analysis particularly for clinicians. Another need in HRV analysis is to standardize analysis techniques and to characterize HRV measures for specific populations of pathophysiology such as heart failure and models of induced heart failure such as hyperaldosteronism.
+The purposes of this study are three fold: (1) Design a HRV analysis software package with the intended consequence of developing an understanding of techniques
+9
+
+used in HRV analysis, (2) evaluate the software using simulated and public data, and (3) apply the software by studying the effects of hyperaldosteronism on HRV in rats. 1.4 Thesis Guide
+Chapter 2 introduces several techniques used in HRV analysis. Each of these techniques was implemented within the Heart Rate Variability Analysis Software (HRVAS). Chapter 3 describes specific design elements of HRVAS. Chapter 4 discusses two evaluations that were performed to validate HRVAS. Chapter 5 discusses the application of HRVAS to study hyperaldosteronism in rats. Finally, Chapter 6 includes an overall summary of the research presented.
+10
+
+2 HRV Analysis
+This chapter describes several analysis methods used in HRV. The first section describes techniques used to process IBI time series prior to HRV analysis. The remaining four sections describe four major categories of HRV analysis. These four major categories include: time based metrics (e.g., variance); frequency based metrics that evaluate powers or ratios of powers within certain frequency bands; nonlinear based metrics that evaluate complexity and self-similarity; and time-frequency metrics that expand on frequency based metrics by monitoring them through time. For alternative overviews of HRV analysis see articles by Seely et al. [48], Acharya et al. [49], Berntson et al. [40], and Malik et al. [39].
+2.1 IBI Extraction Data series used in HRV analysis are time series containing beat-to-beat intervals
+extracted from ECG signals. Temporal locations of beats are frequently based on the Rwave because it is often the easiest wave to distinguish. R waves typically have the largest amplitudes compared to surrounding P, Q, S, and T waveforms. Thus a beat-tobeat interval can be defined as the time difference between consecutive R peaks (RR interval). Because the R wave is not the only temporal marker for beat locations, e.g., QRS complex, some use the term IBI as a generalization to represent any beat-to-beat intervals. Additionally, RR intervals originating from normal sinus rhythms are sometimes referred to as NN (normal-to-normal) intervals. Thus, standard nomenclature of “NN” is used in place of IBI or RR to indicate IBI’s containing no ectopic intervals. Many authors, including this research, interchangeably use IBI, RR, or NN (normal-tonormal) to represent IBI series assuming ectopic beats have been corrected.
+11
+
+Fig. 1 shows a hypothetical ECG and how IBI’s are determined based on R waves.
+
+IBI(1) and IBI (2) represent the first and second data point of the IBI time series signal.
+
+The IBI time series of an ECG segment containing N beats is given by
+
+IBI n  beat n 1  beat(n) :1 n  N 1
+
+(2.1)
+
+where beat(n) is the time location of the nth beat.
+
+Fig. 1 – Determination of IBI. Simulated ECG containing three beats with arbitrary units of time and amplitude. Time intervals corresponding to the IBI are indicated by IBI(1) and IBI(2). ECG morphology is shown by five characteristic waves P, Q, R, S, and T.
+2.2 Preprocessing Preprocessing of IBI time series data is frequently required before HRV analysis to
+reduce analysis errors. The three primary types of IBI preprocessing are ectopic 12
+
+beat/interval correction, detrending, and IBI resampling. HRV analysis errors due to ectopic beats and IBI trends have been reported by Thuraisingham [50] and Colak [51]. In the context of IBI, ectopic beats refer to any IBI based on one or more abnormal beats. Any abnormal IBI due to a false/missed beat, fiducial point misalignment, or cardiac ectopy may be considered ectopic.
+IBI time series also contain slowly varying trends that are generally assumed to be inherent to most biological signals including IBI. Some HRV analysis methods assume that IBI signals are stationary or absent of low frequency trends. Specifically, power spectrum estimations based on Fourier transform require that the random variable of interest be wide sense stationary (the mean does not change with time) [52]. To alleviate any non-stationarities within IBI time series, detrending is often used before HRV analysis [51, 53, 54]. In addition to stationarity, these methods require evenly sampled IBI, which is inherently not the case for IBI signals. Fig. 2 illustrates an IBI time series before and after removing both ectopic intervals and low frequency trend.
+13
+
+Fig. 2 – IBI signal before and after detrending and ectopic interval removal. IBI time series from healthy human.
+2.2.1 Ectopic Interval Detection Before ectopic intervals can be corrected they must first be detected or marked. Here
+three detection techniques are discussed. Although the term filter is used in this section, no change to the original IBI occurs during ectopic interval detection. The percentage filter locates intervals that change by more than a user defined percentage (often 20%) from the previous interval [55]. This method locates any sudden or abrupt IBI changes. Another method used to detect ectopic intervals is the standard deviation filter which marks outliers as being intervals that lie beyond the overall mean IBI by a user defined value of standard deviations (often 3 SD) [55]. Lastly, the median filter acts as an
+14
+
+impulse rejection filter with threshold to delineate ectopic intervals [50]. The median
+
+filter of a random variable x of length N using a threshold of τ is given by
+
+x n  med (x)
+
+  D(n) 
+1.483 med x n  med (x)
+
+(2.2)
+
+if Dn   , then not ectopic; else ectopic
+
+2.2.2 Ectopic Interval Correction
+
+Four correction techniques are described to replace ectopic intervals found during the
+
+detection process. The first technique is to simply remove any ectopic intervals found.
+
+Simple ectopic interval removal has been shown to be as effective as other replacement
+
+methods [56]. Another method replaces any ectopic interval with the mean value of w
+
+neighboring IBI intervals centered on the ectopic interval using Equation (2.3) .
+
+Similarly, the median method replaces ectopic intervals with the median value of w
+
+neighboring IBI intervals centered on the ectopic interval using Equation (2.4) [50].
+
+Lastly, cubic spline replacement replaces ectopic intervals using cubic spline
+
+interpolation.
+
+ibi
+
+'n
+
+
+
+mean ibi 
+
+n
+
+
+
+m :
+
+m
+
+
+
+w 1
+
+2
+
+ 
+
+(2.3)
+
+ibi
+
+'n
+
+
+
+med
+
+ibi 
+
+n
+
+
+
+m :
+
+m
+
+
+
+w 1
+
+2
+
+ 
+
+(2.4)
+
+2.2.3 IBI Detrending
+Several methods of detrending exist in the literature to remove low frequency trends including: linear detrending, polynomial detrending, wavelet detrending, wavelet packet detrending, and smoothing priors detrending.
+15
+
+2.2.3.1 Linear and Polynomial Detrending Two of the simplest methods used for detrending IBI series are linear and polynomial
+detrending [57-59]. Linear detrending is accomplished by removing a linear leastsquares-fit from the IBI series. Similarly, polynomial detrending removes a second or third order polynomial fit (in a least squares sense) from the IBI series.
+2.2.3.2 Wavelet Detrending Wavelet detrending is accomplished by decomposing the original IBI time series into
+a tree of approximation and detail coefficients using discrete wavelet transform (DWT) (see Section 2.5.2.2). Each decomposed sub-band is associated with a range of frequencies with the highest level of approximation containing the lowest frequencies. Removing the low frequency trend can be accomplished by two methods. The first method sets all the wavelet coefficients of the highest level approximation (lowest frequency) to zero, and then performs an inverse DWT. The alternative method reconstructs only the highest approximation sub-band which is then subtracted from the original IBI series [50]. Either method effectively applies signal detrending.
+2.2.3.3 Wavelet Packet Detrending Detrending using wavelet packets works similar to the detrending method based on
+DWT mentioned in the previous section. Instead of decomposing the signal using DWT the discrete wavelet packet transform (DWPT) is used (see Section 2.5.2.2). Wavelet coefficients of sub-bands that contain frequency components of any unwanted trend are set to zero. Reconstruction of the IBI series using inverse DWPT produces a detrended IBI series [60]. As before, an alternative detrending approach using DWPT is to
+16
+
+decompose the signal, reconstruct any unwanted components, and subtract the unwanted components from the original signal.
+
+2.2.3.4 Smoothing Priors
+
+The final detrending method to be discussed is the smoothing priors approach [60,
+
+61]. In the smoothing priors approach a N-1 long, an equally sampled IBI time series is
+
+represented as the combination of stationary and trend components, z  zstationary  ztrend .
+
+This method computes a stationary signal from the original. The estimated stationary
+
+component is written as
+
+    zˆstationary  z  Hθˆ   I  I  2DT2 D2 1 z
+
+(2.5)
+
+where H  RN1xM is the observation matrix. For simplification, an identity matrix is used in place of the observation matrix H . θˆ λ represents the estimate of the regression parameters with  as the regularization parameter and D2  RN3xN1 is the second order difference matrix.
+
+2.2.4 IBI Resampling
+In addition to most Fourier based power spectrum estimates (see Chapter 2.4) requiring signal stationarity; they also require time series that are regularly sampled in time. Spectrum estimates taken from irregularly time sampled signals can introduce additional harmonics into the power spectrum [62]. For this reason, IBI time series must be resampled prior to some power spectrum estimates. Commonly used resampling schemes are cubic spline and linear interpolation [63].
+
+17
+
+2.3 Time-Domain Analysis
+
+2.3.1 Statistical Measures
+
+Time domain HRV analyses are often classified as statistical or geometric methods. Statistical time-domain measures are statistical based measures calculated directly from the IBI series. Time domain measures include: mean IBI, the standard deviation of the NN interval series (SDNN), the root mean square of successive differences of the IBI
+
+series (RMSSD), the number of successive differences that are greater than x milliseconds (NNx), and the percentage of total intervals that successively differ by more than x milliseconds (pNNx) [64].
+Two variants of the SDNN are used with longer datasets. The first step in both of these variations involves separating the IBI series into non-overlapping segments. For human IBI’s the segment lengths are often five minutes [39]. The first variant is the SDNN index or SDNNi, Equation (2.6) , and is computed by finding the standard deviation of each IBI segment and then returning the mean value of standard deviations. The SDANN measure is computed in the opposite manner, Equation (2.7). SDANN computes the mean IBI of each segment and then returns the standard deviation of all means. SDNNi and SDANN are represented mathematically using the following equations:
+
+ SDNNi  1
+
+M
+SDNN i
+
+M i1
+
+(2.6)
+
+ SDANN 
+
+1 M 1
+
+M i 1
+
+meanIBI
+
+i
+
+
+
+meanIBI
+
+2
+
+(2.7)
+
+18
+
+where SDNN(i) represents the SDNN value of the ith IBI segment, meanIBI(i) represent the mean IBI value of the ith IBI segment, and M is the total number of segments.
+
+2.3.2 Geometric Measures
+
+Geometric HRV measures are based on calculations taken from a geometric pattern
+
+who’s basis lies with the IBI series [39]. The most common geometric pattern used is the
+
+histogram of IBI. Two measures based on the IBI histogram are the HRV triangular index
+
+(HRVti) and the triangular interpolation of the NN interval histogram (TINN). Fig. 3
+
+represents the histogram of a hypothetical IBI series where D(t) is the density distribution
+
+of IBI. The maximum value of D(t) is represented by Y and is located at t=X. HRVti is
+
+the value obtained by dividing the area integral of D(t) by the maximum value Y. If the
+
+distribution D(t) is on a discrete horizontal scale then the area integral is just the total
+
+number of IBI intervals NIBI. Therefore HRVti is obtained by
+
+HRVti  NIBI . Y
+
+(2.8)
+
+For the computation of TINN the values N and M are established on the time axis and
+
+a triangular function q(t) constructed such that q(t)=0 for M ≤ t ≤ N. The peak of the
+
+triangle occurs at q(X)=Y. The triangle base defined by M and N are determined by
+
+ minimizing the integral  (D(t)  q(t))2 dt . Finally, TINN is expressed in milliseconds 0
+
+and computed using [39]
+
+TINN  M  N.
+
+(2.9)
+
+19
+
+Fig. 3 – Histogram of hypothetical IBI time series. D(t) represents the sample distribution. q(t) represents a triangular function fitted to D(t) by minimizing the integral of the squared difference between D(t) and q(t). Y = D(X) = max(D).
+2.4 Frequency-Domain Analysis Fluctuations in HR are often thought to be periodic and occurring on many time
+scales [65]. Quantifying these fluctuations within the IBI time series can be done by calculating the power spectrum density (PSD). The PSD presents spectral power density of a time series as a function of frequency. Therefore, PSD estimates can give information about the amount of power in which certain frequencies contribute to a time series.
+In general, frequency-domain HRV analysis is concerned with four previously mentioned frequency oscillations or bands [39]: ULF, VLF, LF, and HF. For humans ULF, VLF, LF, and HF frequency bands are defined to be 0-0.0033 Hz, 0.003-0.04 Hz, 0.04-0.15 Hz, and 0.15-0.4 Hz respectively. The ULF and VLF are often ignored due to
+20
+
+the lack of long data recordings needed to accurately resolve these frequencies or due to the use of IBI detrending techniques that may destroy information within those bands.
+Typical HRV measures taken from frequency-domain analysis are powers within frequency bands and ratios of powers. The amount of power contained within a frequency band is obtained by integrating the PSD between the band frequency limits. Measures of spectral power are reported as absolute (aVLF, aLF, aHF), percentage of the sum of aLF and aHF (pLF, pHF), or normalized to total power (nLF, nHF). In addition to the power measures, the ratio of LF to HF (LFHF) provides a so called sympatho-vagal balance. Finally, less commonly mentioned measures are the peak frequencies within the VLF, LF, and HF bands.
+Estimating the PSD can be performed using many methods, but methods based on Fast-Fourier Transform (FFT) and autoregressive (AR) modeling are perhaps the most popular in spectral analysis of HRV [65]. Classical power spectrum estimates developed by Bartlett (1948), Blackman and Tukey (1958), and Welch (1967) are examples of methods based on FFT [66]. Because the FFT makes no assumptions on how the data are generated the classical methods are often referred to as non-parametric. The AR power spectrum methods do make assumptions and are therefore called parametric. Contributing to the popularity of the FFT based estimates are their simplicity, broad understanding, and ease of computation using modern computers and software.
+However, both FFT and AR based PSD estimates have prerequisites that are seldom if ever met by biological signals such as cardiac IBI series [67]. Both methods require the analyzed time signal to be stationary and evenly sampled, which is inherently not the case with IBI signals [52, 66]. The commonly used linear and cubic spline resampling were
+21
+
+shown to overestimate the LFHF ratio with an error that is greater than the error between population differences [68]. Consequently, other methods such as the Lomb-Scargle periodogram and methods based on wavelet transforms are becoming popular [32, 6973]. Lomb-Scargle does not require resampling and wavelet transform based estimates do not require stationarity [74]. Despite the aforementioned limitations of FFT and AR based PSD estimates, they are widely used in HRV.
+
+2.4.1 Welch Periodogram
+
+To understand Welch’s periodogram one must first understand the discrete Fourier
+
+transform (DFT), the basic periodogram, and the modified periodogram. The N-point
+
+DFT of a random variable X(n) is given by
+
+ DFTx ( f )  N1 X n ei2 fn n0
+
+(2.10)
+
+Practical computations of the DFT use the FFT for speed advantages. The periodogram,
+
+extension of the DFT, is a basic method of estimating power spectral density of a time
+
+series and is given by
+
+ P
+
+f
+
+1
+
+  N 1 X
+
+2 n ei2 fk /L
+
+N n0
+
+k=0,1,...,L-1.
+
+(2.11)
+
+Reducing spectral leakage of the periodogram can be accomplished by incorporating a
+
+weighted windowing function w(n), e.g., Hamming and Hanning, to the input series. Data
+
+near the edges of the time series are given less weight compared to data nearer the center.
+
+Thus, the modified periodogram is given by
+
+ PM
+
+f
+
+1 MU
+
+M 1 X n wn ei2 fn 2
+n0
+
+i=0,1,...,L-1
+
+(2.12)
+
+22
+
+M 1
+where U  1/ M  w2 n . Finally, in an effort to reduce the variance of the periodogram n0
+
+estimation, the Welch method separates the data series into N overlapping segments. As
+
+with the modified periodogram the Welch method applies a weighting window to reduce
+
+spectral leakage, but weighting is applied to each segment. Finally an averaged PSD is
+
+calculated using all segments. Power spectral density by the Welch periodogram is given
+
+by
+
+     PW
+
+f
+
+
+
+1 N
+
+N 1
+PM ,i
+i0
+
+f
+
+where PM,i  f  is the ith modified periodogram from the data series.
+
+(2.13)
+
+2.4.2 Burg Periodogram
+
+Autoregressive spectral estimation methods differ from non-parametric methods in
+
+that they attempt to model the data instead of estimating the PSD directly. Several
+
+modeling methods exist for AR spectrum estimation, but the Burg method is the most
+
+common in HRV [49, 75, 76]. The power spectrum of a pth order autoregressive process is given by
+
+     PBurg
+
+f
+
+
+
+1 fs
+
+1
+
+p
+
+ap
+
+p
+2
+k e2 jkf / fs
+
+k 1
+
+(2.14)
+
+where εp is the total least square error, fs is the sample rate, and a p are the Burg AR model parameters [77]. Boardman, et al. suggests that a model order of p=16-20 is a sound choice for HRV in human IBI resampled at 2-4 Hz [78].
+
+23
+
+2.4.3 Lomb-Scargle Periodogram
+
+As mentioned before the Lomb-Scargle periodogram (LSP) method of estimating
+
+PSD does not require resampling. The LSP only uses available data. Conceptually LSP
+
+estimates the frequency spectrum by performing a least squares fit of sinusoids to the data. Unlike Welch’s periodogram weighted windowing functions are not applied to data
+
+in LSP because standard weighting methods cannot be applied to unevenly sampled data.
+
+The LSP of a non-uniformly sampled, real-valued data sequence X of length N for
+
+arbitrary times tn is defined by
+
+      N
+
+ 
+
+
+
+n1
+
+X tn   X
+
+2
+
+cos
+
+2
+
+f
+
+tn  
+
+ 
+
+  
+
+
+
+   
+
+PLS
+
+(
+
+f
+
+)
+
+
+
+1 2
+
+2
+
+  
+
+N
+
+    
+
+
+
+
+n1
+
+
+
+   
+
+N
+cos2
+n1
+X tn  
+
+2 f tn   X sin 2 f tn
+
+ 
+
+2 
+
+      
+
+N
+sin2 2 f tn  
+n1
+
+ 
+
+(2.15)
+
+where x and σ2 are the mean and variance of the time series, and
+
+  
+
+
+
+tan
+
+1
+
+ 
+
+ 
+
+N
+
+sin
+
+4
+
+ftn
+
+
+
+ 
+
+/
+
+ 
+
+N
+
+cos 4
+
+ftn
+
+
+
+ 
+
+ 
+
+.
+
+τ is a frequency dependent time delay,
+
+  n1
+
+  n1
+
+
+
+defined to make the periodogram insensitive to time shift[69-71]. A more detailed description of the LSP appears in [70, 79]. Clifford et al. showed that ectopic beat
+
+removal of up to 20% of the data points in an IBI signal does not introduce a “significant” error in frequency-domain HRV measures based on LSP [68]. Because of the resistance to errors from data removal and resampling, LSP could be the preferred
+
+power spectrum estimation method for HRV. Comparison of the Welch, Burg, and
+
+Lomb-Scargle (LS) periodograms are presented in Fig. 4. 24
+
+Fig. 4 – Comparison of PSD estimates. Estimates include (a) Welch periodogram, (b) Burg autoregressive periodogram, and (c) Lomb-Scargle periodogram estimates. HRV frequency bands are labeled as very low frequency (VLF, 0-0.04 Hz), low frequency (LF, 0.04-0.15 Hz), and high frequency (HF, 0.15-0.4 Hz). PSD’s computed using preprocessed IBI from healthy human. Powers represent percent of total power.
+2.5 Time-Frequency Analysis HRV analysis by means of frequency-domain methods can only yield information
+about how IBI signal power is distributed in the frequency domain. They provide no 25
+
+insight into the temporal evolution of the spectrum. Methods used to allow simultaneous viewing of both time and frequency information are often termed time-frequency analyses. Like frequency-domain analysis, time-frequency HRV analysis quantifies VLF, LF, and HF related measures. The two primary types of time-frequency analysis used are the windowed Fourier transform (also called short-time Fourier transform, STFT) and the continuous wavelet transform [80]. To include spectral estimation methods other than the Fourier transform, the term windowed periodogram will be used in place of windowed Fourier transform. This generalization allows the inclusion of the windowed Burg periodogram and windowed Lomb-Scargle periodogram.
+2.5.1 Windowed Periodogram The windowed power spectrum is an extension of the basic PSD. As the term implies,
+the data is broken down into consecutive (overlapping or not) segments or windows. The PSD is then computed for each segment. This is similar to the technique use by Bartlett and Welch. However, those methods lose any temporal information by averaging all PSD’s into a single PSD. Unlike Welch’s method, the windowed periodogram can use other techniques to compute the PSD, e.g. Burg periodogram. Plotting PSD values onto a two-dimensional plane with frequency and time as the vertical and horizontal axes respectively produces a spectrogram as seen in Fig. 5.
+Two alternatives are the windowed Burg periodogram and the windowed LombScargle periodogram [81, 82]. For the windowed Burg periodogram the entire data series is first resampled and then broken into segments of equal lengths. Finally, the PSD is computed for each segment using the Burg periodogram.
+26
+
+The windowed Lomb-Scargle periodogram is computed in almost the same manner. First, the data is broken into segments of equal lengths of time [71]. Due to the uneven sampling of IBI’s, each segment can contain differing number of data points. Finally, the LSP for each segment is computed.
+27
+
+Fig. 5 – Spectrogram and waterfall plot for windowed periodograms. Plots generated using preprocessed IBI from healthy human. Plots include (a) Spectrogram using windowed Bug periodogram. (b) Spectrogram using windowed LSP (c) Waterfall plot containing Burg periodograms of each five minute segment of IBI.
+HRV quantification from time-frequency analysis using windowed periodograms can be accomplished two ways. The first method computes an averaged or global power spectrum and then calculates typical frequency-domain HRV measures, e.g., LF, HF, and LFHF. Averaging the power spectrum eliminates any time resolution and defeats some of
+28
+
+the purpose of time-frequency analysis, but it provides a way to help control variances by averaging many power spectrums [83]. Alternatively, HRV measures can be calculated for each segment, and then an average HRV measure computed. The second method produces discretely instantaneous frequency-domain measures that are a function of time, e.g., LF(t) and LFHF(t).
+From the LFHF instantaneous time series, another index can be extracted called the ratio of LFHF ratios (rLFHF) [81]. This measure represents the “global” sympatheticparasympathetic equilibrium [81]. Imagine a line drawn through LFHF =1 on the instantaneous LFHF plot. Above this line (LFHF >1) there is a sympathetic dominance. Below this line (LFHF <1) there is a parasympathetic dominance. The rLFHF ratio is obtained by calculating the ratio of the bounded area above the line LFHF=1 to the bounded area below.
+2.5.2 Wavelet Transforms
+Wavelet transforms are a relatively recent, but enormously popular tool for analyzing and compressing many types of time signals. The term wavelet implies a small wave and is of finite length and energy [84]. Like Fourier transform the wavelet transform separates a signal into its fundamental components. However, unlike the Fourier transform, wavelet transforms can be applied to non-stationary signals and are not limited to a single set of basis waveforms for signal decomposition. Fourier transforms rely on the sinusoid waveform, whereas wavelet transforms have an infinite set of basis waveforms or mother wavelets as long as they satisfy predefined mathematical criteria. This property may provide access to information that could be obscured by methods like Fourier analysis [85]. Acharya et al. state that “bio-signals usually exhibit self-similarity patterns in their
+29
+
+distribution, and a wavelet which is akin to its fractal shape would yield the best results in terms of clarity and distinction of patterns” [85].
+The following summary of Acharya’s [49] understanding of wavelet transform concepts provides an efficient explanation. The wavelet transform correlates a mother wavelet with sections of the original signal to produce wavelet coefficients. The mother wavelet is shifted/translated in time to generate a set of coefficients along the time signal. Next the mother wavelet is contracted or dilated to create coefficients along the time series at varying time scales. Here the term scale is analogous to frequency or more precisely the pseudo frequency (average frequency). Scaled wavelets are normalized so each one contains the same amount of energy. The scale can be thought of as the wavelet width and the translation as its location in time. Larger scale values represent smaller wavelet size and thus higher frequencies.
+This research is concerned with the continuous wavelet transform (CWT), the discrete wavelet transform (DWT), and discrete wavelet packet transform (DWPT). The major differences between the three are how the wavelet function is scaled and translated.
+
+2.5.2.1 Continuous Wavelet Transform
+
+For a given signal x(t) and wavelet function  a,b (t) , the CWT coefficients are given by
+
+ W ( ,) 
+
+1 
+
+ 
+
+x(t)
+
+
+
+ 
+
+t
+
+ 
+
+dt
+
+(2.16)
+
+where  (t) is the complex conjugate of the mother wavelet  (t) , α is the dilation
+
+parameter, and τ is the location parameter. The bivariant function W(τ,α) shows the
+
+similarity of x(t) to a wavelet scaled by α at a given time τ [65]. Theoretically the CWT
+
+wavelet coefficients are calculated for infinitesimally small translations and scale factors. 30
+
+However, practical implementations of the CWT must balance the number of translations and scales to produce acceptable computational times. Most programmatic implementations of the CWT allow the user to specify the number of scales to use for computation. Plotting CWT coefficients onto a two-dimensional plane with scale and location as the vertical and horizontal axes produces a scalogram as seen in Fig. 6.
+Fig. 6 – CWT scalogram of IBI data. CWT computed using preprocessed IBI from healthy human with DOG2 wavelet [86]. The frequency axis is displayed using a log scale and represents the equivalent frequency of CWT scales [86].
+2.5.2.2 Discrete Wavelet Transform In the case of DWT and DWPT, the scaling and translations are done in a less smooth
+or more discrete manner. Scaling and translating for the DWT are based on powers of 2 or dyadic blocks, e.g., 21, 22, etc. The dilation function is often represented as a tree of
+31
+
+low and high pass filters. The first step of the tree decomposes the original signal into detail (high frequency) and approximation (low frequency) components. Detail and approximation components for three levels of decomposition are represented in Fig. 7-a by A and D. Only the approximations are further split into finer components in the DWT. For DWPT both branches of the tree are split into finer components. Fig. 7-b shows the tree for DWPT for 3 levels of decomposition.
+32
+
+(a) DWT Decompositon
+Original Signal
+
+Level 1
+
+A1
+
+D1
+
+Level 2
+
+A2
+
+D2
+
+Level 3
+
+A3
+
+D3
+
+Scale 21 Scale 22 Scale 23
+
+0
+
+0.125
+
+0.25
+
+0.5
+
+1.0
+
+Frequency (fraction of Nyquist)
+
+(b) DWPT Decompositon
+Original Signal
+
+Level 1
+
+W1,0
+
+W1,1
+
+Level 2
+
+W2,0
+
+W2,1
+
+W2,2
+
+W2,3
+
+Level 3
+
+W3,0
+
+W3,1
+
+W3,2
+
+W3,3
+
+W3,4
+
+W3,5
+
+W3,6
+
+W3,7
+
+0
+
+0.125
+
+0.25
+
+0.375
+
+0.5
+
+0.625
+
+0.75
+
+0.875
+
+1.0
+
+Frequency (fraction of Nyquist)
+
+Fig. 7 – DWT decomposition tree. Decomposition trees showing the breakdown of an arbitrary original signal into three levels using (a) discrete wavelet transform and (b) wavelet packet transform. Horizontal axis shows frequency range as a fraction of the Nyquist frequency. DWPT can extract all frequency bands with equal resolution. Diagram modified from Tanaka and Hargens [87].
+
+Quantification of HRV measures from time-frequency analysis by CWT is accomplished in a similar manner to that employed for the windowed periodogram. Similar in that both can use either the instantaneous or global power spectrums [88]. To
+33
+
+obtain HRV measures using instantaneous power methods, the squared modulus of the
+
+wavelet coefficients is integrated over the desired frequency band [f1 f2]. To integrate
+
+over a frequency band wavelet scales must be changed to frequencies. The time-scale
+
+map (scalogram) must be interpreted in terms of a time-frequency map (spectrogram).
+
+The instantaneous power of the frequency band [f1 f2] is given by
+
+  PCWT
+
+t
+
+
+
+
+
+1 C
+
+  2 W t, 2 d  1
+
+1
+
+ 2 C f
+
+  W f2
+f1
+
+t, f / f
+
+2
+df .
+
+(2.17)
+
+The wavelet equivalent to an averaged periodogram is the global wavelet spectrum and is
+
+given by
+
+     2
+W
+
+t
+
+
+
+1 N
+
+N 1
+Wn
+n0
+
+t
+
+2
+
+(2.18)
+
+2.6 Nonlinear Analysis On the basis that HR control may contain nonlinear components, there is an
+increasing interest to study HRV using methods other than the standard linear methods, i.e., time-domain and spectral analysis. These methods are often included under the umbrella term nonlinear HRV analysis. It has been shown that loss of IBI signal complexity [50, 89] and loss of fractal like scaling behaviors [90, 91] may be a general feature of cardiac pathology. Poincaré plot analysis, entropy based measures, and fractal based measures are but a few HRV analysis techniques used.
+
+2.6.1 Poincaré Plot The Poincaré plot or first-return map, named after Henry Poincaré, is a plot of IBI
+intervals versus the previous IBI interval. Poincare plots are a type of nonlinear analysis
+
+34
+
+used to quantify self-similarity [92]. HRV measures based on Poincaré plots are based on the idea that each IBI is influenced by the previous one [22]. Thus, pairs of successive IBI form an attractor in the Poincare’ plot. Often an ellipse is fitted to the plotted data with the long axis along the line of identity defined by y  x . Fig. 8 illustrates the Poincare’ plot generated using healthy human IBI data. If the center or attractor of the ellipse is located at the mean IBI ( IBI ), then y  x  2IBI defines the line perpendicular to the line of identify and passing through the mean [93]. Points above the line of identity indicate a longer IBI than the preceding IBI, and points below the line of identity indicate a shorter IBI than the preceding. Standard deviations along the line of identity (SD2) and perpendicular to the line of identity (SD1) represent the magnitude of the major and minor axes of the ellipse respectively. SD1 represents the SD of the instantaneous beat-to-beat variability or short term variability. SD2 represents the SD of the continuous or long-term variability [92, 94]. In reality the ellipse is primarily a visual aid and the numerical values of the standard deviations SD1 and SD2 contain the important data. Also, the ratio of SD1 to SD2 has been suggested to be strongly associated with mortality in adults with postoperative ischemia [95, 96].
+35
+
+Fig. 8 – Poincare' Plot using healthy human IBI data.
+2.6.2 Sample Entropy Sample entropy (SampEn) is an embedded entropy that attempts to quantify a signal’s
+complexity or rate of new information generation [97]. To understand how sample entropy is calculated a few definitions follow. Let Xi={x1,…, xi,…xN} represent the original N-long IBI series. Let um+1[i]={xi,xi+1,…,xi+m} and um[i]= {xi,xi+1,…,xi+m-1} represent m+1 and m length vectors/sequences taken from X. Also, let the distance d be the maximum absolute distance between the components of two vectors and is given by
+d u[i],u[ j]  max  u[i  k]  u[ j  k] : 0  k  m 1.
+36
+
+For each i ≤ N-m a template vector um[i] is compared to all other m length vectors um[j] where i ≠ j and j ≤ N-m. The number of j that satisfy d(u[i],u[j]) ≤ r is set as nim .
+
+The unconditional probability of randomly selecting two m length sequences from a
+
+signal that have a distance less than r using the relative frequency methods is
+
+Cim  nim / (N  m) . Furthermore the averaged probability is given by
+
+N m
+  m r =  N-m1 Cim i 1
+
+(2.19)
+
+Similarly
+
+nm1 i
+
+,
+
+C m1 i
+
+,
+
+and
+
+ m1 are
+
+calculated
+
+for
+
+vector
+
+lengths
+
+of
+
+m+1.
+
+Finally
+
+sample entropy is determined by
+
+SampEnm, r, N    ln m1 r  / m r 
+
+(2.20)
+
+Fundamentally, SampEn can be described as the negative logarithm of the conditional
+
+probability of randomly selecting two m-length sequences, from a signal, that have a
+
+distance less than r between them given that they also have a distance less than r if their
+
+lengths are increased to m+1. If SampEn is zero, then consecutive sequences are
+
+identical. Larger values of SampEn represent higher complexity.
+
+2.6.3 Detrended Fluctuation Analysis Fractal scaling or self-similarity are concepts based on the idea that a system or shape
+can be fragmented into smaller parts where each part resembles one another but on different scales [48]. The Sierpenski triangle is classic example of fractal geometry. A few examples of fractals occurring in nature include snowflakes, shorelines, crystals, and some ferns. For the case of IBI, the scale is time. Detrended fluctuation analysis (DFA) [98] tries to quantify the fractal like or self-similar properties of non-stationary time
+37
+
+series [99, 100]. “This technique is a modification of root-mean-square analysis of
+
+random walks applied to non-stationary signals” [101]. The root-mean-square fluctuation
+
+of an integrated and detrended time series is measured at different scales and plotted
+
+against the size of the scale onto a log-log plot (see Fig. 9).
+
+First consider an IBI time series of length N. The IBI series is integrated using
+
+k
+y k    IBI i  IBI  i 1
+
+(2.21)
+
+where y(k) is the kth value of the integrated series, IBI(i) is the ith interbeat interval, and
+
+IBI is the average interbeat interval for the entire time series. The integrated time series is then separated into segments of length n. A least squares line is fit to the data in each segment to define the local trend denoted by yn(k). Next, the integrated time series is detrended by subtracting the local trend, yn(k) from each segment. Finally, the root-meansquared fluctuation of the integrated and detrended time series is calculated by
+
+ F n 
+
+1 N
+
+ 
+
+N k 1
+
+
+
+y
+
+k
+
+
+
+
+
+yn
+
+k
+
+2
+
+ 
+
+(2.22)
+
+where m represents the window or scale size. F(m) is computed on a user defined range
+
+of time scales. The linear relationship between log(F) and log(n) represents the scaling
+
+exponent, α, of the interbeat interval time series. Often two distinct linear regions on the
+
+log-log plot are used to describe the short term scaling, α1, and the long term scaling, α2[100]. These two regions are separated by a breakpoint located around 12-16 beats [100]. Fig. 9 shows the DFA plot for a typical human IBI signal with a break point at 12
+
+beats.
+
+38
+
+Fig. 9 – Detrended fluctuation analysis using healthy human data. Short term scaling exponent and long term scaling exponents are represented by α1 and α2. The breakpoint is located at 12 beats.
+39
+
+3 Software Design
+3.1 Introduction HRV software packages exist in the form of commercial (HRVLive [102] ),
+publically available without source code (Kubios [62]), and open source such as ECGLab [81, 103], KARDIA[104], and the PhysioToolkit [105] . All these HRV programs offer useful tools for HRV analysis, but they also have disadvantages. The obvious disadvantages of commercial packages are the cost, lack of user customization, and possibly proprietary algorithms, but the advantage is often an active technical support staff and refined product. Additionally, commercial software typically does not offer recent or more advanced analysis methods that researchers may want to evaluate. Software packages that are available to the public without available source code cannot be customized and often have limited or no technical support. Finally, open source code packages give the user complete customization, but are often not as refined and easy to use as commercial software. Many require the knowledge of alternative operating systems such as Linux, and lower level programming languages. Neither of these knowledge sets is prevalent with clinicians.
+The analysis software HRVAS was developed using MATLAB version 2008b (Mathworks, Natick, MA). HRVAS contains all needed analysis options and results in a single graphical user interface (GUI). HRVAS also includes batch processing, a feature not available in other HRV software packages. HRVAS is open source and un-compiled. Open source code allows for user updates and customization. Analysis results are displayed in a tab group to allow for future additional analysis modules and to aid in keeping all components within a single GUI.
+40
+
+3.2 Graphical User Interface The graphical user interface (GUI) consists of three primary components (see Fig.
+10). The upper most plot shows the IBI intervals, trend line, and any ectopic intervals. Double clicking this graph will show both the unprocessed and preprocessed IBI. The lower left grey area contains all analysis options available to the user. All analysis options can be saved and reloaded to allow for quick selection of frequently used options. Any options present in the GUI on exit are saved and reloaded the next time HRVAS is opened.
+The lower right section of Fig. 10 contains analysis results. Each set of results associated with time-domain, frequency-domain, time-frequency, Poincaré, and nonlinear analysis are contained in a labeled tab (see Appendix A). The use of tabs allows for future HRV analysis additions. Double clicking on any of plot will redraw it onto a separate figure for custom editing and exporting for documents or presentations.
+The frequency-domain analysis tab allows for plotting of Welch periodogram, Burg periodogram, and Lomb-Scargle periodogram. The time-frequency tab allows for displaying of spectrogram, surface plot, waterfall plot, global power spectrum and instaneous LF, HF, and LFHF powers. Time-frequency plots can be drawn using windowed Burg periodogram, windowed LSP, or CWT.
+Input data types used by HRVAS are .ibi and .txt files. The expected format of input files is an ASCII file with one or two columns of data. Two column files must include IBI time stamps (seconds) in the first column and IBI values (seconds) in the second column. Files containing only one data column must include only IBI values. Exported analysis results are saved to a Microsoft Excel® file.
+41
+
+In an effort to reduce the total files needed for using HRVAS, each major HRV analysis type, e.g., time-domain, uses only one MATLAB m-file. Similarly, the GUI is generated using only one MATLAB m-file.
+Fig. 10 – HRVAS graphical user interface. The upper most plot is of the IBI intervals and trend line. The lower left gray area contains all analysis options. The lower right section contains analyses results. 3.3 HRV Analysis in HRVAS
+Fig. 11 represents the analysis process used by HRVAS to compute HRV measures. The order of preprocessing in HRVAS is ectopic interval detection, ectopic interval
+42
+
+replacement, and IBI detrending. HRV analysis details were discussed in the previous chapter.
+A batch processing feature allows for unattended analysis of many IBI or RR interval files. For batch processing all files must be contained within a single directory. At completion all analysis data is exported to a Microsoft Excel file.
+43
+
+IBI File
+
+Select File
+Import IBI
+Run Ectopic Interval
+Detection Ectopic Interval
+Correction
+Detrend
+
+Resample Resample
+
+Resample
+
+LSP
+
+Welch, Burg
+
+Windowed Windowed
+
+Burg
+
+LSP
+
+CWT
+
+Time-Domain HRV
+
+Freq-Domain HRV
+
+Time-Freq HRV
+
+Nonlinear HRV
+
+Fig. 11 – HRV analysis process flowchart.
+
+44
+
+3.4 Conclusion The design of HRVAS provides an easy to use interface in which to compute and
+display HRV analysis. Future considerations for improvements include moving all analysis options to individual tabs, simplifying the export function, and allowing the user to select which HRV analyses are computed. Not having to perform all HRV analyses will save processing time and resources. HRVAS will be made available to the public at http://hrvas.sourceforge.net/ and at the project’s homepage https://sourceforge.net/projects/hrvas/. HRVAS is distributed free of charge under the terms of GNU public license so that other users can modify the code and adjust the program’s performance according to their own requirements.
+45
+
+4 Software Evaluation
+4.1 Introduction This chapter presents two evaluations that help validate analysis results obtained from
+HRVAS. The first evaluation consisted of computing time-domain, frequency-domain and time-frequency HRV measures based on computer simulated ECG signals. The second evaluation involved computing all HRV measures using public data from healthy and congestive heart failure human subjects in an effort to distinguish between groups and compare to previous work. More specifically, the hypothesis was that CHF causes reduction in HRV.
+4.2 Simulated Data
+4.2.1 Methods
+4.2.1.1 Data Computer simulated ECG with IBI were generated to evaluate the reliability of some
+HRV measures obtained from HRVAS. The simulation algorithm was implemented in MATLAB using the ECGSYN model [106]. ECGSYN generates both ECG signals and locations of all P, Q, R, S, and T waves. R wave locations were used to generate IBI time series. Three hundred, 30-minute synthetic ECG segments and three hundred, five-minute synthetic ECG segments were generated with sample rates of 256 Hz. Each segment had a mean HR of 60 bpm (beats/min) and standard deviation of 1 bpm. The ECG generated contained oscillations centered at 0.1 and 0.25 Hz to represent the center frequency of
+46
+
+hypothetical LF and HF contributions respectively. Furthermore, the ratio of LF to HF power was specified to be 1.0.
+4.2.1.2 HRV Analysis Time-domain, frequency-domain, and time-frequency HRV measures were computed
+using HRVAS for comparison with parameters used in generating the synthetic ECG. Mean IBI, SDNN, mean HR, and SDHR were computed for time-domain HRV measures. Peak LF, peak HF, nLF, nHF, and LFHF ratios were computed using Welch, Burg, and Lomb-Scargle periodograms. Peak LF, peak HF, nLF, nHF, and LFHF ratios were also computed in a time-frequency manner using windowed Burg periodogram, windowed LSP, and CWT for the 30-minute segments only. Analysis options included: IBI resample rate (4 Hz), Welch window width (1024 pts.), Welch window overlap (512 pts.), Burg model order (16), TF window width (300 s), and TF window overlap (150 s). Frequency bands were specified as 0.04-0.15 Hz for LF and 0.15-0.4 Hz for HF.
+Statistical evaluations were performed by inspecting 90% confidence intervals for both time and frequency-domain measures. LFHF rations were further considered by performing equivalence test [107]. A confidence interval of indifference was determined using empirical data from the CARLA study [108]. Confidence intervals of LFHF mean differences which remain within the interval of indifference are considered to be indifferent from the expected LHFH value of 1.0.
+4.2.2 Results HRV analysis using HRVAS produced values that closely corresponded with
+parameters used for synthetic ECG generation. Results are presented as mean with 90% 47
+
+confidence interval (CI). Time-domain HRV values computed for the 5-minute simulations included: mean IBI, 999.7 (999.7-999.7) ms; SDNN, 16.7 (16.6-16.8) ms; mean HR, 60.0 (60.0-60.0) bpm; SDHR, 1.0 (1.0 -1.0) bpm. Time-domain HRV values computed for the 30-minute simulations included: mean IBI, 999.6 (999.6-999.6) ms; SDNN, 16.6 (16.6-16.6) ms; mean HR, 60.0 (60.0-60.0) bpm; SDHR, 1.0 (1.0-1.0) bpm.
+Peak LF and peak HF were 0.10 (0.10-0.10) Hz and 0.25 (0.25-0.25) Hz respectively for all spectral HRV methods and data lengths. Fig. 12 shows the LF and HF peaks present in the Lomb-Scargle spectrogram and global power spectrum of a representative synthetic IBI time series.
+Fig. 12 – Lomb-Scargle spectrogram and global PSD for simulated IBI (LFHF=0.5)
+Results for nLF and nHF are summarized in Table 1. Results for LFHF ratios are summarized in Table 2. For 5-minute simulations, the Burg periodogram (0.10-0.26) produced the most deviation from the expected value of 1.0 and extended beyond the interval of indifference of -0.2 to 0.2. LSP produced the most accurate LFHF value (0.020.10). For 30-minute simulations, the Burg periodogram (-0.10 to -0.08) produced the
+48
+
+largest mean difference while the Welch (0.05-0.06) and LS (0.03-0.08) periodograms produced the least mean difference from expected. All three methods had mean differences within the interval of indifference determined by equivalence test seen in Fig. 13. Time-Frequency based measures of LFHF for 30-minute simulations showed that the windowed Burg periodogram (0.02-0.05) produced the largest mean difference from the expected simulated data. The windowed LSP (0.01-0.04) and CWT (0.02-0.03) produced LFHF mean differences slightly lower than the windowed Burg method. All three timefrequency methods produced LFHF mean differences within the interval of indifference.
+
+Table 1 – nLF and nHF results of simulated IBI
+
+Duration 5 min. 30 min.
+
+PSD Estimate nLF (%)
+
+Mean (90% CI)
+
+Welch
+
+0.51 (0.49-.52)
+
+Burg
+
+0.50 (0.49-0.51)
+
+LS
+
+0.50 (0.49-0.50)
+
+Welch Burg LS Win. Burg Win. LS
+
+0.51 (0.51-0.51) 0.47 (0.46-0.47) 0.51 (0.50-0.51) 0.51 (0.50-0.51) 0.50 (0.50-0.51)
+
+CWT
+
+0.51 (0.50-0.51)
+
+nHF (%)
+Mean (90% CI) 0.49 (0.48-0.51) 0.50 (0.49-0.51) 0.50 (0.50-0.51) 0.49 (0.49-0.49) 0.53 (0.53-0.54) 0.49 (0.49-0.50) 0.49 (0.49-0.50) 0.50 (0.49-0.50) 0.49 (0.49-0.50)
+
+49
+
+Table 2 –LFHF results of simulated IBI
+
+Duration 5 min.
+30 min.
+
+PSD Estimate Welch Burg LS Welch Burg LS Win. Burg Win. LS CWT Expected/Ideal
+
+LFHF (90% CI) 1.13 (1.08-1.18) 1.18 (1.10-1.26) 1.06 (1.02-1.10) 1.06 (1.05-1.06) 0.90 (0.89-0.92) 1.05 (1.03-1.08) 1.04 (1.02-1.05) 1.03 (1.01-1.04) 1.03 (1.02-1.03) 1.00
+
+Mean Diff (90% CI) 0.13 (0.08-0.18) 0.18 (0.10-0.26) 0.06 (0.02-0.10) 0.06 (0.05-0.06) -0.10 (-0.11 - -0.08) 0.05 (0.03-0.08) 0.04 (0.02-0.05) 0.03 (0.01-0.04) 0.03 (0.02-0.03) 0.00
+
+50
+
+Fig. 13 – LFHF equivalence test. Values are displayed as mean difference with error bars representing the 90% confidence interval. The grayed area represents the confidence interval of indifference and is bound by -0.2 to 0.2.
+4.2.3 Discussion Time-domain HRV analysis results for both 5-minute and 30-minute simulations
+were indifferent compared to the expected parameters used for simulation. Spectral HRV measures produced LFHF ratios within the interval of indifference except for the 5minute Burg periodogram. Due to a lower nLF and higher nHF powers, the windowed Burg periodogram produced a mean LFHF ratio of less than 1.0. The Burg model order could have played a role in this deviation from expected LFHF ratio.
+51
+
+4.3 Congestive Heart Failure 5.8 million Americans are living with heart failure with 670,000 new cases and
+56,600 deaths annually [109]. Heart failure is a condition in which the heart has a decreased ability to fill and pump blood to the tissues of the body. In congestive heart failure (CHF), this decrease causes a backup or congestion of blood in the returning vessels. Heart failure can result from pathologies such as coronary artery disease, myocardial infarction, high blood pressure, and cardiomyopathy [110]. As a result of heart failure, marked changes in autonomic function appear including high sympathetic activity and reduced vagal-cardiac activity [28]. Studies have shown that HRV associated with heart failure is reduced compared to healthy [6, 111-113].
+4.3.1 Methods
+4.3.1.1 Data To evaluate the viability of HRVAS on real data, HRV analysis was performed on
+two public, human datasets taken from the MIT/BIH RR interval database of physiological signals hosted at Physionet [105]. The MIT/BIH database included beat annotations of long-term (~24h) ECG recordings that were digitized at 128 samples per second. Beat annotations, provided in the database, were obtained by automated analysis with manual review and correction. The healthy/control group (NSR) originally included 54 subjects (30 men, 24 women) aged 24-76 years and having normal sinus rhythm. Two subjects were excluded due to large numbers of ectopic beats (greater than 2% of total). The CHF group originally included 29 subjects (8 men, 21 women) aged 34-79 years and
+52
+
+having congestive heart failure (NYHA classes I, II, or III). Ten subjects were excluded due to ectopic beat counts exceeding 2% of the total IBI count.
+4.3.1.2 HRV Analysis Physionet annotation files were batch converted to IBI files using a custom shell
+script program combined with Physionet’s ann2rr function[105]. HRV analyses were performed using HRVAS’s batch processing feature. The computer system used for this project did not provide enough RAM for detrending and HRV analysis of these datasets. Therefore all HRV analyses were implemented on the High Performance Computing (HPC) system at the University of Memphis using 4 GB of memory on a single server node.
+IBI preprocessing included ectopic interval detection, ectopic interval removal, and detrending. Ectopic interval detection was performed using the percent filter (20%) and standard deviation filter (3 SD). Detrending was accomplished using the wavelet packet detrending technique with a cutoff frequency of 0.0391 Hz [60]. Frequency bands for VLF, LF, and HF were 0-0.04 Hz, 0.04-0.15 Hz, and 0.15-0.4 Hz respectively[39]. Only, LSP based Frequency-domain and time-frequency measures were computed. A complete list of HRV analysis options used is presented in Table 3.
+53
+
+Table 3 – HRVAS Analysis Options for NSR/CHF Datasets
+
+Analysis
+
+Parameter (value) or Method
+
+Ectopic Detection Std. Dev. Filter (3 SD), Percent Filter (20%)
+
+Ectopic Correction Remove Ectopic
+
+Detrending
+
+Wavelet Packet (cutoff frequency - 0.039 Hz)
+
+Time-Domain Freq.-Domain
+
+pNNx (50 ms), SDANN (5 min), HRVti and TINN (32 bin histogram)
+VLF (0-0.04 Hz), LF (0.04-0.15 Hz), HF (0.15-0.4 Hz), Interpolation Rate (2 Hz), Points in PSD (512 pts)
+
+Nonlinear Time-Freq.
+
+SampEn (r=0.2 std, m=2), DFA (n=4 to 64 beats, Break Point =11 beats)
+Window (300 s), Overlap (150 s)
+
+4.3.1.3 Statistical Analysis
+Statistical analyses were performed using SPSS v16 (SPSS, Chicago, IL). Each HRV statistic was checked for normality by visually inspecting both the histograms and the QQ plots and by considering the Shapiro-Wilk normality test (α=0.05). If both groups passed the normality test for a given HRV measure, a two-sample, two-tailed t-test (α=0.05) was used to determine between group significance. Levene’s test (α=0.05) for equality of variances was used to determine whether to assume equal or unequal variances. If either group failed normality test, group significance was determined by the non-parametric Mann-Whitney U test (α=0.05). Some HRV measures were able to be transformed into normal distributions using a log transform, but this had no effect on statistical outcomes of any HRV measure. Therefore, only p values using non-parametric test were reported for any non-normally distributed HRV measure.
+
+54
+
+4.3.2 Results All HRV measures showed a significant difference (p<0.05) between healthy and
+CHF subjects except the following: RMSSD, TINN, aTotal, aHF (time-freq.), SD1, and DFA-α1. Table 4 summarizes the HRV analysis results. Statistics are presented as mean ± standard deviation for NSR vs. CHF respectively.
+All significant time-domain measures were lower for CHF compared to NSR and included: mean IBI (783.33±78.41 vs. 685.44±84.98 ms), SDNN (29.22±9.36 vs. 21.09±11.53 ms), pNN50 (5.53±5.24 vs. 2.92±2.26 %), SDANN (26.36±8.28 vs. 16.69±7.91 ms), and HRVti (3.07±1.01 vs. 1.80±0.72).
+For frequency-domain measures both nLF power (0.73±0.12 vs. 0.6±0.17 ms2) and LFHF ratio (3.57±2.12 vs. 2.1±1.74) were reduced in CHF. Conversely, aHF power (0.007±0.006 vs. 0.012±0.009 ms2) and nHF power (0.27±0.12 vs. 0.4±0.17 n.u.) were significantly higher in CHF. All but one significant time-frequency measure were lower in CHF compared to NSR and included: aLF power (313.67±211.85 vs. 164.74±207.08 ms2), aTotal power (432.77±277.65 vs. 277.94±333.06 ms2), nLF power (60.84±149.55 vs. 3.04±3.58 %). The nHF power (0.26±0.1 vs. 0.41±0.12 n.u.) obtained by timefrequency analysis was higher in CHF compared to NSR.
+Nonlinear HRV analysis showed lower values in CHF obtained by Poincare longterm measure SD2 (194.13±38.99 vs. 95.96±48.14 ms), SampEn (0.78±0.53 vs. 0.53±0.17), and α1 of the DFA plot (1.28±0.18 vs. 0.89±0.24).
+55
+
+Table 4 – HRV Analysis Results for NSR/CHF Datasets
+
+Measure (units)
+
+Sig.
+
+MeanIBI (ms)
+
+***
+
+SDNN (ms)
+
+***
+
+pNN50 (%)
+
+*
+
+RMSSD (ms)
+
+ns
+
+SDANN (ms)
+
+***
+
+HRVti
+
+***
+
+TINN (ms)
+
+ns
+
+aLF (ms2)
+
+ns
+
+aHF (ms2)
+
+*
+
+aTotal (ms2)
+
+ns
+
+nLF (n.u.)
+
+***
+
+nHF (n.u.)
+
+***
+
+LFHF (%)
+
+***
+
+aLF (ms2)
+
+***
+
+aHF (ms2)
+
+ns
+
+aTotal (ms2)
+
+**
+
+nLF (n.u.)
+
+***
+
+nHF (n.u.)
+
+***
+
+LFHF (%)
+
+***
+
+rLFHF (%)
+
+***
+
+SD1 (ms)
+
+ns
+
+SD2 (ms)
+
+***
+
+SampEn
+
+***
+
+DFA-α1
+
+***
+
+DFA-α2
+
+ns
+
+Healthy Mean ± SD Time Domain 783.33 ± 78.41 29.22 ± 9.36
+5.53 ± 5.24 25.70 ± 9.15 26.36 ± 8.28
+3.07 ± 1.01 82.93 ± 38.43 Freq. Domain
+0.02 ± 0.01
+0.007 ± 0.006
+0.02 ± 0.01 0.73 ± 0.12 0.27 ± 0.12 3.57 ± 2.12 Time-Freq
+313.67 ± 211.85
+104.67 ± 85.43
+432.77 ± 277.65 0.74 ± 0.10 0.26 ± 0.10 3.57 ± 1.95
+60.84 ± 149.55 Nonlinear 20.07 ± 12.17 194.13 ± 38.99
+0.78 ± 0.30 1.28 ± 0.18 1.08 ± 0.11
+
+ns = not significant, * = p<0.05, ** = p<0.01, *** = p<0.005
+
+CHF Mean ± SD
+685.44 ± 84.98 21.09 ± 11.53 2.92 ± 2.66 23.27 ± 11.31 16.69 ± 7.91 1.80 ± 0.72 90.51 ± 62.78
+0.01 ± 0.01 0.012 ± 0.009
+0.03 ± 0.01 0.60 ± 0.17 0.40 ± 0.17 2.10 ± 1.74
+164.74 ± 207.08 81.93 ± 78.76
+277.94 ± 333.06 0.59 ± 0.12 0.41 ± 0.12 1.67 ± 0.82 3.04 ± 3.58
+17.92 ± 9.11 95.96 ± 48.14
+0.53 ± 0.17 0.89 ± 0.24 1.16 ± 0.18
+
+56
+
+4.3.3 Discussion HRV analysis results based on time-domain and nonlinear methods followed previous
+findings and expectations. As expected, the results of time-domain analysis show an increase in HR and reduction of HRV in CHF compared to NSR. SD2 from the Poincare’ plot suggest a reduction in long-term variability in the CHF dataset. Similarly, the lower SampEn values in CHF data suggest lower IBI signal complexity. Values of DFA-α1 obtained for NSR and CHF datasets were similar to values reported by others using these or similar data [50, 90, 100, 114]. Ho et al. describes the observed group differences in DFA as a “breakdown of fractal scaling properties” in CHF [114].
+Based on the aforementioned reports that CHF produces lower vagal activity and higher sympathetic activity, one would expect HF powers to be lower and LF powers to be higher in CHF compared to healthy. However, several studies [114-117] have showed seemingly contradictory results using spectral based measures as did this research. Guzzetti et al. (2001) [118] suggest that these observed contradictions can be explained by the following pathophysiological mechanisms reported in heart failure:
+ central autonomic regulatory impairment [119]  decreased responsiveness of sympathetic modulation [120]  lower HRV consequent to the stretch of SA node [121]  increased chemoreceptor sensitivity [122]. Finally, although most of the HRV measures show significant difference between groups, many have substantially overlapping distributions. Thus, any single observation may will likely fall within the values of overlap and obscure any clinical usefulness.
+57
+
+4.4 Conclusion Although, the HRV analysis results comparing NSR and CHF groups presented in
+this chapter were not all as expected, the results did accomplish the intended chapter purposes. These results were in accordance with other studies involving heart failure and thus provide an encouraging software evaluation. HRV analyses of synthetic data with user specified parameters were able to extract accurate representations of defined simulation parameters. Evaluation of HRVAS using both computer-simulated data and publicly available data helped to demonstrate its precision and value.
+58
+
+5 Software Application: HRV in Hyperaldosteronism
+5.1 Introduction The adrenal hormone aldosterone has a well-known and important role in regulating
+the sodium-potassium balance of the body via renal mechanisms. However, in the past 10-15 years evidence shows that aldosterone also produces non-renal effects particularly in the cardiovascular system [123]. This newer evidence has helped explain the link of excess aldosterone (hyperaldosteronism) to maladaptive cardiac remodeling [124, 125]. Cardiovascular diseases such as hypertension, heart failure, and myocardial infarction are marked with increases of aldosterone levels [123]. Specific aldosterone related changes in the cardiovascular system include vascular endothelial dysfunction [126], myocardial fibrosis [126], myocardial apoptosis [127], cardiac hypertrophy [124], and prolonged ventricular action potentials [124]. Blocking aldosterone using aldosterone antagonist ,e.g., spironolactone and eplerenone, can reduce or halt maladaptive cardiac changes in animal models [128] and humans [127-129]. Two large trials have further shown that treatment with aldosterone antagonist reduces mortality and hospitalization in heart failure patients [130, 131].
+Chapter 4 presented evidence that CHF causes changes in HRV, and the previous paragraph established a connection between hyperaldosteronism and HF. From this evidence one could hypothesize that a hyperaldosteronism model of HF may produce changes in HRV similar to CHF. Therefore, we present the following hypotheses based on an 8-week hyperaldosteronism study:
+1. Hyperaldosteronism reduces HRV (treatment effect) 2. Prolonged hyperaldosteronism further reduces HRV (time effect)
+59
+
+3. The effect of time is different for control and hyperaldosteronism groups (interaction)
+5.2 Methods
+5.2.1 Data One control and one treated dataset, each consisting of 5 male, Sprague-Dawley rats
+(Harlan, Indianapolis, IN), were used. The original data collection came from an unpublished study [132]. Rats were purchased at 3-6 weeks old (100-225 g). Treatment began when rats were eight weeks old. The hyperaldosteronism treatment group (ALDOST) included uninephrectomy (left kidney removed), 6 weeks of subcutaneous aldosterone administration (Fisher Scientific International Inc., Hampton, NH) through implanted osmotic pumps (Alzet Model 2006, Durect Corporation, Cupertino, CA), and a salt diet (drinking water containing 1% NaCl and 0.4% KCl). Aldosterone was delivered continuously at the rate of 0.75 µg/hr. Radio-transmitters (PhysioTel® model CAf40, Data Sciences International, St. Paul, MN) were implanted in all subjects one week prior to treatment initiation in order to obtain baseline ECG data. The control group received only wireless radio-transmitters. ECG was recorded continuously for eight weeks at a sample rate of 1000 Hz using the Dataquest A.R.T. version 4.0 (Data Sciences International, St Paul, MN) acquisition system installed on a desktop PC. Seven hours of ECG data per subject per week were exported from Dataquest A.R.T. to ASCII files. MATLAB was then used to convert and compress ASCII files to MATLAB binary format.
+60
+
+5.2.2 ECG Filtering ECG filtering was necessary to maximize beat detection efficiency. High-pass
+filtering was used to remove baseline wander, and was accomplished by subtracting a low frequency trend line from the ECG. This trend line was produced by applying a triangular (two-pass) moving average filter with a window size of 750 points or (0.75 s, cutoff frequency ~ 0.6 Hz) to the ECG signal. Low-pass filtering to remove high frequency noise was accomplished using a triangular moving average filter with a window size of 3 points or (0.003 s, cutoff frequency ~ 155 Hz). Moving average filters provided a simple, effective, and fast method to filter ECG. Combining the two techniques effectively applied a 0.6-155 Hz bandpass filter to the ECG. The window sizes were primarily determined via visual inspections and testing with template matching. Frequency cutoffs were determined by frequency response to unit impulse functions.
+5.2.3 ECG Segmentation ECG segments for HRV analysis were 10 minutes in duration. One segment from
+each week of treatment (10 weeks) was extracted to provide longitudinal effects of aldosterone on HRV. Segments were selected from the middle seven hours occurring during the rats 12 hour sleep or lights-on cycle. Segments were extracted from the same day each week.
+The process for selecting the 10-minute segment is as follows. A 10 minute moving window (overlap of 9 minutes) was passed over the entire seven hours of ECG data. ECG statistics were collected for each window. A list of usable ECG segments was constructed based on the statistics. Criteria for choosing a usable 10 minute segment included: mean
+61
+
+HR above 250 beats/min, total number of ectopic beats less than 1% of total beats, absence of significant missing data, and visual inspection of noise and ectopy. Significant missing data was defined as having more than 150 consecutive missing data values or missing more than 150ms consecutively. Segments with less than 150 consecutive missing data values were interpolated using cubic spline. Finally the usable 10 minute segment with the lowest HR was chosen for analysis.
+5.2.4 QRS Detection QRS complexes were located using a correlation based template matching algorithm.
+Two types of QRS templates were used for template matching. QRS templates were created by averaging more than 20 QRS complexes. The first type of template was a global template; global in the sense that one template was suitable for all subjects. Eight templates were created for each subject (one for each week of treatment) and compared to each other by computing a correlation coefficient. The template with largest cumulative correlation was selected for use as the global template. In general, approximately 95% of cases, the global template was used for template matching. The second type of template was a self-template. When global templates failed to yield satisfactory results for a particular week of data and resulted in large numbers of missed QRS complexes, a selftemplate was generated based on the current ECG data. Both types of templates were 161 samples in length to encompass the entire rat PQRST cardiac cycle.
+A sliding window was passed across the ECG signal, and a correlation coefficient was computed between the template and the ECG contained within each window of equal length. This process produced a new data series containing correlation coefficients rxy.
+62
+
+The correlation coefficient between two N length segments of ECG x and y was
+
+computed using the following equation:
+
+N
+
+
+
+
+x
+
+
+
+n
+
+
+
+
+
+x
+
+
+
+
+
+y
+
+
+
+n
+
+
+
+
+
+y
+
+
+
+  rxy 
+
+n1
+
+.
+
+N x n  x2 N  y n  y2
+
+n1
+
+n1
+
+(2.23)
+
+Computational speed of template matching was improved using three methods. The
+
+first method involved reducing the number of times the sliding window translated across
+
+the signal. By translating every third ECG sample instead of indexing one sample, 1/3 as
+
+many correlation coefficients were computed. Skipped rxy values were replaced using cubic spline interpolation. The second method involved parallelizing a portion of the
+
+template matching code for multi-core processor environments and implemented on a
+
+laptop (Intel Core Duo T2300 @ 1.66 GHz, 2 GB DDR2). The third method combined
+
+both the skip indexing and parallelized methods. Skipping samples, parallelizing code,
+
+and a combination of the two methods reduced computation time (17.2 s original) by
+
+approximately 64% (6.2 s), 58% (7.3 s), and 82% (3.16 s) respectively. These data are
+
+based on the results of 3 simulations of each technique using an ECG segment of 600,000
+
+samples and a template of 161 samples in length.
+
+If the correlation between template and ECG segment exceeded a defined threshold
+
+value a detection flag was set to high. This flag was held in a high state until rxy dropped below a defined lower threshold (see Fig. 14). High and low thresholds were set to 0.35
+
+and 0.4 respectively and were determined by personal judgment based on trial and error
+
+testing. A QRS complex was set as the largest rxy peak between any high and low
+
+63
+
+detection flag switches. This double threshold method helps eliminate multiple peak detections within a close vicinity of one another.
+64
+
+Fig. 14 – QRS detection using template matching. Plots include (a) example template used for QRS detection by template matching, (b) rat ECG with detected QRS complexes, (c) rxy data series and peaks detected using the double threshold technique, and (d) state of the detection flag used in the double threshold technique.
+5.2.5 HRV Analysis Twenty-seven HRV measures were used based on the recommended procedures in
+the literature. Time-domain HRV measures considered included mean IBI, mean HR, pNN10, SDNN, SDNNi, HRVti, and TINN. LF and HF power in absolute and normalized units were considered for both frequency-domain and time-frequency analysis. To quantify sympatho-vagal balance LFHF was considered using both frequency-domain and time-frequency analysis. Similarly, the global sympatho-vagal equilibrium was computed using the rLFHF measure. Finally, nonlinear HRV analysis included DFA-α1, DFA-α1, SD1, SD2, and SampEn. Table 5 summarizes options used for HRV analysis.
+65
+
+Table 5 – HRVAS Analysis Options for Hyperaldosteronism Datasets
+
+Analysis
+
+Parameter (value) or Method
+
+Ectopic Detection Std. Dev. (3), percent (20%)
+
+Ectopic Correction Remove ectopic
+
+Detrending
+
+Smoothness Priors (155)
+
+Time-Domain
+
+pNNx (10 ms), SDNNi (0.5 min), HRVti and TINN (32 bins)
+
+Freq.-Domain
+
+VLF (0-0.16 Hz), LF (0.16-0.6 Hz), HF (0.6-3 Hz), Interpolation Rate (10 Hz), Points in PSD (512 pts)
+
+Nonlinear Time-Freq.
+
+SampEn (r=0.5 std, m=2) [133], DFA (n=4 to 64, Break Point =10)
+Window (30 s), Overlap (15 s)
+
+5.2.6 Statistical Analysis
+In order to check the previously stated hypotheses, several statistical techniques were used. Descriptive statistics were firstly provided for each variable concerning the HRV for both control and treated groups. As the factors in this study are time and treatment, a two-factor repeated measures ANOVA was used to test the main effects of each factor on HRV measures in addition to possible interaction effects. The assumption of sphericity was checked by Mauchly’s test of sphericity. When the sphericity assumption was violated, epsilon measures were compared to the value 0.75. If epsilon values were under the level of 0.75, the Greenhouse-Geisser method was used to compute the F statistic. Otherwise F statistic was computed by the Huynh-Feldt method. Post hoc tests were also performed when the main effects were significant. For the case of significance of interaction, a one-factor, repeated measure ANOVA was done. In this special case, the p-
+
+66
+
+values are compared with the value 0.05 divided by 2 or 0.025. Statistical analysis was performed using SPSS v16 (SPSS, Chicago, IL).
+5.3 Results Results of HRV analysis are summarized in Table 6. The following statistics are
+presented as mean ± standard deviation for control vs. ALDOST respectively. ANOVA results indicated significant differences in the treatment factor between the control and ALDOST group for mean HR (298.9±12.3 vs. 324.4±35.3). The main effect of time was found to be significantly different for the following HRV measures: mean IBI (187.6 ±22.4 vs. 202.0 ±15.3), mean HR (298.9 ±21.7 vs. 324.4 ±35.3), RMSSD (3.2 ±1.3 vs. 3.7 ±1.7), SDNN (2.3 ±0.9 vs. 2.6 ±1.1), and SD1 (2.3 ±0.9 vs. 2.6 ±1.2). Similarly, there were significant interactions (time*treatment) found for mean IBI, mean HR and RMSSD.
+Mean IBI, mean HR, and RMSSD were further analyzed by one-factor repeated measures ANOVA because of significant interaction between time and treatment. The effect of time was significant (α=0.025) on mean IBI in both controls (p=0.002) and ALDOST (p=0.001) groups. The effect of time was also significant on mean HR in both controls (p=0.002) and ALDOST (p=0.006) groups. Finally, the effect of time was not significant on RMSSD in controls (p=0.146) but was significant in ALDOST (p=0.005).
+67
+
+Table 6 – HRV Anaylsis Results for Hyperaldosteronism Datasets
+
+pwithin
+
+pbetween
+
+Control
+
+Measure (units) Time Time*Treat Treatment Mean ± SD
+
+MeanIBI (ms) ***
+
+MeanHR (bpm) ***
+
+pNN10 (%)
+
+ns
+
+RMSSD (ms) *
+
+SDNN (ms)
+
+*
+
+SDANN (ms) ns
+
+HRVti
+
+ns
+
+TINN (ms)
+
+ns
+
+aLF (ms2)
+
+ns
+
+aHF (ms2)
+
+ns
+
+aTotal (ms2)
+
+ns
+
+nLF (n.u.)
+
+ns
+
+nHF (n.u.)
+
+ns
+
+LFHF (ratio) ns
+
+aLF (ms2)
+
+ns
+
+aHF (ms2)
+
+ns
+
+aTotal (ms2)
+
+ns
+
+nLF (n.u.)
+
+ns
+
+nHF (n.u.)
+
+ns
+
+LFHF (ratio) ns
+
+rLFHF ratio) ns
+
+SD1 (ms)
+
+**
+
+SD2 (ms)
+
+ns
+
+SampEn
+
+ns
+
+DFA-α1
+
+ns
+
+DFA-α2
+
+ns
+
+Time Domain
+
+***
+
+ns
+
+202.02 ± 15.28
+
+***
+
+*
+
+298.91 ± 21.72
+
+ns
+
+ns
+
+1.38 ± 2.80
+
+**
+
+ns
+
+3.18 ± 1.25
+
+ns
+
+ns
+
+2.31 ± 0.93
+
+ns
+
+ns
+
+2.17 ± 0.86
+
+ns
+
+ns
+
+7.72 ± 2.97
+
+ns
+
+ns
+
+6.30 ± 2.95
+
+Freq. Domain
+
+ns
+
+ns
+
+0.03 ± 0.03
+
+ns
+
+ns
+
+0.15 ± 0.07
+
+ns
+
+ns
+
+0.19 ± 0.09
+
+ns
+
+ns
+
+0.17 ± 0.10
+
+ns
+
+ns
+
+0.83 ± 0.10
+
+ns
+
+ns
+
+0.23 ± 0.18
+
+Time-Freq
+
+ns
+
+ns
+
+2.52 ± 2.83
+
+ns
+
+ns
+
+10.53 ± 8.90
+
+ns
+
+ns
+
+13.85 ± 11.94
+
+ns
+
+ns
+
+0.18 ± 0.10
+
+ns
+
+ns
+
+0.82 ± 0.10
+
+ns
+
+ns
+
+0.24 ± 0.17
+
+ns
+
+ns
+
+0.03 ± 0.08
+
+Nonlinear
+
+ns
+
+ns
+
+2.26 ± 0.88
+
+ns
+
+ns
+
+8.02 ± 3.28
+
+ns
+
+ns
+
+1.89 ± 0.45
+
+ns
+
+ns
+
+0.68 ± 0.20
+
+ns
+
+ns
+
+1.35 ± 0.16
+
+ns = not significant, * = p<0.05, ** = p<0.01, *** = p<0.005
+
+Aldo
+Mean ± SD
+187.62 ± 22.39 324.35 ± 35.31
+2.39 ± 4.95 3.70 ± 1.72 2.58 ± 1.14 2.44 ± 1.04 7.32 ± 2.38 6.34 ± 2.90
+0.02 ± 0.02 0.13 ± 0.06 0.16 ± 0.07 0.14 ± 0.07 0.86 ± 0.07 0.18 ± 0.12
+2.74 ± 3.07 14.95 ± 15.44 18.50 ± 18.89
+0.15 ± 0.06 0.85 ± 0.06 0.19 ± 0.09 0.01 ± 0.01
+2.62 ± 1.22 9.61 ± 3.21 1.76 ± 0.44 0.64 ± 0.16 1.39 ± 0.12
+
+68
+
+5.4 Discussion The majority of HRV measures showed no significant differences between treatment
+groups, effect of time, or their interaction. The five measures (mean IBI, mean HR, RMSSD, SDNN, and SD1) that did show significance could be questioned because of overlapping standard deviations, abrupt shifts in measured variability, (see Appendix B) and/or consideration of study limitations. First, the mean value of all five significant HRV measures obtained at week eight of aldosterone treatment has a relatively large deviation from the previous weeks (see Appendix B). Mean IBI, SDNN, RMSSD, and SD1 abruptly deflects to higher values while mean HR deflects to lower values. For mean IBI and mean HR this deviation could be explained if an exponential response to treatment was expected. Also, an increasing and decreasing linear time response to control treatments can be observed in both mean IBI and mean HR measures respectively (see Appendix B). However, control conditions were expected to produce no significant changes with respect to time.
+Other factors and limitations are likely responsible for the unexpected significances in HRV. The foremost limitation to consider was the small sample size. Another limitation was the method used for choosing a single 10-minute IBI interval from 7 hours of ECG data. As discussed before, segments were chosen based on HR and ectopic interval criteria. The segment of lowest HR was assumed to be the segment of least movement and was chosen to keep the level of activity between subjects as constant as possible. This was a suggestion made by other HRV authors [134]. Ideally all ECG would be recorded during controlled and repeatable environmental and physiological conditions, but the available data were from previous work. Alternatively, one could segment ECG
+69
+
+using activity levels or EEG sleep stages as discussed below. Again, neither of these parameters was available.
+Another limitation that may have contributed to the unexpected significances was the inability to control for effects of sleep stages on HRV. Others have shown that, in humans, the sleep stage determined via EEG can affect HRV [135-139]. Because no EEG data were present, a possible solution could be to perform HRV analysis on 12 or 24 hours of IBI in an effort to average out any effect of sleep cycles. Using such long data series increase the probability of non-stationarities. However, time-frequency and certain nonlinear HRV analysis methods obviate non-stationarities. During this stage of the study, the computing resources to perform HRV analysis on 12 or 24 hours of rat IBI data were not available.
+Physiological changes seen from a rat hyperaldosteronism model are possibly not significant enough to elucidate the reduction of HRV seen in complete CHF of humans. If HRV changes exist in CHF populations but not in the hyperaldosteronism rat model, then the HRV changes seen in human CHF may be primarily due to neural related changes and not cardiac remodeling. The hyperaldosteronism studies consider cardiovascular changes and little if any neural change. As noted in Chapter 1.2 cardiovascular performance and neural control are closely interlinked.
+There also exists the possibility that “variability” is altered in the presented model but not detectable using the current methods. Let us assume that physiological changes do exist in the rat hyperaldosteronism model and that these changes do affect variability within the heart firing sequences. Perhaps the changes in variability, calculated using the current methods, are lost due to condensing of all cardiac events into a single time point
+70
+
+(the R-wave). Any changes in sub-beat variability such as the PR, QRS, or QT interval may be lost by only considering RR interval variability.
+Finally, as with most animal models of human pathophysiology, there can be concerns of comparing two different species and whether the model is representative. Some authors consider the physiological origins or meanings of HRV in rats to be similar to that in humans [67] but with varying working parameters. For instance, the oscillations seen in spectral based HRV measures, e.g. RSA and Mayer, are present in both rat and human but centered at differing frequencies. No one has yet to verify the significance of most HRV measures, particularly nonlinear measures, between species. 5.5 Conclusion
+The rat hyperaldosteronism model of HF in the study was generally unable to reproduce the changes in HRV expected based on other HF studies. Given that improvements are made to the protocol and/or more research is done to improve the understanding of HRV in rats compared to humans, the model could prove useful in future HRV research.
+71
+
+6 Summary and Conclusions
+HRVAS provides researchers an easy to use graphical user interface, several formats for importing data, batch processing, and tools for exporting. Analysis features of HRVAS include IBI preprocessing, time-domain, frequency-domain, time-frequency, and nonlinear HRV analysis. Researchers also have the ability to completely customize the source code to suit their personal preferences or study needs. These usability and analysis features are all useful in studying HRV.
+Software evaluations of HRVAS using simulated data and public CHF data helped to demonstrate its accuracy and worth as a HRV analysis tool. Application of HRVAS to study HRV in rat hyperaldosteronism models further displayed value of its use as a viable HRV analysis tool for researchers and future interdepartmental research.
+72
+
+References
+[1] K. Inoue, H. Ogata, J. Hayano, S. Miyake, T. Kamada, M. Kuno, M. Kumashiro, Assessment of autonomic function in traumatic quadriplegic and paraplegic patients by spectral analysis of heart rate variability, J.Auton.Nerv.Syst., 54 (1995) 225-234.
+[2] G.R. Sandercock, D.A. Brodie, The role of heart rate variability in prognosis for different modes of death in chronic heart failure, Pacing Clin Electrophysiol, 29 (2006) 892-904.
+[3] R.E. Maser, M.J. Lenhard, Cardiovascular autonomic neuropathy due to diabetes mellitus: clinical manifestations, consequences, and treatment, J.Clin.Endocrinol.Metab, 90 (2005) 5896-5903.
+[4] K. Henry, B. Thomas, L.G. Rochelle, P. Milton, Effect of long-term digoxin therapy on autonomic function in patients with chronic heart failure, Journal of the American College of Cardiology, 25 (1995) 289-294.
+[5] M.W. Agelink, T. Majewski, C. Wurthmann, T. Postert, T. Linka, S. Rotterdam, E. Klieser, Autonomic neurocardiac function in patients with major depression and effects of antidepressive treatment with nefazodone, J Affect Disord, 62 (2001) 187-198.
+[6] C.S. Poon, C.K. Merrill, Decrease of cardiac chaos in congestive heart failure, Nature, 389 (1997) 492-495.
+[7] E.H. Hon, S.T. Lee, Electronic Evaluation of the Fetal Heart Rate. Viii. Patterns Preceding Fetal Death, Further Observations, Am J Obstet Gynecol, 87 (1963) 814-826.
+[8] B.M. Sayers, Analysis of heart rate variability, Ergonomics, 16 (1973) 17-32.
+[9] J.A. Hirsch, B. Bishop, Respiratory sinus arrhythmia in humans: how breathing pattern modulates heart rate, American journal of physiology, 241 (1981) H620-629.
+[10] J. Penaz, J. Roukenz, H. Van der Waal, Spectral Analysis of Some Spontaneous Rhythms in the Circulation, Biokybernetik, Karl Marx University, Leipzig, Germany, 1968.
+[11] D.J. Ewing, C.N. Martyn, R.J. Young, B.F. Clarke, The value of cardiovascular autonomic function tests: 10 years experience in diabetes, Diabetes Care, 8 (1985) 491498.
+[12] M.M. Wolf, G.A. Varigos, D. Hunt, J.G. Sloman, Sinus arrhythmia in acute myocardial infarction, Med J Aust, 2 (1978) 52-53.
+[13] R.E. Kleiger, J.P. Miller, J.T. Bigger, Jr., A.J. Moss, Decreased heart rate variability and its association with increased mortality after acute myocardial infarction, Am J Cardiol, 59 (1987) 256-262.
+73
+
+[14] J. Bigger, Jr, J. Fleiss, R. Steinman, L. Rolnitzky, R. Kleiger, J. Rottman, Frequency domain measures of heart period variability and mortality after myocardial infarction, Circulation, 85 (1992) 164-171.
+[15] M. Malik, T. Farrell, T. Cripps, A. Camm, Heart rate variability in relation to prognosis after myocardial infarction: Selection of optimal processing techniques, European Heart Journal, 10 (1989) 1060-1074.
+[16] S. Masaoka, A. Lev-Ran, L.R. Hill, G. Vakil, E.H. Hon, Heart rate variability in diabetes: relationship to age and duration of the disease, Diabetes Care, 8 (1985) 64-68.
+[17] T. Bennett, D.J. Hosking, J.R. Hampton, Cardiovascular control in diabetes mellitus, Br Med J, 2 (1975) 585-587.
+[18] S. Akselrod, D. Gordon, F.A. Ubel, D.C. Shannon, A.C. Berger, R.J. Cohen, Power spectrum analysis of heart rate fluctuation: a quantitative probe of beat-to-beat cardiovascular control, Science, 213 (1981) 220-222.
+[19] A.L. Goldberger, D.R. Rigney, J. Mietus, E.M. Antman, S. Greenwald, Nonlinear dynamics in sudden cardiac death syndrome: heartrate oscillations and bifurcations, Experientia, 44 (1988) 983-987.
+[20] M.G. Signorini, S. Cerutti, S. Guzzetti, R. Parola, Non-linear dynamics of cardiovascular variability signals, Methods of information in medicine, 33 (1994) 81-84.
+[21] V. Pichot, J.M. Gaspoz, S. Molliex, A. Antoniadis, T. Busso, F. Roche, F. Costes, L. Quintin, J.R. Lacour, J.C. Barthelemy, Wavelet transform to quantify heart rate variability and to assess its instantaneous changes, J Appl Physiol, 86 (1999) 1081-1091.
+[22] C. Lerma, O. Infante, H. Perez-Grovas, M.V. Jose, Poincare plot indexes of heart rate variability capture dynamic adaptations after haemodialysis in chronic renal failure patients, Clin Physiol Funct Imaging, 23 (2003) 72-80.
+[23] S. Lau, J. Haueisen, E. Schukat-Talamazzini, A. Voss, M. Goernig, U. Leder, H. Figulla, Entropy Estimation Methods in HRV Analysis of Patients with Myocardial Infarction, Reports on Computer Science, (2006).
+[24] Y. Isler, M. Kuntalp, Combining classical HRV indices with wavelet entropy measures improves to performance in diagnosing congestive heart failure, Computers in Biology and Medicine, 37 (2007) 1502-1510.
+[25] E.W. RL Smith, P Cetin Abaci, NH Von Bergen, IH Law, MD Dick II, C Connor, EL Dove Analyzing Heart Rate Variability in Infants Using Non-Linear Poincaré Techniques Computers in cardiology, 36 (2009) 673-676.
+[26] J.Q. Zhang, A.V. Holden, O. Monfredi, M.R. Boyett, H. Zhang, Stochastic vagal modulation of cardiac pacemaking may lead to erroneous identification of cardiac
+74
+
+``chaos'', Chaos: An Interdisciplinary Journal of Nonlinear Science, 19 (2009) 028509028504.
+[27] R.E. Klabunde, Cardiovascular Physiology Concepts, Lippincott Williams & Wilkins, 2005.
+[28] M.J. De Jong, D.C. Randall, Heart rate variability analysis in the assessment of autonomic function in heart failure, J.Cardiovasc.Nurs., 20 (2005) 186-195.
+[29] M. Di Rienzo, G. Parati, A. Radaelli, P. Castiglioni, Baroreflex contribution to blood pressure and heart rate oscillations: time scales, time-variant characteristics and nonlinearities, Philosophical Transactions of the Royal Society A: Mathematical,
+Physical and Engineering Sciences, 367 (2009) 1301-1318.
+[30] C. Kruger, A. Kalenka, A. Haunstetter, M. Schweizer, C. Maier, U. Ruhle, H. Ehmke, W. Kubler, M. Haass, Baroreflex sensitivity and heart rate variability in conscious rats with myocardial infarction, American journal of physiology, 273 (1997) H2240-2247.
+[31] S.C. Malpas, Neural influences on cardiovascular variability: possibilities and pitfalls, American journal of physiology, 282 (2002) H6-20.
+[32] Y.I. Thong T, P Zajdel DP, Ellingson RM, McNames J, Aboy M, Oken BS., Heart rate variability analysis of effect of nicotine using periodograms, in: IEEE Engineering in Medicine and Biology Society, 2004, pp. 294-297.
+[33] N. Herring, D.J. Paterson, Neuromodulators of peripheral cardiac sympatho-vagal balance, Experimental Physiology, 94 (2009) 46-53.
+[34] G. Jokkel, I. Bonyhay, M. Kollai, Heart rate variability after complete autonomic blockade in man, J Auton Nerv Syst, 51 (1995) 85-89.
+[35] A. Nakata, S. Takata, T. Yuasa, A. Shimakura, M. Maruyama, H. Nagai, S. Sakagami, K. Kobayashi, Spectral analysis of heart rate, arterial pressure, and muscle sympathetic nerve activity in normal humans, The American journal of physiology, 274 (1998) H1211-1217.
+[36] B. Presciuttini, D. Duprez, M. De Buyzere, D.L. Clement, How to study sympathovagal balance in arterial hypertension and the effect of antihypertensive drugs?, Acta Cardiol, 53 (1998) 143-152.
+[37] A. Cevese, G. Gulli, E. Polati, L. Gottin, R. Grasso, Baroreflex and oscillation of heart period at 0.1 Hz studied by alpha-blockade and cross-spectral analysis in healthy humans, J Physiol, 531 (2001) 235-244.
+[38] M. Pagani, F. Lombardi, S. Guzzetti, O. Rimoldi, R. Furlan, P. Pizzinelli, G. Sandrone, G. Malfatto, S. Dell'Orto, E. Piccaluga, Power spectral analysis of heart rate
+75
+
+and arterial pressure variabilities as a marker of sympatho-vagal interaction in man and conscious dog, Circ Res, 59 (1986) 178-193.
+[39] M. Malik, J.T. Bigger, A.J. Camm, R.E. Kleiger, A. Malliani, A.J. Moss, P.J. Schwartz, Heart Rate Variability : Standards of Measurement, Physiological Interpretation, and Clinical Use, Circulation, 93 (1996) 1043-1065.
+[40] G.G. Berntson, J. Thomas Bigger, D.L. Eckberg, P. Grossman, P.G. Kaufmann, M. Malik, H.N. Nagaraja, S.W. Porges, J.P. Saul, P.H. Stone, M.W. Der Molen, Heart rate variability: Origins, methods, and interpretive caveats, Psychophysiology, 34 (1997) 623648.
+[41] M. Miyata, Y. Sano, K. Suzuki, T. Yamazaki, S. Nagaoka, T. Hata, Evaluation of respiratory modulation on the pulse wave amplitude in low-birth-weight neonate, Biol Sci Space, 16 (2002) 215-216.
+[42] F. Beckers, B. Verheyden, D. Ramaekers, B. Swynghedauw, A.E. Aubert, Effects of autonomic blockade on non-linear cardiovascular variability indices in rats, Clinical and experimental pharmacology & physiology, 33 (2006) 431-439.
+[43] B. Hille, Ionic channels of excitable membranes, Sinauer Associates, Sutherland, MA, 1992.
+[44] D. Bonaduce, F. Marciano, M. Petretta, M.L. Migaux, G. Morgano, V. Bianchi, L. Salemme, G. Valva, M. Condorelli, Effects of converting enzyme inhibition on heart period variability in patients with acute myocardial infarction, Circulation, 90 (1994) 108-113.
+[45] A. Lindqvist, R. Oja, O. Hellman, I. Valimaki, Impact of thermal vasomotor control on the heart rate variability of newborn infants, Early Hum Dev, 8 (1983) 37-47.
+[46] J.F. Thayer, R. Nabors-Oberg, J.J. Sollers, 3rd, Thermoregulation and cardiac variability: a time-frequency analysis, Biomed Sci Instrum, 34 (1997) 252-256.
+[47] A. Kalinichenko, M. Nilicheva, S. Khasheva, O. Yurieva, O. Mamontov, Signal Stationarity Assessment for the Heart Rate Variability Spectral Analysis, in: Computers in cardiology, 2008, pp. 965−968.
+[48] A.J. Seely, P.T. Macklem, Complex systems and the technology of variability analysis, Crit Care, 8 (2004) R367-R384.
+[49] U.R. Acharya, K.P. Joseph, N. Kannathal, C.M. Lim, J.S. Suri, Heart rate variability: a review, Medical & biological engineering & computing, 44 (2006) 1031-1051.
+[50] R.A. Thuraisingham, Preprocessing RR interval time series for heart rate variability analysis and estimates of standard deviation of RR intervals, Comput.Methods Programs Biomed., (2006).
+76
+
+[51] O.H. Colak, Preprocessing effects in time-frequency distributions and spectral analysis of heart rate variability, Digital Signal Processing, 19 (2009) 731-739.
+[52] R.D. Yates, Goodman, David J., Probabilitty and Stochastic Processes: A Friendly Introducxtion for Electrical and Computer Engineers, Second ed., John Wiley & Sons, Inc., Hoboken, NJ, 2005.
+[53] C.S. Yoo, Yi, S. H. , Effects of Detrending for Analysis of Heart Rate Variability and Applications to the Estimation of Depth of Anesthesia, Journal of the Korean Physical Society, 44 (2004) 561-568.
+[54] M. Tarvainen, Estimation Methods for Nonstationary Biosignals, in: Department of Applied Physics, University of Kuopio, Kuopio, Finland, 2004.
+[55] A.E. Aubert, D. Ramaekers, F. Beckers, R. Breem, C. Denef, F. Van de Werf, H. Ector, The analysis of heart rate variability in unrestrained rats. Validation of method and results, Computer methods and programs in biomedicine, 60 (1999) 197-213.
+[56] N. Lippman, K.M. Stein, B.B. Lerman, Comparison of methods for removal of ectopy in measurement of heart rate variability, The American journal of physiology, 267 (1994) H411-418.
+[57] H.V. Huikuri, T. Seppanen, M.J. Koistinen, K.E.J. Airaksinen, M.J. Ikaheimo, A. Castellanos, R.J. Myerburg, Abnormalities in Beat-to-Beat Dynamics of Heart Rate Before the Spontaneous Onset of Life-Threatening Ventricular Tachyarrhythmias in Patients With Prior Myocardial Infarction, Circulation, 93 (1996) 1836-1844.
+[58] H. Huikuri, J. Valkama, K. Airaksinen, T. Seppanen, K. Kessler, J. Takkunen, R. Myerburg, Frequency domain measures of heart rate variability before the onset of nonsustained and sustained ventricular tachycardia in patients with coronary artery disease, Circulation, 87 (1993) 1220-1228.
+[59] I.P. Mitov, A method for assessment and processing of biomedical signals containing trend and periodic components, Medical engineering & physics, 20 (1998) 660-668.
+[60] K. Shafqat, S.K. Pal, P.A. Kyriacou, Evaluation of two detrending techniques for application in Heart Rate Variability, Conf Proc IEEE Eng Med Biol Soc, 2007 (2007) 267-270.
+[61] M.P. Tarvainen, P.O. Ranta-Aho, P.A. Karjalainen, An advanced detrending method with application to HRV analysis, IEEE transactions on bio-medical engineering, 49 (2002) 172-175.
+[62] N. Juha-Pekka, P.T. Mika, O.R.-a. Perttu, A.K. Pasi, Software for advanced HRV analysis, Computer methods and programs in biomedicine, 76 (2004) 73-81.
+77
+
+[63] D. Singh, K. Vinod, S.C. Saxena, Sampling frequency of the RR interval time series for spectral analysis of heart rate variability, Journal of medical engineering & technology, 28 (2004) 263-272.
+[64] J.E. Mietus, C.-K. Peng, I. Henry, R.L. Goldsmith, A.L. Goldberger, The pNNx files: re-examining a widely used heart rate variability measure, Heart, 88 (2002) 378380.
+[65] G.D. Clifford, F. Azuaje, P.E. McSharry, Advanced Methods and Tools for ECG Data Analysis, Artech House, Inc., Norwood, MA, 2006.
+[66] D.M. JG Proakis, Digital Signal Processing: Principles, Algorithms, and Applications, Third ed., Prentice-Hall, Inc, New Jersey, 1996.
+[67] N. Name, Needed Equation, in, 0000.
+[68] G.D. Clifford, L. Tarassenko, Quantifying errors in spectral estimates of HRV due to beat replacement and resampling, IEEE transactions on bio-medical engineering, 52 (2005) 630-638.
+[69] E.M. C. Lévy-Leduc, F. Roueff,, Frequency estimation based on the cumulated Lomb Scargle periodogram, Journal of Time Series Analysis, 29 (2008) 1104-1131.
+[70] P. Laguna, G.B. Moody, R.G. Mark, Power spectral density of unevenly sampled data by least-square analysis: performance and application to heart rate signals, Biomedical Engineering, IEEE Transactions on, 45 (1998) 698-715.
+[71] T. Thong, J. McNames, M. Aboy, Lomb-Wech periodogram for non-uniform sampling, Conf Proc IEEE Eng Med Biol Soc, 1 (2004) 271-274.
+[72] N.Y. Belova, S.V. Mihaylov, B.G. Piryova, Wavelet transform: A better approach for the evaluation of instantaneous changes in heart rate variability, Auton Neurosci, 131 (2007) 107-122.
+[73] Y. Zhong, Y. Bai, B. Yang, K. Ju, K. Shin, M. Lee, K.-M. Jan, K.H. Chon, Autonomic nervous nonlinear interactions lead to frequency modulation between lowand high-frequency bands of the heart rate variability spectrum, Am J Physiol Regul Integr Comp Physiol, 293 (2007) R1961-1968.
+[74] E. Pereira de Souza Neto, M.-A. Custaud, L. Somody, C. Gharib, Assessment of autonomic cardiovascular indices in non-stationary data in rats, Comparative Biochemistry and Physiology - Part A: Molecular & Integrative Physiology, 128 (2001) 105-115.
+[75] J.F. Thayer, J.J. Sollers, 3rd, E. Ruiz-Padial, J. Vila, Estimating respiratory frequency from autoregressive spectral analysis of heart period, IEEE Eng Med Biol Mag, 21 (2002) 41-45.
+78
+
+[76] V.J. Wijnen, M. Heutink, G.J. van Boxtel, H.J. Eilander, B. de Gelder, Autonomic reactivity to sensory stimulation is related to consciousness level after severe traumatic brain injury, Clin Neurophysiol, 117 (2006) 1794-1807.
+[77] A. Subasi, E. Erçelebi, A. Alkan, E. Koklukaya, Comparison of subspace-based methods with AR parametric methods in epileptic seizure detection, Computers in Biology and Medicine, 36 (2006) 195-208.
+[78] A. Boardman, et al., A study on the optimum order of autoregressive models for heart rate variability, Physiological Measurement, 23 (2002) 325.
+[79] N.R. Lomb, Least-squares frequency analysis of unequally spaced data, Astrophysics and Space Science, 39 (1976) 447-462.
+[80] J. Issartel, L. Marin, P. Gaillot, T. Bardainne, M. Cadopi, A practical guide to timefrequency analysis in the study of human motor behavior: the contribution of wavelet transform, J Mot Behav, 38 (2006) 139-159.
+[81] J.L.A. Carvalho, A.F. Rocha, L.F.J. Jr, J.S. Neto, I. Santos, F.A.O. Nascimento, A Tool for Time-Frequency Analysis of Heart Rate Variability.
+[82] M.J. Thong T, Aboy M, Oken BS, Averaged Lomb periodograms for nonuniform sampling, in: 7th Biennial International EURASIP Conference Biosignal 2004, Brno, Czech Republic, 2004, pp. 39-41.
+[83] Z. Zhiguo, C. Shing-Chow, Robust adaptive Lomb periodogram for time-frequency analysis of signals with sinusoidal and transient components, in: Acoustics, Speech, and Signal Processing, 2005. Proceedings. (ICASSP '05). IEEE International Conference on, 2005, pp. iv/493-iv/496 Vol. 494.
+[84] C.H. M Vetterli, Wavelets and Filter Banks: Theory and Design, IEEE Transactions on Signal Processing, 40 (1992) 2207-2232.
+[85] U.R. Acharya, Suri, J.S., Spaan, J.A.E., Krishnan, S.M, Advanced in Cardiac Signal Processing, Springer-Verlag, Berlin, 2007.
+[86] C. Torrence, G.P. Compo, A Practical Guide to Wavelet Analysis, Bulletin of the American Meteorological Society, 79 (1998) 61-78
+[87] K. Tanaka, A.R. Hargens, Wavelet packet transform for R-R interval variability, Medical engineering & physics, 26 (2004) 313-319.
+[88] L.T. Mainardi, On the quantification of heart rate variability spectral parameters using time–frequency and time-varying methods, Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 367 (2009) 255-275.
+[89] V.E. Papaioannou, N. Maglaveras, I. Houvarda, E. Antoniadou, G. Vretzakis, Investigation of altered heart rate variability, nonlinear properties of heart rate signals,
+79
+
+and organ dysfunction longitudinally over time in intensive care unit patients, J.Crit Care, 21 (2006) 95-103.
+[90] E.R. Bojorges-Valdez, et al., Scaling patterns of heart rate variability data, Physiological Measurement, 28 (2007) 721.
+[91] F. Beckers, B. Verheyden, A.E. Aubert, Aging and nonlinear heart rate control in a healthy population, in, 2006, pp. H2560-2570.
+[92] P.W. Kamen, A.M. Tonkin, Application of the Poincar plot to heart rate variability: a new measure of functional status in heart failure, Internal Medicine Journal, 25 (1995) 18-26.
+[93] M.P. Tulppo, T.H. Makikallio, T.E. Takala, T. Seppanen, H.V. Huikuri, Quantitative beat-to-beat analysis of heart rate dynamics during exercise, American journal of physiology, 271 (1996) H244-252.
+[94] M. Brennan, M. Palaniswami, P. Kamen, Poincare plot interpretation using a physiological model of HRV based on a network of oscillators, American journal of physiology, 283 (2002) H1873-1886.
+[95] T.T. Laitio, H.V. Huikuri, E.S. Kentala, T.H. Makikallio, J.R. Jalonen, H. Helenius, K. Sariola-Heinonen, S. Yli-Mayry, H. Scheinin, Correlation properties and complexity of perioperative RR-interval dynamics in coronary artery bypass surgery patients, Anesthesiology, 93 (2000) 69-80.
+[96] P.K. Stein, A. Reddy, Non-linear heart rate variability and risk stratification in cardiovascular disease, Indian Pacing Electrophysiol J, 5 (2005) 210-220.
+[97] J. Richman, J. Moorman, Physiological time-series analysis using approximate entropy and sample entropy, American journal of physiology, 278 (2000) H2039-2049.
+[98] C.K. Peng, S.V. Buldyrev, S. Havlin, M. Simons, H.E. Stanley, A.L. Goldberger, Mosaic organization of DNA nucleotides, Physical Review E, 49 (1994) 1685.
+[99] A. Voss, S. Schulz, R. Schroeder, M. Baumert, P. Caminal, Methods derived from nonlinear dynamics for analysing heart rate variability, Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 367 (2009) 277-296.
+[100] C.K. Peng, S. Havlin, H.E. Stanley, A.L. Goldberger, Quantification of scaling exponents and crossover phenomena in nonstationary heartbeat time series, Chaos, 5 (1995) 82-87.
+[101] U. Acharya, Suri, JS, Spaan, JAE, Krishnan, SM, Advances in Cardiac Signal Processing, Springer, Berlin Heidelberg, Germany, 2007.
+[102] B. Technologies, HRVLive! - Real-time biofeedback system, in, 2010.
+80
+
+[103] J.L.A. de Carvalho, A.F. da Rocha, F.A. de Oliveira Nascimento, J.S. Neto, L.F. Junqueira, Jr., Development of a MATLAB software for analysis of heart rate variability, in: Signal Processing, 2002 6th International Conference on, 2002, pp. 1488-1491 vol.1482.
+[104] P. Perakakis, M. Joffily, M. Taylor, P. Guerra, J. Vila, KARDIA: A MATLAB software for the analysis of cardiac interbeat intervals, Computer methods and programs in biomedicine, 98 (2010) 83-89.
+[105] A.L. Goldberger, L.A.N. Amaral, L. Glass, J.M. Hausdorff, P.C. Ivanov, R.G. Mark, J.E. Mietus, G.B. Moody, C.-K. Peng, H.E. Stanley, PhysioBank, PhysioToolkit, and PhysioNet : Components of a New Research Resource for Complex Physiologic Signals, Circulation, 101 (2000) e215-220.
+[106] P.E. McSharry, G.D. Clifford, L. Tarassenko, L.A. Smith, A dynamical model for generating synthetic electrocardiogram signals, IEEE transactions on bio-medical engineering, 50 (2003) 289-294.
+[107] L.E. Barker, E.T. Luman, M.M. McCauley, S.Y. Chu, Assessing equivalence: an alternative to the use of difference tests for measuring disparities in vaccination coverage, Am J Epidemiol, 156 (2002) 1056-1061.
+[108] K.H. Greiser, A. Kluttig, B. Schumann, C.A. Swenne, J.A. Kors, O. Kuss, J. Haerting, H. Schmidt, J. Thiery, K. Werdan, Cardiovascular diseases, risk factors and short-term heart rate variability in an elderly general population: the CARLA study 20022006, Eur J Epidemiol, 24 (2009) 123-142.
+[109] A.H. Association, Heart Disease and Stroke Statistics - 2010 Update, in, American Heart Association, Dallas, Texas, 2010.
+[110] A.H. Association, Congestive Heart Failure, in, American Heart Association, 2010.
+[111] M.A. Woo, W.G. Stevenson, D.K. Moser, Comparison of four methods of assessing heart rate variability in patients with heart failure, Am.J.Crit Care, 5 (1996) 3441.
+[112] M. Asyali, Discrimination power of long-term heart rate variability measures, in: 25th Annual International Conference of the IEEE Engineering in Medicine and Biology Society, Cancun, Mexico, 2003, pp. 17–21.
+[113] S. Guzzetti, M.T. La Rovere, G.D. Pinna, Different Spectral Components of 24Hour Heart Rate Variability are Related to Different Modes of Death in Chronic Heart Failure, ACC Current Journal Review, 14 (2005) 32-32.
+[114] K. Ho, G.B. Moody, C.-K. Peng, J.E. Mietus, M.G. Larson, D. Levy, A.L. Goldberger, Predicting Survival in Heart Failure Case and Control Subjects by Use of Fully Automated Methods for Deriving Nonlinear and Conventional Indices of Heart Rate Dynamics, Circulation, 96 (1997) 842-848.
+81
+
+[115] S. Guzzetti, C. Cogliati, M. Turiel, C. Crema, F. Lombardi, A. Malliani, Sympathetic predominance followed by functional denervation in the progression of chronic heart failure, Eur Heart J, 16 (1995) 1100-1107.
+[116] S. Guzzetti, S. Mezzetti, R. Magatelli, A. Porta, G. De Angelis, G. Rovelli, A. Malliani, Linear and non-linear 24 h heart rate variability in chronic heart failure, Autonomic Neuroscience, 86 (2000) 114-119.
+[117] S. Simonetta, V. Maurizio, Z. Emanuela, P. Marco, M. Giorgio, J.C. Andrew, G. Amerigo, Is heart rate variability a reliable method to assess autonomic modulation in left ventricular dysfunction and heart failure?: Assessment of autonomic modulation with heart rate variability, International Journal of Cardiology, 67 (1998) 9-17.
+[118] S. Guzzetti, R. Magatelli, E. Borroni, S. Mezzetti, Heart rate variability in chronic heart failure, Autonomic Neuroscience, 90 (2001) 102-105.
+[119] P. van de Borne, N. Montano, M. Pagani, R. Oren, V.K. Somers, Absence of lowfrequency variability of sympathetic nerve activity in severe heart failure, Circulation, 95 (1997) 1449-1454.
+[120] M.R. Bristow, R. Ginsburg, W. Minobe, R.S. Cubicciotti, W.S. Sageman, K. Lurie, M.E. Billingham, D.C. Harrison, E.B. Stinson, Decreased catecholamine sensitivity and beta-adrenergic-receptor density in failing human hearts, N Engl J Med, 307 (1982) 205211.
+[121] S.M. Horner, C.F. Murphy, B. Coen, D.J. Dick, F.G. Harrison, Z. Vespalcova, M.J. Lab, Contribution to heart rate variability by mechanoelectric feedback. Stretch of the sinoatrial node reduces heart rate variability, Circulation, 94 (1996) 1762-1767.
+[122] P. Ponikowski, T.P. Chua, A.A. Amadi, M. Piepoli, D. Harrington, M. Volterrani, R. Colombo, G. Mazzuero, A. Giordano, A.J. Coats, Detection and significance of a discrete very low frequency rhythm in RR interval variability in chronic congestive heart failure, Am J Cardiol, 77 (1996) 1320-1326.
+[123] K.K. Gaddam, E. Pimenta, S. Husain, D.A. Calhoun, Aldosterone and Cardiovascular Disease, Current Problems in Cardiology, 34 (2009) 51-84.
+[124] B. Martin-Fernandez, M. Miana, N. De Las Heras, G. Ruiz-Hurtado, M. Fernandez-Velasco, M. Bas, S. Ballesteros, V. Lahera, V. Cachofeiro, C. Delgado, Cardiac L-type calcium current is increased in a model of hyperaldosteronism in the rat, Exp Physiol, 94 (2009) 675-683.
+[125] A.D. Struthers, Aldosterone: An Important Mediator of Cardiac Remodelling in Heart Failure, British Journal of Cardiology, 12 (2005) 211-218.
+[126] A.D. Struthers, Aldosterone in heart failure: pathophysiology and treatment, Curr Heart Fail Rep, 1 (2004) 171-175.
+82
+
+[127] N. De Angelis, F. Fiordaliso, R. Latini, L. Calvillo, M. Funicello, M. Gobbi, T. Mennini, S. Masson, Appraisal of the role of angiotensin II and aldosterone in ventricular myocyte apoptosis in adult normotensive rat, J Mol Cell Cardiol, 34 (2002) 1655-1665.
+[128] J.A. Delyani, E.L. Robinson, A.E. Rudolph, Effect of a selective aldosterone receptor antagonist in myocardial infarction, American journal of physiology, 281 (2001) H647-654.
+[129] J. Bauersachs, M. Heck, D. Fraccarollo, S.K. Hildemann, G. Ertl, M. Wehling, M. Christ, Addition of spironolactone to angiotensin-converting enzyme inhibition in heart failure improves endothelial vasomotor dysfunction: role of vascular superoxide anion formation and endothelial nitric oxide synthase expression, J Am Coll Cardiol, 39 (2002) 351-358.
+[130] B. Pitt, F. Zannad, W.J. Remme, R. Cody, A. Castaigne, A. Perez, J. Palensky, J. Wittes, The effect of spironolactone on morbidity and mortality in patients with severe heart failure. Randomized Aldactone Evaluation Study Investigators, N Engl J Med, 341 (1999) 709-717.
+[131] B. Pitt, W. Remme, F. Zannad, J. Neaton, F. Martinez, B. Roniker, R. Bittman, S. Hurley, J. Kleiman, M. Gatlin, Eplerenone, a selective aldosterone blocker, in patients with left ventricular dysfunction after myocardial infarction, N Engl J Med, 348 (2003) 1309-1321.
+[132] L. Hunt, A. de Jongh Curry, Rat Model of Hyperaldosteronism-Induced Cardiac Fibrosis, in, University of Memphis, 2009.
+[133] H. Goncalves, T. Henriques-Coelho, J. Bernardes, A.P. Rocha, A. Nogueira, A. Leite-Moreira, Linear and nonlinear heart-rate analysis in a rat model of acute anoxia, Physiol Meas, 29 (2008) 1133-1143.
+[134] G.B. Moody, in, 2008.
+[135] P. Busek, J. Vankova, J. Opavsky, J. Salinger, S. Nevsimalova, Spectral analysis of the heart rate variability in sleep, Physiological research / Academia Scientiarum Bohemoslovaca, 54 (2005) 369-376.
+[136] A. Kishi, Z.R. Struzik, B.H. Natelson, F. Togo, Y. Yamamoto, Dynamics of sleep stage transitions in healthy humans and patients with chronic fatigue syndrome, Am J Physiol Regul Integr Comp Physiol, 294 (2008) R1980-1987.
+[137] F. Togo, N.S. Cherniack, B.H. Natelson, Electroencephalogram characteristics of autonomic arousals during sleep in healthy men, Clin Neurophysiol, 117 (2006) 25972603.
+[138] Z. Zhuang, X. Gao, S. Gao, The relationship of HRV to sleep EEG and sleep rhythm, Int J Neurosci, 115 (2005) 315-327.
+83
+
+[139] G.D. Clifford, L. Tarassenko, Segmenting cardiac-related data using sleep stages increases separation between normal subjects and apn&oelig;ic patients, Physiological Measurement, (2004) N27.
+84
+
+Appendix A – HRVAS Analysis Modules
+Fig. 15 – Analysis Options Module 85
+
+Fig. 16 – Time-domain Analysis Module
+Fig. 17 – Frequency-domain Analysis Module 86
+
+Fig. 18 – Poincaré Analysis Module
+Fig. 19 – Nonlinear Analysis Module 87
+

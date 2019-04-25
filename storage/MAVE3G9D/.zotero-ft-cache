@@ -1,0 +1,354 @@
+IEEE JOURNAL OF BIOMEDICAL AND HEALTH INFORMATICS, VOL. 19, NO. 3, MAY 2015
+
+815
+
+Arrhythmia Discrimination Using a Smart Phone
+Jo Woon Chong, Nada Esa, David D. McManus, and Ki H. Chon, Senior Member, IEEE
+
+Abstract—We hypothesize that our smartphone-based arrhythmia discrimination algorithm with data acquisition approach reliably differentiates between normal sinus rhythm (NSR), atrial ﬁbrillation (AF), premature ventricular contractions (PVCs) and premature atrial contraction (PACs) in a diverse group of patients having these common arrhythmias. We combine root mean square of successive RR differences and Shannon entropy with Poincare plot (or turning point ratio method) and pulse rise and fall times to increase the sensitivity of AF discrimination and add new capabilities of PVC and PAC identiﬁcation. To investigate the capability of the smartphone-based algorithm for arrhythmia discrimination, 99 subjects, including 88 study participants with AF at baseline and in NSR after electrical cardioversion, as well as seven participants with PACs and four with PVCs were recruited. Using a smartphone, we collected 2-min pulsatile time series from each recruited subject. This clinical application results show that the proposed method detects NSR with speciﬁcity of 0.9886, and discriminates PVCs and PACs from AF with sensitivities of 0.9684 and 0.9783, respectively.
+Index Terms—Arrhythmia, atrial ﬁbrillation, Poincare plot, premature atrial contraction, premature ventricular contraction, root mean square of successive RR differences (RMSSD), Shannon entropy, turning point ratio.
+I. INTRODUCTION
+A TRIAL ﬁbrillation (AF) is the most common sustained arrhythmia. Over 5.2 million Americans have been diagnosed with AF, and the prevalence of AF is increasing concomitant with the aging of the U.S. population [1]–[3]. AF exerts a signiﬁcant negative impact on the longevity and quality of life of a growing number of Americans, predominantly through its association with increased risk for heart failure and stroke. Effective AF treatments reduce risk for complications from AF. A major challenge facing clinicians and researchers is the early detection of AF, because particularly in its early stages, AF can be intermittent and asymptomatic [4]. While the population with undiagnosed AF is substantial [5], studies have shown that more intensive cardiac monitoring can improve AF detection and enable timelier institution of treatment [6]. Automated AF detection algorithms offer real-time realizable AF detection but
+Manuscript received October 24, 2014; revised January 27, 2015; accepted March 20, 2015. Date of publication March 31, 2015; date of current version May 7, 2015. This work was supported by the National Institute of Health under Grant 1R15HL121761-01A1.
+J. W. Chong is with the Department of Biomedical Engineering, Worcester Polytechnic Institute, Worcester, MA 01609 USA (e-mail: jw9607@ gmail.com).
+N. Esa and D. D. McManus are with the Department of Medicine, University of Massachusetts, Worcester, MA 01605 USA (e-mail: Nada.Esa@ umassmed.edu; David.McManus@umassmed.edu).
+K. H. Chon is with the Department of Biomedical Engineering, University of Connecticut, Storrs, CT 06269 USA (e-mail: kchon@engr.uconn.edu).
+Color versions of one or more of the ﬁgures in this paper are available online at http://ieeexplore.ieee.org.
+Digital Object Identiﬁer 10.1109/JBHI.2015.2418195
+
+often suffer from the fact that common benign causes of rhythm irregularity, most notably premature atrial (PAC) and ventricular (PVC) contractions, can cause false positive AF detection [7], [8]. There is a pressing need to develop a continuous arrhythmia monitoring device that can accurately and reproducibly distinguish between AF, NSR, and premature beats (PACs and PVCs) in order to improve patients’ cardiovascular health and reduce the costs associated with treating AF [9].
+A mobile cardiac monitoring device that is readily accessible, inexpensive, and simple to operate is needed to enhance rhythm monitoring. As smartphones have become prevalent, they meet the criteria of ready access and acceptance by the general public for monitoring their health [10]. Moreover, the use of pulsatile signals from smartphones has recently attracted the attentions of many researchers [8], [11], [12]. In prior studies, we have demonstrated that a smartphone camera recording of a ﬁngertip yields pulsatile signals that are similar to heart-rate ﬂuctuations. One of the major advantages of our approach is that it does not require extra hardware. The optical video monitoring of the skin with the standard digital camera embedded in smartphones is sufﬁcient to extract information related to the variability in heart rate signal. We tested our smartphone-based AF detection application in 76 individuals with AF undergoing cardioversion and showed that it was able to distinguish between AF (precardioversion) and NSR (postcardioversion) with 96% accuracy [11]. However, in pilot study, we discovered that PACs and PVCs resulted in false positive AF detection.
+Premature atrial contractions occur when an ectopic focus originating in the atrium leads to premature activation of the atria prior to typical sinoatrial node activation [13] whereas a PVC occurs when a similar process occurs in the ventricle [14]. PACs and PVCs can cause symptoms similar to AF, e.g., the sensation of an irregular pulse or having skipped beats. In contradistinction to AF, the clinical course of patients with PACs or PVCs is typically benign [15]. PACs and PVCs commonly occur in patterns, e.g., occurring every second, third, or fourth beat, termed bigeminy, trigeminy, and quadrigeminy. There are PAC and PVC discrimination algorithms that have been developed to distinguish these benign arrhythmias from AF, but such algorithms require an electrocardiographic signal [16], [17]. One limitation of existing approaches is that many templates of PAC and PVC waveforms need to be stored in memory since the approach is based on template matching. More importantly, this approach is only suited for ECG signals, not for pulsatile signals, such as those obtained from camera-enabled smartphones. Pulsatile signals have different characteristics and lower time resolution compared to ECG signals. Hence, there is a need to develop a new arrhythmia discrimination algorithm for a smartphone, which can differentiate between NSR, AF, PACs and PVCs.
+
+2168-2194 © 2015 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications standards/publications/rights/index.html for more information.
+
+816
+
+IEEE JOURNAL OF BIOMEDICAL AND HEALTH INFORMATICS, VOL. 19, NO. 3, MAY 2015
+
+In this paper, we propose a real-time comprehensive accurate arrhythmia discrimination algorithm for iPhone 4S/5S, which can discriminate between NSR, AF, PACs and PVCs using pulsatile time series collected from a smartphone’s camera. To increase the sensitivity of AF detection and add the new capabilities of PVC and PAC identiﬁcation, our arrhythmia discrimination algorithm combines root mean square of successive RR differences (RMSSD), Shannon entropy (ShE) and turning point ratio (TPR), used in the previous AF detection algorithms, with the Poincare plot, and utilizes the features of pulse amplitude, and rise and fall times for arrhythmia discrimination. The RMSSD, ShE, Poincare plot and pulse amplitude, and rise and fall time features have been widely used in analyzing heart rhythms [18]–[27] while the TPR was proposed to be applied to heart rhythm analysis [28]. Here, we modiﬁed the conventional Poincare plot (or TPR) to discriminate bigeminy, trigeminy and quadrigeminy patterns of PACs or PVCs as well as detect PAC or PVC rhythms themselves among non-NSR subjects. Moreover, the use of pulse amplitude, and rise and fall times is especially well-suited for differentiating between the PAC and PVC. In this study, we evaluate our arrhythmia discrimination algorithms’ performance with data from patients with NSR, AF, PACs and PVCs who were recruited after consenting for our study and a clinically indicated electrical cardioversion at the University of Massachusetts Medical Center (UMMC). The main contributions of this paper is summarized as follows:
+1) Smartphone-Based Pulsatile Time Series Analysis: We analyze NSR, AF, PAC and PVC pulsatile time series obtained from smartphones to characterize their features. We consider: a) pulse amplitude/times and b) their RMSSD, ShE and TPR values, and c) Poincare plot. A paired t-test is performed to verify signiﬁcant differences between the features of NSR, AF, PAC and PVC.
+2) PAC or PVC and its Pattern Discrimination: Using Poincare plot or TPR, we discriminate PAC or PVC and its patterns, e.g., bigeminy, trigeminy, quadrigeminy, among non-NSR subjects which are classiﬁed from NSR by RMSSD and ShE. We begin by characterizing Poincare plot trajectory or TPR statistics of each speciﬁc PAC or PVC pattern. Here, the characterization is based on observation of pulsatile time series from smartphones. We then evaluate the performance of Poincare plot and TPR methods in terms of PVC/PAC classiﬁcation accuracy.
+3) PAC and PVC Differentiation: We derive pulse amplitude, and rise and fall times near PAC and PVC episodes to estimate if they have complete compensatory pause or not. This pulse amplitude/time are used to differentiate between PAC and PVC episodes.
+II. MATERIALS AND METHODS
+A. NSR, AF, PVC, and PAC Databases and Clinical Data Collection
+For the iPhone data collection, 88 subjects with recordings were obtained before and after cardioversion, as well as seven with PACs and four with PVCs were recruited at UMMC. Our data collection protocol was approved by the Institutional
+
+Fig. 1. Smart phone application for data recording (the application uses the camera lens and illumination to acquire information about heart rate and rhythm).
+Review Boards of UMMC and Worcester Polytechnic Institute (H#14490 and #14-261). The subjects all gave their informed consent. Participants were instructed to place their ﬁrst (index) or second (middle) ﬁnger on a standard smart phone camera with the ﬂash turned on (the ﬂash will be automatically invoked by the application software) for 2 min. Data were recorded with participants in a supine position with spontaneous breathing. Fig. 1 shows a current prototype of arrhythmia discrimination application for iPhone 4S.
+B. Preprocessing
+Videos of their ﬁngertip blood ﬂow intensity were taken with 640 × 480 pixel resolution at a sampling rate of 30 frames per second and processed in real time. Only the green band from the RGB video was used as our recent results indicate this gives the best signal ﬁdelity [29]. An average is made of the intensity values of the upper 320 × 480 pixels in each frame, i.e., the upper half of the ﬁngertip on the green video signal, as our systematic analysis showed this region provided the best signal quality. Once the clean green signals are identiﬁed, pulse beat-to-beat detection from the green signals was performed incorporating interpolation, sudden dc change elimination, two stages of band pass ﬁlter, derivative rank ﬁlter and matching of original peaks. Speciﬁcally, the sudden dc change elimination is performed by removing differential changes larger than a predeﬁned threshold value while the ﬁlters are designed to remove the high frequency noise and the dc component.
+C. Arrhythmia Discrimination
+Fig. 2(a)–(c) shows three cases of peak-to-peak interval (PPI) sequences of 60 beat-to-beat segments with ten, six, and three PAC quadrigeminy patterns, respectively. The previous algorithm [11] which is based on RMSSD and ShE classiﬁes 60 beat-to-beat segments with at least four PAC patterns to be AF [see Fig. 2(a) and (b)] while classifying those with less than four PAC patterns to be NSR [see Fig. 2(c)]. Our algorithm includes PAC and PVC discrimination capability which will further improve AF detection accuracy. The proposed arrhythmia discrimination algorithm is detailed in our ﬂowchart, which is shown in Fig. 3.
+1) Feature Extraction: Our discrimination algorithm extracts features of the PPI signal, e.g., PPI and trough-to-trough
+
+CHONG et al.: ARRHYTHMIA DISCRIMINATION USING A SMART PHONE
+
+817
+
+pulse and the peak of the n – 1th pulse and, TTROUGH,n − TPEAK,n−1 . Similarly, ARISE is YPEAK,n − YTROUGH,n while AFALL is YPEAK,n−1 − YTROUGH,n .
+2) NSR Discrimination From AF, PAC and PVC Subjects
+Using RMSSD and ShE: We ﬁrst derive the RMSSD and ShE
+from the PPI. The RMSSD is to measure the variability in a time
+series sequence and is calculated as follows:
+
+RMSSD(ai , . . . , ai+L−1 ) =
+
+1 L
+
+L −1
+
+{ai + j
+
+−
+
+ai+j −1 }2 .
+
+j=0
+
+(1)
+
+The RMSSD of NSR is expected to be small compared to
+
+those of AF, PAC and PVC.
+
+The ShE is to quantify the regularity of pattern in a time series
+
+and ShE on the time series ai, . . . , ai+L−1 is derived as
+
+ShE(ai , . . . , ai+L−1 )
+
+=
+
+NB IN
+−
+
+p(ai , . . . , ai+L−1 , k) log p(ai , . . . , ai+L−1 , k)
+
+k=1
+
+log (1/NBIN )
+
+(2)
+
+where NBIN denotes the number of bins, of which each has lower (BLOW ,k ) and upper (BUP,k ) bin boundaries for k ∈ {1, NBIN } and p(ai, . . . , ai+L−1 , k) is expressed as
+L −1
+p(ai , . . . , ai+L−1 , k) = U (ai+j , k)/(L − Noutliers )
+j=0
+
+for
+
+U (ai+j , k) =
+
+1, 0,
+
+BLOW ,k < ai+j < BUP,k otherwise.
+
+Fig. 2. Three PPI secquences extracted from 60 beat-to-beat segments. Threshold values are RMSSD/meanth = 0.115 and ShEth = 0.55 [11]. (a) 10 PACs (RMSSD/mean = 0.3758, ShE = 0.4451), (b) 6 PACs (RMSSD/mean = 0.2652, ShE = 0.4345), (c) 3 PACs (RMSSD/mean = 0.0997, ShE = 0.4438).
+interval (TTI), rise time (DRISE ) and fall time (DFALL ) from the measured pulsatile time series. As shown in Fig. 4, the PPI is calculated by the difference between two successive peak times, TPEAK,n − TPEAK,n−1 , and TTI is obtained by the difference between two successive trough times, TTROUGH,n − TTROUGH,n−1 . DRISE is deﬁned by the difference between the peak and the trough of the nth pulse, TPEAK,n − TTROUGH,n while DFALL is the difference between the trough of the nth
+
+The ShE of NSR is expected to be small compared to those of AF, PAC and PVC. The TPR is to measure a degree of independence in a time-series. A turning point (TP) is usually deﬁned as a point having larger or smaller value than two nearest neighbor points [4]. The TPRs of NSR and AF are expected to be within a range since they are from random PPIs while those of PAC and PVC are expected to be out of the range due to their regularities.
+Our algorithm compares the RMSSD, ShE and TPR of PPI to their corresponding thresholds, respectively. If they are less than their thresholds, the pulsatile time series is classiﬁed as NSR without PAC or PVC (see the ﬁrst condition in the ﬂowchart in Fig. 3). Otherwise, the algorithm goes to next step and checks if the pulsatile time series is AF, PAC, or PVC.
+3) PAC or PVC Discrimination From Non-NSR Subjects Using Poincare Plot or TPR: Our discrimination algorithm uses Poincare plot or TPR to determine if the non-NSR subject has PAC or PVC interspersed with NSR. Moreover, the algorithm gives information of PAC or PVC patterns, e.g., bigeminy, trigeminy, and quadrigeminy.
+a) Poincare plot: Shown at the bottom panel of Fig. 5 is an iPhone recording of a PAC subject and the top panel represents its corresponding ECG data. When a PAC episode occurs as noted by an arrow on the top panel of Fig. 5, the rising phase of iPhone’s PPI recording is markedly prolonged. Hence, taking
+
+818
+
+IEEE JOURNAL OF BIOMEDICAL AND HEALTH INFORMATICS, VOL. 19, NO. 3, MAY 2015
+
+Fig. 3. Flowchart of NSR, AF, PVC, PAC detection and discrimination procedure.
+
+Fig. 6. Poincare plot divided into six regions. AF, NSR, PVC and PAC rhythms will have different trajectory patterns and they may be conﬁned to only a single region or multiple regions.
+
+Fig. 4. Feature extraction of smartphone pulsatile time series. PPI and TTI are used to discriminate between AF, PAC, PVC and NSR as well as identify speciﬁc patterns (bigeminy, trigeminy, and quadrigeminy) of PAC or PVC. DR ISE , DFA L L , AR ISE , and AFA L L are for differentiating between PAC and PVC.
+Fig. 5. Comparison of ECG RR intervals to pulse intervals obtained from an iPhone in a PAC episode (a premature atrial contraction results in a longer duration pulse interval and larger amplitude pulse beat when compared to a normal pulse beat).
+
+the difference between the iPhone peak times of a normal beat and a PAC beat following another normal beat (ΔPPI), a “long” pulse interval is obtained (noted by “Long” at the bottom panel). The difference between two consecutive normal pulse beats is termed the “short” pulse interval. The occurrences of PAC or PVC episode at every second, third and fourth pulse beat are known as bigeminy, trigeminy and quadrigeminy, respectively. We adopt a Poincare plot, which is widely used to quantify the similarity in time series xi for i = 2, . . . , N [30] by drawing a 2-D plot (xi−1 , xi), to characterize ΔPPI dynamics and to discriminate PAC or PVC episodes from those of AF and NSR. To facilitate the discrimination among bigeminy, trigeminy and quadrigeminy patterns of the PAC and PVC, the Poincare plot was divided into six regions as shown in Fig. 6. The six regions represent permutations of all possible sequences of “long” and “short” based on three consecutive pulse intervals which are derived from four consecutive pulse beats as detailed in Table I. The region boundary was set optimally based on experiment results. The Poincare plot trajectory patterns of NSR, AF, PAC and PVC are respectively detailed in Table II. Moreover, the PAC and PVC are further classiﬁed into bigeminy, trigeminy,
+
+CHONG et al.: ARRHYTHMIA DISCRIMINATION USING A SMART PHONE
+
+819
+
+TABLE I POINCARE PLOT SECTORS CORRESPONDING TO PAC OR PVC PATTERNS
+WHICH CONSIST OF BIGEMINY, TRIGEMINY AND QUADRIGEMINY
+
+PPIi −2 - PPIi −1 - PPIi
+Short-Short-Long Short-Long-Short Long-Short-Short Short-Short-Short Long-Long-Long Long-Long-Short Short-Long-Long Long-Short-Long
+
+Region IDi
+1 2 3 0 0 4 5 6
+
+Fig. 7. TPR of independent and dependent processes. (a) Independent processrandom (TPR = 0.0), (b) dependent process-PAC-quadrigeminy (TPR = 0.125).
+
+TABLE II ARRHYTHMIA WITH ITS CORRESPONDING TRAJECTORY PATTERN
+IN POINCARE PLOT
+
+Type of Arrhythmia
+
+Trajectory Patterns in the Poincare plot’s six regions (Δ PPIi −3 − Δ PPIi −2 − · · · − Δ PPIi + 2 − . . .)
+(Δ PIi −1 , Δ PIi )
+
+Premature Atrial Contraction (PAC) Bigeminy Trigeminy Quadrigeminy Premature Ventricular Contraction (PVC) Bigeminy Trigeminy Quadrigeminy Normal Sinus Rhythm (NSR) Atrial Fibrillation (AF)
+
+0–0–0–0–0–0- . . . 2–4–2–4–2–4- . . . 1–2–3–1–2–3- . . .
+0–0–0–0–0–0- . . . 2–4–2–4–2–4- . . . 1–2–3–1–2–3- . . .
+0–0–0–0–0–0- . . . irregular patterns with trajectories at all six
+possible regions
+
+and quadrageminy patterns. Note that the trajectory pattern associated with NSR is expected to be “0–0–0–0–0–0- . . . ” while AF is irregular at all six possible regions. Moreover, the various combinations of trigeminy and quadrigeminy associated with the PAC or PVC are distinct from either the NSR or AF. Combinations of PAC and PVC patterns have more orderly patterns (since the phase trajectory patterns will largely be conﬁned to regions 0, 1, 2, 3 and 4) than the random trajectory patterns associated with AF (trajectory patterns are evident in all regions of the Poincare plot). For bigeminy rhythm, the difference between NSR and PAC or PVC bigeminy is that the bigeminy has larger PPI value than NSR. Hence, the PAC or PVC bigeminy can be appropriately discriminated by the mean and variance.
+b) TPR: To apply TPR in discriminating PACs or PVCs, we redeﬁne a TP as a point where a speciﬁc pattern starts, e.g., bigeminy, trigeminy and quadrigeminy patterns. If an unknown time series has similar number of TP (or TPR), related to a speciﬁc pattern, to that of an independent time series, the unknown series is expected to be independent. Otherwise, the time series is expected to be dependent.
+To detect a quadrigeminy, we deﬁne TPQUAD as a starting point of “Short–Short–Long–Short–Short–Long–Short–Short (SSLSSLSS)” in a PPI sequence. Considering an independent time sequence Xi Xi , the probability of a point being
+
+quadrigeminy TP is given by
+
+Pr{Xi−2 < Xi , Xi−1 < Xi , Xi > Xi+1 , Xi > Xi+2 , Xi+3
+
+> Xi+1 , Xi+3 > Xi+2 , Xi+3 > Xi+4 , Xi+3 > Xi+5 }
+
+∞
+
+=
+
+Pr{x > Xi−1 } Pr{x > Xi−2 } Pr{x > Xi+1 , x
+
+x = −∞
+
+> Xi+2 , Xi+1 < Xi+3 , Xi+2 < Xi+3 , Xi+4 < Xi+3 , Xi+5
+
+< Xi+3 }f (x)dx
+
+∞
+=
+
+1 F (x)4 − F (x)7
+
+x=−∞ 3
+
+30
+
+f (x)dx = 1 . 16
+
+Using the stochastic theory, the expectation μTP,quad and standard deviation σTP,quad of the number of quadrigeminy TPs in a segment are given by
+
+−7
+
+μTP,QUAD =
+
+, 16
+
+√ σTP,QUAD ≈ 0.0601 − 0.4255.
+
+For example, an independent pulsatile time series with l = 45 has μTP,QUAD and σTP,QUAD of 1.435 and 1.1737, respectively. A pulsatile time series segment is considered independent if the number of TPs (or TPR) falls within some threshold conﬁdence interval TpThresh (or TprThresh) of the expected TP (or TPR). Otherwise, a pulsatile time series segment is considered to be dependent. For example, the TPR method determines Fig. 7(a) and (b) to be nonquadrigeminy and quadrigeminy, respectively.
+For trigeminy, we deﬁned the TPTRI as a starting point where “Short–Long–Short–Long–Short (SLSLS)” PPI pattern begins. Hence, the probability of being TPTRI is similarly given by
+
+Pr{Xi−1 < Xi > Xi+1 < Xi+2 > Xi+3 }
+
+∞
+
+=
+
+Pr{Xi−1 < x} Pr{x > Xi+1 < Xi+2 > Xi+3 }
+
+−∞
+
+f (x)dx
+
+∞ F (x)2 F (x)4
+
+2
+
+=(
+
+−
+
+)f (x)dx = .
+
+−∞ 2
+
+6
+
+15
+
+The μTP,TRI and σTP,TRI are given by
+
+2 ( − 4)
+
+μTP,TRI =
+
+, 15
+
+√ σTP,TRI ≈ 0.0826
+
+− 0.2527.
+
+For bigeminy, TPs are deﬁned as a starting point where “Long–Long (LL)” PPI pattern starts. PAC or PVC bigeminy is
+
+820
+
+IEEE JOURNAL OF BIOMEDICAL AND HEALTH INFORMATICS, VOL. 19, NO. 3, MAY 2015
+
+Fig. 8. Heart rhythm timing diagrams of representative (a) PAC and (b) PVC subjects. PAC and PVC episodes are interspersed with NSR episodes. (a) Incomplete compensatory pause is occurred between the PAC episode and the fourth NSR espisode, and (b) complete compensatory pause is occurred between the PVC episode and the fourth NSR episode.
+appropriately discriminated by the mean and variance than TPR since the TPR of PAC or PVC is expected to be similar to that of NSR.
+4) Differentiation Between PVC and PAC Using Pulse Rise and Fall Times: The PVC and PAC have similar Poincare plot trajectories and TPR values for the same pattern type (bigeminy, trigeminy, and quadrigeminy). To discriminate between PAC and PVC, our arrhythmia discrimination algorithm utilizes the physiological difference between PAC and PVC explained in the followings.
+A PAC is an abnormal beat initiated in the atria before sinoatrial (SA) node triggers and the PAC usually interrupts the SA node and resets its timing. Hence, the PAC mostly generates a QRS complex similar to the NSR episode. Moreover, the NSR episode following a PAC usually occurs at time rescheduled by the PAC (called incomplete compensatory pause) as shown in Fig. 8(a). On the other hand, a PVC is a beat initiated in the ventricle before atrioventricular node triggers and the PVC does not usually interrupt the SA node. Hence, the NSR episode following a PVC usually occurs at previously scheduled time by SA node (called complete compensatory pause) as shown in Fig. 8(b). Moreover, the PVC usually generates a wider QRS complex compared to that of an NSR episode.
+The completeness and incompleteness are distinguished by the rise and fall times of the pulse signals. PAC episodes are usually expected to have similar rise and fall times similar to those of NSRs while PVC episodes have different fall times compared to those of NSRs. We deﬁne the difference (ΔDRISE ) between the rise times of current and previous beats, i.e., ΔDRISE,n = DRISE,n − DRISE,n−1 . Similarly, we deﬁne the difference between the fall times as ΔDFALL,n = DFALL,n − DFALL,n−1 . For the ectopic quadrigeminy beat of n, we derive the rise and fall time differences between ectopic beat and a normal beat following the ectopic beat which are ΔDRISE,n+2 and ΔDFALL,n+2 , respectively. If ΔDRISE,n+2 and ΔDFALL,n+2
+
+Fig. 9. Comparision of statistical values (RMSSD, ShE and TPR) between NSR, AF, and PAC or PVC. The central mark on each box corresponds to the median; the edges of the box correspond to the 25th and 75th percentiles, the whiskers extend to the most extreme data points not considered outliers, and outliers are plotted individually.
+are within ΔDRISE,th−quad and ΔDFALL,th−quad , the ectopic beat is determined to be a PAC. Otherwise, it is considered as a PVC. For trigeminy beat of n, we utilize the differences between peak times between a normal before an ectopic beat and another normal beat after the ectopic beat, i.e., ΔPPIn+1 = PPIn+1 − PPIn . If the difference is less than ΔPPIth−tri, the ectopic beat is determined to be a PVC. Otherwise, the beat is considered as a PAC.
+III. RESULTS
+We evaluated the performance of the arrhythmia discrimination algorithm with iPhone’s pulsatile time series data. 2 min pulsatile time series is collected from each subject. We compared our new algorithm to the previous arrhythmia discrimination algorithms, which are based on RMSSD and ShE. As performance metrics, we considered classiﬁcation accuracy, sensitivity and speciﬁcity.
+A. Detection of NSR
+Fig. 9 compares the RMSSD (left), ShE (middle) and TPR (right) values of NSR, AF, PAC, and PVC subjects. We performed paired t-test to determine if there are signiﬁcant RMSSD differences between NSR, AF, PAC, and PVC. The p-values between NSR and each arrhythmia indicate that RMSSD values are signiﬁcantly different (p < 0.05 at 95% CI) between NSR and each of other arrhythmias. However, RMSSD differences between AF and PAC or PVC are not signiﬁcant. Similarly, ShE and TPR values of NSR, AF, PAC, and PVC subjects are also found signiﬁcantly different between NSR and each of arrhythmia, respectively. Based on this observation, we applied RMSSD, ShE and TPR thresholds to classifying NSR subjects from others rhythms. The optimal RMSSD and ShE threshold values are derived as 0.09275, 0.3800 and 0.3600, respectively. As a result, the proposed method detects NSR with accuracy of 0.9626 which is higher than accuracy of 0.9577 from the conventional algorithm based on a combination of RMSSD and ShE [11].
+
+CHONG et al.: ARRHYTHMIA DISCRIMINATION USING A SMART PHONE
+
+821
+
+Fig. 10. Poincare plot with (ΔPPIi−1 , ΔPPIi ) trajectory for PAC or PVC and its pattern detections. (a) NSR, (b) AF, (c) PAC-quadrigeminy, and (d) PVC-trigeminy.
+B. PAC or PVC Discrimination Among Non-NSR Subjects: Poincare Plot Versus TPR
+1) Poincare Plot: The Poincare pattern for NSR is largely conﬁned within the region “0” as shown in Fig. 10(a) while the Poincare patterns of AF are random and their trajectories cross all six regions as shown in Fig. 10(b). For both PVC and PAC’s quadrigeminy, the Poincare plot shows repeating triangle patterns spanning the regions 1, 2 and 3, as shown in Fig. 10(c) as expected in Table II. On the other hand, the trigeminy of the PVC in Fig. 10(d) shows repeating patterns spanning the regions 2 and 4 as described in Table II.
+Fig. 11 shows Poincare plots of PAC, PVC and AF subjects before (left) and after (right) removing patterns. For the Poincare plots of PAC and PVC subjects after removing patterns, it is similar to NSR as shown in Fig. 11(b) and (d). On the other hand, the Poincare plot of AF after removing patterns remains similar [see Fig. 11(f)] to that before removing patterns [see Fig. 11(e)].
+2) TPR: The TPRTRI and TPRQUAD of NSR are below μTPRT R I ± σTPRT R I and μTPRQ U A D ± σTPRQ U A D boundaries, respectively, as shown in Fig. 12(a) and (b). For AF, the TPRTRI and TPRQUAD cross their corresponding boundaries but are within the ranges for 50% of the entire time as shown in Fig. 12(c) and (d). Interestingly, the TPRTRI of PVC-trigeminy is larger than its corresponding upper bound, μTPRT R I + σTPRT R I , for 50% of the time as shown in Fig. 12(e) while the TPRQUAD of PAC-quadrigeminy is much larger than μTPRQ U A D + σTPRQ U A D for most of the time as shown in Fig. 12(h). However, both the TPRTRI of PAC-quadrigeminy and TPRQUAD of PVC-trigeminy are mostly conﬁned to be
+
+Fig. 11. Poincare plot with (ΔPPIi−1 , ΔPPIi ) trajectory before (right) and after (left) removing patterns. (a) PAC-before, (b) PAC-after, (c) PVC-before, (d) PVC-after, (e) AF-before, and (f) AF-after.
+lower than μTPRT R I + σTPRT R I and μTPRQ U A D + σTPRQ U A D , respectively, as shown in Fig. 12(f) and (g). The Poincare plot and TPR methods discriminates PVCs or PACs from non-NSR with sensitivities of 1.0000 and 0.7273, respectively.
+C. Differentiation Between PAC and PVC Based on Complete and Incomplete Compensatory Pauses
+Representative PAC and PVC recordings are shown in Fig. 13. From these PAC and PVC recordings, rise and fall amplitudes (ARISE , AFALL ) and their durations (DRISE , DFALL ) near PAC or PVC episode are calculated. Fig. 14 compares ΔDRISE,n+2 , ΔDFALL,n+2 , and ΔPPI,n+1 of seven PACs (left) to those of four PVCs (right). Note the clear difference in the rise and fall time ratios between PAC and PVC. The paired-t test was performed to determine if there is a signiﬁcant difference in the rise and fall time ratios between PAC and PVC subjects. Based on the our observation of measurement data, we set the thresholds ΔDRISE,th−quad , ΔDFALL,th−quad , ΔPPIth−tri to be 0.0667, 0.0667 and 0.0334 s, respectively. The proposed discrimination algorithm discriminates PAC from PVC subjects with accuracy of 1.000.
+D. Multiclass Classiﬁcation Accuracy: NSR, AF, PAC, and PVC
+The test characteristics of our multiclass arrhythmia discrimination algorithm are shown in Table III. We describe the sensitivity, speciﬁcity, and accuracy values of the algorithm running
+
+822
+
+IEEE JOURNAL OF BIOMEDICAL AND HEALTH INFORMATICS, VOL. 19, NO. 3, MAY 2015
+
+Fig. 12. TPRT R I (left) and TPRQ U A D (right) of arrhythmia pulsatile time series (N = 30, 0.13, 0.04). (a) NSR (TPRT R I ), (b) NSR (TPRQ U A D ), (c) AF (TPRT R I ), (d) AF (TPRQ U A D ), (e) PVC-trigeminy (TPRT R I ), (f) PVC-trigeminy (TPRQ U A D ), (g) PAC-quadrigeminy (TPRT R I ), and (h) PACqudarigeminy (TPRQ U A D ).
+
+CHONG et al.: ARRHYTHMIA DISCRIMINATION USING A SMART PHONE
+
+823
+
+Fig. 13. Representative smartphone data for (a) PAC and (b) PVC.
+
+Fig. 14. Comparision of ΔDR ISE , ΔDFA L L and ΔPPI between PAC and PVC for (a) quadrigeminy (p < 0.05 at 95% CI) and (b) trigeminy (p < 0.05 at
+95% CI).
+
+TABLE III TEST CHARACTERISTICS OF PVC AND PAC DETECTION AND DISCRIMINATION
+USING STATISTICAL METHODS∗ ON A SAMPLE OF 99 SUBJECTS’ DATA RECORDED USING IPHONE 4S (88 SUBJECTS WITH AF (PRECARDIOVERSION) AND NSR (POSTCARDIOVERSION), SEVEN SUBJECTS WITH PAC AND FOUR
+SUBJECTS WITH PVC)
+
+Algorithm
+
+PVC
+
+PAC
+
+Sensitivity Speciﬁcity Accuracy Sensitivity Speciﬁcity Accuracy
+
+1.0000 0.9684 0.9840 1.0000 0.9783 0.9893
+
+∗Test characteristics of PVC/PAC detection statistical methods established using the threshold values of RMSDD = 0.1093, Shannon entropy = 0.4890, Poincare plot = 0.2.
+
+on an iPhone 4S in 88 participants with AF (precardioversion) and NSR (postcardioversion) who were recruited at the UMMC. For PVC and PAC identiﬁcation, our results are based on seven subjects from UMMC with PACs and four subjects with PVCs. As shown in Table IV, when we combine our AF detection algorithms (RMSSD and ShE) with the Poincare plot and pulse rise and fall times, the accuracy of detection of PVCs and PACs is 100% and discrimination of these rhythms is nearly 98%.
+IV. DISCUSSION AND CONCLUSION
+Accurate real-time arrhythmia discrimination using smartphones has been elusive to date. Given that paroxysmal and asymptomatic AF is a growing clinical and public health problem, better, cheaper, and more readily available AF detection technology is needed. In this paper, we have shown that subjects with AF, PVCs and PACs can be accurately distinguished from each other, and one another, using pulsatile signals obtained from the human ﬁngertip using the camera of an iPhone 4s. Our proposed arrhythmia discrimination algorithm for smart-
+
+phone was designed based on ﬁve parameters: 1) RMSSD, 2) ShE, 3) Poincare plot, 4) TPR, and 5) pulse amplitude, and rise and fall times. We evaluated our arrhythmia algorithm with iPhone pulsatile time series and the results demonstrated that our proposed algorithm has offered high classiﬁcation accuracy, sensitivity, and speciﬁcity. The paired t-test has shown that there is a signiﬁcant difference, in terms of RMSSD, ShE, TPR, pulse amplitude, and rise and fall time values, between NSR, AF, PAC and PVC. Moreover, our algorithm has an advantage in that it is able to discriminate with a near pinpoint accuracy when PAC and PVC episodes start and end. The potential for the method proposed in this work is directly translated into practical applications, and the integration of the designed algorithm with a smartphone may have signiﬁcant implications for real-time clinical applications especially for continuous monitoring of arrhythmia. Given the ever-growing popularity of smartphones, our approach to AF detection using a smart phone will give the population as well as health care providers the opportunity to monitor for AF under a wide variety of conditions outside of the physician’s ofﬁce. Because our approach does not involve a separate ECG sensor but instead uses only standard smart phone hardware, it is cost-effective, thereby leading to better acceptance and use by patients. We are not aware of any other algorithms that have the accuracy of our arrhythmia algorithm for smartphone applications, that are already developed using a moderately sized clinical study, and that have the capability to discriminate PVCs and PACs from AF. Since this is an algorithm development study, and the fact that there were a limited number of subjects with PACs and PVCs for validation, we will need to further test the algorithm in a separate cohort of patients with PVCs and PACs.
+REFERENCES
+[1] I. Savelieva and A. J. Camm, “Clinical relevance of silent atrial ﬁbrillation: Prevalence, prognosis, quality of life, and management,” J. Interventional Cardiac Electrophysiol., vol. 4, pp. 369–382, 2000.
+[2] Y. Miyasaka, M. E. Barnes, B. J. Gersh, S. S. Cha, K. R. Bailey, W. P. Abhayaratna, J. B. Seward, and T. S. M. Tsang, “Secular trends in incidence of atrial ﬁbrillation in Olmsted County, Minnesota, 1980 to 2000, and implications on the projections for future prevalence,” Circulation, vol. 114, pp. 119–125, Jul. 2006.
+[3] S. Colilla, A. Crow, W. Petkun, D. E. Singer, T. Simon, and X. Liu, “Estimates of current and future incidence and prevalence of atrial ﬁbrillation in the U.S. adult population,” Amer. J. Cardiology, vol. 112, pp. 1142–1147, 2013.
+[4] P. Sanders, O. Berenfeld, M. Hocini, P. Ja¨ıs, R. Vaidyanathan, L.-F. Hsu, S. Garrigue, Y. Takahashi, M. Rotter, F. Sacher, C. Scave´e, R. PloutzSnyder, J. Jalife, and M. Ha¨ıssaguerre, “Spectral analysis identiﬁes sites of high-frequency activity maintaining atrial ﬁbrillation in humans,” Circulation, vol. 112, pp. 789–797, Aug. 2005.
+[5] K. H. Humphries, C. R. Kerr, S. J. Connolly, G. Klein, J. A. Boone, M. Green, R. Sheldon, M. Talajic, P. Dorian, and D. Newman, “Newonset atrial ﬁbrillation: Sex differences in presentation, treatment, and outcome,” Circulation, vol. 103, pp. 2365–2370, May 2001.
+[6] P. Defaye, F. Dournaux, and E. Mouton, “Prevalence of supraventricular arrhythmias from the automated analysis of data stored in the DDD pacemakers of 617 patients: The AIDA study,” Pacing Clin. Electrophysiol., vol. 21, pp. 250–255, 1998.
+[7] K. Tateno and L. Glass, “Automatic detection of atrial ﬁbrillation using the coefﬁcient of variation and density histograms of RR and ΔRR intervals,” Med. Biol. Eng. Comput., vol. 39, pp. 664–671, 2001.
+[8] L. Jinseok, B. A. Reyes, D. D. McManus, O. Mathias, and K. H. Chon, “Atrial ﬁbrillation detection using an iPhone 4S,” IEEE Trans. Biomed. Eng., vol. 60, no. 1, pp. 203–206, Jan. 2013.
+
+824
+
+IEEE JOURNAL OF BIOMEDICAL AND HEALTH INFORMATICS, VOL. 19, NO. 3, MAY 2015
+
+[9] E. J. Benjamin, P.-S. Chen, D. E. Bild, A. M. Mascette, C. M. Albert, A. Alonso, H. Calkins, S. J. Connolly, A. B. Curtis, D. Darbar, P. T. Ellinor, A. S. Go, N. F. Goldschlager, S. R. Heckbert, J. Jalife, C. R. Kerr, D. Levy, D. M. Lloyd-Jones, B. M. Massie, S. Nattel, J. E. Olgin, D. L. Packer, S. S. Po, T. S.M. Tsang, D. R. V. Wagoner, A. L. Waldo, and D. G. Wyse, “Prevention of atrial ﬁbrillation: Report from a national heart, lung, and blood institute workshop,” Circulation, vol. 119, pp. 606–618, Feb. 2009.
+[10] A. S. Mosa, I. Yoo, and L. Sheets, “A systematic review of healthcare applications for smartphones,” BMC Med. Informat. Decision Making, vol. 12, pp. 67–97, 2012.
+[11] D. D. McManus, J. Lee, O. Maitas, N. Esa, R. Pidikiti, A. Carlucci, J. Harrington, E. Mick, and K. H. Chon, “A novel application for the detection of an irregular pulse using an iPhone 4S in patients with atrial ﬁbrillation,” Heart Rhythm, vol. 10, pp. 315–319, Mar. 2013.
+[12] C. G. Scully, J. Lee, J. Meyer, A. M. Gorbach, D. Granquist-Fraser, Y. Mendelson, and K. H. Chon, “Physiological parameter monitoring from optical recordings with a mobile phone,” IEEE Trans. Biomed. Eng., vol. 59, no. 2, pp. 303–306, Feb. 2012.
+[13] M. Brodsky, D. Wu, P. Denes, C. Kanakis, and K. M. Rosen, “Arrhythmias documented by 24 h continuous electrocardiographic monitoring in 50 male medical students without apparent heart disease,” Amer. J. Cardiology, vol. 39, pp. 390–395, 1977.
+[14] B. Belhassen, “Radiofrequency ablation of “benign” right ventricular outﬂow tract extrasystoles: A therapy that has found its disease?,” J. Amer. College Cardiology, vol. 45, pp. 1266–1268, 2005.
+[15] K. Kimura, K. Tabei, Y. Asano, and S. Hosoda, “Cardiac arrhythmias in hemodialysis patients,” Nephron, vol. 53, pp. 201–207, 1989.
+[16] V. Krasteva and I. Jekova, “QRS template matching for recognition of ventricular ectopic beats,” Ann. Biomed. Eng., vol. 35, pp. 2065–2076, 2007.
+[17] T. Tran, J. McNames, M. Aboy, and B. Goldstein, “Prediction of paroxysmal atrial ﬁbrillation by analysis of atrial premature complexes,” IEEE Trans. Biomed. Eng., vol. 51, no. 4, pp. 561–569, Apr. 2004.
+[18] J. Lee, Y. Nam, and K. Chon, “Time-varying coherence function for atrial ﬁbrillation detection,” IEEE Trans. Biomed. Eng., vol. 60, no. 10, pp. 2783–2793, Oct. 2013.
+[19] J. A. Palazzolo, F. G. Estafanous, and P. A. Murray, “Entropy measures of heart rate variation in conscious dogs,” Amer. J. Physiol., vol. 274, pp. H1099–H1105, Apr. 1998.
+[20] J. Lee, D. D. McManus, S. Merchant, and K. H. Chon, “Automatic motion and noise artifact detection in Holter ECG data using empirical mode decomposition and statistical approaches,” IEEE Trans. Biomed. Eng., vol. 59, no. 6, pp. 1499–1506, Jun. 2012.
+
+[21] M. Zabel, B. S. Koller, F. Sachs, and M. R. Franz, “Stretch-induced voltage changes in the isolated beating heart: Importance of the timing of stretch and implications for stretch-activated ion channels,” Cardiovascular Res., vol. 32, pp. 120–130, Jul. 1996.
+[22] M. R. Franz, R. Cima, D. Wang, D. Proﬁtt, and R. Kurz, “Electrophysiological effects of myocardial stretch and mechanical determinants of stretchactivated arrhythmias,” Circulation, vol. 86, pp. 968–78, Sep. 1992.
+[23] L. Mourot, M. Bouhaddi, S. Perrey, J.-D. Rouillon, and J. Regnard, “Quantitative poincare´ plot analysis of heart rate variability: Effect of endurance training,” Eur. J. Appl. Physiol., vol. 91, pp. 79–87, 2004.
+[24] M. Brennan, M. Palaniswami, and P. Kamen, “Do existing measures of Poincare plot geometry reﬂect nonlinear features of heart rate variability?,” IEEE Trans. Biomed. Eng., vol. 48, no. 11, pp. 1342–1347, Nov. 2001.
+[25] S. Guzzetti, E. Borroni, P. E. Garbelli, E. Ceriani, P. D. Bella, N. Montano, C. Cogliati, V. K. Somers, A. Mallani, and A. Porta, “Symbolic dynamics of heart rate variability: A probe to investigate cardiac autonomic modulation,” Circulation, vol. 112, pp. 465–470, Jul. 2005.
+[26] A. Voss, K. Hnatkova, N. Wessel, J. Kurths, A. Sander, A. Schirdewan, A. J. Camm, and M. Malik, “Multiparametric analysis of heart rate variability used for risk stratiﬁcation among survivors of acute myocardial infarction,” Pacing Clin. Electrophysiol., vol. 21, pp. 186–196, 1998.
+[27] C. M. DeGiorgio, P. Miller, S. Meymandi, A. Chin, J. Epps, S. Gordon, J. Gornbein, and R. M. Harper, “RMSSD, a measure of vagus-mediated heart rate variability, is associated with risk factors for SUDEP: The SUDEP-7 inventory,” Epilepsy Behavior, vol. 19, pp. 78–81, 2010.
+[28] S. Dash, E. Raeder, S. Merchant, and K. Chon, “A statistical approach for accurate detection of atrial ﬁbrillation and ﬂutter,” in Proc. Comput. Cardiology, 2009, pp. 137–140.
+[29] C. Scully, L. Jinseok, J. Meyer, A. M. Gorbach, D. Granquist-Fraser, Y. Mendelson, and K. H. Chon, “Physiological parameter monitoring from optical recordings with a mobile phone,” IEEE Trans. Biomed. Eng., vol. 59, no. 2, pp. 303–306, Feb. 2012.
+[30] S. Sarkar, D. Ritscher, and R. Mehra, “A detector for a chronic implantable atrial tachyarrhythmia monitor,” IEEE Trans. Biomed. Eng., vol. 55, no. 3, pp. 1219–1224, Mar. 2008.
+Authors’ photographs and biographies not available at the time of publication.
+
