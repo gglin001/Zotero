@@ -12,7 +12,7 @@
 	"configOptions": {
 		"dataMode": "xml/dom"
 	},
-	"lastUpdated": "2019-04-07 02:15:00"
+	"lastUpdated": "2019-04-28 02:35:00"
 }
 
 /*
@@ -200,7 +200,7 @@ function doImport() {
 		metadataXML = ZU.xpath(itemXML, 'journal_metadata');
 
 		item.publicationTitle = ZU.xpathText(metadataXML, 'full_title[1]');
-		item.journalAbbreviation = ZU.xpathText(refXML, 'abbrev_title[1]');
+		item.journalAbbreviation = ZU.xpathText(metadataXML, 'abbrev_title[1]');
 		item.volume = ZU.xpathText(itemXML, 'journal_issue/journal_volume/volume');
 		item.issue = ZU.xpathText(itemXML, 'journal_issue/journal_volume/issue');
 		// Sometimes the <issue> tag is not nested inside the volume tag; see 10.1007/BF00938486
