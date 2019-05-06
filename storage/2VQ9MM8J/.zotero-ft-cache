@@ -1,0 +1,316 @@
+Real-Time Approach to HRV Analysis
+Guilherme Ramos1,2, Miquel Alfaras1 and Hugo Gamboa2,3
+1Plux Wireless Biosignals S.A, Avenida 5 Outubro 70, 1050-59, Lisboa, Portugal 2Department of Physics, Faculdade de Cieˆncias e Tecnologia da Universidade Nova de Lisboa, Monte da Caparica,
+2892-516, Caparica, Portugal 3Laborato´rio de Instrumentac¸a˜o, Engenharia Biome´dica e F´ısica da Radiac¸a˜o (LIBPhys-UNL), Faculdade de Cieˆncias e
+Tecnologia da Universidade Nova de Lisboa, Monte da Caparica, 2892-516, Caparica, Portugal
+
+Keywords: Abstract:
+
+HRV Analysis, Real-Time Processing, Sliding Window, Biomedical Signal Processing.
+In this paper, we present the assessment of heart rate variability (HRV) applied to real-time processing of electrocardiographic (ECG) signals. A general approach for R-peak detection is described based on the computational implementation of Pan and Tompkins algorithm, used in the ofﬂine version. Besides feature extraction (from temporal and frequency domain), the paper presents the development steps taken towards online real-time biosignal processing. The functional basis of the online approach consists in the implementation of a simple adaptive double-threshold algorithm for peak detection and a sliding window mechanism along acquisition that provides a dynamically generated tachogram for the features to be successively extracted, highlighting the new application opportunities for continuous observation of HRV parameters.
+
+1 INTRODUCTION AND MOTIVATION
+Technology has become, specially in recent years, an essential part of life in western societies. With the aim of answering individual and collective needs, digital technologies play nowadays an indisputable role.
+Traditionally, humankind has tried to understand human physiology in order to work towards the appropriate corrections when medical conditions arise. Experts are trained for years to access pathologies and prescribe treatment when needed.
+In recent times, though, the way society approaches medical conditions has completely changed. While corrective medical attention has always been at the base of the medical practice, preventive healthcare and technology applications boast nowadays a huge interest worldwide.
+The fast developments in biosensing and the unstoppable increase of data availability have fostered research in biomedical engineering, which is currently counting on a wide range of tools that enable the acquisition and processing of information from the human body.
+In this position paper, we describe a module for a signal processing platform, OpenSignals. In line with our data-driven society needs and the ease to access
+
+processing capabilities through mobile phone devices, we present OpenSignals extension towards a real-time Heart Rate Variability (HRV) processing approach.
+OpenSignals software platform allows the study and development of data post-processing tools. This platform is integrated with signal acquisition systems from Plux, such as Biosignalsplux (Plux, 2012; Chora˜o et al., 2012) and BITalino (Plux, 2013; Alves et al., 2013), which enable various sensor combinations and easy acquisition of biosignals, like Electrocardiogram (ECG) and Electromyogram (EMG).
+The assessment of HRV through ECG signals is at the core of Plux goals, both for the potential impact and for cost reduction in early diagnose of heart conditions. Having a reliable and working HRV platform has allowed the exploration of changes that enable real-time HRV assessment.
+While ofﬂine analyses have proved to be an efﬁcient tool to assess HRV-related conditions, we believe that our approach could constitute one of the ﬁrst steps towards a better exploitation of the computational resources and device capabilities present nowadays in our society.
+Moreover, the real-time monitoring of HRV may play a crucial role in disciplines such as highperformance sports that could beneﬁt from real-time detection of threatening heart conditions.
+
+208
+Ramos, G., Alfaras, M. and Gamboa, H. Real-Time Approach to HRV Analysis. DOI: 10.5220/0006641402080215 In Proceedings of the 11th International Joint Conference on Biomedical Engineering Systems and Technologies (BIOSTEC 2018) - Volume 4: BIOSIGNALS, pages 208-215 ISBN: 978-989-758-279-0 Copyright © 2018 by SCITEPRESS – Science and Technology Publications, Lda. All rights reserved
+
+Real-Time Approach to HRV Analysis
+
+2 MATERIALS AND METHODS
+In this section the ECG data signals, features extracted and processing steps are described.
+Biosignalsplux platform is used as the device for easy ECG acquisitions. This device allows a high sampling rate in signal acquisition, which is ﬁxed to Fs = 1000 Hz in the case of our study.
+The user can specify the processing ﬁlters applied to the ECG signals. The predeﬁned ﬁlter is basically a band-pass ﬁlter (Flow = 0.5 Hz, Fhigh = 40.0 Hz). This procedure allows for the removal of the baseline and the avoidance of high frequency noise and artefacts.
+Electrocardiographic and electromyographic signals share frequency bands. EMG signals can vary from F = 5 Hz to F = 400 Hz. The applied ﬁlters help in reducing the cross-talk caused by undesired muscular activity that could appear during ECG acquisition.
+The voltage signals are segmented and annotated to the P, Q, R, S, T points widely used in electrocardiography (see ﬁg.1). These points correspond to different stages of atrial/ventricular depolarisation/repolarisation and are used to identify waves and intervals that are relevant for ECG analysis.
+Figure 1: ECG PQRST points. HRV assessment has traditionally relied on the analysis of the tachogram, giving potential information captured by the time series. The tachogram is the temporal series of RR heartbeat intervals, which contains the most relevant structural information of the HRV. The ﬁrst step for HRV assessment consists in Rpeak detection. When using the ofﬂine analysis, our
+
+algorithm is based on the widely used QRS complex detection algorithm (Pan and Tompkins, 1985).
+Once the R peaks are located, the tachogram is built in order to proceed to feature extraction. An ectopic heartbeat removal criterion can also be speciﬁed. By using two limit values, e.g. Rmin = 0.4 s and Rmax = 2.0 s, heartbeats from abnormal origin can be easily discarded.
+Our implementation contains the following features: Statistical Analysis minRR (s). Minimum RR interval duration. maxRR (s). Maximum RR interval duration. avgRR (s). Average RR interval duration. SDNN (s). Standard Deviation of RR intervals. Null variance would indicate identical consecutive RR intervals (Acharya et al., 2006). rmsSD (s). Root mean square of the successive tachDiff differences, an approximation to the dispersion on the tachogram’s derivative.
+
+rmsSD =
+
+∑Ki=0 tachDi f f 2[i] K
+
+(1)
+
+K represents the number of points in the differential tachogram. NN20 (# intervals). Number of RR intervals between non-ectopic beats where the difference of duration with respect to the previous RR interval is greater than 20 ms. pNN20 (dimensionless). Ratio between NN20 and the total number of RR intervals on the processing window. This represents the fraction of RR intervals that veriﬁes the condition of difference of duration greater than 20 ms with respect to the adjacent RR interval. NN50 (# intervals) and pNN50 (dimensionless). Number of RR intervals and ratio between nonectopic beats where the difference of duration with respect to the previous RR interval is greater than 50 ms. avg IHR (bpm). Average of the instantaneous heart rate (IHR). Instantaneous heart rates are computed via the inverse of every single Tachogram interval, which indicates the number of beats per minute (bpm). STD IHR (bpm). Standard Deviation of the instantaneous heart rate. Poincare´ Analysis SD1 (s) e SD2 (s) ellipse sub-axes estimators: Nonlinear features derived from the Poincare´ plot. In the Poincare´ plot, each point is formed by the coordinates (RRi and RRi+1). In other words, the nonlinear trajectory is represented by consecutive RR intervals (two consecutive RR values constitute a point in the plot, ﬁg.2).
+
+209
+
+BIOSIGNALS 2018 - 11th International Conference on Bio-inspired Systems and Signal Processing
+
+SD1 and SD2 are estimators for the axes’ size of the ellipse that covers all Poincare´ samples, directly linked to long-term HRV (SD2) and short-term HRV (SD1).
+A greater value of these indices indicates a wider heart rate variability. These are measures of the standard deviation with respect to reference lines RRi+1 = RRi and RRi+1 = −RRi + 2avgRR (Golin´ska, 2013):
+
+SD1 =
+
+SDSD2 2
+
+(2)
+
+SD2 = 2 × SDNN2 − SD12
+
+(3)
+
+where SDSD is the standard deviation of tachDiff (equivalent to rmsSD) and SDNN is the standard deviation of the tachogram, as deﬁned previously.
+
+Figure 2: HRV Poincare´ plot.
+Frequency Analysis To take HRV signals to the frequency domain some care is needed, because we deal with time series with irregular sampling period (i.e. the time between two heart rate samples is dependent of the RR interval duration). Under these conditions it is strongly recommended to use the Lomb-Scargle Method, which generates a “Fourier-like power spectrum estimator” (VanderPlas, 2017), based on Least Squares Method where for each elementary frequency component (independent variable of Periodogram) the sinusoid that best ﬁts the data is determined, based on chi-squared testing (Chou et al., 2011). To achieve an efﬁcient analysis with Lomb-Scargle Methodology, Python astropy’s library is used. The frequency scales are automatically deﬁned by the autopower property, based on a heuristic approach. Power of Components in HRV Informative Bands. They provide access to information related to the effect of sympathetic and parasympathetic components in the heart rate variability control, which are difﬁcult
+
+to analyse in the temporal domain. The elementary components inside the Low-Frequency (LF - 0.04 to 0.15 Hz) and High-Frequency (HF - 0.15 to 0.40 Hz) bands refer to autonomic segments of heart rate variability. In bands containing Ultra-Low-Frequencies (ULF - 0 to 0.003 Hz) and Very-Low-Frequencies (VLF - 0.003 to 0.04 Hz) data is in most cases inconclusive and is frequently associated with harmonic and incoherent signal components.
+The information of HF Band Power is correlated with SDNN, rmsSD and SDSD features. It is expected that when the heart rate variability increases the power value of this component is also increased (Task Force of The European Society of Cardiology and The North American Society of Pacing and Electrophysiology, 1996).
+The information that SDNN feature provides is equivalent to the Total Power of the Frequency Spectrum and rmsSD is linked with the power of HF band of tachogram spectrum.
+This correspondence has the advantage of presenting a reduced computational cost with respect to frequency domain analysis methods.
+One disadvantage, though, is related to the fact that SDNN values depend on the window size. Therefore, the comparison between trials is only possible when similar acquisition conditions are guaranteed.
+2.1 OpenSignals Platform Plugins
+OpenSignals is a software compatible with multiple platforms and operating systems. It provides a solution to the fast-growing research community using Plux devices. Its design targets the representation of the biosignals captured and transmitted through Bluetooth in real-time allowing the subsequent storage on the computer. Devices are easily paired to the software via the MAC address.
+OpenSignals can be described as a framework that uses the web-based architecture (Pimentel et al., 2015), based on three programming languages (HTML, JavaScript and Python). With this triad it is possible to “combine high-performance data management and computational capacity with an intuitive and user-friendly interface” (Plux, 2016).
+The modular structure of OpenSignals allows the simple implementation of new functionalities through plugins or add-ons. The developer needs to generate the interface structure in HTML, set the events triggered by the interaction between the user and interface objects with JavaScript programming, and ﬁnally construct the Python processing algorithm.
+The development logic is applied in the extension of the HRV plugin towards real-time implementation.
+
+210
+
+Real-Time Approach to HRV Analysis
+
+3 ONLINE HRV MONITORING IMPLEMENTATION
+
+The implementation of Online HRV plugin comes from the native ofﬂine processing steps described below.
+
+3.1 Ofﬂine Processing Steps
+
+The majority of the HRV features can be directly im-
+
+plemented into the online version. However, some
+
+key features of the ofﬂine processing algorithm were
+
+not implemented in the ﬁrst version of the Online
+
+HRV plugin, namely the Pan-Tompkins R-Peak De-
+
+tection Method. This algorithm proves to be robust
+
+and efﬁcient, with correct detection rates higher than
+
+90% (Pan and Tompkins, 1985). For simplicity, an
+
+R-peak detection algorithm has been developed using
+
+a two-threshold system that yields an acceptable level
+
+of detection with simplicity of implementation.
+
+A description of the Ofﬂine HRV plugin process-
+
+ing steps, upon which future developments are based,
+
+is provided below:
+
+In a ﬁrst phase, the system reads the ﬁle contain-
+
+ing the acquisition. The loaded array enters the Pan-
+
+Tompkins R-peak detection function.
+
+Once the peaks are detected, the ECG signal pro-
+
+ceeds to the steps of ﬁltering, differentiation, integra-
+
+tion and erroneous R-peak exclusion.
+
+In the ﬁltering step the signal is applied to the
+
+input of a second order Butterworth band-pass ﬁlter
+
+(bandwidth FBW = [5, 15] Hz). The differentiation of
+
+the ﬁltered signal is a simple sequential subtraction of
+
+consecutive inputs. Differentiated values are squared
+
+to avoid negative elements in the series (rectiﬁed dif-
+
+ferences).
+
+At this point, the integration of the signal takes
+
+place using a sliding window of dimension N =
+
+0.080 × sampleFrequency (s) and adding up the val-
+
+ues. This value is chosen in order to approximate the
+
+integration window size to the maximum duration (in
+
+physiological terms) that QRS complex can present,
+
+e.g. t ∼ 0.080s, half of the suggested value in the Pan
+
+and Tompkins work.
+
+As an alternative to an iterative sliding window ap-
+
+proach, a cumulative signal is determined by simple
+
+iterations:
+i
+
+∑ scum[i] = srect [ j]
+
+(4)
+
+j=0
+
+Subsequently, an array with the dimension of the rectiﬁed signal (M) is ﬁlled with the integrated values.
+
+For i > N:
+
+sint [i] = scum[i] − scum[i − N]
+
+i
+
+i−N
+
+∑ ∑ ⇔ sint [i] = srect [ j] − srect [ j]
+
+(5)
+
+j=0
+
+j=0
+
+At the end of the previous steps, the initialisation of the R-peak detection threshold occurs, according to the characteristics of the integrated signal, selecting a segment of 1 second of sint (typically this duration is sufﬁcient to guarantee that the segment contains a R peak).
+The threshold is initialised using the maximum value of the integrated signal (sipnetak) in this segment and a noise peak (npeak) is set to a null value, using the reference formula:
+
+threshold = npeak + 0.25(sipnetak − npeak) (6)
+
+Once the initialisation phase of the thresholds is completed, the integrated signal scan is triggered with the detection of all possible peaks (array PossiblePeaks). A peak (maximum) is placed at any point sint [i] where sint [i − 1] < sint [i] and sint [i] > sint [i + 1]. In this scan, a maximum is considered a candidate to be a R peak if its amplitude is higher than the active candidate peak (ActCandPeak).
+ActCandPeak is updated whenever a maximum with higher amplitude is detected. When a value found in PossiblePeaks is separated from ActCandPeak by at least 200 ms, the present peak will be stored in the array containing the probable R peaks (ProbPeaks), becoming the new ActCandPeak.
+The procedure takes place until the end of the list of PossiblePeaks is reached. Finally, peaks stored in ProbPeaks are compared against the threshold in order to be included into the deﬁnitive list of R peaks (RpeaksList).
+For each peak in ProbPeaks where this criterion is true the noise peak npeak update is triggered, changing the threshold value accordingly (adaptive logic of algorithm).
+The noise peak is determined with the expression npeak = 0.125Voltagepeak + 0.875npeak, using the digital value/voltage associated with the probable peak analysed and the old value of npeak.
+Having the deﬁnitive list of R peaks, the algorithm can proceed to the generation of the tachogram (RR intervals).
+However, prior to this step, the tachogram must pass through ectopic beat removal process. This removal is performed based on the user’s speciﬁcations. If the tachogram contains RR intervals lasting less/more time than the user-deﬁned lower/greater threshold, they are excluded.
+
+211
+
+BIOSIGNALS 2018 - 11th International Conference on Bio-inspired Systems and Signal Processing
+
+In addition to this, the user can also include an additional level of ﬁltering using an average sliding window, that is, each sample of the tachogram is scanned and the mean value of the tachogram samples contained in the user-deﬁned window is determined. If the sample of present iteration has a duration exceeding the deﬁned interval [avgValue + x% × avgValue; avgValue − x% × avgValue] it is excluded from tachogram.
+Finally, with the tachogram ready to be explored, the HRV extraction begins.
+
+3.2 Online Processing
+
+In this subsection, we present several algorithm modiﬁcations towards the real-time HRV assessment. One of our main concerns when thinking of HRV monitoring in real-time is the change of the physical activity regime of the subject of study (e.g. walking, supine resting, standing, etc.).
+Along these lines, one of the key modiﬁcations consists in an adaptive threshold for R-peak detection.
+As opposed to the ofﬂine study, a threshold is used and computed iteratively as the data is collected. In order to set the initial values, the ﬁrst few seconds of the signal are taken and only used to compute the ﬁrst thresholds to apply in R-peak detection before being discarded.
+Consequently, a lag on the adaptation of the aforementioned threshold is always present. By taking ﬁve-seconds segments of the signal, the thresholds for heartbeat (R-peak) detection are adapted from iteration to iteration. At the acquisition of every segment, ECG signal maximum and minimum values (Vmax,Vmin) are computed to update the thresholds.
+The triangular index, a geometric feature of the tachogram, has also been included. This is described here: Geometrical Analysis Triangular Index. A geometrical feature (not subject to outliers) taken from the RR intervals histogram analysis. It is deﬁned as the ratio between the total number of samples (RR intervals) in the histogram and the number of RR intervals on dominant bin. The size of each temporal bin needs to be ts = 1/128s (Vanderlei et al., 2010).
+
+tIndex
+
+=
+
+#TotalRRIntervals #RRIntervalinModalBin
+
+(7)
+
+A greater triangular index indicates that a greater
+
+proportion of RR intervals is concentrated inside a
+
+single bin. Consequently, the heart rate variability is
+
+low. Following reference guidelines, we know that
+
+in order to obtain reliable results the time window
+
+lengths of the ECG should be at least equal to 20 minutes (Task Force of The European Society of Cardiology and The North American Society of Pacing and Electrophysiology, 1996).
+3.3 Online HRV Plugin Presentation Methods
+Implementing existing HRV Ofﬂine plugin algorithms into the Online variant is not a straightforward procedure, since the user’s access to understandable and reliable information in real-time must be taken into consideration.
+In the ofﬂine version, regardless of acquisition duration, the user only has access to one value for each HRV index. This approach is not adequate in realtime analysis, since a value, even if updated periodically, is difﬁcult to interpret when separately viewed.
+Thus, the chosen methodology aims to provide the user with the possibility of monitoring the evolution of the different HRV indices throughout the acquisition, highlighting the trends and variations.
+This dynamic approach is possible using a sliding window mechanism, as presented in ﬁg. 5. For each window, a value is extracted for the multiple features in the segment of the ECG signal contained within its boundaries.
+The windows should overlap, which becomes more practical for the user since the existence of common information between windows makes the index variation more gradual and, at the same time, allows the sampling rate of new values for the indices to be higher as compared to a non-overlapping sliding window.
+The above speciﬁcations are important in a system/interface interactivity perspective. We emphasise the online algorithm characteristics to guarantee the rigour and the statistical or physical meaning of the extracted indices.
+To ensure that the measurements are reliable, the sliding window size is the key factor. In the bibliographical research, it is noticed that feature extraction in the temporal domain uses windows that should contain a segment with at least 30 seconds of the ECG signal (Acharya et al., 2006), although longer duration windows provide increased statistical relevance, since more RR intervals are used.
+However, it is necessary to understand that extremely large windows translate into a lower temporal resolution. Hence, a compromise must be reached between the statistical perspective and temporal uncertainty.
+As for the features extracted from the frequency domain, the time window should have a minimum du-
+
+212
+
+Real-Time Approach to HRV Analysis
+
+ration of 2 minutes, enabling the computation of the power values of the VLF, LF and HF bands. Shorter windows translate into insufﬁcient frequency resolutions to distinguish the elementary components of the spectrum in the different bands.
+With a window of 2 minutes, however, information about the ULF band is lost, which denotes some importance in clinical terms. The user should increase the duration of the window if the extraction of information from this band is desired.
+A simple presentation of the real-time HRV assessment plugin interface is provided in this section (HTML and JavaScript functionalities), from the user’s point of view. The graphical interface is introduced in order to facilitate the access to the different functionalities of the platform.
+In the case of HRV monitoring, parameter conﬁguration for the algorithm is enabled through OpenSignals. One of the key parameters is the ﬁlter choice and conﬁguration (high-pass, band-pass, cutoff frequencies, etc.) (see ﬁg. 3).
+Furthermore, time domain characteristics such as sliding window length and window overlapping can also be set.
+
+window duration is always set to values greater than t = 30s.
+Figure 4: OpenSignals HRV warm-up.
+
+Figure 3: OpenSignals HRV conﬁguration.
+In order to start the processing of the signal, several samples are required. Hence, some warm-up time is necessary before presenting the ﬁrst visualisation plots (ﬁg. 4).
+Right after the obtention of the ﬁrst plots, the user can choose which are the features of interest for the HRV study. The real-time HRV analysis plugin is based on a sliding window approach. Every consecutive window is responsible for the computation of single values that make up the temporal series of features.
+The sliding window concept is illustrated in ﬁg. 5 example. Window duration values in the example are merely illustrative. When processing HRV data, the
+
+Figure 5: OpenSignals HRV sliding window. The signal acquisition and analysis can be interrupted or reset at any time, changing the conﬁguration when needed. The software allows the generation of report ﬁles that summarise the signal features of interest.
+4 DISCUSSION
+The online access to features allows to set further detection mechanisms and thresholding to detect predeﬁned conditions directly during acquisition. Tracking of the features and their evolution is possible, as plots are built and shown dynamically through the interface.
+
+213
+
+BIOSIGNALS 2018 - 11th International Conference on Bio-inspired Systems and Signal Processing
+
+Regarding features obtained in real-time, some remarks are needed. On the one hand, there is an important limitation on the window sizes. Frequency related features pose the question of the need for a minimal warm-up phase (so that spectral representation is relevant). Features such as nonlinear Poincare´ measures can be remarkably affected when values below 5 minutes are used as window lengths. Further research is needed to support the idea that low values do not compromise nonlinear features. There is no reason to think that feasibility of the online procedure is further compromised once these requirements are met.
+On the other hand, our preliminary tests on acquired data show relevant differences between the tachograms generated by the two methods (online/ofﬂine). This is solely a consequence of working with a simpler peak detection algorithm. Our priority for further development is, hence, the implementation of the robust R-peak detection algorithm (J. Pan and W. Tompkins) providing not only a more precise detection but also fewer false R peaks.
+In order to guarantee that the online approach provides meaningful information, a validation step against ofﬂine treatment is needed. Once peak detection is updated, the procedure consists in the application of both processing methods (online and ofﬂine) to the same collected data samples. Each of the two methods provides a set of peaks and features that are to be compared. Taking ofﬂine peak detection as a reference, comparison of the two algorithms is achieved by computing the amount of wrongly placed peaks. Once tachograms are generated, an aligning process takes place by the use of standard crosscorrelation procedures. Tools such as Bland-Altman plots, which are frequently used in new ECG acquisition approaches against well-established reference procedures, provide statistical insight to analyse our implementation.
+Into this regard, frequencies (Fs ≥ 1000 Hz) guarantee the best peak detection. The need for validation with sufﬁciently large ECG databases has already been identiﬁed. Widely used Physionet databases with healthy ECG recordings such as the MIT-BIH Normal Sinus Rhythm (Goldberger et al., 2000) are possible candidates for this task. In accordance with frequency requirements, interpolation preprocessing of signals may be necessary.
+In the ﬁrst line of implementation, measures of cardiac variability studied were essentially linear, with the exception of Poincare´ Analysis. This is done considering that some non-linear parameters could be incompatible with a real-time analysis methodology due to their greater computational complexity.
+
+Further developments could include the exploration of more complex and robust parameters, namely the determination of the approximate entropy of the HRV signal, provided it can be realised in an online system. This would allow to identify objectively which is the degree of complexity of the tachogram through a quantitative result (higher values denote a greater complexity and irregularity of the time series, that is, a greater cardiac variability). The interest of this measure lies on the capability to overcome the limitations of the linear measurements. Considering that the heart rate modulation is the result of the interaction of several physiological systems and mechanisms, there is an intrinsic underlying non-linear behaviour, only accessible by these means (Singh and Kaur, 2016).
+5 CONCLUSION
+HRV continues to trigger the interest of the scientiﬁc community nowadays. This is particularly relevant in the context of sports research, considering the central role of the cardiovascular system in athlete performance and establishing cardiac variability as an indicator of the adaptive capabilities of the organism.
+Recent studies, such as (Paliwal et al., 2016; Schmitt et al., 2015; Schmitt et al., 2016), illustrate the potential of HRV assessment. Real-time analysis research, e.g. (Lv et al., 2015) and (Tsunoda et al., 2016), present sliding window based approaches more in line with our contribution. The works of Lv and Tsunoda are two examples of the informative potential of the HRV, leading to the identiﬁcation of cardiac pathologies and the measurement of the cognitive efﬁciency.
+The processing functionalities described in our work provide a quick and adjustable real-time analysis of HRV. This allows the information contained in the acquired signals to become meaningful. Our test implementation shows that feedback during the acquisition can be achieved with real-time processing, offering additional information that complements HRV monitoring towards a prognosis focused view.
+The HRV online plugin is an initial approach on translating information processed by an ofﬂine plugin into real-time logic. Despite the limitations arisen throughout our study and the further developments needed, the structure of the presented approach is already well established, namely the system of userdeﬁned sliding windows.
+Due to the fact that this is an ongoing research, many future modiﬁcations are envisioned, as discussed in the previous section. A following direc-
+
+214
+
+Real-Time Approach to HRV Analysis
+
+tion could be the application of the same development guidelines to other types of signals, such as the implementation of the EMG plugin for real-time processing. As discussed before, this opens a wide range of application development in areas like highperformance sports and the detection of threatening heart conditions.
+ACKNOWLEDGEMENTS
+The authors acknowledge the support received from ITN AffecTech under the Marie Skłodowska Curie Actions (ERC H2020 Project ID: 722022).
+REFERENCES
+Acharya, U. R., Joseph, K. P., Kannathal, N., Lim, C. M., and Suri, J. S. (2006). Heart rate variability: a review. Medical & Biological Engineering & Computing, 44(12):1031–1051.
+Alves, A. P., Silva, H., Lourenc¸o, A., and Fred, A. (2013). BITtalino: A biosignal acquisition system based on the arduino. In Proceedings of the International Conference on Biomedical Electronics and Devices. SciTePress - Science and and Technology Publications.
+Chora˜o, R., Sousa, J., Arau´jo, T., and Gamboa, H. (2012). A new tool for the analysis of heart rate variability of long duration records. In Proceedings of the International Conference on Signal Processing and Multimedia Applications and Wireless Information Networks and Systems. SciTePress - Science and and Technology Publications.
+Chou, C. C., Tseng, S. Y., Chua, E., Lee, Y. C., Fang, W. C., and Huang, H. C. (2011). Advanced ECG processor with HRV analysis for real-time portable health monitoring. Digest of Technical Papers - IEEE International Conference on Consumer Electronics, pages 172–175.
+Goldberger, A. L., Amaral, L. A. N., Glass, L., Hausdorff, J. M., Ivanov, P. C., Mark, R. G., Mietus, J. E., Moody, G. B., Peng, C.-K., and Stanley, H. E. (2000). PhysioBank, PhysioToolkit, and PhysioNet : Components of a New Research Resource for Complex Physiologic Signals. Circulation, 101(23):e215–e220.
+Golin´ska, A. K. (2013). Poincare´ plots in analysis of selected biomedical signals. Studies in Logic, Grammar and Rhetoric, 35(1).
+Lv, T., Ko, M., Stark, B., and Chen, Y. (2015). An Online Heart Rate Variability Analysis Method Based on Sliding Window Hurst Series . Journal of Fiber Bioengineering and Informatics, 8(2):391–400.
+Paliwal, S., Lakshmi, C. V., and Patvardhan, C. (2016). Real time heart rate detection and heart rate variability calculation. In 2016 IEEE Region 10 Humanitarian Technology Conference (R10-HTC), pages 1–4. IEEE.
+
+Pan, J. and Tompkins, W. J. (1985). A real-time QRS detection algorithm. IEEE Transactions on Biomedical Engineering, BME-32(3):230–236.
+Pimentel, A., Gomes, R., Olstad, B. H., and Gamboa, H. (2015). A new tool for the automatic detection of muscular voluntary contractions in the analysis of electromyographic signals. Interacting with Computers, 27(5):492–499.
+Plux (2012). Biosignalsplux. http://biosignalsplux.com/en/. Plux (2013). Bitalino. http://www.bitalino.com/en/. Plux (2016). Opensignals datasheet.
+http://bitalino.com/datasheets/OpenSignals Datasheet.pdf. Schmitt, L., Regnard, J., Auguin, D., and Millet, G. P.
+(2016). Monitoring training and fatigue status with heart rate variability: case study in a swimming Olympic champion. Journal of Fitness Research, 5(3):38–45. Schmitt, L., Regnard, J., Parmentier, A. L., Mauny, F., Mourot, L., Coulmy, N., and Millet, G. P. (2015). Typology of Fatigue by Heart Rate Variability Analysis in Elite Nordic-skiers. International Journal of Sports Medicine, 36(12):999–1007. Singh, A. and Kaur, J. (2016). Approximate Entropy (ApEn) based Heart Rate Variability Analysis. Indian Journal of Science and Technology ISSN, 9(947):974– 6846. Task Force of The European Society of Cardiology and The North American Society of Pacing and Electrophysiology (1996). Heart rate variability : Standards of measurement, physiological interpretation, and clinical use. Circulation, 93(5):1043–1065. Tsunoda, K., Chiba, A., Chigira, H., Yoshida, K., Watanabe, T., and Mizuno, O. (2016). Online Estimation of a Cognitive Performance using Heart Rate Variability. IEEE 38th Annual International Conference of the Engineering in Medicine and Biology Society (EMBC), 2016, pages 761–765. Vanderlei, L. C. M., Pastre, C. M., Ju´nior, I. F. F., and de Godoy, M. F. (2010). ´Indices geome´tricos de variabilidade da frequeˆncia card´ıaca em crianc¸as obesas e eutro´ﬁcas. Arquivos Brasileiros de Cardiologia, 95(1):35–40. VanderPlas, J. T. (2017). Understanding the Lomb-Scargle Periodogram.
+
+215
+

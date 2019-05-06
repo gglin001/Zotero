@@ -1,0 +1,3839 @@
+Master of Science Thesis
+
+Heart Rate Variability Analysis based on Instantaneous Frequency Estimation Di Feng
+Committee: Dr.ir. Richard Heusdens Dr.ir. Richard Hendriks Dr.ir. Cees Taal
+
+Heart Rate Variability Analysis based on Instantaneous Frequency Estimation
+THESIS
+submitted in partial fulfillment of the requirements for the degree of Master of Science in Signal and Systems Di Feng
+Thursday 25th June, 2015
+Faculty of Electrical Engineering, Computer Science and Mathematics (EEMCS), Delft University of Technology
+
+Abstract
+
+Heart Rare Variability (HRV) is a popular approach to evaluate health conditions of subjects. With HRV known, corresponding parameters in both time-domain and frequency-domain could be extracted. Designing a real-time monitoring equipment that could collect and analyze such signal obviously becomes very interesting. Electrocardiogram (ECG) is the primary proposed type of signal to measure HRV based on its accuracy measurement and low vulnerability to the noise. That signal utilized the relationship between heart beats and resultant electricity signals spreading over the body. However, the measurement need to attach electrodes on the skin of the patient which make it an inconvenient option to acquire data on daily basis. In order to embedded the measurement into an portable process, the Photoplethysmogram (PPG) signal is proposed as an alternative. In most cases, the PPG signal could be used as surrogate of an ECG signal, however, the performance of the PPG signal is worse than that of the ECG signal due to its vulnerability to the movement.
+The Philips is currently working on this project that embedded a PPG measuring modulo into a sports watch. The approach used is actually measuring the change of the volume in the blood vessels by detecting the reflection light emitted from an embedded Light-Emitting Diode (LED). The measured PPG signal is then applied to extract HRV by detecting intervals between adjacent PPG pulses where a high sampling rate is required to ensure those intervals are accurate. Such approach is named as Beat Detector in this thesis. Based on the fact that the heart beat of human beings is usually in the range 60 ∼ 180 beats per minute (bpm) which is 1 ∼ 3Hz, and accompanies by the Nyquist theory, a signal that sampled by 6 Hz should contains enough information to extract HRV from a PPG signal. Hence, finding the possibility to extract HRV with a low sampled signal would be of interesting.
+The main problem of extracting HRV from a PPG signal lies in its low sampling rate. Due to the fact that there are succeeded pulses in a PPG signal and HRV is extracted by looking at distances between those pulses, a low sampling rate means lost of morphology of those PPG pulses. For example, if peaks on pulses are used as the point to calculate distances, it is firstly difficult to find the correct time location of every peak on a PPG signal with such low sampling rate. Other estimations should be employed to overcome this problem.
+
+Di Feng
+
+Master of Science Thesis
+
+ii
+
+Because a PPG signal is short term stationary and it contains DC component, high frequency noises and harmonics. A PPG signal need to be split into small segments (30 ∼ 60 seconds) and preprocessing steps need to be done first by applying an adaptive bandpass filter. The Viterbi algorithm is employed to track the center frequency of the PPG signal which further used in building such filter. With the DC components, harmonics and high frequency noises removed by an adaptive filter. The remaining signal is monocoponent and assumed to sinusoidal. Hilbert transform is then employed in this thesis to convert the real signal into analytic signal (a kind of complex signal with real part equals to the input and imaginary part equal to the real part with phase shifted 90 ◦). With the analytic signal already known, the phase of the signal along time scale could be extracted, which called as instantaneous phase (IP). Due to the relationship between phase and frequency, the frequency of the signal on every sample time could be calculated. This frequency is named as instantaneous frequency (IF) and the inversion of it is actually the distances between adjacent pulses on a PPG signal, i.e., HRV. Estimating the IF by derivation on the IP (DIP) is then a manner to extract HRV. There is another approach proposed in [48] which calculated the IF from the derivation of the analytic signal (DAS).
+In the chapter Result And Evaluation, real data set was employed and corresponding intervals are calculated ( named as estimated Inter beat Intervals (IBIs)). Apart from this, HRV obtained from the PPG signal with high sampling rate is also recorded. A corresponding ECG signal and a Respiration signal are also used as reference. To make it clear, HRV obtained from the PPG signal by using Beat Detector is named as PPI while that of the ECG signal called as RRI. Different parameters are evaluated with different evaluation coefficients. The SDANN of the estimation is almost identical to that given by RRI and PPI where SDNN of both estimated IBIs and PPI give different values to that calculated from RRI. In evaluating the RMSSD, all three signals gives different performance, which indicates that this parameter may not be a good option to be used in evaluation. During evaluating frequency parameters, the LF/HF ratio is calculated. Although the performance of estimated IBIs are not as good as that of PPI, the general behavior is also acceptable. For the Respiration Rate, all those three signals give very good performance compared to a real RP. At the end, the coverage and corresponding difference in intervals between estimated IBIs, PPI and RRI are calculated. Coverage of estimated IBIs are slightly worse and this is caused by details in the estimation procedure, a higher coverage could be got with the sacrifice of performance. The general difference in intervals without outliers are around 3ms, 9ms and 12ms separately for PPI and two estimated IBIs compared with that of RRI for the first subject. That error could be accepted considering the low sampling frequency used.
+In general, estimations given by DAS and DIP give similar results when evaluating frequency based parameters of the patient compared to that of PPI. However, this project only focus on the data collected when the subject is sleeping, which is a quite limited scope. In the future study, data set that measuring the subject during normal activities should also be included. Additional algorithms that could deal with deficiency of movements should also be explored.
+
+Master of Science Thesis
+
+Di Feng
+
+Acknowledgment
+The thesis, Heart Rate Variability Analysis based on Instantaneous Frequency Estimation, has been carried by the cooperation between the Philips Research Center and the Delft University of Technology, The Netherlands. It would have not been possible without the help and support of many people. And I feel this is the best opportunity to express my gratitude to them. First and foremost, I wish to express my sincere thanks to Dr. Cees Taal, my daily supervisor in the Philips. The faith he has shown in my academic skills and the support he rendered during time has to be mentioned. Cees continuously teaching me a number of new technologies and helping me with my writing. Without his help, i cannot finish the project efficiently. I would like to express my gratitude to Dr. Richard Hendriks, my daily supervisor in TU Delft, who has been a source of continuous motivation and support. Richard gives me a number of useful advices and new thoughts on my projects as well as teaches me the proper manner of making demonstration and explanation. A special note of thanks to another supervisor, Dr. Richard Heusdens, who also teaches several courses in the Delft. He took the time to read this work, be a part of the project and most importantly, giving me a lot of guidance in both study and life.
+
+Di Feng
+
+Master of Science Thesis
+
+List of Contents
+
+Abstract
+
+i
+
+Acknowledgment
+
+iii
+
+List of Figures
+
+vi
+
+List of Tables
+
+ix
+
+1 Introduction
+
+1
+
+1.1 Project Target . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+
+1.2 Outline . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+
+2 Literature Study
+
+5
+
+2.1 ECG . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+
+2.1.1 ECG Measurement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+2.1.2 Pulse Characteristics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+2.1.2.1 Time Domain HRV parameters . . . . . . . . . . . . . . . . . . . 10
+
+2.1.2.2 Frequency Domain HRV parameters . . . . . . . . . . . . . . . 10
+
+2.2 PPG . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+
+2.2.1 Pulse Characteristics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+
+2.2.2 PRV Of PPG . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+
+2.3 Instantaneous Frequency . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+
+2.3.1 Theory . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+
+2.3.2 Estimation of IF . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+
+2.3.2.1 General Aspects Of IF Estimation Methods . . . . . . . . . . . . 19
+
+i Implementation Of The Hilbert Transform . . . . . . . . . . . . 19
+
+ii Phase Unwrapping . . . . . . . . . . . . . . . . . . . . . . . . . 20
+
+iii Differentiation Filter . . . . . . . . . . . . . . . . . . . . . . . . . 21
+
+a FDF . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22
+
+b NDF . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+
+c IDF . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+
+Master of Science Thesis
+
+Di Feng
+
+LIST OF CONTENTS
+
+v
+
+d SGF . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 2.3.2.2 Time-domain Methods . . . . . . . . . . . . . . . . . . . . . . . 25
+i Zero Crossing . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 ii DIP . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26 iii DAS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26 2.3.2.3 Frequency-domain Methods . . . . . . . . . . . . . . . . . . . . 27
+a IF Estimation Based On Moments . . . . . . . . . . . . . . 27 b IF Estimation Based On Peak Location . . . . . . . . . . . 28 2.3.2.4 IF For ECG/PPG Methods . . . . . . . . . . . . . . . . . . . . . 28 2.3.3 Summary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32
+
+3 Methodology
+
+33
+
+3.1 Adaptive Bandpass Filter . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+
+3.1.1 Viterbi Algorithm . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34
+
+3.1.2 Reliability Decision . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+
+3.2 Bias correction Of Derivative Filter . . . . . . . . . . . . . . . . . . . . . . . . . . 37
+
+3.3 Methods Of Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+
+3.3.1 Interpolated IBIs To Beat Sequence Conversion . . . . . . . . . . . . . . 39
+
+3.3.2 Evaluation Coefficient . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+
+3.3.2.1 CC . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+
+3.3.2.2 RMSD . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+
+4 Results And Evaluation
+
+42
+
+4.1 Results With Simulated Input Signals . . . . . . . . . . . . . . . . . . . . . . . . . 42
+
+4.2 Results With Sleep Recordings . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46
+
+4.2.1 General Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46
+
+4.2.2 Inter-Beat Interval Estimation . . . . . . . . . . . . . . . . . . . . . . . . . 48
+
+4.2.3 Time Domain Parameters Analysis . . . . . . . . . . . . . . . . . . . . . . 48
+
+4.2.4 Frequency Domain Parameters Analysis . . . . . . . . . . . . . . . . . . 53
+
+4.2.5 Respiration Rate Extraction . . . . . . . . . . . . . . . . . . . . . . . . . . 55
+
+5 Conclusions
+
+57
+
+Appendices
+
+60
+
+A Subject Details
+
+61
+
+B General Performance
+
+62
+
+Bibliography
+
+63
+
+Di Feng
+
+Master of Science Thesis
+
+List of Figures
+
+2.1 Cardiac depolarization demonstration. Free distribution permitted (Madhero88, original files; Angelito7, SVG version) . . . . . . . . . . . . . . . . . . . . . . . . 5
+2.2 6 standard electrodes position on chest for proposed method (This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.3 Demonstration of 12 leads (This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 License.) . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.4 Graphic representation of electrical activities of heart . . . . . . . . . . . . . . . . 8 2.5 Above: succeeded ECG pulse with green point indicating R peak; Below: RR-
+intervals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9 2.6 Demonstration of LF and HF components . . . . . . . . . . . . . . . . . . . . . . 11 2.7 Demonstration of Reflection mode (Left) and Transmission mode (Right) . . . . . 12 2.8 Top:Sample Pulse of PPG signal; Bottom: Corresponding first derivative plot . . 13 2.9 PPG signal and relative intervals(red bar stands for time stamp of pulse occurrence) 14 2.10 Comparison between PPG and ECG, green point represents R peaks and red
+bar stands for time stamp of that pulse (according to Philips algorithm) . . . . . . 16 2.11 Example of Hilbert transform with shifted phase. Blue: input signal; Green,
+shifted input signal; Red, Hilbert result . . . . . . . . . . . . . . . . . . . . . . . . 18 2.12 Left: Analytic signal mapping on the complex circle; Right; Extracted instanta-
+neous phase . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 2.13 Demonstration of h(t) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 2.14 a) Example of phase unwrapping; b) Example of failed phase unwrapping with
+SNR set to be 8 dB . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21 2.15 Left top: Wrapped phase without noise; Right top: Unwrapped phase without
+noise; Left Bottom: Wrapped phase with noise, SNR = 10 dB; Right Bottom: Unwrapped phase with noise, SNR = 10 dB . . . . . . . . . . . . . . . . . . . . . 22 2.16 Ideal Frequency Response of Differentiation Filter . . . . . . . . . . . . . . . . . 23 2.17 Frequency of four proposed differentiation filter . . . . . . . . . . . . . . . . . . . 24 2.18 Differentiation by using fourier transform . . . . . . . . . . . . . . . . . . . . . . . 25
+
+Master of Science Thesis
+
+Di Feng
+
+LIST OF FIGURES
+
+vii
+
+2.19 Ideal IF used as input . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28 2.20 IF estimation based on different TFD methods; a) WVD of the generated signal;
+b) STFT of the generated signal; c) IF estimated by the first moment of the WVD; d) IF estimated by the peak of the STFT . . . . . . . . . . . . . . . . . . . . . . . 29 2.21 Frequency tracking with and without search band; (a) Frequency Tracking with location of peak; (b) Frequency Tracking by searching peak near previous peak, range set to be ±0.3Hz; . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30 2.22 Center frequencies and bandwidths of adaptive bandpass filter plotted on top of PPG spectrogram. Center frequencies are estimated via the Driver method. . . . 31 2.23 Adaptive frequency tracking example on PPG signal by using driver-method, noisy case; a) Wrong start point leads to incorrect path; b) Manually assign the start point and track along the correct path; . . . . . . . . . . . . . . . . . . . . . 31
+3.1 Block scheme of DIP and DAS based approaches . . . . . . . . . . . . . . . . . 34 3.2 Joint Probability Density Distribution; a) 3D plot; b) Contour plot; . . . . . . . . . 35 3.3 (a) The three largest peaks are found in the spectrogram each time-frame which
+could be the potential average IF. (b) The Viterbi algorithm is used to select the most probable IF per time-frame. . . . . . . . . . . . . . . . . . . . . . . . . . . 35 3.4 Pitch tracking and corresponding reliability. Above: Pitch tracking result; Below: Reliability, 1 stands for reliable and 0 means unreliable . . . . . . . . . . . . . . . 37 3.5 Example of Bias Correction; Comparison between frequency response of ideal differentiation and IDF as well as output i fcorrect and i fincorrect with the same input 38 3.6 Conversion of uniformely sampled IF to non-uniformely sampled beat locations with corresponding IBIs. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+4.1 IF of simulated model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43 4.2 Estimation result by using DIP with different filters . . . . . . . . . . . . . . . . . 43 4.3 Estimation result by using DAS with different filters . . . . . . . . . . . . . . . . . 44 4.4 Bias Correction example by using DAS with IDF, the bias is removed . . . . . . . 44 4.5 Coverage of PPI, PPIDIP and PPIDAS on different subjects . . . . . . . . . . . . . 46 4.6 RMSD (ms) of PPIs and estimated IBIs based on RRIs, 5% outliers are removed, 47 4.7 5 minutes signal of the first subject; a) Comparison between PPI and RRI, two
+signals are almost perfectly overlapped; b) Comparison between PPI and PPIDIP, two signals are almost perfectly overlapped; c) Comparison between PPI and PPIDAS without bias correction, there is an obvious bias; d) Comparison between PPI and PPIDAS with bias correction, two signals are almost perfectly overlapped but slightly difference do exist; . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49 4.8 SDANN estimation for 1 subject. a) SDANN comparison between RRI and PPI, there is almost no difference; b) SDANN comparison between RRI and PPIDIP, small differences exist; c) SDANN comparison between RRI and PPIDAS, relatively large differences exist . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 50
+
+Di Feng
+
+Master of Science Thesis
+
+viii
+
+LIST OF FIGURES
+
+4.9 a) SDNN comparison between RRI, PPI and PPIDIP, SDNN of PPI and PPIDIP have very small differences while that of RRI have relatively large value; b)SDANN comparison between RRI, PPI and PPIDAS, SDNN of PPI and PPIDAS are almost identical while that of RRI have relatively large value; . . . . . . . . . . . . . . . . 51
+4.10 Example of the unreliable period on RRI, PPI and PPIDIP, some variation part in the RRI will case unreliable part in PPI and a larger unreliable period on PPIDIP; The difference between area of unreliable in PPI and PPIDIP lies in the fact it use window function to split a PPG signal . . . . . . . . . . . . . . . . . . . . . . . . . 51
+4.11 a) RMSSD comparison between RRI, PPI and PPIDIP, large differences exist between three signals; b) RMSSD comparison between RRI, PPI and PPIDAS, large differences exist between three signals; . . . . . . . . . . . . . . . . . . . . 52
+4.12 Conversion of uniformely sampled IF to non-uniformely sampled beat locations with corresponding IBIs; IBI1 start from the 1st point and IBI2 starts with the 2nd point in every period corresponding; RMSSD: 27.5908 ms (IBI1) and 27.9142 ms (IBI2) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+4.13 LF/HF ratio analysis over every 5 minutes segments for 1 subject, RRI and PPI; Only one point give very large difference . . . . . . . . . . . . . . . . . . . . . . . 53
+4.14 LF/HF ratio analysis over every 5 minutes segments for 1 subject, RRI and PPIDIP; The average error is slightly large but acceptable (mostly less than 0.5) 54
+4.15 LF/HF ratio analysis over every 5 minutes segments for 1 subject, RRI and PPIDAS; The average error is slightly large but acceptable (mostly less than 0.5), but it a bit worse than that estimated from PPIDIP . . . . . . . . . . . . . . . . . . 54
+4.16 Above: Respiration rate extracted from signal measured by a RP signal and a PPI signal ; bottom: Corresponding errors; all of the estimation are less than 1 bpm (6% error rate) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 55
+4.17 Above: Respiration rate extracted from signal measured by a RP signal and a PPIDIP signal; bottom: Corresponding errors; all of the estimation are less than 1 bpm (6% error rate) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 56
+4.18 Above: Respiration rate extracted from signal measured by a RP signal and a PPIDAS signal; bottom: Corresponding errors; all of the estimation are less than 1 bpm (6% error rate) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 56
+
+Master of Science Thesis
+
+Di Feng
+
+List of Tables
+2.1 Limb and augmented limb leads description . . . . . . . . . . . . . . . . . . . . . 7 2.2 Comparison between PPI and RRI for the HRV/PRV measures RMSSD and
+LF/HF in terms of Bland-Altman (BA) and correlation coefficient (CC) with the subject under supine poisition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 4.1 General Evaluation based on different approaches . . . . . . . . . . . . . . . . . 48 4.2 SDNN evaluation with a PPI signal employed as the reference, the first subject . 48 A.1 23 sleep datasets are used, 15 subjects participated in the measurement and the data length is the sleep time of every subject. . . . . . . . . . . . . . . . . . . 61 B.1 RMSD of PPI and estimated IBIs compared to RRI with 5% outliers removed . . 62
+
+Di Feng
+
+Master of Science Thesis
+
+x
+
+LIST OF TABLES
+
+Master of Science Thesis
+
+Di Feng
+
+CHAPTER 1
+
+Introduction
+
+It is well known that the rhythm of the heart beat exhibits certain characteristics related to the physical condition of a person. Extracting such rhythmic activity in an automated manner would be useful for several applications, e.g., diagnosis, monitoring, and risk assessment. Heart Rate Variability (HRV) is a way to access that repeating behavior of the heart [9]. This regulation is a mechanism controlled by the interplay of the sympathetic and the parasympathetic nervous system. The sympathetic nervous system stimulates the body's 'fight response' [15] and describes a physiological reaction in response to an attack, threat or other harmful events while the parasympathetic nervous system is responsible for stimulation activities which occur when the body is in the 'rest state', such as salivation, and digestion. Information extracted from HRV has many applications, and it could be applied in various fields, such as respiration calculation, stress detection and cardiac disease diagnostics[9]. One example of a specific type of HRV is Respiratory Sine Arrhythmia (RSA) [51], where the heart rate is increased during the inspiration and decreased during expiration. Since people are increasedly paying attention to their personal health, automated recording and measuring a heart beat signal in a non-obtrusive manner is of great interest. It releases people from the hospital (where an uncomfortable chest strap or electrodes may be needed) to a large extent as well as making it possible to view health conditions in real-time whenever and wherever needed.
+Making an Electrocardiogram (ECG) signal is a general used measurement technique to extract HRV. It detects electrical activities of the heart over a period of time. However, an ECG signal is measured by attaching electrodes on the chest of subjects which is uncomfortable for measuring on a daily basis. In addition, electrodes are connected to a monitoring equipment which makes this particular solution less portable. Due to the basic characteristic of an ECG signal, every pulse can be projected to a so-called QRS complex (Figrue 2.4 ), where the R peak is a clear peak with a strong on and offset that is typically used as the heart-beat occurrence time. The inversion of the distance between two adjacent R peaks is defined as the heart rate of the
+
+Di Feng
+
+Master of Science Thesis
+
+2
+
+CHAPTER 1. INTRODUCTION
+
+subject over that particular period. This distance is called R-peak to R-peak Intervals(RRI), or more general, an Inter Beats Interval (IBI). A series of RRIs can be used to compose an HRV signal. This signal can be used to extract certain HRV-parameters such as the RSA.
+In order to make the measurement process more comfortable and portable, a Photoplethysmogram (PPG) signal is proposed to substitute the ECG signal. The measurement of a PPG uses light, e.g., a Light-Emitting Diode (LED), to illuminate the atrial and measures the heart pulse based on the change of the light reflection due to the blood flow. A well-known example where a PPG signal is used is the pulse-oximeter in hospitals which is typically clipped at the fingertip. However, PPG measurements can also be measured at the wrist, on the earlobe [41, 42] and many other body locations. This facilitates the use of such a sensor in a non-obtrusive wearable device. It is therefore a significant advantage of being able to include the HRV analysis in the monitoring process without requiring an ECG signal [42]. Besides, some other physiological parameters such as blood oxygenation and Respiration Rate (RP) can also be derived from the PPG siganl which indicates that PPG signals can provide extra valuable information in addition to the ECG recording[30]. Nevertheless, one drawback of the PPG signal in contrast to the ECG signal, is its sensitivity to motion artifacts. Due to the fact that it relies on the reflection of light, the motion of the subject will introduce noise into the signal and increases the difficulty of extracting information. Although there are solutions to improve the PPG signal based on the accelerometer information, this is typically only suitable for average heart rate extraction within a window. Extracting IBIs during motion using a PPG signal is extremely challenging and will not be considered in this thesis. A common approach to measure Pulse to Pulse Intervals(PPI) in a PPG signal is by detection of pulse features such as valleys, onsets or peaks [17, 40]. Such a 'heart beat detection' algorithm typically works in the time domain and therefore needs a sufficiently high sample rate to detect these pulse features1. Typical sample rates are in the order of 64 as high as 512 Hz [7, 24, 42].
+Based on accurate estimated Pulse to Pulse Intervals (PPI) from a PPG signal, Pulse Rate Variability (PRV) parameters can be estimated in the same manner as with an ECG. The term 'Pulse Rate Variability (PRV)' is used to emphasize its difference with HRV obtained from an ECG. Some authors stated that PRV could be used to substitute HRV obtained from an ECG [14, 16, 20, 22, 28, 30], others stated that PRV is a surrogate of HRV only under some circumstances [19]. Several papers showed that PRV and HRV are almost identical and that PRV can be used as an alternative for assessing a persons health condition [30, 42]. In this thesis, PRV and HRV are assumed to be identical.
+Philips is currently working on projects developing non-obtrusive technology for continuous heart rate and activity monitoring. One example is an optical heart-rate sensor based on the PPG signal which can be worn at the wrist [49]. The sensor is successfully applied for measuring average heart-rate in, e.g., commercial devices such as the Tom-Tom sports watch [1].
+1 Peak algorithm is selected as example
+
+Master of Science Thesis
+
+Di Feng
+
+3
+
+Motion artifacts are compensated by means of an accelerometer. Currently, Philips is investigating possibilities to measure PRV with PPG sensor.
+
+It should be noticed that the high sample-rate needed when using a conventional PPG heart beat-detector results in large power consumption. This is determined to a large extent by the LED, since it must be turned on for small instances to record every sample[2, 38]. This will be a challenge when recording continuously on a daily basis. Thus introducing signal processing algorithms that need less sampling rate may lead to a lower battery consumption.
+
+A time-domain PPG beat detection algorithm needs to calculate the time-location of a specific
+
+signal feature, such as peak onset. Therefore high sampling rate is necessary in order to obtain
+
+millisecond resolution. However, in contrast to the ECG signal, a PPG signal does not have
+
+strong peaks and therefore has less high frequency content. It is of interest to investigate how
+
+accurate IBIs can be estimated just based on the fundamental frequency. The heart rate of
+
+normal
+
+people
+
+can
+
+be
+
+in
+
+the
+
+range
+
+of
+
+40 − 180
+
+bpm
+
+(beats
+
+per
+
+minutes)
+
+or
+
+2 3
+
+−
+
+3
+
+Hz
+
+(beats
+
+per second) depending on activities type and health conditions. Taken Nyquist theory into
+
+consideration, a sample-rate of 6 Hz could be used. However, visual signal features such as
+
+signal peaks and dips are much more difficult to be detected at such a low sample rate.
+
+To extract information with such a low sampling rate, a method based on the Instantaneous Frequnecy (IF) is proposed in this thesis. The IF is applicable based on the assumption that a PPG signal is a frequency modulated signal where IBIs are inversion of the IF. Besides a lower power consumption, using such an algorithm will also introduce other benefits. The resulting signal is uniformly sampled thus PRV-parameters based on spectral analysis such as LF/HF (frequency-domain analysis parameter) do not need to first interpolate the non-uniformly sampled IBIs. The Power Spectral Density (PSD) is the general used spectral analysis approach and the signal need to be uniformly sampled in order to use it. But it is also possible that some information got lost when discarding second and higher order harmonics. The accuracy of the estimation may not be as good as IBIs measured from the beat detector. The primary goal of this thesis is to investigate the impact of IF-based IBI estimation on PRV in comparison with a conventional time-domain heart beat-detection algorithm.
+
+Although there exist many papers introducing HRV/PRV calculation or estimation based on ECG or PPG signals by IF, some of them only focus on the ideal simulated model or models with simulated input noises [12, 21]. This thesis will introduce the proposed method both on the simulated model and on real data sets. Apart from these, it will also introduce some additional algorithms applied in order to overcome the effect of the noise and guarantee the accuracy of estimation. Finally, the methods in [11] and [48, 53] are chosen to extract the IF from a PPG signal. Both methods are just used as prototype and modifications were applied in order to be used in more complicated circumstances.
+
+This thesis will investigate a systematic solution to PRV extraction from vulnerable PPG signals with a very low sampling rate.
+
+Di Feng
+
+Master of Science Thesis
+
+4
+
+CHAPTER 1. INTRODUCTION
+
+1.1 Project Target
+• Investigate the possibilities to extract IBIs based on the IF at a low sample rate. • Evaluate the accuracy of estimated IBIs based on the IF compared to an ECG reference
+and results obtained from a conventional time-domain beat-detector running at high sample rate. • Investigate the possibilities to evaluate PRV parameters extracted from the IF.
+
+1.2 Outline
+In Chapter 2, background information is presented. Details about the ECG signal are explained firstly. After which, the relevant information of the PPG signal is also displayed and the advantages of using the PPG signal are given. The general knowledge used in those approaches are introduced and simple examples are give.
+In Chapter 3, preprocessing activities are firstly introduced. Difficulties and corresponding disadvantages are also displayed. Additional approaches used in the evaluation section will also be described here.
+In Chapter 4, the simulated model is employed where differentiation filters and proposed approaches are tested. After that, real data sets are used where corresponding PRVs are estimated. Various analyzing methods are applied to compare the performance of PRV obtained from different methods.
+In Chapter 5, a conclusion is given and relevant future work is listed as well.
+
+Master of Science Thesis
+
+Di Feng
+
+CHAPTER 2
+
+Literature Study
+
+2.1 ECG
+The human heart beats in the way of contraction (triggered by the heart depolarization) and diastole, which is controlled by electrical discharges from specific localized nodes within the cardiac muscle [18]. Such an electrical signal is transmitted over the whole body and can be detected on the skin. As a result of this, a potential difference can be measured between two surface electrodes attached on the chest of a subject at an order of 1 mV, which is recorded as an ECG signal. Thus an ECG recording is a kind of transformed representation of the heart beat.
+Figure 2.1 displays some important parts of the heart related to the depolarization process.
+
+Figure 2.1: Cardiac depolarization demonstration. Free distribution permitted (Madhero88, original files; Angelito7, SVG version)
+
+Di Feng
+
+Master of Science Thesis
+
+6
+
+CHAPTER 2. LITERATURE STUDY
+
+Figure 2.2: 6 standard electrodes position on chest for proposed method (This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication)
+The Sinoatrial node works as the impulse generator which spreads a depolarization wave to the Atrioventricular node, where the atrial depolarizes and the impulse is delayed for a while. Then the wave reaches at the His bundle and splits in to the left and right branches. Those two branches are linked to the Purkinje fibers which are further connected with the Ventricular wall. The impulse of the depolarization spreads along those paths and finally results in a contraction of the Ventricular.
+
+2.1.1 ECG Measurement
+
+As described above that the electrical signal transmitted throughout the body and picked up on the skin gives an ECG recording, relevant approaches are designed to measure that ECG signal. 10 electrodes (12 'Lead') ECG detection is a popular method [3, 18], where 4 electrodes are placed on the four limbs of a patient and the rest are attached on the chest (as points V 1 ∼ V 6 indicated in Figure 2.2). 'Lead' means vectors that used to measure and record the depolarization process of the heart [4]. In such method, the magnitude and the direction of the impulse of the depolarization could be captured accurately during a cardiac cycle.
+Among those 12 'Lead', 6 of them are limb and augmented limb 'Lead' that are arranged in the coronal plane ( the blue plane in Figure 2.3) and the rest are placed on the perpendicular plane ( the red plane in Figure 2.3) with the name Precordial 'Lead'. Apart from those 6 red 'Lead' that using electrodes attach on the chest as positive probes (or poles), three of the rest leads represents differences between electrodes on limbs and others stands for differences between
+
+Master of Science Thesis
+
+Di Feng
+
+2.1. ECG
+
+7
+
+Table 2.1: Limb and augmented limb leads description
+
+Category Limbs Leads
+Augmented Limbs Leads
+
+Name I II III
+aVR aVL aVF
+
+Positive probe LA LL LL RA LA LL
+
+Negative probe
+RA
+RA
+LA
+LA+LL 2
+RA+LL 2
+RA+LA 2
+
+Figure 2.3: Demonstration of 12 leads (This work is licensed under the Creative Commons AttributionShareAlike 3.0 License.)
+electrodes and the Wilson's central terminal [25, 44]. Details are described in Table 2.1, where Left Arm (LA), Right Arm (RA), Left Leg (LL) and Right Leg (RL) are used to represent electrodes positions on four limbs.
+Those 12 electrical recordings are further processed to present electrical activities of the human heart in a graphic form, where upward and downward deflection are caused by electrical activities that spreading along and against the direction of a 'Lead' separately.
+
+2.1.2 Pulse Characteristics
+
+Based on the principle of deflection and the direction of electrical activities, the pulse waveform of an ECG signal can be generated which generally follows the curve in Figure 2.4. Points in the
+
+Di Feng
+
+Master of Science Thesis
+
+8
+
+CHAPTER 2. LITERATURE STUDY
+
+Figure 2.4: Graphic representation of electrical activities of heart
+
+figure are related with different stages of the heart beat that can be explained as follows;
+• The point P is caused by the depolarization of the atrial.
+• The Q point is related with the depolarization of the Interventricular Septum while R and S are both caused by the depolarization of the Ventricular. The point R is related with the majority part of the Ventricular while the point S is corresponded to the base of the heart. These three points are named as the QRS complex which is assumed to represent the depolarization process of the heart.
+• T wave is caused by the repolarization of the heart.
+The waveform in Figure 2.4 represents the whole cycle of the heart beat in electrical activities view, where each pulse corresponds to one beat of the heart. Among this period, different points can give different information about heart activities, e.g., the existence of the P peak can be used to determine whether the heart is in sinus rhythm1 or not [3]. Another example is about the accurate time location in order to determine the time distance between two consecutive heart beats. As the depolarization of the heart stands for the actual heart beat, the point on the QRS complex that reflects the main mass of the heart is then naturally proposed to represent the moment of heart beat. The R peak is then used to indicates the time stamp of the heart beat.
+Looking at certain points of every pulse may indeed exhibits some information of the heart, however, there is no guarantee that every pulse is accurate and the pulse shape will differ corresponding to actual activities of the subject. In addition, there is some other information buried in the frequency domain which need to be extracted from the instantaneous heart rate, such as, respiration rate, cardiac disease. The instantaneous heart rate is calculated based on the time stamp of every beat, in other words, it is related to the time distances between adjacent beats. As already mentioned in the introduction, these distances are called RRIs
+1Normal rhythm of the heart.
+
+Master of Science Thesis
+
+Di Feng
+
+2.1. ECG
+
+9
+
+ECG signal plus found R−peaks 1
+
+0.5
+
+0
+
+inter−beat interval (ms)
+
+−0.5 4895
+1200 1100 1000
+900
+
+4900
+
+4905
+
+4910
+
+Time(s)
+
+Inter−beat intervals
+
+4915
+
+4920
+
+4895
+
+4900
+
+4905
+
+4910
+
+Time(s)
+
+4915
+
+4920
+
+Figure 2.5: Above: succeeded ECG pulse with green point indicating R peak; Below: RR-intervals
+
+[18]. A demonstration example is given in Figure 2.5 where an ECG signal and corresponding RRIs are presented simultaneously. It is obviously that RRIs are varying over time rather then representing a constant heart rate. Such phenomenon is called HRV and it is represented by a series of RRIs or IBIs
+The Autonomic Nervous System (ANS) is responsible for the regulation of the human internal organs, including the heart. HRV is therefore linked with ANS which consists two parts, i.e., the sympathetic and the parasympathetic nervous system. The sympathetic nervous system is related to the 'fight or flight phase' of the human body, which reflects stress, threat and some other acute situations. This system will increase the heart rate. The parasympathetic nervous system operates in a contrary manner. It is responsible for stimulation activities when the human body is under 'rest and digest phase'. Stimulation related with this system leads to the decrease of heart rate. Those two systems are interacting in a complex manner and cause autoregulation of the cardiac system. The effect of interplay between the sympathetic and the parasympathetic system is also known as the sympathovagal balance. Apart from the ANS, there are several other factors that will affect the HRV, which can be summarized in two categories: inter and intra subject coefficients. The RSA and exercise are two example coefficients that may affect HRV intra the specific subject while gender, age and genetics disease are responsible to factors that HRV differs from subject to subject [18].
+Due to the link between the ANS and heart beats, HRV can be used to extract the information related to the health condition of a subject. A number of methods and examples of which types HRV are related to which specific health conditions are reviewed in [27, 32]. The types of HRV can be generally subdivided into three categories, i.e., time domain analysis, frequency
+
+Di Feng
+
+Master of Science Thesis
+
+10
+
+CHAPTER 2. LITERATURE STUDY
+
+domain analysis and nonlinear analysis2. However, the nonlinear analysis usually need to find the exact time stamp of RRIs which is unavailable using methods proposed in this thesis, it will not be discussed. Some examples of HRV measures for those categories will be given in the next paragraphs.
+
+2.1.2.1 Time Domain HRV parameters
+As it is just introduced that HRV is actually composed by a series of RRIs. The time domain HRV-parameters are then more likely related with the variation of HRV, i.e., the variation of RRIs. Some relevant parameters are displayed in the following list.
+• SDNN, the standard deviation of NN-intervals3, which is usually measured over a long time scale. A relevant term is named as SDANN (the standard deviation of average NNintervals) which is evaluated over 5 minutes segments.
+• Root Mean Square of Successive Differences (RMSSD), the square root of the mean of the squared differences between adjacent NN-intervals.
+• Standard Deviation of Successive Differences(SDSD), the standard deviation of differences between adjacent NN-intervals.
+• NN50, the number of pairs of successive NN-intervals that have difference larger than 50 ms
+• pNN50, the proportion of NN50 over all NN-intervals
+Those time domain parameters are founded to have relationship with the health condition of the subject and actually used in the detection of the health condition of patients. For example, those parameters will have higher value if RRIs are highly varying which may caused by sick sinus syndrome4, atrial fibrillation5 and premature ventricular contraction6. When the RRIs have smaller variation, e.g., Third-degree AV block7, those parameters will have less value [9]. Thus by recording the variation of those parameters, it is possible to detect the abrupt changes in the body of the patient in time which is of great interesting.
+
+2.1.2.2 Frequency Domain HRV parameters
+
+In order to evaluate the sympathovagal balance, analysis in the frequency domain is necessary.
+The PSD is generally used to extracted such information. For a selected period of the HRV
+2One example of nonlinear analysis is using poincare plot which portrays the nature of the fluctuation of IBIs 3Used to emphasize those are normal beats 4Arrhythmias caused by malfunction of sinus node 5Rapid and irregular bearing of heart 6Heart beat initiated by Purkinje fibres instead of sinoatrial node, perceived as 'skip beat' 7The impulse generated in the SA node does not passed to the ventricles
+
+Master of Science Thesis
+
+Di Feng
+
+2.1. ECG
+
+11
+
+0.025 0.02
+
+LF and HF component
+
+LF
+
+HF
+
+0.015
+
+Magnitude
+
+0.01
+
+0.005
+
+0
+
+0
+
+0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4
+
+Frequency(Hz)
+
+Figure 2.6: Demonstration of LF and HF components
+
+signal, the PSD is first calculated and other evaluation techniques are following. Based on the fact that HRV is changing according to activities of the subject, short term (signal less than 5 minutes) estimation is usually applied [42]. As it is stated in [35], components that are located in the Low Frequency (LF, 0.04Hz ≤ LF < 0.15Hz) and in the High Frequency (HF, 0.15Hz ≤ HF < 0.4Hz) bands are the most important parts which are closely related with the health condition of the patient. 0.4 Hz is set to be the upper band lies in the fact that the frequency modulation of HRV is directly related with the respiration of a subject. The RP of a normal subject is usually below 20 beats per minutes (0.33 Hz), 0.4 Hz is then high enough to include all of useful information. Figure 2.6 gives an example of frequency components during evaluated period of HRV. It should be noticed that the highest peak in the LF band is contributed by Mayer Waves8 while the component in the HF band is caused by the RSA. Note that before conducting the spectral analysis, the signal is firstly high-pass filtered to remove the dominant DC.
+The HF contribution part is generally considered as a marker of vagal modulation that is caused by respiration, thus it is related with the parasympathetic nervous system. While the LF component is modulated by both the sympathetic and the parasympathetic nervous system, the power of this component then shows more importance [32, 33, 34]. An increase in the LF power has been generally assumed to contribute to sympathetic activities, such as tilt or mental stress. However, it should be notice that some exceptions do exist, e.g., for the subject with advanced congestive heart failure, the LF component changes in the opposite manner of sympathetic activities [47]. The ratio between the LF and the HF components is generally assumed to reflect the sympathovagal balance and the LF/HF of normal adults under rest conditions usually lies
+8 cyclic changes or waves in arterial blood pressure, stands for arterial blood variation
+
+Di Feng
+
+Master of Science Thesis
+
+12
+
+CHAPTER 2. LITERATURE STUDY
+
+in the range 1∼2.
+A good example was given in [32] where the subject suffered from an acute Myocardial Infarction (MI). After the MI, HRV became depressed and may reflect the predominance of the sympathetic mechanisms. If considered from the frequency analysis aspect, the general power decreased where a relatively increased LF part and a decreased HF component were observed. Such changes in the LF and HF components led to an increase in the ratio of LF/HF, which also indicated that the sympathetic nervous system become dominant.
+
+2.2 PPG
+First proposed in the 1930s for monitoring blood volume changes in the micro vascular, PPG was continuously developing in the past decade and becoming probably the most widely used approach in clinical monitoring [42]. It is a technique for detecting blood volumetric changes from the skin perfusion. The principle depends on the fact that the blood and surrounding tissues have different absorption ability to light emitted by the LED, then the reflected or transmitted light will be received by a Photo-Diode ( photodetector) and the difference between the emitted and received light is related with the blood volume. That changes will generate small voltage signals in proportional to the relatively amount of blood existed in that region along with time, and a PPG signal is then generated. Two different kinds of measuring systems are generally applied to record the PPG signal, namely, reflection mode and transmission mode systems [39].
+The transmission mode system is applied on perfuse tissues that are placed between the source and the detector, e.g., detecting the PPG by clipping on the fingertip or the earlobe. The reflection mode system has the emitter and the sensor on the same side and attached on the perfuse skin, e.g., forehead and the wrist. A demonstration plot is given in Figure 2.7.
+
+Figure 2.7: Demonstration of Reflection mode (Left) and Transmission mode (Right)
+
+PPG can be used to determine various physiological parameters of patients, such as, respiration, heart rate and blood pressure. In addition, some atrial problems of patients could also be derived, such as the arterial stiffness [37].
+
+Master of Science Thesis
+
+Di Feng
+
+2.2. PPG
+
+13
+
+Amplitude
+
+2000 0
+−2000 −4000
+0 1000
+
+Sample Pulse of PPG
+
+Peak
+
+dicrotic notch
+
+Maximum of first Derivative
+
+Valley
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Time (s)
+
+First Derivative of PPG Pulse
+
+Amplitude
+
+500
+
+0
+
+−500
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Time (s)
+
+Figure 2.8: Top:Sample Pulse of PPG signal; Bottom: Corresponding first derivative plot
+
+2.2.1 Pulse Characteristics
+
+PPG signals are mainly composed by three components. An AC or small pulsatile component, derived from the arterial blood pulsation, which oscillates according to cardiac activities. A large DC component caused by the optical property of the emitted tissue. The third works on the DC component in a kind of modulation manner. It makes the DC component varying at a slow rate corresponded to the venous blood volume changes [39]. It is stated in [42] that the thermoregulation and vasomotor activity will also cause slow changes on the DC component.
+Figure 2.8 gives a sample pulse from a PPG signal, which could be divided into two parts, i.e., the rising part and the falling part. As it was described in the previous section, the ventricular contraction is involved in the heart beat. The ventricular contraction generates a pulse wave and spread away, such pulse spreads in the arterial leads a rapid increase in the blood volume and finally cause that steep rising edge. The falling edge of the pulse wave is then corresponded to the cardiac diastolic. There usually contains a small peak which is called 'Dicrotic Notch'. It is the sudden drop in pressure after the contraction and it is caused by the flow back of blood in arteries with the closure of arterial valves. Although it may be unclear in the top plot in Figure 2.8, the plot of the first derivative shows there are changes in the falling edge which is actually corresponding to the Dicrotic Notch.
+Compared to the RRI introduced by an ECG signal, there is an interval indicating pulse cycle length, which are named as PPI as it is displayed in Figure 2.9. Unlike the RRI which only decided by the location of R peak on ECG pulses, the exact location used to calculated PPI relies on different interpretation of boundary points and also on different computing approaches.
+
+Di Feng
+
+Master of Science Thesis
+
+14
+
+CHAPTER 2. LITERATURE STUDY
+
+Heart beat detections
+2000 1000
+0 −1000 −2000 −3000
+6121 6122 6123 6124 6125 6126 6127 6128 6129 6130 time (s)
+Measured Inter Beat Intervals (IBI)
+960 940 920 900
+6121 6122 6123 6124 6125 6126 6127 6128 6129 6130 time (s)
+Figure 2.9: PPG signal and relative intervals(red bar stands for time stamp of pulse occurrence)
+
+IBI (ms)
+
+Three most popular locations are highlighted in Figure 2.8, where 'Valley' and 'Peak' serves as the start of the rising and falling edge separately. The third option is taking the maximum first derivative point that represents the steepest part of the rising part. Methods that calculate PPI via first finding boundary locations will be categorized as the beat detection algorithm in this thesis. There are also other approaches different from algorithms just mentioned, such as, pulse frequency demodulation in [22] and empirical mode decomposition proposed in [46].
+Due to the confidential reason the Philips algorithm can not be explained here, however, an similar example will be introduced here to explain the principle that the beat detection works in. It looks at the certain part of the pulse and find the exact location of the 'Peak'. Then the time distance between adjacent 'peaks' are treated as time distance between current pulse and next pulse.
+As it is introduced previously, a sample PPG pulse composes several characteristic points, where 'Peak' in Figure 2.8 is treated as the starting point of the diastole phase or the falling edge. Then the primary goal of this algorithm is to find the location of the 'Peak' on each PPG pulse. Use the algorithm introduced in [26] as an example, the detail procedure could be explained as follows;
+1. Divide the input signal into several small segments, every segments contains several samples.
+2. Compare the value of the last sample with the maximum value in every segment, if the last sample has the maximum value, that segment will lie on the rising edge(or systole phase), otherwise, the segment is on falling edge (diastole phase).
+
+Master of Science Thesis
+
+Di Feng
+
+2.2. PPG
+
+15
+
+3. The first falling edge after the rising edge should contains the peak of the pulse (the 'Peak' or the Dicrotic Notch).
+4. Compare the amplitude of two points founded in the previous step, the point with a higher value is the 'Peak' of the pulse and the time stamp of the 'Peak' could be calculated then.
+The above method only introduced the brief contents of the algorithm, every last falling edge also need to be record in order to accurately decide the period of every pulse.
+The sampling rate is an important aspect that should be considered. As the procedure of detecting peak points follows the instruction given before, a low sample rate will cause a deviation in the location of peak time, which will further cause error in the decision of PPI. Usually, the sample rate is varying from 64 Hz to 512 Hz. If a lower sample rate, e.g., 10 Hz is employed, there may exist situation that the PPI has an error up to 100 ms. Taken the average PPIs (or heart rate), i.e., 1000 ms (60 bpm) or even lower intervals (higher heart rate) as an example, an error up to 100 ms is really large. In addition, the interested information is buried in the variant of PPIs, such error will hinder the extraction of this information.
+
+2.2.2 PRV Of PPG
+
+Since the PPG signal is firstly proposed to take place of the ECG signal as a portable and convenient option to measure and evaluate the health condition of the patient, it is obviously necessary to ensure that the information extract from the PPG signal is a good approximation as that of the ECG signal. However, deviations unfortunately exist and they are mainly caused by following two reasons;
+• Inaccurate location of time stamps of every PPG pulse, it is caused by the variability of PPG pulses.
+• Variability of the pulse transit time, which is a delay between the R peak and the start of the onset of PPG pulse. This time is inverse proportional to the blood pressure and correlated with the situation of subjects (as it is displayed in the Figure 2.10) [10].
+Usually three different approaches would be used to evaluate whether PPIs are eligible to take place of RRIs.
+1. Finding differences in the average heart rate over a specific time length.
+2. Compare directly between PPIs and RRIs
+3. Compare the information buried by specified analysis method (PRV) [42].
+The first way will show similar results due to the fact that some errors relevant for many PRV measures will be averaged out. There are few papers evaluating differences between HRV and PRV. After all, those two values only show the instantaneous heart rate of the subject at
+
+Di Feng
+
+Master of Science Thesis
+
+16
+
+CHAPTER 2. LITERATURE STUDY
+
+1000
+
+ECG signal plus found R−peaks
+
+0
+
+−1000 300.5 301 301.5 302 302.5 303 303.5 304 304.5 305 Time(s) Heart beat detections
+2000
+0
+−2000
+−4000 300.5 301 301.5 302 302.5 303 303.5 304 304.5 305 time (s)
+Figure 2.10: Comparison between PPG and ECG, green point represents R peaks and red bar stands for time stamp of that pulse (according to Philips algorithm)
+
+a specific time stamp and have limited applications. In contrary, many authors are interested in digging information hidden in the HRV and PRV. It was shown that they are almost identical and that PRVs can be used as an alternative for assessing a persons health condition [14, 16, 20, 22, 28, 30].
+
+Table 2.2: Comparison between PPI and RRI for the HRV/PRV measures RMSSD and LF/HF in terms of Bland-Altman (BA) and correlation coefficient (CC) with the subject under supine poisition
+
+Comparison Method BA
+CC
+
+Detection method (PPI) Peak
+Maximum 1st derivative Peak
+Maximum 1st derivative
+
+Time domain (RMSSD) < 0.01 < 0.01 ≥ 0.99 ≥ 0.99
+
+Frequency domain (LF/HF ratio) > 0.2 > 0.2 ≥ 0.99 0.97 ∼ 0.99
+
+In [42], the author gives an overall comparison between RRIs and PPIs (detected by different methods) among both time and frequency domain parameters. Parts of the comparison are summarized in Table 2.2 with the subject under supine9 position. Bland-Altman method (BA) is generally used in analyzing the agreement10 between different data sets where a lower value is corresponding to a higher consistency in the data value. Pearson product moment correlation coefficient method (CC) represents the relationship in the opposite manner. It can be seen from Table 2.2 that in most cases HRV and PRV are almost identical. Although frequency domain
+9Lying with the face up 10Agreement represents that two methods used to measure same parameters should have high correlation while a high correlation is not equivalent to a high agreement
+
+Master of Science Thesis
+
+Di Feng
+
+2.3. INSTANTANEOUS FREQUENCY
+
+17
+
+parameters analyzed by BA is not good, it should be noticed that the ratio between the LF and the HF components is easily affected by small changes in the HF component, which will lead to an unbearable error.
+
+2.3 Instantaneous Frequency
+
+2.3.1 Theory
+
+The IF was initially defined in the frequency modulation theory in the telecommunication. It is a parameter that has significant practical importance in fields such as radar, sonar and seismic signal processing [12]. Based on the fact that the signal is not always stationary, instantaneous frequency is proposed to perform the time-varying nature of the process. The expression of the IF is given in Eq 2.1. The term i f represents the IF and ω is the angular frequency. The ϕ gives the phase at every time stamp, ϕ(t) is employed as the Instantaneous Phase (IP).
+
+i
+
+f
+
+(t)
+
+=
+
+ω(t) 2π
+
+=
+
+1 2π
+
+dϕ (t) dt
+
+=
+
+1 2π
+
+ϕ′
+
+(t
+
+)
+
+(2.1)
+
+The IP needs to be extracted first in order to calculate the IF from the PPG signal. However, the PPG signal only contains real components and it is impossible to calculate the phase from a series of the real signal directly. To overcome that problem, the Hilbert transform is implemented here to convert the real signal into its corresponding complex representation (analytic signal).
+A corresponding expression is given in Eq 2.2 where A[x(t)] stands for the analytic signal and the symbol H represents the Hilbert transform.
+
+A[x(t)] = x(t) + jH [x(t)]
+
+(2.2)
+
+The Hilbert transform is a linear operator that realizes the time domain transformation. The Hilbert transformation of function u(t) is defined using Cauchy principle value (p.v.) and can be
+thought as a produced function H [u(t)] which is generated by the input sequence u(t) convolved
+with the transformation function h(t) = 1/πt [5]. Eq 2.3 displays the Hilbert transform of a signal (u(t)).
+
+H
+
+[u(t)]
+
+=
+
+∫∞
+p.v.
+−∞
+
+u(τ)h(t
+
+−
+
+τ)dτ
+
+=
+
+1 π
+
+∫∞
+p.v.
+−∞
+
+u(τ) t−τ
+
+d
+
+τ
+
+(2.3)
+
+The working principle of the Hilbert transform can be viewed as a 90 ◦ phase shifter. Figure 2.11 compares the input and the output of the Hilbert transform. The input is a sinusoidal signal (the blue line) and the obtained result (the red line) meets the curve of the sinusoidal signal which is
+
+Di Feng
+
+Master of Science Thesis
+
+18
+
+CHAPTER 2. LITERATURE STUDY
+
+Hilbert transform example
+
+1.5
+
+input
+
+input shifted by −pi/2
+
+1
+
+hilbert result
+
+0.5
+
+Amplitude
+
+0
+
+−0.5
+
+−1
+
+−1.5
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Time
+
+Figure 2.11: Example of Hilbert transform with shifted phase. Blue: input signal; Green, shifted input signal; Red, Hilbert result
+
+shifted −90 ◦ manually (the green Line). The resultant analytic signal contains a real part which is equal to the input ( the blue line) and an imaginary part (the green or the red line).
+
+1
+
+2
+
+output of Hilbert transform Instantaneous Phase
+
+0.5
+
+1
+
+0
+
+0
+
+−0.5
+
+−1
+
+−1
+
+−2
+
+−1
+
+0
+
+1
+
+0
+
+100 200 300 400 500 600 700
+
+Figure 2.12: Left: Analytic signal mapping on the complex circle; Right; Extracted instantaneous phase
+
+Figure 2.12 is employed to demonstrate relationship between the analytic signal and the IP. Again, a simple sinusoidal signal sin(2π f t) is used as an example. As it is displayed in Figure 2.11, there will be 90 ◦ difference in the phase between the input and output of the Hilbert transform, i.e., if the input is a sine wave, the output will be a negative cosine wave. The corresponding mathematical expression is given in Eq 2.4 where symbol A is employed to represent the corresponding analytic signal.
+
+A(2π f t) = sin(2π f t) − j cos(2π f t)
+
+(2.4)
+
+The real part of the analytic signal is the input sine wave while the imaginary part follows the
+
+Master of Science Thesis
+
+Di Feng
+
+2.3. INSTANTANEOUS FREQUENCY
+
+19
+
+corresponding cosine function (Eq. 2.4). The analytic signal is actually moving on the complex circle and rotating anti-clockwise. The term ϕ is employed to represents phase at every time stamp, which is the angle between the black straight line in Figure 2.12 (left subplot) and the x axis. The IP is extracted and displayed at the right hand of Figure 2.12. The phase is sawtoothlike due to the fact that the angle is evaluated in the range −π − π. This phenomenon is named as Wrapped Phase and methods dealing with this situation will be exhibited in the following section Phase Unwrapping.
+2.3.2 Estimation of IF
+Many different approaches exist to numerically estimate the IF as explained in the previous section. Some of them are time-domain based and some of them on time-frequency decompositions. This thesis first explain some general aspects of many IF estimation methods, then some time-domain methods followed by some frequency domain methods. Note that all these methods assume a frequency modulated sinusoid which is not the case with, e.g., ECG and PPG signals. In the last part of this section more details are given on how these approaches can be applied with these non-sinusoidal signals.
+
+2.3.2.1 General Aspects Of IF Estimation Methods
+As shown in the previous theory section, the IF can be obtained via Eq 2.1. In order to obtain IF numerically many approaches therefore can be subdivided in (some of the) following three stages:
+• Apply a Hilbert transform in order to obtain an analytic signal • Unwrap the phase component • Apply numerical derivation Since many IF approaches typically use part of the above steps, some methods related with these three steps will be explained first.
+
+i Implementation Of The Hilbert Transform
+
+The general procedure of calculating the Hilbert transform could be summarized in the following steps;
+1. Calculate the fourier transform of the input signal (sequence), the obtained result will be stored in the array 'a'.
+2. Create a array 'H' which is used to remove negative frequencies and remain total energy at the same level. A example array 'H' could is demonstrated in Figure 2.13
+
+Di Feng
+
+Master of Science Thesis
+
+20
+
+CHAPTER 2. LITERATURE STUDY
+
+3. Element-wise multiply between 'a' and 'H', the result stores in the array 'b'.
+4. Calculate inverse fourier transform of 'b'. The result will be a complex sequence which is the analytic signal. The imaginary part of the analytic signal gives the output of the Hilbert transform.
+Magnitude of H(n) 3
+
+2.5
+
+2
+
+Magnitude
+
+1.5
+
+1
+
+0.5
+
+0
+
+1
+
+2
+
+...
+
+... n/2 n/2+1 n/2+2 ...
+
+...
+
+n
+
+Data Index
+
+Figure 2.13: Demonstration of h(t)
+
+It should also be noticed that the Hilbert transform is expected to be applied on sinusoidal signals, hence convert the input signal into sinusoidal signal is necessary.
+
+ii Phase Unwrapping
+
+Recall the Eq 2.1, derivation is used to calculate the IF. However, the discontinuity displayed in Figure 2.12 will definitely cause problems. Phase unwrapping algorithms are designed to solve such problem. There is a number of papers on this topic [8, 23, 29, 36, 45, 52].
+It is known that phase of complex signal is usually located in the principle11 range, i.e., −π − π. In order to find the derivative of the phase, first convert sawtooth-like phase to be continuous in time domain is becoming important. In [23], it is proposed to use the modulo 2π added on the principle value to unwrap the phase. The process could be summarized in the following procedure, where ϕ and φ were used to represents unwrapped and wrapped phase separately:
+1. Calculate the difference between adjacent wrapped phases, ∆φn = φn − ϕn−1.
+2. If |∆φn| ≥ π, calculate integer k that satisfies |∆φn±2πk| < π.
+11phase value calculated by arctan, which is in the range −π − π
+
+Master of Science Thesis
+
+Di Feng
+
+2.3. INSTANTANEOUS FREQUENCY
+
+21
+
+20 Wrapped Phase Unwrapped Phase
+15
+
+20 Wrapped Phase Failure Unwrapped Phase
+15
+
+Phase (rad) Phase (rad)
+
+10
+
+10
+
+5
+
+5
+
+0
+
+0
+
+−5
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+Time
+
+(a)
+
+−5
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+Time
+
+(b)
+
+Figure 2.14: a) Example of phase unwrapping; b) Example of failed phase unwrapping with SNR set to be 8 dB
+
+3. Integer k is multiplied with 2π and added on to the corresponding φ which finally leads to sequence ϕ.
+An example is displayed in Figure 2.14a. The distance that larger than π is compensated by 2π. It should be noticed that this example is conducted under the assumption that there is no noise involved in unwrapping, while in the real world noise is usually unavoidable.
+Figure 2.14b shows a circumstance when the noise will affect the unwrapping process. The Signal to Noise Ratio (SNR) is set to be 8 dB. Unlike the result obtained in the previous figure, the largest gap is not filled where the interfering noise make the gap slightly decreased, i.e., less than π.
+However, in this thesis, the short term signal used to be evaluated is assumed to be stationary as well as follows basic sinusoidal characteristics, and the SNR will not be very low (otherwise those period will be assumed unreliable). The gap between adjacent time stamps should be close to 2π. A demonstration is given in Figure 2.15 where the noise is 10 dB. The unwrapped phase gives similar performance compared to the case without noise. The phase unwrapping algorithm just mentioned is sufficient to be applied in this project.
+
+iii Differentiation Filter
+
+Differentiation is another very important part in order to extract the IF from the IP. The ideal differentiation filter should give a frequency response follows the plot in Figure 2.16. However, it is impossible to realize the ideal differentiation in the real world due to delay and hardware limitation. Instead, various differentiation filters are considered and implemented here, namely, Fourier Differentiation Filter (FDF), Normal Differentiation Filter (NDF), Interpolate Differentiation Filter (IDF) and Savitzky-Golay Filter (SGF).
+
+Di Feng
+
+Master of Science Thesis
+
+22
+
+CHAPTER 2. LITERATURE STUDY
+
+Phase(rad)
+
+6
+
+6
+
+4
+
+4
+
+Phase(rad)
+
+2
+
+2
+
+0
+
+0
+
+−2
+
+−2
+
+−4
+
+−4
+
+0
+
+2
+
+4
+
+6
+
+8
+
+0
+
+2
+
+4
+
+6
+
+8
+
+Time(s)
+
+Time(s)
+
+6
+
+6
+
+4
+
+4
+
+Phase(rad)
+
+2
+
+2
+
+0
+
+0
+
+−2
+
+−2
+
+−4
+
+−4
+
+0
+
+2
+
+4
+
+6
+
+8
+
+0
+
+2
+
+4
+
+6
+
+8
+
+Time(s)
+
+Time(s)
+
+Phase(rad)
+
+Figure 2.15: Left top: Wrapped phase without noise; Right top: Unwrapped phase without noise; Left Bottom: Wrapped phase with noise, SNR = 10 dB; Right Bottom: Unwrapped phase with noise, SNR = 10 dB
+
+a FDF FDF is mentioned in [48] which used to derive differentiation of the analytic signal. This method employed the well known relationship in fourier transform table, i.e.:
+
+f ′(t) = d f (t) = jΩF(Ω) dt
+
+(2.5)
+
+Where Ω used to represent the frequency domain. The differentiation could be expressed
+
+as:
+
+x(t)−F→X(Ω)→− jΩX(Ω)−F−−−→1 x′(t)
+
+(2.6)
+
+F and F −1 are employed to represent fourier transform and inverse fourier transform.
+
+The general calculation is firstly transforming the analytic signal into frequency domain. Then multiply it by the complex frequency scale jΩ. Finally it will be transformed back to the time domain12. By using this method, edges losing due to the Fourier Transform13 could be avoided
+
+12This differentiation method is based on principle indicated in fourier transform table 13In MATLAB, fourier transform uses circular convolution where the result will have decreased performance at
+edges on the selected period
+
+Master of Science Thesis
+
+Di Feng
+
+2.3. INSTANTANEOUS FREQUENCY
+
+23
+
+Magnitude
+
+Ideal Differentiation Filter 3
+
+2.5
+
+2
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Frequency
+
+Figure 2.16: Ideal Frequency Response of Differentiation Filter
+
+and this one takes more than two samples (as it is indicated in Figure 2.18) which are more accurate and reliable.
+The corresponding frequency response is displayed in Figure 2.17a which is identical to the ideal differentiation filter. However, slightly differences should also be noticed. This filter could be applied on both periodic and non periodic signal. If this filter is applied on the non periodic signals, a strict rule should be satisfied and the detail explanation will be given in the results section with demonstration. The ECG/PPG signal is short term periodic and it will be split into succeeded short segments before conducting calculation or estimation in this thesis, which make this filter may be a good choice. However, it should also be mentioned that this method is computational expensive, this deficient will lead to a larger time consumption during the evaluation process and even consumes more battery. This contradicts with one of the goals mentioned before.
+
+b NDF The easiest way of taking differentiation on an uniformly sampled sequence is calculating differences between adjacent data points and divided by the sample time. NDF is then proposed and it is expressed as a filter with coefficient [1 -1] or the following Eq 2.7. But the difference between continuous signal and digital signal should not be ignored. By using this filter, the difference calculated from every two neighbouring points are assigned to the middle time stamp of those two points, which will generates half sample time delay consequently. This delay cannot be made up in the digital signal system and will hence incur errors. The frequency
+
+Di Feng
+
+Master of Science Thesis
+
+24
+
+CHAPTER 2. LITERATURE STUDY
+
+Magnitude
+
+Fourier Differentiation Fitter 3
+
+Normal Differentiation Filter 3
+
+2.5
+
+2.5
+
+2
+
+2
+
+Magnitude
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Frequency
+
+(a)
+Interpolate Differentiation Filter 3
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Frequency
+
+(b)
+Savitzky−Golay Filter 3
+
+2.5
+
+2.5
+
+2
+
+2
+
+Magnitude
+
+1.5
+
+1.5
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Frequency
+
+(c)
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Frequency
+
+(d)
+
+Figure 2.17: Frequency of four proposed differentiation filter
+
+Magnitude
+
+response is plot in Figure 2.17b where its rising edge basically fitting the ideal response.
+
+2y[n + 1] = x[n + 1] − x[n]
+
+(2.7)
+
+c IDF To overcome the shortcoming of NDF, IDF is proposed to take place. Unlike char-
+
+acterizes
+
+of
+
+NDF,
+
+the
+
+coefficient
+
+of
+
+IDF
+
+is
+
+changed
+
+into
+
+1 2
+
+[1
+
+0
+
+-1]
+
+which
+
+now
+
+taken
+
+three
+
+points
+
+into consideration, i.e., calculate the difference between the first and the third points and assign
+
+the value to the time stamp of the middle point. The result need to be divided by twice of the
+
+sample time. An expression is given in Eq 2.8. This method will also cause a delay which is
+
+equal to one sample time, and this could be eliminate easily in the post processing. However,
+
+the deficient comes in order to overcome the half sample time lag introduced in NDF. As it is
+
+displayed in the Figure 2.17c, the frequency response only follows the ideal curve when the
+
+frequency is lower than 1.5 Hz, which means it is only reliable in that period (heart rate lower
+
+than 90 bpm). A higher frequency will get compressed response. However, this differentiation
+
+filter is still a good alternative based on the fact that two approaches are using different signals
+
+Master of Science Thesis
+
+Di Feng
+
+2.3. INSTANTANEOUS FREQUENCY
+
+25
+
+as input.
+
+Amplitude
+
+Differentiation based on Fourier Transform in time domain 1
+
+0.8
+
+0.6
+
+0.4
+
+0.2
+
+0
+
+−0.2
+
+−0.4
+
+−0.6
+
+−0.8
+
+−1
+
+−4
+
+−3
+
+−2
+
+−1
+
+0
+
+1
+
+2
+
+3
+
+4
+
+Time
+
+Figure 2.18: Differentiation by using fourier transform
+
+y[n + 1] = x[n + 2] − x[n]
+
+(2.8)
+
+d SGF Apart from those filters just introduced, SGF is another popular differentiation filter which varied according to different coefficients [31, 43]. SGF actually works as fitting a polynomial to a set of input samples (second order and five points are used in Figure 2.17d) and then take derivative within the approximation interval. The advantage of this method lays in the fact that its frequency response has low magnitude in the high frequency range (frequency larger than 1.8 Hz in this case) and will comprise high frequency noise. As it is displayed in the Figure 2.17, SGF also have the problem of limited differentiation frequency range. Within the specified frequency range (0 ∼ 0.9Hz) which is determined by the sampling frequency, this is the optimal frequency it could achieve. If the coefficient of the SGF is set to be 2nd order and 3 points, the differentiation frequency range will surely expanded, however, only rely on three points will also make the estimation less reliable. Using five points is then appointed and will be used in the following section.
+
+2.3.2.2 Time-domain Methods
+
+i Zero Crossing
+
+Measuring number of zero-crossings of the signal is a common IF estimation method in seismic processing [13]. For a signal which could be treated locally stationary, the IF could be calculated
+
+Di Feng
+
+Master of Science Thesis
+
+26
+
+CHAPTER 2. LITERATURE STUDY
+
+by half the inverse of the distance between zero crossings.
+
+1 if =
+2Tz
+
+(2.9)
+
+Tz stands for the interval between selected crossings and twice of which equals to the period. f represents the frequency at every time stamp.
+
+Since there is an assumption that the input is evenly sampled, Tz in Eq 2.9 could be taken placed by the number of samples. However, it should never be ignored that the primary assumption of using this algorithm is successfully finding the location of crossing points, thus a really high sampling rate is required.
+
+This algorithms also employed the assumption that there are not so may zero crossings during every pulse. Otherwise it will give incorrect result.
+
+ii DIP
+In order to calculate the IF, directly Derivative on the IP (DIP) would be the most straightforward method. A similar application was introduced in [11] where additional steps were also taken. However, with the input sequence already been converted into the analytic form, the main process could be summarized as follows;
+1. Extract the angle at every time stamp or every sample time, the resultant sequence gives the IP.
+2. Due to the fact that angle extracted is in the range −π − π, phase unwrapping is applied on the obtained IP and convert it to a continuous sequence.
+3. Calculate the IF from that continuous IP sequence by using numerical derivation filter.
+
+iii DAS
+
+Unlike the method DIP which employed the phase unwrapping in its estimation process, estimation the IF by Derivative on Analytic signal (DAS) will only take derivation on the analytic signal. This algorithm is actually proposed in a phase unwrapping method, where IF is the intermediate products.
+A time domain representation of the DAS method is also proposed in [53]. The author employs the characteristic that the complex number could be represents by two different forms, i.e., the polar form and the rectangular form, then the derivation of those two part should be also equivalent. The mathematic relationship between those equations could be found and finally derive an expression for the IP.
+
+Master of Science Thesis
+
+Di Feng
+
+2.3. INSTANTANEOUS FREQUENCY
+
+27
+
+The time domain signal is firstly transferred into the analytic form by using the Hilbert Transform and represented by corresponding forms, i.e.,
+
+A(n) = R(n)e jϕ(n) A(n) = x(n) + jy(n)
+
+(2.10)
+
+x stands for the input real sequence while A and y represent corresponding analytic signal and Hilbert transformed result. Following equations could be obtained by applying derivation.
+
+A′(n) = R′(n)e jϕ(n) + jϕ′(n)R(n)e jϕ(n) A′(n) = x′(n) + jy′(n)
+
+(2.11)
+
+Since two equations just introduced are equal, the following relationship is established:
+
+[ ][
+
+][ ]
+
+x′(n) cosϕ(n) −R(n)sinϕ(n) R′(n)
+
+=
+
+y′(n)
+
+sinϕ(n) R(n)cosϕ(n) ϕ′(n)
+
+where ϕ′(n) can be represented as
+
+(2.12)
+
+ϕ′(n) = x′(n) −sinϕ(n) + y′(n) cosϕ(n)
+
+R(n)
+
+R(n)
+
+(2.13)
+
+IF could be calculated by combining Eq 2.1 and Eq 2.13.
+
+2.3.2.3 Frequency-domain Methods
+Time Frequency distribution analysis (TFD) is a two dimensional function that used to represent the distribution of signal energy along the time and the frequency scale at the same time. The moments of TFDs and the peak location of TFDs are two important coefficients to estimate the IF.
+
+a IF Estimation Based On Moments There are various TFDs existed, such as, Wigner Ville Distribution (WVD), Short Time Fourier Transform (STFT). WVD is raised as an example here. WVD was proposed and defined by Ville to represent time frequency characteristics of signal, and the mathematical expression of the WVD is displayed in Eq 2.14 [12].
+
+∫ +∞
+
+W (t, f ) =
+
+z(t + τ/2)z∗(t − τ/2)e− j2π f τdτ
+
+−∞
+
+(2.14)
+
+It is stated in [50] that the IF should be considered as the mean value of frequencies of the instantaneous spectrum at a given instant. The first moment of the WVD (or other TFDs) with respect to the frequency which is actually the mean frequency should lead to the IF. This relationship could be represented by Eq 2.15.
+
+Di Feng
+
+Master of Science Thesis
+
+28
+
+CHAPTER 2. LITERATURE STUDY
+
+Frequency(Hz)
+
+Ideal Instantaneous Frequency 0.6
+
+0.5
+
+0.4
+
+0.3
+
+0.2
+
+0.1
+
+0
+
+−0.1 0
+
+50
+
+100
+
+150
+
+200
+
+Time(s)
+
+Figure 2.19: Ideal IF used as input
+
+i f (t) = ∫∫−+−+∞∞∞∞fWW((tt,,ff))ddff
+
+(2.15)
+
+However, it should also be noticed that this method really requests large computation, i.e., the calculation of WVD and the calculation of the first moment. An example of detecting the IF by evaluating the first moment of the WVD is given in Figure 2.20c.
+
+b IF Estimation Based On Peak Location Although some people propose to estimate the IF from the first moment of TFDs, the computational load and its vulnerability to the noise should also be considered. The IF estimation based on the peak detection of the TFDs are expected to be an alternative approach. TFDs are introduced to represents signals and display their variability along the time and frequency scale simultaneously. Thus peak detection is actually finding the maximum concentration of the signal energy at every instant time. If the signal is stationary during the selected period (or window), the peak will directly lead to the IF. An example is given in Figure 2.20d where STFT is used to calculate the TFD. Compared to methods calculating the first moment, approaches based on the peak detection are relatively computational cheaper.
+
+2.3.2.4 IF For ECG/PPG Methods
+
+Algorithms mentioned above are generally applicable on the ECG/PPG signal in order to estimated the IF. However, the adaptive bandpass filter is a very important step that expected to
+
+Master of Science Thesis
+
+Di Feng
+
+2.3. INSTANTANEOUS FREQUENCY
+
+29
+
+Frequency(Hz)
+
+WVD of Generated Signal
+
+0.45
+
+120
+
+0.4
+
+100
+
+0.35
+
+80
+
+0.3 60
+
+0.25 40
+0.2 20
+0.15
+0 0.1
+
+0.05
+
+−20
+
+0
+
+−40
+
+50
+
+100
+
+150
+
+200
+
+Time(s)
+
+(a)
+Instantaneous Frequency estimated by the First Moment of WVD 0.6
+
+Frequency(Hz)
+
+STFT of Generated Signal
+
+20 0.45
+18 0.4
+16
+0.35 14
+0.3 12
+
+0.25 10
+
+0.2
+
+8
+
+0.15
+
+6
+
+0.1
+
+4
+
+0.05
+
+2
+
+0
+
+50
+
+100
+
+150
+
+200
+
+Time(s)
+
+(b)
+Instantaneous Frequency estimated by peak of STFT 0.6
+
+0.5
+
+0.5
+
+0.4
+
+0.4
+
+Frequency(Hz)
+
+Frequency(Hz)
+
+0.3
+
+0.3
+
+0.2
+
+0.2
+
+0.1
+
+0.1
+
+0
+
+0
+
+−0.1 0
+
+50
+
+100
+
+150
+
+Time(s)
+
+−0.1
+
+200
+
+0
+
+(c)
+
+50
+
+100
+
+150
+
+200
+
+Time(s)
+
+(d)
+
+Figure 2.20: IF estimation based on different TFD methods; a) WVD of the generated signal; b) STFT of the generated signal; c) IF estimated by the first moment of the WVD; d) IF estimated by the peak of the STFT
+
+be applied before using those algorithms. The ECG and the PPG signals are assumed essentially periodic and short term stationary. That means if the ECG/PPG is transformed into the frequency domain, there should exists a fundamental component as well as other harmonics. Since above mentioned algorithms are mainly working on monocomponent signals, adaptive bandpass filter should be applied to remove those harmonics and only keep the fundamental frequency. Apart from harmonics, the adaptive bandpass filter will also remove the DC component and high frequency noises in every time frame (or windowed signal). After using such filter, the fundamental frequency evaluated on sample basis is actually equivalent to the IF in this project.
+In order to design the adaptive bandpass filter, tracking the correct fundamental frequency (or Pitch) is the first and most important step need to be dealt with. Since the ECG/PPG signal is considered short term stationary, window function should be applied first to split the whole signal into small segments (or frames) with length equal to 30 − 60 seconds. The term Average IF is then proposed to be used in building the adaptive bandpass filter and employed to distinguish from the IF. The Average IF stands for the frequency index in every segment when evaluating
+
+Di Feng
+
+Master of Science Thesis
+
+30
+
+CHAPTER 2. LITERATURE STUDY
+
+(a)
+
+(b)
+
+Figure 2.21: Frequency tracking with and without search band; (a) Frequency Tracking with location of peak; (b) Frequency Tracking by searching peak near previous peak, range set to be ±0.3Hz;
+
+the PSD while the IF represents the frequency at every sample time.
+An example of designing the adaptive bandpass filter is proposed in [11] which could be called as driver-method. The detail process are summarized as follows;
+1. Calculate the TFD of the ECG/PPG signal, wavelet is employed in the paper. Assume the whole signal is split into a series of 30 seconds segments (or frames) with name S1, S2, ..., Sn
+2. Find the corresponding frequency to the highest peak (apart from baseband component) in the first time frame S1 and assign the value into f1.
+3. Find the highest peak in the S2 in the frequency range f1 ± T where T stands for the
+threshold and it is usually in the range 0.3Hz ∼ 0.5Hz.
+4. Find the corresponding frequency to the highest peak in the Si+1 in the frequency range
+fi ± T and assign that value in fi+1.
+5. Repeat steps 3 and 4 until fn is obtained.
+The reason of introducing term T in step 3 lays in the characteristic that the frequency would
+not change abruptly and noise or error caused during the measurement process may lead to the tracking of the wrong pitch. An example is given in the Figure 2.21 where 2.21a shows the incorrect pitch tracking by only detecting the highest peak on every time frame and 2.21b displays the correct track with applying the pitch tracking algorithm just mentioned.
+With the pitch along time scale already known, bandpass filter could be designed. Use 1 minute PPG signal as an example, Figure 2.22 displayed tracked Average IF along different time frame and bar lines plotted standing for the corresponding bandpass filters on every time frame.
+The frequency tracking method introduced above is straightforward which uses the characteristic that the fundamental frequency usually gives the highest peak and the pitch of the con-
+
+Master of Science Thesis
+
+Di Feng
+
+2.3. INSTANTANEOUS FREQUENCY
+
+31
+
+Figure 2.22: Center frequencies and bandwidths of adaptive bandpass filter plotted on top of PPG spectrogram. Center frequencies are estimated via the Driver method.
+
+(a)
+
+(b)
+
+Figure 2.23: Adaptive frequency tracking example on PPG signal by using driver-method, noisy case; a) Wrong start point leads to incorrect path; b) Manually assign the start point and track along the correct path;
+
+tinuous signal cannot change abruptly. However, such algorithm will not always be accurate as it is highly rely on the assumption that the frequency index estimated in the start time frame S1 is always correct. Figure 2.23 gives an example when that approach goes wrong. As it is described before, such algorithm really rely on the start point. The peak of the start frame detected in Figure 2.23a is located in the range 1Hz ∼ 1.5Hz which is correct if only looking at time frame S1. If the highest peak in the current frame took place when the frequency equal to 1.3 Hz ( f1 = 1.3) and the threshold is set to be 0.3 Hz. The detection threshold now binding
+
+Di Feng
+
+Master of Science Thesis
+
+32
+
+CHAPTER 2. LITERATURE STUDY
+
+the search cursor in the range 1.0 ∼ 1.6Hz for the next time frame S2. Then the algorithm will continues searching in its neighbour which finally lead to an incorrect path. Figure 2.23b shows the correct pitch tracking result when restricting f1 in the range 2 ∼ 2.5Hz. It it easy to find that the pitch tracking algorithm introduced in [11] has certain limitation and are less useful when there exists noise.
+
+2.3.3 Summary
+With the introduction of several proposed methods, shortcomings of part of them can be derived. Algorithm using zero crossing points looks at the crossing point, it will be confused to apply on the PPG signal which go across axis twice in every pulse. Besides, the split segments in every PPG pulse are varying due to the variability of the PPG signal. This make it even harder to decide the IF. A modified version is then proposed which looks at other significant points in every pulse. This can be viewed equivalent to the beat detection method which look at valley, peak or point with the maximum of the first derivative on every PPG pulse. Approach that calculating the first moment of the WVD is computational expensive. In order to obtain the IF instead of the Average IF, the WVD need to give a high resolution along time scale, which will also introduce a heavy computation load. Unlike WVD, the calculation of the STFT is comparably simple. However, the result obtained is actually Average IF not IF. There is a trade off between computation load and correctness of the result. Estimating the IF from TFDs is then a less optimal choice. Some people may be also interested in the possibilities of estimating IBIs from the low sampled ECG/PPG signal. However, due to its low sampling rate, a relatively large error will be introduced. Corresponding demonstration will be given in the chapter Result And Evaluation .
+
+Master of Science Thesis
+
+Di Feng
+
+CHAPTER 3
+
+Methodology
+
+Finally the method DAS and DIP are selected to be used in the further analysis. DAS shows its interests based on the fact it used same signal with different representation. Evaluating DIP is of interest due to the reason it calculate the IF in a more direct manner than DAS. Figure 3.1 exhibits the flow chart of IF estimation approaches based on DIP and DAS separately. The preprocessing section is also displayed where adaptive bandpass filter is employed first to remove harmonics and DC component and convert it the target signal into monocomponent signal. After which, the Hilbert transform follows and transformed the real signal into analytic form.
+However, problems with real implementation such as phase unwrapping and differentiation should also be kept in mind. Details related with the implementation will be introduced in the following chapter. Apart from these, another bandpass filter will be proposed to take place of the one introduced before, which will give more reliable performance when analyzing an ECG/PPG signal. Additional improvement will also be explained to overcome some deficiencies of differentiation filter mentioned before.
+
+3.1 Adaptive Bandpass Filter
+
+Based on the fact that IF in our application only has meaning for sinusoidal input signals, a slowly varying bandpass filter is applied to remove the harmonic components. In order to accomplish this, the Average IF is estimated in a time-window first, say 30 seconds, to tune the center frequency of the band-pass filter. The bandwidth of the filter should be sufficiently wide to pass the changes in IF.
+
+Di Feng
+
+Master of Science Thesis
+
+34
+
+CHAPTER 3. METHODOLOGY
+
+Figure 3.1: Block scheme of DIP and DAS based approaches
+
+3.1.1 Viterbi Algorithm
+
+The driver-method from [11] as explained in the literature study is demonstrated to have certain limitations. To overcome its deficiency, the Viterbi algorithm is employed in to the pitch tracking process and the resultant Average IF is further used in the adaptive bandpass filter.
+The Viterbi algorithm was proposed in 1967 where it works as a decoding algorithm for noisy digital communications [6]. It is a dynamic programming algorithm which used to find the next stage with the highest probability. Unlike the above described approach that find the frequency index with maximum magnitude at the PSD of every time frame, the Viterbi algorithm search for multiple candidates simultaneously (three frequency candidates are recorded in this thesis), which have the largest magnitudes with certain separation distance. Those three peaks are displayed in Figure 3.3a. Once those three candidates are decided, the frequency component related with possible periodic motion artifacts need to be calculated, such as walking, cycling or running. It is possible that the subject is doing movements like swing the arm, where the movement will also contribute to the PPG signal. If view from the frequency domain, such movement could exist as a frequency component. The signal collected by the accelerometer
+
+Master of Science Thesis
+
+Di Feng
+
+3.1. ADAPTIVE BANDPASS FILTER
+
+35
+
+Probability Heart Rate(Time Frame Si+1)
+
+Joint Probability Density Distribution
+
+x 10−4
+6 5 4 3 2 1 0 200
+150 100 50
+Time Frame Si+1
+
+00
+
+200 150 100 50
+Time Frame Si
+
+(a)
+
+180 160 140 120 100
+80 60 40 20
+0 0
+
+Joint Probability of Heart Rate
+20 40 60 80 100 120 140 160 180 Heart Rate(Time Frame Si)
+(b)
+
+Figure 3.2: Joint Probability Density Distribution; a) 3D plot; b) Contour plot;
+
+Frequency Tracking with Viterbi algorithm 3
+1st 2nd 3rd 2.5
+
+2
+
+1.5
+
+1
+
+0.5
+
+0 0
+3 2.5
+
+50
+
+100
+
+150
+
+Time (s)
+
+(a)
+Frequency Tracking with Viterbi algorithm
+
+200 Average IF
+
+2
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+50
+
+100
+
+150
+
+200
+
+Time (s)
+
+(b)
+
+Figure 3.3: (a) The three largest peaks are found in the spectrogram each time-frame which could be the potential average IF. (b) The Viterbi algorithm is used to select the most probable IF per time-frame.
+
+Di Feng
+
+Master of Science Thesis
+
+36
+
+CHAPTER 3. METHODOLOGY
+
+are calculated and the maximum peaks in the frequency domain are detected as well. That frequency are called as the cyclic movement component in this thesis and if the magnitude of that component is larger than a threshold, there is a relatively high probability that the subject is conducting periodic movements. If one of those three peaks candidates in the PPG signal overlaps with that cyclic movement component, i.e, the frequency component related with the cyclic movement is selected as one of those three candidates, that candidate will be simply removed and the fourth highest peak is inducted as a surrogate.
+After those steps, the candidates of time frames are already at hand and the Viterbi algorithm will then be applied. The joint probability density distribution (joint PDF) calculated between heart rate of succeeded time frames are calculated (as it is plotted in Figure 3.2). Conditional probabilities for candidates in frame Si+1 could be calculated for corresponding candidates in Si with the help of that joint PDF. The Viterbi algorithm then can be used to decide the transmit probability between every two frames. Figure 3.3b gives the final estimation result. It is obviously that Figure 3.3b begins with the same point as it is shown in Figure 2.23a, however, it then jumps to the correct path according to the probability, which indicates that the Viterbi algorithm gives a better and more reliable performance.
+
+3.1.2 Reliability Decision
+
+The result estimated by the Viterbi Algorithm is not as good as that displayed in Figure 2.23b. In the frequency tracking algorithm introduced in [11], the pitch along the time scale is assumed to be consistence, hence abruptly jumps will not happened. However, the Viterbi algorithm purely relies on probability relationships between preceding and next stages where sometimes the frame may contain a lot of noises and interfere the judgement. The reliability is proposed as another factor to be considered in the following estimation. In Figure 3.4, the bottom subplot displays the corresponding reliability of time frames. In that Figure, the number ′1′ represents the chosen time frame is reliable where the number ′0′ stands for the opposite. The unreliable time frames are just discarded or ignored and will not be used in the further estimation.
+The method to evaluating the reliability simply relies on finding the magnitude of the highest peak in each time frame. Spectrum in every frame is normalized such that a unit windowed sinusoid has unit amplitude. Again, the highest frequency component of the signal collected by the accelerometer is calculated and compares with the highest peak from the selected time periods. If those two frequency indexes are overlapped, then that period is labelled as unreliable. If those two are not overlapped and the magnitude of the highest peak in the PPG recording is lower than a threshold ( 0.5 in the rest mode and 0.3 in the exercise mode, the corresponding PSD are normalized), those period is also considered as unreliable. Due to the applied normalization, the magnitude of the spectral peak directly reflects the periodicity of the signal. For example, in the case of a pure windowed sinusoid signal the peak amplitude is 1 while with a noisy signal (or motion artifact) the energy is distributed over a wider range of DFT bins, which
+
+Master of Science Thesis
+
+Di Feng
+
+3.2. BIAS CORRECTION OF DERIVATIVE FILTER
+
+37
+
+Figure 3.4: Pitch tracking and corresponding reliability. Above: Pitch tracking result; Below: Reliability, 1 stands for reliable and 0 means unreliable
+will result in much lower peak amplitudes. Since heart-rate signals assumed to be periodic, this peak amplitude is directly related to the reliability of our average IF estimation.
+
+3.2 Bias correction Of Derivative Filter
+
+A Derivative filter is used in both DIP and DAS based IF extraction methods. However, as was already shown some of these filters may have a bias for certain frequencies. For example, it is obviously that the frequency response of NDF is getting away from the ideal differentiation line with the increase in frequency (Figure 2.17). The frequency response of IDF and SGF are worse and even give an opposite frequency response in the high frequency range. This phenomenon will finally lead to a bias in the IF estimation.
+When using the DAS method, the input is an analytic signal instead which could be represented by one frequency component with the assumption that the signal is short time stationary and only contains the fundamental frequency. Since the frequency component is varying based on the selected period, the performance will differ from filter to filter. The FDF of course will
+
+Di Feng
+
+Master of Science Thesis
+
+38
+
+CHAPTER 3. METHODOLOGY
+
+Bias correction example 3
+
+2.5 Ideal Differentiation Response
+2
+
+Magnitude
+
+1.5 fcorrect
+1
+
+0.5
+
+fincorrect
+
+IDF
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Frequency (Hz)
+
+Figure 3.5: Example of Bias Correction; Comparison between frequency response of ideal differentiation and IDF as well as output i fcorrect and i fincorrect with the same input
+
+give the best result and NDF may also gives very good estimation if the main component does not located as very high frequency(around 3 Hz in this case). The estimation generated by using IDF and SGF will introduces large bias and the magnitude will also be compressed (figure 4.3).
+To overcome that deficient, an algorithm is proposed based on the characteristic of ideal differentiation filter. Given the fact that the frequency response of the ideal differentiation filter is a straight line goes across the origin and the slope is equal to 1, and the analytic signal applied is assumed only contains the fundamental frequency component, the input and output of those filters then should be equal. That means if the incorrect result is already at hand, and the frequency response of those imperfect filters are already known, the corresponding correct result can be derived easily.
+An example of using IDF is given in figure 3.5. The frequency response of IDF can be represented by Eq 3.1 where i f (i) stands for the frequency of highest component at every time period.
+
+π i fincorrect (i) = sin( 3 i f (i))
+
+(3.1)
+
+Based on the characteristic of the ideal response, i.e., i f (i) = i fcorrect(i), the correct result could be derived easily by using Eq 3.2.
+
+Master of Science Thesis
+
+Di Feng
+
+3.3. METHODS OF EVALUATION
+
+39
+
+3 i fcorrect (i) = i f (i) = π arcsin(i fincorrect (i))
+
+(3.2)
+
+Demonstration will be given in the results section. Using this algorithm need to meet a strict premise that the frequency should be lower than 1.5 Hz (for IDF). Otherwise it is hard to decide the correct result as the frequency response of IDF is actually a parabola where every result can refer to two values on the horizontal axis.
+
+The reason for such difference lies in the fact the input data sequence of those two approaches are different. In the method DIP, those differentiation filters are used to take differentiation on the IP signal where the unwrapping is already applied. The input is then a continuously increasing line and the data point in which stands for the phase angle at every time stamp. If that signal is transformed into the frequency domain, the main component is obvious locating at the frequency that is very close to zero point (very low frequency components) where those four differentiation filters all exhibit perfect differentiation performance.
+
+3.3 Methods Of Evaluation
+
+3.3.1 Interpolated IBIs To Beat Sequence Conversion
+
+As it is introduced in previous paragraphs, outcomes obtained by using DAS and DIP based approaches are uniformly sampled data sequences, where the beat location of every beat is not known. This would lead to a large convenient during the frequency analysis and Respiration Rate extraction where the uniformly sampled data sequence are necessary for the PSD. However, time domain analysis needs to know the actual beat instead of the interpolated one and convert the IF sequence to the beat sequence is then becoming necessary.
+
+A method is proposed which can be summarized as follows. i f and ibi are employed to represent the estimated IF and converted beat sequence while t is employed to represent the time stamp that every beat occurrence.
+
+1. Choose the first point as the start beat, and the corresponding time stamp as the time that beat occurred. Then that time stamp could be denote as t1 and its magnitude recorded as ibi1.
+
+2. The time stamp of the second beat is then t2 = t1 + ibi1. If t2 overlapped with the time stamp of any point in the IF sequence, the corresponding magnitude will be regards as the ibi2. If not, and t2 is located between time indexes of i fi and i fi+1, a linear interpolation will be made between those two points, and ibi2 is calculated according to the distance between t2 and time indexes of those two IF points.
+
+3.
+
+If distance between ti and any of its nearest IF points are larger than
+
+1 fs
+
+( fs is the sampling
+
+Di Feng
+
+Master of Science Thesis
+
+40
+1500 1000
+
+CHAPTER 3. METHODOLOGY
+IF−1 IBIs
+
+Amplitude (ms)
+
+500
+
+0 1859
+
+1860
+
+1861
+
+1862
+
+1863 1864 1865 Time (s)
+
+1866
+
+1867
+
+1868
+
+1869
+
+Figure 3.6: Conversion of uniformely sampled IF to non-uniformely sampled beat locations with corresponding IBIs.
+
+frequency), it means there are missing points during that range, ti and ibii will be labeled as NAN (Invalid) and the cursor will search for the next region that satisfy criteria in step 1 and 2.
+4. The beat sequence will be calculated by repeating steps 1 to 3.
+A demonstration example is given in Figure 3.6. It should be noticed that the result generated by this algorithm cannot generate a beat sequence with identical time stamps to the beat sequence detected by the beat detection algorithm. This result will not affect the SDNN where the variation of the HRV is evaluated. For the RMSSD, it measures the variation of differences among IBIs. Problems will occur due to the fact that inaccurate time stamps will affect those differences to a large extend, and corresponding demonstration will be given in the results section.
+
+3.3.2 Evaluation Coefficient
+
+Apart from estimation methods, evaluation approaches should also be paid attention to. As it is introduced that the ECG signal, its corresponding information and the RP signal are used as the ground truth reference, it would be much helpful if differences between PPIs, estimated IBIs and those references could be analyzed by numerical values. Different evaluation methods are explained in following paragraphs.
+
+Master of Science Thesis
+
+Di Feng
+
+3.3. METHODS OF EVALUATION
+
+41
+
+3.3.2.1 CC
+
+The CC is a measure of the linear correlation between two assays X and Y who will give a value
+
+in the range −1 ∼ 1. A correlation equal to 1 stands for totally correlated while 0 is no correlation
+
+and −1 is negative correlation. According to the definition, the correlation is calculated by the
+
+covariance of two assays divided by the product of the standard deviation of those two samples,
+
+which is displayed in Eq 3.3.
+
+ρX ,Y
+
+=
+
+cov(X , Y )
+σX σY
+
+(3.3)
+
+In this project, a good correlation is expected to give a CC at around or larger than 0.97.
+
+3.3.2.2 RMSD
+
+In addition, the Root Mean Square (RMS) can also be used on the differences between the
+
+theoretical value (or the reference signal) and the actual measurement (or estimation), which
+
+is further named as Root Mean Square Deviation or Root Mean Square Error (RMSD). The
+
+method to calculate this error evaluation coefficient is described in Eq 3.4, where x is the mea-
+
+surement or estimation and the xˆ stands for the reference or theoretical value.
+
+√
+
+∑ XRMSD =
+
+1 n
+
+(xˆ− x)2
+
+(3.4)
+
+This evaluation method measures the deviation of the pairwise error to 0 where a perfect result is assumed to have pairwise errors always equal to 0.
+
+Di Feng
+
+Master of Science Thesis
+
+CHAPTER 4 Results And Evaluation
+
+In this chapter, the DIP and DAS method will be evaluated in various manners. First in Section 4.1 artificial sinusoidal signals are generated where the underlying IF is known. The effect of the bias correction filter will also be displayed. In the next section comparisons are made with real recorded sleep data where also an ECG reference is used. Various HRV methods are then extracted from the ECG signals in Section 4.2 and compared with the HRV measures estimated from the PPG signal with the proposed method
+
+4.1 Results With Simulated Input Signals
+
+Before implementing those two approaches on real data sets, a simulated model is firstly employed where a designed IF sequence is generated as it is expressed in Eq 4.1. The sampling frequency of the parameter t in Eq 4.1 is set to be 6 Hz. The corresponding plot is given in Figure 4.1. With the IF already known, the time domain signal could be then calculated by Eq 4.3.
+
+π i fest(t) = 1 + 0.1cos( 3 t)
+∫t
+ip(t) = 2π i fest (t)
+0
+y(t) = cos(ip(t))
+
+(4.1) (4.2) (4.3)
+
+As there is no noise introduced in the generated signal, the adaptive bandpass filter is not necessary here. Methods DAS and DIP are used here accompanied by all those four differentiation filters and corresponding results are displayed in Figure 4.2 and 4.3 separately.
+
+The IF estimated by the DIP with those four differentiation filters are generally good except
+
+Master of Science Thesis
+
+Di Feng
+
+4.1. RESULTS WITH SIMULATED INPUT SIGNALS
+
+43
+
+Simulated IF 1.5
+
+Magnitude of Instantanes Frequency (Hz)
+
+1
+
+0.5
+
+0
+
+0
+
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+Time
+
+Figure 4.1: IF of simulated model
+
+FDF 1.5
+
+NDF 1.5
+
+IF(Hz)
+
+IF(Hz)
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+50
+
+100
+
+0
+
+50
+
+100
+
+Time IDF
+
+Time SGF
+
+1.5
+
+1.5
+
+IF(Hz)
+
+IF(Hz)
+
+1
+
+1
+
+0.5 0
+Di Feng
+
+0.5
+
+50
+
+100
+
+0
+
+Time
+
+50
+
+100
+
+Time
+
+Figure 4.2: Estimation result by using DIP with different filters
+
+Master of Science Thesis
+
+44
+
+CHAPTER 4. RESULTS AND EVALUATION
+
+IF(Hz)
+
+FDF 1.5
+
+NDF 1.5
+
+1
+
+1
+
+IF(Hz)
+
+0.5
+
+0.5
+
+0
+
+0
+
+0
+
+50
+
+100
+
+0
+
+50
+
+100
+
+Time
+
+Time
+
+IDF
+
+SGF
+
+1.5
+
+1.5
+
+1
+
+1
+
+IF(Hz)
+
+0.5
+
+0.5
+
+0
+
+0
+
+0
+
+50
+
+100
+
+0
+
+50
+
+100
+
+Time
+
+Time
+
+Figure 4.3: Estimation result by using DAS with different filters
+
+IF(Hz)
+
+Bias Correction Demonstration
+IF Estimated IF 1.15
+
+1.1
+
+1.05
+
+IF(Hz)
+
+1
+
+0.95
+
+0.9
+
+0.85
+
+0.8
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Time
+
+Figure 4.4: Bias Correction example by using DAS with IDF, the bias is removed
+
+Master of Science Thesis
+
+Di Feng
+
+4.1. RESULTS WITH SIMULATED INPUT SIGNALS
+
+45
+
+the case when the FDF is employed. This is caused by the limitation of the simulation software (Matlab) where cyclic convolution is employed in command 'fft' and it assumed the start and the end of the data sequence are connected. However, the input of FDF when using the method DIP is an accumulated IP which definitely does not meet this requirement. While the FDF in the method DAS is applied on the complex signal whose real and imaginary parts are both sinusoid, and perfectly fits that condition.
+When estimating IF by using DIP based approach, the filter is applied to the IP signal while in DAS it is applied directly to the analytic signal. The IP has much lower frequency content which make the bias of the filter is less a problem.
+Looking at the result estimated by DAS (Figure 4.3), it is obviously that estimations are biased when NDF, IDF and SGF are used to differentiate the signal. These results are caused by the fact that, by deriving the analytic signal directly, the input signal contains higher frequency components, in contrast when deriving IP directly as is done in the DIP method. Those filters are initially designed to give outputs equal to the frequency component of the fundamental component in every frame. However, frequency responses of those filters are different and they have various differentiation range1. With the center frequency in the model assigned to be 1 Hz, frequency responses of all those filters are deviated from the ideal response ( Figure 2.16). Such deviation will then leads to the compression and bias of the estimation.
+The bias correction fucntion shows its effects here. A demonstration example is given in Figure 4.4 where the estimated result is obtained by using the IDF. It is obviously that the estimation can perfect recover the IF buried in the signal with the help of the scaling function. However, for the SGF, the center frequency is already beyond its differentiation range (0 ∼ 0.8 Hz), the scaling function have no effects on it.
+According to that are displayed in above figures, both algorithms seem applicable in the real data set. However, four differentiation filters do have pros and cons, and not all of them will be used. FDF gives the best performance when using DAS methods, but the real data set is usually very large and FDF is really computational expensive, it will be excluded in the following section. NDF seems having a very good estimation when using the method DIP and it also generated the correct IF when applying the scaling function with the DAS method, but it should not be ignored that it will cause an unavoidable half sample time delay which cannot be made up. Therefore, IDF will not be employed in the further analysis. The IDF and SGF give similar performance on the DIP, but SGF is superior than IDF that it could compress the high frequency component or noise. Given the fact that only the very low frequency component in the accumulated IP sequence contains the IF information, using the SGF together with the approach DIP will become a smarter choice. Considering about the DAS, both the IDF and the SGF have limited differentiation range. However, the differentiation range of the IDF is larger which make it a better option. Method DIP will be applied with the SGF and DAS will be used with the IDF.
+1Frequency ranges that fits the ideal response
+
+Di Feng
+
+Master of Science Thesis
+
+46
+
+CHAPTER 4. RESULTS AND EVALUATION
+
+To make it simplifier, filters will not be mentioned in following paragraphs and terms DIP and DAS will be used to represent these two approaches directly. IFs estimated by the method DIP and DAS will be called as IFDIP and IFDAS accordingly.
+
+4.2 Results With Sleep Recordings
+23 Datasets recording ECG and PPG of 15 subjects will be used in this section, the relevant information is given in Appendix A. In addition, the corresponding Respiration Rate(RP) is also offered as the reference since it is one of interested information buried in the HRV. The RP is measured by a respiband which usually is a belt fasten on the chest of the subject. Inhalation and exhalation will cause movement of the chest and that will be measured by that belt. Those data are measured when those subjects are sleeping. However, some movements are still exist and may also lead to the missing data points, those segments are simply removed in the evaluation process. IBIs detected from a PPG signal (with sampling frequncey set to be 64 Hz) and an ECG signal by the beat detector will be represented by PPI and RRI. The IF estimated by proposed approaches on a low sampled PPG signal are called as IFDIP and IFDAS, while the inversion of them will be represented by PPIDIP and PPIDAS for convenience. In the following section, RRIs and corresponding information are used as reference except for the evaluation of RP.
+
+4.2.1 General Evaluation
+
+With both time domain and frequency domain parameters already been introduced above, some general evaluation will be given.
+
+Coverage (%)
+
+100 90 80 70 60 50 40 30 20 10 0 0
+
+Coverage rate of different subjects
+
+Coverage of PPI Coverage of PPIDIP Coverage of PPIDAS
+
+5
+
+10
+
+15
+
+20
+
+25
+
+Subject Index
+
+Figure 4.5: Coverage of PPI, PPIDIP and PPIDAS on different subjects
+
+Master of Science Thesis
+
+Di Feng
+
+4.2. RESULTS WITH SLEEP RECORDINGS
+
+47
+
+Figure 4.5 gives the percentage of intervals extracted or estimated from the different subjects by using different approaches. The coverage of PPIDIP and PPIDAS are identical to each other while the coverage of PPI is much higher. This phenomenon is caused by the setting in the estimation procedure where window length is set to be 30 seconds during estimation. An example is shown in Figure 4.10 where the middle plot is PPI and the bottom plot is PPIDIP. The unreliable range of PPI last for 20 seconds, and there are at least two windows that used for estimating PPIs will be involved with that region. During those two windows, the estimation will definitely generate wrong IF (and hence wrong PPIDIP in this case) which could be treated as failure estimation. Then 20 seconds unreliable signal is corresponding to at least 45 seconds failure estimation. The less coverage in PPIDIP or PPIDAS is then become reasonable. The coverage rate of estimated PPIs could be increased either using a higher overlapping rate or a more strict decision during estimation. However, such activities will introduce more ectopic (beats with a wrong value) in the estimation which finally leads to a worse result. Thus there exists a tradeoff between a higher coverage and the accuracy of the estimation.
+
+Figure 4.6: RMSD (ms) of PPIs and estimated IBIs based on RRIs, 5% outliers are removed,
+
+Figure 4.6 gives the difference in accuracy between PPI, PPIDIP and PPIDAS when RRIs is employed as the reference. It calculate similar parameter to that of RMSD except that 5% outlier are excluded in this case. It is not hard to see that the PPIs sequence gives best result while those of estimated PPIs are slightly worse. The detail numbers are displayed in Appendix B.
+Table 4.1 gives the general evaluation of all those figures demonstrated in this section. For SDNN, differences of those three candidates are 20 ∼ 30ms which is really large where the overall value are located in the range 40 ∼ 120ms. Besides, those really low correlation coefficients also show that all those three approaches are not work in good manners. The RMSSD
+
+Di Feng
+
+Master of Science Thesis
+
+48
+
+CHAPTER 4. RESULTS AND EVALUATION
+
+Table 4.1: General Evaluation based on different approaches
+
+Signals SDNN RMSSD LF/HF
+RP
+
+PPI 29.8713(ms) 4.4221(ms)
+0.2133 0.1918(bpm)
+
+RMSD PPIDIP 26.8145(ms) 8.1265(ms) 0.3302 0.2565(bpm)
+
+PPIDAS 27.9912(ms) 8.1063(ms)
+0.3818 0.2407(bpm)
+
+PPI 0.7798 0.9823 0.9655 0.9797
+
+CC PPIDIP 0.8573 0.8786 0.9200 0.9638
+
+PPIDAS 0.8176 0.8646 0.9194 0.9690
+
+Table 4.2: SDNN evaluation with a PPI signal employed as the reference, the first subject
+
+PPIDIP
+
+PPIDAS
+
+RMSD 7.0890(ms) 3.2446(ms)
+
+CC
+
+0.9779
+
+0.9915
+
+seems have a bit worse performance when compared with SDNN by using RMSD. However, the PPIDIP sequence and the PPIDAS sequence really give very low correlation. This parameter may not be a good evaluation approach. For the ratio between LF/HF, all three signals again give very good results, and the result of PPI is too good which makes others seem like a bit worse. In the RP, PPIDIP give the best result compared with other two methods. This may be caused by the fact that the RP is extracted from the frequency domain and the process of converting the beat sequence (PPI) into uniformly sampled sequence will also introduce errors.
+Table 4.2 is made based on the fact that variation periods in an RRI signal are corresponding to unreliable periods in an PPI signal or PPI estimated from proposed approaches. The PPI is then used as the reference and performance of the PPIDIP and the PPIDAS are evaluated by numerical numbers. It is not hard to find that both estimations are actually good.
+
+4.2.2 Inter-Beat Interval Estimation
+Comparison between PPI, PPIDIP and PPIDAS with and without bias correction are displayed in Figure 4.7. To make it more clear, only five minutes segments are used where it is obviously that PPI is almost identical to the RRI. Figure 4.7b shows that PPIDIP follows RRI, however, those two signals are not perfectly matching. Plots given in Figure 4.7c and 4.7d show that the bias correction function works well even on the real data set. Although the PPIDAS and the RRI are generally matching in Figure 4.7d, the performance is slightly worse than the PPIDIP.
+
+4.2.3 Time Domain Parameters Analysis
+
+As a next step, the IF is used to extract the time-domain HRV measure SDNN and RMSSD. Explain what these are somewhere either in this section or the previous section. After which,
+
+Master of Science Thesis
+
+Di Feng
+
+4.2. RESULTS WITH SLEEP RECORDINGS
+
+49
+
+1500 1000
+
+1500 PPI RRI
+1000
+
+PPIDIP RRI
+
+Amplitude (ms)
+
+Amplitude (ms)
+
+500
+
+500
+
+0 1
+1500
+
+1.005
+
+1.01
+
+1.015
+
+1.02
+
+Time (s)
+
+(a)
+
+1.025
+
+1.03 x 104
+
+PPIDAS without bias RRI
+
+1000
+
+0 1
+1500
+
+1.005
+
+1.01
+
+1.015
+
+1.02
+
+Time (s)
+
+(b)
+
+1.025
+
+1.03 x 104
+
+PPIDAS with bias RRI
+
+1000
+
+Amplitude (ms)
+
+Amplitude (ms)
+
+500
+
+500
+
+0
+
+1
+
+1.005
+
+1.01
+
+1.015
+
+1.02
+
+1.025
+
+1.03
+
+Time (s)
+
+x 104
+
+(c)
+
+0
+
+1
+
+1.005
+
+1.01
+
+1.015
+
+1.02
+
+1.025
+
+1.03
+
+Time (s)
+
+x 104
+
+(d)
+
+Figure 4.7: 5 minutes signal of the first subject; a) Comparison between PPI and RRI, two signals are
+almost perfectly overlapped; b) Comparison between PPI and PPIDIP, two signals are almost perfectly overlapped; c) Comparison between PPI and PPIDAS without bias correction, there is an obvious bias; d) Comparison between PPI and PPIDAS with bias correction, two signals are almost perfectly overlapped but slightly difference do exist;
+
+Di Feng
+
+Master of Science Thesis
+
+50
+
+CHAPTER 4. RESULTS AND EVALUATION
+
+SDANN (ms) SDANN (ms)
+
+100
+
+SDANN of PPI
+
+90
+
+SDANN of RRI
+
+80
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+10
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Time (s)
+
+x 104
+
+(a)
+
+100
+
+SDANN of PPIDIP
+
+90
+
+SDANN of RRI
+
+80
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+10
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Time (s)
+
+x 104
+
+(b)
+
+SDANN (ms)
+
+100
+
+SDANN of PPIDAS
+
+90
+
+SDANN of RRI
+
+80
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+10
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+Time (s)
+
+x 104
+
+(c)
+
+Figure 4.8: SDANN estimation for 1 subject. a) SDANN comparison between RRI and PPI, there
+is almost no difference; b) SDANN comparison between RRI and PPIDIP, small differences exist; c) SDANN comparison between RRI and PPIDAS, relatively large differences exist
+
+the SDNN of every subject will also be displayed. The RMSSD is another coefficient that will be evaluated here based on different subjects.
+
+Figure 4.8 gives the plot of 5 minutes SDANN of the PPI, PPIDIP and PPIDAS compared with that of the RRI separately. It is not hard to find that when using the method DAS, the difference between the SDANN is largest. SDANN calculated from PPIDIP and SDANN calculated from PPI give similar performance where PPIDIP has best performance at the beginning and PPI gives best match at the middle section.
+The long term SDNN of different subjects are calculated based on the RRI, PPI and estimated PPIs simultaneously where Figure 4.9a and 4.9b give corresponding plots. It is obviously that results calculated from PPI, PPIDIP and PPIDAS are almost identical to each other but the SDNN calculated form the RRI obviously gives higher value. This phenomenon could be explained accompanied with the plot in Figure 4.10. There are frequently occurred variation segments (labeled in the top subplot) in the RRI that are ignored in PPI and also in PPIDIP or PPIDAS. However, those parts should not be ignored during the evaluation of SDNN, and the including
+
+Master of Science Thesis
+
+Di Feng
+
+4.2. RESULTS WITH SLEEP RECORDINGS
+
+51
+
+160 SDNN of RRI
+
+SDNN of PPI
+
+140
+
+SDNN of PPIDIP
+
+160 SDNN of RRI
+
+SDNN of PPI
+
+140
+
+SDNN of PPIDAS
+
+120
+
+120
+
+SDNN (ms) SDNN (ms)
+
+100
+
+100
+
+80
+
+80
+
+60
+
+60
+
+40
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+Subject Index
+
+(a)
+
+40
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+Subject Index
+
+(b)
+
+Figure 4.9: a) SDNN comparison between RRI, PPI and PPIDIP, SDNN of PPI and PPIDIP have very small differences while that of RRI have relatively large value; b)SDANN comparison between RRI, PPI
+and PPIDAS, SDNN of PPI and PPIDAS are almost identical while that of RRI have relatively large value;
+
+of those segments will finally leads to a higher value. But the similar results given by PPI and the estimated PPIs prove that they can provide almost the same SDNN parameters during evaluation.
+
+Amplitude (ms)
+
+Amplitude (ms)
+
+1200 1000
+800 2190
+
+RRI 2200
+
+2210
+
+1200 1000
+800 2190
+
+PPI 2200
+
+2210
+
+1200 1000
+800 2190
+
+PPIDIP 2200
+
+2210
+
+2220 2220 2220
+
+Variation part
+
+2230
+
+2240 Time (s)
+
+2250
+
+2260
+
+Unreliable
+
+2270
+
+2230
+
+2240 Time (s)
+
+2250
+
+Unreliable
+
+2260
+
+2270
+
+2230
+
+2240 Time (s)
+
+2250
+
+2260
+
+2270
+
+2280 2280 2280
+
+2290 2290 2290
+
+Amplitude (ms)
+
+Figure 4.10: Example of the unreliable period on RRI, PPI and PPIDIP, some variation part in the RRI will case unreliable part in PPI and a larger unreliable period on PPIDIP; The difference between area of unreliable in PPI and PPIDIP lies in the fact it use window function to split a PPG signal
+
+Figure 4.11 gives the similar plot while RMSSD is presented instead. It is not hard to find that although the RMSSD have similar values for some subjects, results of others really differ a lot. This is caused by the conversion algorithm, which only converts the IF into a beat sequence. The RMSSD calculated from that sequence is then not stands for the real RMSSD of the beat
+
+Di Feng
+
+Master of Science Thesis
+
+52
+
+CHAPTER 4. RESULTS AND EVALUATION
+
+80 RMSSD of RRI
+
+RMSSD of PPI
+
+70
+
+RMSSD of PPIDIP
+
+60
+
+80 RMSSD of RRI
+
+RMSSD of PPI
+
+70
+
+RMSSD of PPIDAS
+
+60
+
+RMSSD (ms) RMSSD (ms)
+
+50
+
+50
+
+40
+
+40
+
+30
+
+30
+
+20
+
+20
+
+10
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+Subject Index
+
+(a)
+
+10
+
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+Subject Index
+
+(b)
+
+Figure 4.11: a) RMSSD comparison between RRI, PPI and PPIDIP, large differences exist between three signals; b) RMSSD comparison between RRI, PPI and PPIDAS, large differences exist between three signals;
+
+1500 IF−1 IBI1 IBI2
+1000
+
+Amplitude (ms)
+
+500
+
+0 1859
+
+1860
+
+1861
+
+1862
+
+1863
+
+1864 Time (s)
+
+1865
+
+1866
+
+1867
+
+1868
+
+1869
+
+Figure 4.12: Conversion of uniformely sampled IF to non-uniformely sampled beat locations with corresponding IBIs; IBI1 start from the 1st point and IBI2 starts with the 2nd point in every period corresponding; RMSSD: 27.5908 ms (IBI1) and 27.9142 ms (IBI2)
+
+sequence. It should also be noticed that even PPI and RRI are not giving the same RMSSD for every subject, this indicates that the RMSSD may not be a good option to be evaluated.
+In order to find the reason that the RMSSD of the estimated IBIs give remarkable results, Figure 4.12 are plotted where the conversion algorithms are applied with different start point. In the selected frame, the RMSSD of two calculated beat sequence are 27.5908 ms and 27.9142 ms separately where the difference is too small and could be neglected. Then the poor performance should caused by the differences between the estimated PPIs by those two approaches on low sampled signal and PPIs estimated from high sampled PPG signal.
+
+Master of Science Thesis
+
+Di Feng
+
+4.2. RESULTS WITH SLEEP RECORDINGS
+
+53
+
+4.2.4 Frequency Domain Parameters Analysis
+The LF/HF ratio is evaluated as a frequency domain parameter of the subject, and the evaluation is based on 5 minutes segments with 50% overlapping. Figure 4.13, 4.14 and 4.15 display corresponding results of evaluation.
+There is no doubt that LF/HF ratios calculated from PPI meet that extracted from RRI best except for some abnormal points. The performance of ratios given by the PPIDIP sequence and the PPIDAS sequence are just slightly worse than that calculated from PPI . The corresponding differences demonstrate that using the method DIP gives a bit better result than that calculated by the DAS.
+
+Ratio
+
+3.5 PPI RRI
+3
+
+2.5
+
+2
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+3.5
+
+Time (s)
+
+x 104
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+3.5
+
+Time (s)
+
+x 104
+
+Difference
+
+Figure 4.13: LF/HF ratio analysis over every 5 minutes segments for 1 subject, RRI and PPI; Only one point give very large difference
+
+Di Feng
+
+Master of Science Thesis
+
+54
+
+CHAPTER 4. RESULTS AND EVALUATION
+
+Ratio
+
+3.5
+
+PPIDIP
+
+3
+
+RRI
+
+2.5
+
+2
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+3.5
+
+Time (s)
+
+x 104
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+3.5
+
+Time (s)
+
+x 104
+
+Difference
+
+Figure 4.14: LF/HF ratio analysis over every 5 minutes segments for 1 subject, RRI and PPIDIP; The average error is slightly large but acceptable (mostly less than 0.5)
+
+Ratio
+
+3.5
+
+PPIDAS
+
+3
+
+RRI
+
+2.5
+
+2
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+3.5
+
+Time (s)
+
+x 104
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+
+3.5
+
+Time (s)
+
+x 104
+
+Difference
+
+Figure 4.15: LF/HF ratio analysis over every 5 minutes segments for 1 subject, RRI and PPIDAS; The average error is slightly large but acceptable (mostly less than 0.5), but it a bit worse than that estimated
+from PPIDIP
+
+Master of Science Thesis
+
+Di Feng
+
+4.2. RESULTS WITH SLEEP RECORDINGS
+
+55
+
+4.2.5 Respiration Rate Extraction
+Apart from the LF/HF ratio, the RP is another very interesting parameter that could be extracted. Respiration rate extracted from PPIs (RPppg), Respiration rate extracted from PPIDIP (RPDIP), Respiration rate extracted from PPIDAS (RPDAS) and Respiration rate extracted from Respiband measured signals (RPi) are calculated separately.
+Figure 4.16, 4.17 and 4.18 give comparisons between RPppg, RPDIP, RPDAS and RPi where blue line stands for the RP at every time frame and it is assumed to act as the reference. Corresponding errors are also presented and with the unit breath per minute (bpm). It is obviously that in most frames, errors are less than 1 bpm. 1 bpm is about 6% of the real breath rate of the subject (15 ∼ 20 bpm of this subject), and 10% is the largest error rate could be tolerated. Hence RPppg, RPDIP and RPDAS all give very good performances. Although breath rate extracted from PPIDIP and PPIDAS are not better than the RP obtained from PPI, those results are still good enough considering the fact that PPIDIP and PPIDAS are estimated from such low sampling rate.
+
+20
+
+RPi
+
+19
+
+RPppg
+
+Breath Per Minute (bpm)
+
+18
+
+17
+
+16
+
+15
+
+1.98
+
+1.99
+
+2
+
+2
+
+2.01
+
+2.02
+
+2.03
+
+2.04
+
+Time (s)
+
+x 104
+
+Error (bpm)
+
+1
+
+0
+
+1.98
+
+1.99
+
+2
+
+2.01
+
+2.02
+
+2.03
+
+2.04
+
+Time (s)
+
+x 104
+
+Figure 4.16: Above: Respiration rate extracted from signal measured by a RP signal and a PPI signal ; bottom: Corresponding errors; all of the estimation are less than 1 bpm (6% error rate)
+
+Di Feng
+
+Master of Science Thesis
+
+56
+
+CHAPTER 4. RESULTS AND EVALUATION
+
+Breath Per Minute (bpm)
+
+19.5 19
+
+RPi RPDIP
+
+18.5
+
+18
+
+17.5
+
+17
+
+16.5
+
+16
+
+15.5
+
+1.98
+
+1.99
+
+2
+
+2.01
+
+2.02
+
+2.03
+
+2.04
+
+Time
+
+x 104
+
+2
+
+Error (bpm)
+
+1
+
+0
+
+1.98
+
+1.99
+
+2
+
+2.01
+
+2.02
+
+2.03
+
+2.04
+
+Time (s)
+
+x 104
+
+Figure 4.17: Above: Respiration rate extracted from signal measured by a RP signal and a PPIDIP signal; bottom: Corresponding errors; all of the estimation are less than 1 bpm (6% error rate)
+
+20
+
+RPi
+
+19
+
+RPDAS
+
+Breath Per Minute (bpm)
+
+18
+
+17
+
+16
+
+15
+
+1.98
+
+1.99
+
+2
+
+2
+
+2.01
+
+2.02
+
+2.03
+
+2.04
+
+Time (s)
+
+x 104
+
+Error (bpm)
+
+1
+
+0
+
+1.98
+
+1.99
+
+2
+
+2.01
+
+2.02
+
+2.03
+
+2.04
+
+Time (s)
+
+x 104
+
+Figure 4.18: Above: Respiration rate extracted from signal measured by a RP signal and a PPIDAS signal; bottom: Corresponding errors; all of the estimation are less than 1 bpm (6% error rate)
+
+Master of Science Thesis
+
+Di Feng
+
+CHAPTER 5
+
+Conclusions
+
+Two approaches have be investigated to extract IF from a PPG signal in real-time application under the case that the sampling frequency is 6 Hz. The firstly approach is based on deriving the estimated IP from an analytic signal while the second approach derives the analytic signal directly after which the IF is estimated.
+For both methods, the focus is mainly on the issue, i.e., extracting the IP or the derivation of IP from a real PPG signal. However the PPG signal is real and it is necessary to convert the real signal into complex signals.
+Before the analytic signal is extracted from the input signal, an adaptive bandpass filter is proposed to remove the harmonics in the input signal. As all these two approaches are estimating the IF based on fundamental frequency components at every time stamps, the correctly tracking of the main pitch is becoming obviously important. Viterbi algorithm is employed here where the probabilities of every stages are calculated from the joint probability density function of the heart rate. By using this algorithm, the start point will have less importance which leads to lower probability of tracking the wrong pitch. Besides, movements will affect the reliability of the PPG signal and influence the tracking process, introduction of the Viterbi algorithm solves this problem to a large extent where every stage is decided by a score based on the probability. After processing the input signal with the adaptive bandpass filter, the Hilbert transform is applied and two approaches are used separately.
+The method DAS focus on the relationship of different representations of the analytic signal. With a series of transformation, the IP could be calculated from several terms. Differentiation is then supposed to be applied on the IP signal. The primary proposed method is based on the Fourier transform, which is named as FDF in this thesis. The FDF gives a frequency response that is exactly same to that of the ideal differential filter with a shortcoming of high computational load. Instead, three other differentiation methods are given, namely NDF, IDF and SGF. These
+
+Di Feng
+
+Master of Science Thesis
+
+58
+
+CHAPTER 5. CONCLUSIONS
+
+three methods are more efficient in computing, but they all have compress performance at the high frequency range, e.g., frequency larger than 1.5 Hz. These phenomena made the DAS can only be used in the case when the center frequency is lower than 1.5 Hz, besides, the closer the center frequency to 1.5 Hz the worse the result.
+Another algorithm is proposed to overcome the bias estimation of DAS, which is named as bias correction. This algorithm is ensured to work based on the fact that both the input and output are in the frequency domain, where a linear operator is sufficient. Results obtained after using such bias correction algorithm is also given in the results section. However, the limitation that DAS can only works when center frequency is lower than 1.5 Hz is fixed, given the assumption that the sampling frequency is 6 Hz and FDF will not be used.
+The second approach is named as DIP, which follows the same way to generate analytic signal as it is in the method TR. Different from using mathematical relationships to calculate the IP, DIP calculate the phase angle at every sampled time stamps by simply using the triangular relationships, and generated a series of phase angle that are located in the range −π − π. However, the IF is calculated by taking derivation of the IP where the calculated phase angle in the previous steps are not continuous and have a number of discontinuity points. If simply use that sequence in the derivation filter without dealing with those discontinuity points, the resultant IF will contains a number of jumps that are obviously wrong. To overcome such problem, the conventional phase unwrapping algorithm is proposed. Although the conventional approach has limitation when the SNR is low, the signal under such circumstance is also unreliable and hardly extract useful information. Hence the method proposed is sufficient and applied in this project.
+After generated the IP sequence, the differentiation filter is needed to obtain the IF. FDF is already been excluded due to its computational expense. NDF, IDF and SGF all give similar performance where NDF will introduced half sample time delay while IDF and SGF will cause one sample time delay. Due to the limitation of the digital signal processing, such half sample time delay is impossible to be overcame which make IDF also less optimal.
+The DAS method is employed together with IDF while SGF is used in the approach DIP in the simulation and experiment steps. In the simulation model where IF is designed as a sinusoidal signal, those methods give performances according to their basic characteristics. In the experiment, an ECG signal and the a RP signal are both employed to act as the reference signal. The performance of the estimated IF is compared with that of the PPG signal where both time domain and frequency domain parameters are extracted and evaluated.
+RMSD and CC are employed as coefficients to evaluate those parameters, namely, SDANN, SDNN, RMSSD, LF/HF and RP. The evaluated results showed that except time domain parameters, all other parameters are good enough compared to the that calculated from the PPG signal. It should also be noticed that PPI and estimated IBIs give similar SDNN while that of the RRI is different which make SDNN a less reliable parameter to compare performance of
+
+Master of Science Thesis
+
+Di Feng
+
+59
+PPI and estimated IBIs. It is shown that these two approaches are capable to obtain the useful information, i.e., LF/HF and RP. By applying those two approaches, it is possible to measure the signal under a very low sampling rate and they could work as alternatives to the current beat detection algorithm.
+Future work
+Although both approaches are proved to work on a PPG signal, the test is only conducted when those data are collected from sleeping subjects. In order to make real implementation or embedded into the watch and other portable devices, experiments related with more movements and higher heart rate should be involved. However, the DAS method will then become invalid in such circumstance, either using FDF or raising the sampling rate a bit higher should be considered then. As for the evaluation, more parameters should be tested, such as NN50, SDSD and other frequency domain parameters. It would also be interesting to compare those evaluated numbers on the patient with already known diseases and also being monitored on daily basis. The comparison between estimation and the ground truth will make the result more convincible.
+
+Di Feng
+
+Master of Science Thesis
+
+Appendices
+
+Master of Science Thesis
+
+Di Feng
+
+APPENDIX A
+
+Subject Details
+
+Table A.1: 23 sleep datasets are used, 15 subjects participated in the measurement and the data length is the sleep time of every subject.
+
+Dataset Index
+1 2 3 4 5 6 7 8 9 10 11 12
+
+Subject Index
+1 1 2 3 3 4 4 5 6 7 7 8
+
+Data length h(hour) m(minute)
+9h 00m 8h 26m 7h 49m 7h 05m 7h 08m 8h 28m 8h 57m 8h 35m 7h 21m 7h 43m 7h 49m 6h 50m
+
+Dataset Index 13 14 15 16 17 18 19 20 21 22 23
+
+Subject Index
+8 9 10 11 11 12 13 14 14 15 15
+
+Data length h(hour) m(minute)
+7h 43m 8h 37m 7h 49m 7h 53m 7h 52m 8h 36m 7h 36m 7h 50m 7h 31m 7h 06m 7h 01m
+
+Di Feng
+
+Master of Science Thesis
+
+APPENDIX B General Performance
+
+Table B.1: RMSD of PPI and estimated IBIs compared to RRI with 5% outliers removed
+
+Dataset 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+
+PPI (ms) 3.102 4.722 4.792 5.555 3.464 5.043 3.605 7.436 8.971 6.791 6.483 3.817 2.852 6.905 5.039 6.609 6.536 3.268 4.979 3.671 4.870 3.345 3.741
+
+DIP (ms) 9.124 8.224 9.777 13.710 10.810 6.987 5.944 13.220 18.000 7.743 8.235 10.210 8.927 16.580 9.063 16.070 14.610 16.610 8.745 9.739 11.400 7.689 9.384
+
+DAS (ms) 12.560 11.690 14.810 26.170 16.910 13.800 11.770 19.370 29.770 13.140 13.130 16.020 14.910 23.550 16.290 24.530 21.740 24.320 13.500 14.370 17.740 11.090 13.500
+
+Master of Science Thesis
+
+Di Feng
+
+Bibliography
+
+[1] http://sports.tomtom.com/. Accessed: 2015-04-17.
+[2] http://neurosky.com/2015/01/ecg-vs-ppg-for-heart-rate-monitoring-which-is-best/. Accessed: 2015-04-21.
+[3] http://www.ncbi.nlm.nih.gov/books/NBK2214/. Accessed: 2015-04-23.
+[4] http://en.wikipedia.org/wiki/Electrocardiography. Accessed: 2015-05-25.
+[5] http://en.wikipedia.org/wiki/Hilbert_transform#CITEREFPandey1996. Accessed: 2015-05-04.
+[6] http://en.wikipedia.org/wiki/Viterbi_algorithm. Accessed: 2015-05-25.
+[7] S Abboud and O Barnea. Errors due to sampling frequency of the electrocardiogram in spectral analysis of heart rate signals with low variability. In Computers in Cardiology 1995, pages 461--463. IEEE, 1995.
+[8] Ahmed S Abutaleb. Number theory and bootstrapping for phase unwrapping. Circuits and Systems I: Fundamental Theory and Applications, IEEE Transactions on, 49(5):632--638, 2002.
+[9] U Rajendra Acharya, K Paul Joseph, N Kannathal, Choo Min Lim, and Jasjit S Suri. Heart rate variability: a review. Medical and Biological Engineering and Computing, 44(12):1031-1051, 2006.
+[10] John Allen. Photoplethysmography and its application in clinical physiological measurement. Physiological measurement, 28(3):R1, 2007.
+[11] Allan Kardec Barros and Noboru Ohnishi. Heart instantaneous frequency (hif): an alternative approach to extract heart rate variability. Biomedical Engineering, IEEE Transactions on, 48(8):850--855, 2001.
+[12] Boualem Boashash. Estimating and interpreting the instantaneous frequency of a signal. i. fundamentals. Proceedings of the IEEE, 80(4):520--538, 1992.
+
+Di Feng
+
+Master of Science Thesis
+
+64
+
+BIBLIOGRAPHY
+
+[13] Boualem Boashash. Estimating and interpreting the instantaneous frequency of a signal. ii. algorithms and applications. Proceedings of the IEEE, 80(4):540--568, 1992.
+[14] M Bolanos, H Nazeran, and E Haltiwanger. Comparison of heart rate variability signal features derived from electrocardiography and photoplethysmography in healthy individuals. In Engineering in Medicine and Biology Society, 2006. EMBS'06. 28th Annual International Conference of the IEEE, pages 4289--4294. IEEE, 2006.
+[15] Walter B Cannon. Bodily changes in pain, fear, hunger, and rage. New York, Appleton, 1929.
+[16] Chia-Chi Chang, Tzu-Chien Hsiao, and Hung-Yi Hsu. Frequency range extension of spectral analysis of pulse rate variability based on hilbert--huang transform. Medical & biological engineering & computing, 52(4):343--351, 2014.
+[17] FC Chang, CK Chang, CC Chiu, SF Hsu, and YD Lin. Variations of hrv analysis in different approaches. In Computers in Cardiology, 2007, pages 17--20. IEEE, 2007.
+[18] Gari D Clifford. Signal processing methods for heart rate variability. PhD thesis, Department of Engineering Science, University of Oxford, 2002.
+[19] Isabelle Constant, Dominique Laude, Isabelle Murat, and Jean-Luc Elghozi. Pulse rate variability is not a surrogate for heart rate variability. Clinical Science, 97:391--397, 1999.
+[20] E Gil, M Orini, R Bailón, JM Vergara, L Mainardi, and P Laguna. Photoplethysmography pulse rate variability as a surrogate measurement of heart rate variability during nonstationary conditions. Physiological Measurement, 31(9):1271, 2010.
+[21] Jaideva C Goswami and Albert E Hoefel. Algorithms for estimating instantaneous frequency. Signal processing, 84(8):1423--1427, 2004.
+[22] Junichiro Hayano, Allan K Barros, Atsunori Kamiya, Nobuyuki Ohte, and Fumihiko Yasuma. Assessment of pulse rate variability by the method of pulse frequency demodulation. Biomedical engineering online, 4(1):62, 2005.
+[23] Kazuyoshi Itoh. Analysis of the phase unwrapping algorithm. Applied Optics, 21(14):2470-2470, 1982.
+[24] Dae-Geun Jang, Sangjun Park, Minsoo Hahn, and Seung-Hun Park. A real-time pulse peak detection algorithm for the photoplethysmogram.
+[25] JK Kahn and JD Howell. Frank norman wilson. Clinical cardiology, 10(10):616--618, 1987.
+[26] Ahmet Reşit KAVSAOĞLU, Kemal POLAT, and Mehmet Recep BOZKURT. An innovative peak detection algorithm for photoplethysmography signals: an 1 adaptive segmentation method 2.
+
+Master of Science Thesis
+
+Di Feng
+
+BIBLIOGRAPHY
+
+65
+
+[27] Tsung-Chieh Lee and Hung-Wen Chiu. Frequency-domain heart rate variability analysis performed by digital filters. In Computing in Cardiology, 2010, pages 589--592. IEEE, 2010.
+[28] Pei-Chen Lin, Kung-Cheng Hsu, Chia-Chi Chang, and Tzu-Chien Hsiao. Reliability of instantaneous pulse rate variability by using photoplethysmography. In Workshop on Biomedical Microelectronic Translational Systems, volume SP001, 2014.
+[29] C Loeffler and R Leonard Jr. Phase unwrapping via median filtering. In Acoustics, Speech, and Signal Processing, IEEE International Conference on ICASSP'84., volume 9, pages 483--485. IEEE, 1984.
+[30] G Lu, F Yang, JA Taylor, and JF Stein. A comparison of photoplethysmography and ecg recording to analyse heart rate variability in healthy subjects. Journal of medical engineering & technology, 33(8):634--641, 2009.
+[31] Jianwen Luo, Kui Ying, Ping He, and Jing Bai. Properties of savitzky--golay digital differentiators. Digital Signal Processing, 15(2):122--136, 2005.
+[32] Marek Malik, J Thomas Bigger, A John Camm, Robert E Kleiger, Alberto Malliani, Arthur J Moss, and Peter J Schwartz. Heart rate variability standards of measurement, physiological interpretation, and clinical use. European heart journal, 17(3):354--381, 1996.
+[33] Alberto Malliani, Federico Lombardi, and Massimo Pagani. Power spectrum analysis of heart rate variability: a tool to explore neural regulatory mechanisms. British heart journal, 71(1):1, 1994.
+[34] Alberto Malliani, Massimo Pagani, Federico Lombardi, and Sergio Cerutti. Cardiovascular neural regulation explored in the frequency domain. Circulation, 84(2):482--492, 1991.
+[35] Javier Mateo and Pablo Laguna. Improved heart rate variability signal analysis from the beat occurrence times according to the ipfm model. Biomedical Engineering, IEEE Transactions on, 47(8):985--996, 2000.
+[36] Richard McGowan and Roman Kuc. A direct relation between a signal time series and its unwrapped phase. Acoustics, Speech and Signal Processing, IEEE Transactions on, 30(5):719--726, 1982.
+[37] Toshiaki Otsuka, Tomoyuki Kawada, Masao Katsumata, Chikao Ibuki, and Yoshiki Kusama. Independent determinants of second derivative of the finger photoplethysmogram among various cardiovascular risk factors in middle-aged men. Hypertension Research, 30(12):1211, 2007.
+[38] Chirag J Pujary. Investigation of Photodetector Optimization in Reducing Power Consumption by a Noninvasive Pulse Oximeter Sensor. PhD thesis, WORCESTER POLYTECHNIC INSTITUTE, 2004.
+
+Di Feng
+
+Master of Science Thesis
+
+66
+
+BIBLIOGRAPHY
+
+[39] MM Rao and RR Ram. Photoplethysmography: A noninvasive tool for possible subtle energy monitoring during yogic practices. SUBTLE ENERGIES AND ENERGY MEDICINE, 17(2):163, 2006.
+[40] Robert Rauh, Robert Limley, Rainer-Dieter Bauer, Martin Radespiel-Troger, and Michael Mueck-Weymann. Comparison of heart rate variability and pulse rate variability detected with photoplethysmography. In Saratov Fall Meeting 2003: Optical Technologies in Biophysics and Medicine V, pages 115--126. International Society for Optics and Photonics, 2004.
+[41] Philippe Renevey, Rolf Vetter, Jens Krauss, Patrick Celka, and Yves Depeursinge. Wristlocated pulse detection using ir signals, activity and nonlinear artifact cancellation. In Engineering in Medicine and Biology Society, 2001. Proceedings of the 23rd Annual International Conference of the IEEE, volume 3, pages 3030--3033. IEEE, 2001.
+[42] Axel Schäfer and Jan Vagedes. How accurate is pulse rate variability as an estimate of heart rate variability?: A review on studies comparing photoplethysmographic technology with an electrocardiogram. International journal of cardiology, 166(1):15--29, 2013.
+[43] Ronald W Schafer. What is a savitzky-golay filter?[lecture notes]. Signal Processing Magazine, IEEE, 28(4):111--117, 2011.
+[44] John Silberbauer. Wilson￿s central terminal, the keystone to electrogram recording--what, where and why?
+[45] Kenneth Steiglitz and Bradley Dickinson. Phase unwrapping by factorization. Acoustics, Speech and Signal Processing, IEEE Transactions on, 30(6):984--991, 1982.
+[46] Xuxue Sun, Ping Yang, Yulin Li, Zhifan Gao, and Yuan-Ting Zhang. Robust heart beat detection from photoplethysmography interlaced with motion artifacts based on empirical mode decomposition. In Biomedical and Health Informatics (BHI), 2012 IEEE-EMBS International Conference on, pages 775--778. IEEE, 2012.
+[47] Juan Sztajzel et al. Heart rate variability: a noninvasive electrocardiographic method to measure the autonomic nervous system. Swiss medical weekly, 134:514--522, 2004.
+[48] José Tribolet. A new phase unwrapping algorithm. IEEE Transactions on Acoustics Speech and Signal Processing, 25(2):170--177, 1977.
+[49] G Valenti and KR Westerterp. Optical heart rate monitoring module validation study. In Consumer Electronics (ICCE), 2013 IEEE International Conference on, pages 195--196. IEEE, 2013.
+[50] J Ville. Theory and application of the notion of complex signal. Technical report, DTIC Document, 1958.
+
+Master of Science Thesis
+
+Di Feng
+
+BIBLIOGRAPHY
+
+67
+
+[51] Fumihiko Yasuma and Jun-ichiro Hayano. Respiratory sinus arrhythmia: why does the heartbeat synchronize with respiratory rhythm? Chest Journal, 125(2):683--690, 2004.
+[52] Deng Zhen-Miao and Huang Xiao-Hong. A simple phase unwrapping algorithm and its application to phase- based frequency estimation. Recent Patents on Signal Processing, 2:63--71, 2010.
+[53] KP Zimmermann. On frequency-domain and time-domain phase unwrapping. volume 75, pages 519--520. IEEE, 1987.
+
+Di Feng
+
+Master of Science Thesis
+
+Glossary
+
+AC Various of the waveform. 13 ANS Autonomic Nervous System. 9
+
+BA Bland-Altman method. 16
+
+CC Pearson product moment correlation coefficient method. 16, 41
+
+DAS Derivative on Analytic signal. 26, 33, 37, 42, 45, 46, 50, 53, 57--59 DC Mean of the waveform. 11, 13, 29, 33 DIP Derivative on the IP. 26, 33, 37, 39, 42, 45, 46, 53, 58
+
+ECG Electrocardiogram. 1--7, 9, 13, 15, 23, 29, 30, 32, 33, 40, 46
+
+FDF Fourier Differentiation Filter. 21, 22, 37, 45
+
+HF High Frequency. 11, 12, 17 HRV Heart Rate Variability. 1--3, 9--12, 15, 16, 40, 46, 48
+
+IBI Inter Beats Interval. 2--4, 9, 32, 40, 46, 52 IDF Interpolate Differentiation Filter. 21, 24, 37--39, 45 IF Instantaneous Frequnecy. 3, 4, 17, 20, 21, 25--30, 32, 33, 39, 42, 45, 46 IFDAS Instantaeous Frequency estimated by the method DAS and the filter IDF. 46 IFDIP Instantaeous Frequency estimated by the method DIP and the filter SDF. 46 IP Instantaneous Phase. 17--19, 21, 26, 39, 45
+
+LA Left Arm. 7 Master of Science Thesis
+
+Di Feng
+
+Glossary
+
+69
+
+LED Light-Emitting Diode. 2, 3, 12 LF Low Frequency. 11, 12, 17 LF/HF Ratio between LF and HF components. 3, 11, 12, 48, 53 LL Left Leg. 7
+
+MI Myocardial Infarction. 12
+
+NDF Normal Differentiation Filter. 21, 23, 24, 37, 38, 45
+
+photo-diode Equipment that measures emitting light. 12 PPG Photoplethysmogram. 2, 3, 12--15, 23, 29, 30, 32--34, 36, 46, 52 PPI Pulse to Pulse Intervals(PPI). 2, 13--16, 40, 46--48, 50--53, 55 PPIDAS IBIs calculated from IFDAS. 46--48, 50, 53, 55 PPIDIP IBIs calculated from IFDIP. 46--48, 50, 53, 55 PRV Pulse Rate Variability. 2--4, 15, 16 PSD Power Spectral Density. 3, 10, 11, 30, 34, 36, 39
+
+QRS complex Combination of three clear points on ECG pulse. 1, 8
+
+R peak Highest point in one ECG pulse. 1, 8, 13, 15 RA Right Arm. 7 RL Right Leg. 7 RMS Root Mean Square. 41 RMSD Root Mean Square Deviation or Root Mean Square Error. 41, 47, 48 RMSSD Root Mean Square of Successive Differences. 10, 40, 47, 48, 50--52 RP Respiration Rate. 2, 11, 40, 46, 48, 55, 58 RPDAS Respiration rate extracted from PPIDAS. 55 RPDIP Respiration rate extracted from PPIDIP. 55 RPi Respiration rate extracted from Respiband measured signals. 55 RPppg Respiration rate extracted from PPIs. 55 RRI R-peak to R-peak Intervals. 2, 8--10, 13, 15, 16, 46--48, 50, 52, 53
+
+Di Feng
+
+Master of Science Thesis
+
+70
+
+Glossary
+
+RSA Respiratory Sine Arrhythmia. 1, 2, 9, 11
+SDANN thee standard deviation of the average NN intervals, usually 5 minutes. 50 SDNN the standard deviation of NN-intervals. 10, 40, 47, 48, 50, 51 SGF Savitzky-Golay Filter. 21, 25, 37, 38, 45 SNR Signal to Noise Ratio. 21 STFT Short Time Fourier Transform. 27, 28, 32
+TFD Time Frequency distribution analysis. 27, 28, 30, 32
+WVD Wigner Ville Distribution. 27, 28, 32
+
+Master of Science Thesis
+
+Di Feng
+

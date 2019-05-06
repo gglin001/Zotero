@@ -1,0 +1,155 @@
+Chinese Journal of Medical Instrumentation
+
+研究与论著
+
+2018 年 42 卷 第 5 期
+
+文章编号：1671-7104(2018)05-0326-04
+
+心电信号中基线漂移的去除方法比较及算法实现
+
+【作
+
+者】 陈苹1，叶继伦1, 2, 3，张旭1, 2, 3，陈刚2
+
+1 深圳大学医学院生物医学工程系，深圳市，518060
+
+2 广东省生物医学信号检测与超声成像重点实验室，深圳市，518060
+
+3 深圳市生物医学重点实验室，深圳市，518060
+
+【摘
+
+要】 基线漂移的去除是心电信号预处理的一个难点和重点。该文讨论了几种常用的抑制心电信号基线漂移的方法：中值滤
+
+波、高通滤波、曲线拟合、小波变换、基于心电信号特征点和形态学滤波方法，通过在基线漂移严重和微弱两种情况下
+
+将几种方法进行了数据分析和对比。该文比较了几种常用方法以及应用效果评价，从而为心电信号的基线漂移去除方法
+
+选择提供参考。
+
+【关 键 词】 心电信号；基线漂移；滤波 【中图分类号】 R540.4+1
+
+【文献标志码】 A
+
+doi: 10.3969/j.issn.1671-7104.2018.05.004
+
+Comparison of Baseline Removal Methods in ECG and Algorithm Implementation
+
+【 Writers 】 CHEN Ping1, YE Jilun1, 2, 3, ZHANG Xu1, 2, 3, CHEN Gang2 1 Biomedical Engineering Department, School of Medicine, Shenzhen University, Shenzhen, 518060 2 Guangdong Key Lab for Biomedical Measurements and Ultrasound Imaging, Shenzhen, 518060 3 Shenzhen Key Lab for Biomedical Engineering, Shenzhen, 518060
+【 Abstract 】 The removal of baseline drift is a diﬃcult and important point in ECG preprocessing. This article discusses several commonly used methods to suppress ECG baseline drift: median ﬁltering, high-pass ﬁltering, curve ﬁtting, wavelet transform, ECG-based feature points and morphological ﬁltering methods. Under the circumstances of the baseline drift serious or weak, several methods for data are analyzed and compared. This article compares several commonly used methods as well as evaluation of application effects to provide a reference for the selection of baseline drift removal methods for ECG signals.
+【Key words 】 ECG, baseline drift, ﬁltering
+
+0 引言 心电信号是生物医学信号中一种低幅低频的微弱
+信号。基线漂移一般是由于人体呼吸、电极运动等引 起，其一般小于1 Hz[1]。常用的去除方法有中值滤波 法[2]、小波变换法[3]、形态学滤波法[4]等。本文简单介 绍了几种常用方法并用Matlab实现。以下用于处理的 原始心电信号是截取自MIT-BIH数据库的序号为103 和114两种数据中的一段数据，我们通过对比基线漂 移严重和微弱两种情况，比较各种方法的优劣之处， 其中103为较严重漂移的心电数据，114为漂移较为微 弱的心电数据。
+1 方法 1.1 中值滤波法
+中值滤波的定义[5]就是取信号中的某一点前的N （N为奇数）个数据，将这N个数据进行排序，取数
+收稿日期：2018-01-25 作者简介：陈苹，E-mail: 1292194853@qq.com 通信作者：叶继伦，E-mail: yejilun@126.com
+
+据的中值，将数据的中值作为该点的数据。将整段信 号都做以上处理，提取出漂移信号，将原始信号减去 漂移信号，便得到滤波后的效果。测试效果如图1、 图2所示。
+图1 中值滤波去除严重基线漂移 Fig.1 Median ﬁltering removes severe baseline drift
+1.2 高通滤波法 基线漂移的频率成分较低，所以用高通的方法
+
+326 万方数据
+
+Chinese Journal of Medical Instrumentation
+
+研究与论著
+
+2018 年 42 卷 第 5 期
+
+对基线漂移的去除也有一定的效果。IIR滤波器能用 较低的阶数获得较高的频率选择性，但不具有线性 相位[6]。由于心电信号的处理对线性相位的要求不 是很高，所以可以选择IIR滤波器。这里我们选用 butterworth滤波器，截止频率为1 Hz。测试效果如图 3、图4所示。
+
+1.3 小波变换法 根据小波变换多分辨分析理论，对含噪信号进
+行多尺度小波分解后，可以利用信号和噪声在频谱和 能量分布上的不同，直接将噪声所对应的小波分解尺 度上的细节分量去除，然后利用小波逆变换进行信号 重构，就可以有效去除信号中的噪声成份。经过试验 得到，采用小波函数db8对原始信号进行8个尺度的分 解，第8层分解的信号频率与基线漂移的频率接近， 因此将前7层信号重构，去除第8层信号，即可得到去 除基线漂移的信号。测试效果如图5、图6所示。
+
+图2 中值滤波去除微弱基线漂移 Fig.2 Median ﬁltering removes weak baseline drift
+
+图5 小波变换去除严重基线漂移 Fig.5 Wavelet transform to remove severe baseline drift
+
+图3 高通滤波去除严重基线漂移 Fig.3 High-pass ﬁltering removes severe baseline drift
+
+图4 高通滤波去除微弱基线漂移 Fig.4 High-pass ﬁltering removes weak baseline drift
+万方数据
+
+图6 小波变换去除微弱基线漂移 Fig.6 Wavelet transform to remove weak baseline drift
+1.4 曲线拟合法 曲线拟合法去基线漂移是利用多项式拟合估计基
+线漂移，再从原始信号中减去此基线漂移。曲线拟合 就是通过需要处理的数据，利用数据来求取近似函 数。曲线拟合并不要求函数的曲线通过所有离散点， 只要求近似函数能够反映这些离散点的一般趋势，不 出现局部波动。曲线拟合的常用方法一般是基于最小
+327
+
+Chinese Journal of Medical Instrumentation
+
+研究与论著
+
+二乘法，在以下处理中，我们选用最小二乘法进行拟 合。测试效果如图7、图8所示。
+
+2018 年 42 卷 第 5 期
+
+图7 曲线拟合去除严重基线漂移 Fig.7 Curve ﬁtting removes severe baseline drift
+
+图9 特征点滤波去除严重基线漂移 Fig.9 Feature point removes severe baseline drift
+
+图8 曲线拟合去除微弱基线漂移 Fig.8 Curve ﬁtting removes weak baseline drift
+1.5 基于心电信号特征点的方法 此方法是找出波形上的所有的R波的峰值点，
+通过三次样条插值拟合出基线，将原始信号减去 基线就可去除基线漂移。寻找R波的算法是基于 Pan&Tompkins算法，通过三次样条插值拟合出这些 点连成的基线，此方法去基线漂移后的效果如图9、 图10所示。 1.6 形态学滤波法
+数学形态学（Mathematical Morphology）的基础 是不同的集合运算，主要包括膨胀、腐蚀、开运算、 闭运算等[4]。下面介绍形态学滤波的原理。
+设信号序列为f(n)(n=0, 1,......N-1)，结构元序列 为g(m)(m=0, 1,......M-1)，其中N>M。
+
+图10 特征点滤波去除微弱基线漂移 Fig.10 Feature point removes weak baseline drift
+
+1）膨胀运算：
+
+(1) 其中n=M-1, M,... , N-1。
+2）腐蚀运算：
+
+(2) 其中n=0, 1,..., N-M。
+
+3）开运算：
+
+(3)
+
+4）闭运算：
+
+(4)
+
+图11是形态学滤波去除基线漂移的流程图，图
+
+12、图13是信号经过形态学滤波后对比图。
+
+2 总结与讨论
+
+本文选用两种数据段，序号103中截取的数据段
+
+是漂移比较严重的情况，序号114中截取的数据段是
+
+漂移较为微弱的情况，我们通过以上方法对两种情况
+
+进行数据分析和对比，进行总结。
+
+328 万方数据
+
+Chinese Journal of Medical Instrumentation
+
+研究与论著
+
+2018 年 42 卷 第 5 期
+
+图11 形态学滤波去除基线漂移的流程图 Fig.11 Flow chart of morphological ﬁlter to remove the baseline drift
+图12 形态学滤波去除严重基线漂移 Fig.12 Morphological ﬁlter remove severe baseline
+
+滤波的效果较好，但是运算量比较大，而且由于噪声 频带往往与有用信号的频带有部分重叠，部分有用信 息可能会丢失。
+曲线拟合法最主要的有两点直线拟合，抛物线拟 合及三次样条函数拟合等。直线拟合适用于基线漂移 不太严重的时候，其优点是算法简单，速度快，但当 基线漂移严重的时候，误差较大。用三次样条函数估 计基线，效果较好。但是此方法与处理信号的长度有 关，难以满足实时性要求。
+基于心电信号特征点的算法，应用较好，我们需 要在提取心电波形特征点如P起点和峰值点的基础上 达到抑制基线漂移的目的，但是使用时的算法复杂， 且滤波后的波形在一定程度上产生了严重失真。
+形态学滤波算法简单，实时性好，抑制效果明 显，两种情况下的抑制漂移效果都较为明显。其中结 构元长度的选取是关键，选取不合适的情况下会导致 波形损失。
+因此，通过以上方法的算法比较，各种方法都有 优缺点，可通过实际情况和场合选择适合的滤波方法 对心电信号中的基线漂移进行去除。例如，在基线漂 移不严重的情况下，我们可以选择曲线拟合法和高通 滤波法、小波变换等，在漂移严重的情况下，我们可 选择中值滤波和形态学滤波等方法，在漂移严重程度 判别以及滤波方法及参数设置的智能选择上需要进一 步根据应用要求进行匹配。
+
+图13 形态学滤波去除微弱基线漂移 Fig.13 Morphological ﬁlter remove weak baseline drift
+中值滤波是一种非线性平滑技术，在心电信号 中对于严重和微弱的基线漂移抑制效果明显，而且对 ST段也有保护作用，但是对高斯噪声影响很大的情 况下，效果比较差。
+高通滤波的方法虽然能对严重基线漂移有一定的 效果，但是对ST段的影响较大，幅形失真较大。在 基线漂移比较微弱的情况下，高通滤波能达到一定的 去除效果。
+小波变换抑制基线漂移，是根据频域上的相似来 达到抑制基线漂移的目的，选择尺度合适的情况下，
+
+参考文献 [1] ZIVANOVIC M, GONZALEZ-IZAL M. Simultaneous and
+reporting performance results of cardiac rhythm and ST-segment measurement algorithms[S]. America:Association for the Advancement of Medical Instrumentation, 2003. [2] CHOUHAN V S, MEHTA S S. Total removal of baseline drift from ECG signal[C]. International Conference on Computing: Theory and Application (ICCTA’07).Washington DC, USA:IEEE Computer Society, 2007: 512-515. [3] 孙延奎. 小波分析及应用[M]. 北京: 机械工业出版社, 2005. [4] CHU C, DELP E. Impulsive noise suppression and background normalization of eletrocardiogram signals using morphological operators[J]. IEEE Trans Biomed Eng, 1989, 36(2): 262-273. [5] 林家瑞, 朱帆三. 生物医学弱电信号的检测与处理技术[J]. 国外 医学生物工程分册, 1994, 17(1): 8-14. [6] 胡广书. 数字信号处理-理论、算法与实现(第二版)[M]. 北京: 清 华大学出版社, 2003.
+
+329 万方数据
+

@@ -1,0 +1,1197 @@
+Copyright Warning & Restrictions
+The copyright law of the United States (Title 17, United States Code) governs the making of photocopies or other
+reproductions of copyrighted material.
+Under certain conditions specified in the law, libraries and archives are authorized to furnish a photocopy or other reproduction. One of these specified conditions is that the
+photocopy or reproduction is not to be “used for any purpose other than private study, scholarship, or research.” If a, user makes a request for, or later uses, a photocopy or reproduction for purposes in excess of “fair use” that user
+may be liable for copyright infringement,
+This institution reserves the right to refuse to accept a copying order if, in its judgment, fulfillment of the order
+would involve violation of copyright law.
+Please Note: The author retains the copyright while the New Jersey Institute of Technology reserves the right to
+distribute this thesis or dissertation
+Printing note: If you do not wish to print this page, then select “Pages from: first page # to: last page #” on the print dialog screen
+
+The Van Houten library has removed some of the personal information and all signatures from the approval page and biographical sketches of theses and dissertations in order to protect the identity of NJIT graduates and faculty.
+
+ABSTRACT DESIGN AND IMPLEMENTATION OF HEART RATE VARIABILITY
+MEASURES IN THE TIME DOMAIN
+by Binoy John Mathews
+The following study was conducted to design and implement computer programs to derive five time domain and two frequency domain Heart Rate Variability (HRV) measures from 24 hour Holter monitor recordings and to generate activity plots that display the variation of three of the five time domain measures and two frequency domain measures over a period of 24 hours.
+Working with known pre and post experimental ECG data taken from a cyclical exercise program, standard parameters in both the time and frequency domains were derived using programs designed in Labview 7.0 engineering software package. Five parameters in the time domain namely SDNN, SDNN index, SDANN, rMSSD, pNN50, and two in the frequency domain, namely the low and high frequency band areas. The designed programs were then tested on sample data files. Results of these tests were then validated by verifying them with results calculated on statistical tools available on Matlab and MS-Excel and also against standard ranges of values for the implemented measures. The calculated results were found to lie well within the standardized ranges obtained from literature. [2] A time domain analysis was then performed on a data set that consisted of 22 files of 24 hour Holler monitor recordings. These 22 files were part of a cyclical exercise study in which 11 healthy women with ages ranging from 32 to 58 participated as subjects. Eleven files were recorded prior to the cyclical exercise program
+
+and another 11 files were recorded upon completion of the program. Each recording contained the beat to beat intervals of a normal day in the subject's life. The generated results were then tested for significance using standard t-tests and Analysis of Variance (ANOVA).
+In summary, no significant changes among pre and post experimental HRV measure values were revealed for parameters in the time and frequency domain. But the designed programs were found to reiterate a previously performed analyses in the frequency domain on the same data set, i.e., no significant changes. The implemented programs were then modified to plot 24 hour changes with pre-selected time and frequency domain parameters by dividing the 24 hour recording into 5 minute segments and generating the HRV measures from each interval. By performing such a calculation an array of HRV measures was formed. This array contained the HRV measure for each 5 minute interval over course of 24 hours. The array was then plotted using Labview 7.0 or Matlab and the peculiarities of the plots were then compared. Trends in change between the two domains that were studied were noted and suggestions made on how to derive a better understanding of the plots. The modified programs were designed with an objective to study the changes in the time domain parameters during a 24 hour period. Due to time constraints, the study of the time plot could not be completed, but the programs to generate 24 hour changes in 3 time domain and 2 frequency domain parameters and their corresponding plots were derived successfully. The programs now await to further testing and validation. Once all applications complete testing and validation, they will comprise a valuable "toolbox" for Heart Rate Variability Analysis.
+
+DESIGN AND IMPLEMENTATION OF HEART RATE VARIABILITY MEASURES IN THE TIME DOMAIN
+by Binoy John Mathews
+A Thesis Submitted to the Faculty of New Jersey Institute of Technology in Partial Fulfillment of the Requirements for the Degree of Master of Science in Biomedical Engineering Department of Biomedical Engineering
+May 2004
+
+APPROVAL PAGE
+DESIGN AND IMPLEMENTATION OF HEART RATE VARIABILITY MEASURES IN THE TIME DOMAIN
+Binoy John Mathews
+
+Dr. Stanley Reisman, Thesis Advisor
+
+Date
+
+Professor of Biomedical Engineering, NJIT
+
+Ronald Rockland, Committee Member
+
+Date
+
+Associate Professor of Engineering Technology, NJIT
+
+Dr. David Bristol, Committee Member
+
+Date
+
+Professor of Biomedical Engineering, NJIT
+
+Author: Degree: Date:
+
+BIOGRAPHICAL SKETCH
+Binoy John Mathews Master of Science January 2004
+
+Graduate and Undergraduate Education:
+
+• Master of Science in Biomedical Engineering New Jersey Institute of Technology, Newark, New Jersey, 2004
+
+• Bachelor of Engineering in Computer Science and Engineering University of Madras, Chennai, India, 2001
+
+Major:
+
+Biomedical Engineering
+
+To my beloved family Your faith is my encouragement.
+Your support is my strength. Your love is my inspiration.
+Thank You...
+
+ACKNOWLEDGMENT I would like to thank my thesis and graduate advisor, Dr. Stanley Reisman for his invaluable guidance and encouragement. It was his support, wisdom and direction that drew out the best in me and inspired me throughout my research.
+I would like to thank Dr. Ronald Rockland whose expertise in Labview programming and insightful suggestions immensely contributed to the success of this thesis. Thank you Dr. David Kristol and Dr. Ronald Rockland for serving as members of my thesis committee.
+I must take this opportunity to thank my colleagues in the Biosignals Lab at the New Jersey Institute of Technology. Their constant support, cooperation, and enthusiasm have always been an inspiration to me. I am so fortunate to have been a member of this team.
+To all my friends who have urged me on, given me hope, and stood by me during difficult times, I thank you. I would not have come this far without you.
+Mere words cannot express my gratitude to my beloved family. I dedicate this thesis to them. Their love, support, and prayers are the foundation of all my achievements. They are my parents, John and Mary Mathew, my sister, Rosemary (Asha) Mathew, and my brother, Anish Mathew. I am eternally grateful for the sacrifices they have made for me and the graciousness they have always shown.
+I would like to thank God for all His blessings and generous providence. I have attained nothing without His divine intervention. Finally, I thank all those who have generously assisted me during my graduate study at the New Jersey Institute of Technology.
+vi
+
+TABLE OF CONTENTS Chapter 1 INTRODUCTION
+1.1 Scope of Research 1.2 Goals of the Study 2 PHYSIOLOGICAL BACKGROUND 2.1 The Cardiovascular System 2.2 The Anatomy of the Human Heart
+2.2.1 The Human Heart 2.3 The Nervous System
+2.3.1 Sympathetic Regulation of Heart Rate 2.3.2 Parasympathetic Regulation of Heart Rate 2.4 Physiology Behind the Changes in Heart Rate 2.5 Heart Rate Variability as a Measure of Autonomic Function 3 HEART RATE VARIABILITY 3.1 The ECG Signal 3.2 Fundamentals of Heart Rate Variability 3.3 Domains of Analysis 3.3.1 Heart Rate Variability in the Time Domain 3.3.2 Geometrical Methods of Heart Rate Variabiltty Analysis 3.3.3 Frequency Domain Measures of Heart Rate Variability 3.4 Time Domain Analysis 3.4.1 SDNN
+vii
+
+Page 1
+1 3 4 4 4 5 7 8 8 9 11 13 13 19 21 21 22 22 25 26
+
+TABLE OF CONTENTS (Continued)
+Chapter 3.4.2 SDNN index 3.4.3 SDANN 3.4.4 pNN5O 3.4.5 rMSSD
+3.5 Frequency Domain Analysis 3.5.1 Short Term Recordings 3.5.2 Long Term Recordings
+4 LABVIEW PROGRAMS 4.1 Labview 7.O and Heart Rate Variability 4.2 Protocol of Research: Program Execution and Analysis 4.3 Integrated Sub-vi's 4.3.1 Sub — Zero eliminator 4.3.2 Sub — Begin and end points for sums.vi 4.3.3 Sub-Calculation of SDDN and array of SD 4.4 Algorithms and VI's 4.4.1 File Conditioners 4.4.2 SDNN 4.4.3 SDNN index 4.4.4 SDANN 4.4.5 pNN5O 4.4.6 rMSSD
+viii
+
+Page 26 27 27 27 28 28 29 3O 3O 31 32 32 35 38 4O
+4O 45 45 47 48 5O
+
+TABLE OF CONTENTS (Continued)
+Chapter 4.5 The III creator 4.5.1 Sub — decimator at 1O Hz.vi 4.5.2 Sub — III decimated and mean eliminator creator.vi 4.5.3 III creator.vi 4.6 Power spectrum.vi 4.6.1 Sub — calculation of power spectrum.vi 4.6.2 Power Spectrum.vi 4.7 Software Testing
+5 DATA ACQUISITION INSTRUMENTATION AND THE DATA SET 5.1 The Data Set 5.1.1 Experimentation and Purpose 5.1.2 Protocol 5.1.3 The Data Set 5.1.4 Data Set Anomalies 5.1.5 Data Corrections 5.2 Instrumentation: The Holter Monitor
+6 RESULTS, DISCUSSIONS, AND CONCLUSIONS 6.1 Time Domain Analysis 6.1.1 Student's t-test 6.1.2 Analysis of Variance (ANOVA)
+
+Page 52 52 53
+56 57 58 61 62 63 63 63
+64 66 67 68 7O 72 72
+74 74
+
+ix
+
+TABLE OF CONTENTS (Continued)
+Chapter 6.2 Frequency Domain Analysis 6.2.1 Student's t-test 6.2.2 Analysis of Variance 6.3 24 Hour Activity Plots 6.4 Discussion 6.5 Conclusions
+7 POTENTIAL OF RESEARCH AND FUTURE GOALS APPENDIX A LABVIEW PROGRAMS: FRONT ENDS APPENDIX B PROGRAMS IN DEVELOPMENT: FRONT ENDS REFERENCES
+
+Page 78
+8O 81 82 83 85 86 93 1O1 1O4
+
+x
+
+LIST OF TABLES
+
+Table
+
+Page
+
+2.2 Autonomic effects on selected organs of the body
+
+11
+
+3.1 Normal values of standard measures of HRV
+
+24
+
+5.1 Characteristics of subjects participating in study
+
+65
+
+6.1 Time domain Measures
+
+73
+
+6.2 t-test: SDNN
+
+74
+
+6.3 t-test: SDANN
+
+75
+
+6.4 t-test: SDNN index
+
+75
+
+6.5 t-test: pNN50
+
+76
+
+6.6 t-test: rMSSD
+
+76
+
+6.7 ANOVA: Time domain measures
+
+77
+
+6.8 Frequency domain measures
+
+79
+
+6.9 t-test: LF area
+
+80
+
+6.10 t-test: HF area
+
+80
+
+6.11 ANOVA: Frequency domain analysis
+
+81
+
+6.12 Approximate correspondence of time domain and frequency domain methods
+
+Applied to 24 hour ECG recordings
+
+83
+
+xi
+
+LIST OF FIGURES
+
+Figure
+
+Page
+
+2.1 Figure showing the heart and its chambers
+
+6
+
+2.2 Systemic and pulmonary circulations
+
+7
+
+2.3 Sympathetic and parasympathetic nervous system
+
+9
+
+3.1 Representative electric activity from various regions of the heart
+
+15
+
+3.2 The normal ECG waveform
+
+16
+
+3.3 Flowchart summarizing individual steps used when recording and processing
+
+the ECG signal in order to obtain data for HRV analysis
+
+18
+
+3.4 Steps in the construction of an interbeat interval (IBI) signal
+
+19
+
+4.1 Labview 7.0 sub-program: Sub-zero eliminator.vi
+
+34
+
+4.2 Labview 7.0 sub-program: sub-begin and end points for sums.vi
+
+37
+
+4.3 Labview 7.0 program: Sub-calculation of SDNN and array of SD.vi
+
+39
+
+4.4 Labview 7.0 program: File conditionerl.vi
+
+42
+
+4.5 Labview 7.0 program: File conditioner 2.vi
+
+44
+
+4.6 Labview 7.0 program: SDNN vi
+
+45
+
+4.6 Labview 7.0: SDNN index.vi
+
+46
+
+4.7 Labview 7.0: SDANN vi
+
+47
+
+4.8 Labview 7.0: pNN50.vi
+
+48
+
+4.9 Labview 7.0: rMSSD vi
+
+51
+
+4.10 Labview 7.0: sub-decimator at 10 Hz
+
+53
+
+4.11 Labview 7.0: sub-IIBI decimated and mean eliminator-040404.vi
+
+55
+
+4.12 Labview 7.0: III creator.vi
+
+57
+
+xii
+
+LIST OF FIGURES (Continued)
+
+Figure
+
+Page
+
+4.13 Labview 7.0: sub-calculation of power spectrum.vi
+
+60
+
+4.14 Labview 7.0: Power spectrum.vi (case 0)
+
+61
+
+4.15 Labview 7.0: Power spectrum.vi (case 1)
+
+62
+
+5.1 Section of a data file from a Holter monitor recording
+
+66
+
+5.2.1 Time plot of the original IBI data (above) and the conditioned data (below)
+
+of a single subject. The data set after conditioning contains less
+
+`noise' and should lead to better and more accurate results
+
+69
+
+6.1 24 hour activity plot for various heart rate variability measures
+
+82
+
+8.1 Labview program to derive changes in SDNN of patient CART2O1_01 over
+
+24 hours. (above) The plot generated using Matlab (below)
+
+87
+
+8.2 Labview program to generate rMSSD values for subject CART2O1_01 over 24 hours (above). The 24 hour plot generated using Matlab (below) 88
+
+8.3 Labview 7.0 program to generate pNN5O values for subject CART201_01 over 24 hours (above). The pNN50 values generated using Matlab 89
+
+8.4 Labview 7.0 program to generate LF and HF plot over 24 hours
+
+90
+
+8.5 Subject CART2O1_01: LF area over 24 hours
+
+90
+
+8.6 CART201_01: HF area plotted over 24 hours
+
+91
+
+A.1 Front end of Sub-zero eliminator.vi
+
+93
+
+A.2 Front end of sub-begin and end points for sums.vi
+
+94
+
+A.3 Front end of sub-calculation of SDNN and array of SD vi
+
+94
+
+A.4 Front end of file conditioner 1.vi
+
+95
+
+A.5 Front end of file conditioner 2.vi
+
+95
+
+A.6 Front end of SDNN vi
+
+96
+
+LIST OF FIGURES (Continued)
+Figure A.7 Front end of SDNN index.vi A.8 Front end of SDANN vi A.9 Front end of pNN5O vi A.10 Front end of rMSSD.vi A.11 Front end of III creator.vi A.12 Front end of sub-decimator at 10 Hz.vi A.13 Front end of sub-IIBI decimated and mean eliminator creator.vi A.14 Front end of sub-calculation of power spectrum.vi A.15 Front end of power spectrum.vi B.1 Front end to SDNN trend vi B.2 Front end to pNN50 trends.vi B.3 Front end to rMSSD trends.vi B.4 Front end to 24hour fd changes.vi
+
+Page 96 97 97 98 98 99 99 100 100 101 102 102 103
+
+xiv
+
+CHAPTER 1 INTRODUCTION
+1.1 Scope of Research This study was conducted to design, validate and implement programs for generating measures in the time and frequency domains for Heart Rate Variability (HRV) studies. The programs will be utilized in future research projects as part of a 'toolbox' of applications to derive HRV parameters from ECG signals. In all, five time domain parameters and two frequency domain parameters were chosen and programs successfully implemented. Two file conditioner programs and an III creator were also implemented to assist with filtering and conditioning the data sets before actual analysis. The implemented programs were then modified to derive changes in time and frequency domain measures over a 24 hour period. Three out of the five measures in the time domain and the two in the frequency domain were selected for this particular portion of the project. The designed tools were then tested and validated with using test data files. The results of software testing were verified with results using Matlab. Also all generated results fell into normal values for healthy subjects as found in literature. [2]
+The programs were then used to perform an HRV analysis on a set of data from a cyclical exercise study. The study was conducted on 22 healthy women in the age group of 32 — 58. The data set consisted of 22 files of 24 hour Holter monitor readings which were recorded during a normal day of the patients life. Eleven of the files were recorded prior to the cyclical exercise program. The other 11 files were recorded after completing the protocol. The outcome of the study and the results of HRV analysis in the frequency
+1
+
+2
+domain on this data were published. They found no significant changes in the pre and post experimental values of the frequency domain meauures The time domain analysis conducted in this study reiterated these results and found no significant differences in the time domain measures. The designed analysis tools will contribute to HRV studies by providing fast and accurate results. Another point of interest taken to consideration is the association of parameters among the various domains of HRV study. Several questions to be answered are how do the parameters of one domain compare to those of another domain for the same data set? Can we find a relationship between them? What will such a relationship prove? Can we derive the same information or at least similar information from any single parameter in one domain? The end — product of this study will assist research on ideas to resolve these questions.
+Heart Rate Variability is defined as the fluctuation of the heart rate from one beat to another. The last two decades have witnessed the recognition of a significant relationship between the autonomic nervous system and cardiovascular mortality.[2] Heart Rate Variability studies aim at the development of non-invasive, quantitative markers of autonomic activity which in turn may provide good prognostic value towards the detection of lethal arrhythmias, mortality after an acute myocardial infarction, and even sudden cardiac death. Results of major studies conducted have all associated higher risk of post infarction mortality with reduced HRV. [2]
+All programs were developed in Labview 7.0 and the derived data was analyzed with MS-Excel and Matlab. Labview 7.0 proved to be the best application development environment. Its graphical programming environment, matrix manipulation functions, and data acquisition software make it ideal for the studies conducted.
+
+3
+1.2 Goals of the Study This study was conducted with a goal to
+1. Design computer applications in Labview 7.0 which will allow one to obtain time domain parameters from a given Holter monitor recording.
+2. Obtain the results of studying 5 commonly used parameters of the time domain and 2 parameters of the frequency domain analysis of Heart Rate Variability a pre and post experimental Holter monitor recording and derive a time plot for certain time and frequency domain HRV parameters over 24 hours.
+3. Test the significance of the obtained results and the derived time plots.
+4. Question and determine the overall significance and effectiveness of the obtained results on the 24-hour recordings.
+
+CHAPTER 2 PHYSIOLOGICAL BACKGROUND
+Heart rate variability results from the rhythmic activity of the heart. To better understand HRV and its interpretations, knowledge of the cardiovascular system and the autonomic nervous system is fundamental.
+2.1 The Cardiovascular System The cardiovascular system is made up of the heart and its associated vasculature. Together they make up an extensive network carrying blood to every cell of the body. The flow of blood is maintained by the heart and its beating action. The cardiovascular system is controlled by the autonomic nervous system and regulated by the need of the body. Numerous control mechanisms help to regulate and integrate the diverse functions and component parts of the cardiovascular system to supply blood to specific body areas according to need. The list of functions of the cardiovascular system is large, but its one main function is maintaining homeostasis of the body. [28]
+2.2 The Anatomy of the Human Heart The main organ of the cardiovascular system is the heart. It is responsible for the circulation of the blood according to the need of the body. It is located in the thoracic cavity approximately midline between the sternum (breast bone) anteriorly and the vertebrae posteriorly. The heart has a broad base at the top and tapers to a pointed tip known as the apex at the bottom. It is situated at an angle under the sternum so that its
+4
+
+5
+base lies predominantly to the right and the apex to the left of the sternum. The size of the heart is no larger than one's own fist. It is a hollow organ composed of cardiac muscular tissue. Its beating action maintains the flow of blood through the entire human body. From the heart numerous blood vessels branch out and spread to every corner of the body. These vessels form the vasculature of the cardiovascular system. There are three main types of blood vessels, namely, arteries which carries oxygenated blood from the heart to the various systems of the body, the veins which carry deoxygenated blood from the various parts of the body back to the heart, and capillaries which join the arteries and veins and are the site for gaseous and chemical exchange between the various cells and the blood. [28]
+2.2.1 The Human Heart As mentioned earlier, the heart is a hollow muscular chamber which acts as a
+pump, continuously beating and maintaining the homeostasis of the body. This hollow pump actually functions as a dual pump. Anatomically the right and left sides of the heart function as two separate pumps. Figure 2.1 shows the heart and its chambers. The heart is divided into right and left halves and has four chambers; an upper and a lower chamber within each half. The upper chambers, the atria, receive blood returning to the heart and transfer it to the lower chambers, the ventricles, which pump blood from the heart. The vessels that return blood from the tissues to the atria are veins and those that carry blood away from the ventricles to the tissues are the arteries. The two halves of the heart are separated by the septum, a continuous partition that prevents the mixture of blood from the two sides of the heart. This separation is important because the right half of the heart
+
+6 is receiving and pumping oxygen poor blood while the left side of the heart receives and pumps oxygen rich blood.
+The blood travels continuously through the circulatory system to and from the heart through two separate vascular (blood vessel) loops, both originating and terminating at the heart. The pulmonary circulation consists of a closed loop of vessels carrying blood between the heart and lungs, whereas the systemic circulation consists of a closed loop of vessels carrying blood between heart and other organ systems.
+Blood returning from the systemic circulation enters the right atrium via large veins known as vena Java. The deoxygenated blood returning from the body tissues enters the right atrium. In the lungs, the blood loses the extra carbon di-oxide and picks up the oxygenated blood and returns to the left atrium. The blood from the left atrium flows into the left ventricle and eventually into the aorta that supplies the oxygenated
+
+7 blood to all parts of the body. This is called the systemic circulation. Figure 2.2 showing the systemic and pulmonary circulation. [28]
+Figure 2.2 Systemic and pulmonary circulations. The Systemic and Pulmonary Circulations. (From E. N. Marieb, Human Anatomy and Physiology, 3rd Ed. New York: The Benjamin/Cummings Publishing Company, Inc., 1995.)
+2.3 The Nervous System Heart rate variability depends on the rate of change of heart rate. The beating of the heart and its regulation controlled of by the nervous system. The nervous system in itself is divided into a number of sub-systems. The particular sub-system responsible for the actions of the heart and the circulatory system is called the autonomic nervous system. This system regulates not only heart rate but also respiration and is vital to the existence
+
+8 of the living being. It regulates all vital processes of the body which are performed without consciousness. The autonomic nervous system is again sub-divided into the two opposing portions, namely the sympathetic and parasympathetic nervous systems.
+2.3.1 Sympathetic Regulation of Heart Rate The sympathetic nervous system innervates the AV node, the SA node and the atria and the ventricles of the heart and its regulation of heart rate is bought about by the combination of neural and hormonal pathways. Sympathetic efferent impulses travel from the brain via pre-ganglionic and postganglionic neurons to their target organs. At their terminus these postganglionic fibers release norepinephrine or at the adrenal gland epinephrine. These catecholamine exert both a choronotropic (increased heart rate) and inotropic effect (increased contractility) on the heart. [28]
+2.3.2 Parasympathetic Regulation of Heart Rate Parasympathetic nerve impulses reach the heart via the right and left vagus nerves, innervating the SA and AV nodes but only the atrial myocardium. Vagal efferent impulses trigger the release of a neurotransmitter, acetylcholine (ACh) at their synapses. ACh combines with myocardial muscarinic receptors which are the membrane-bound proteins that contains a recognition site for acetylcholine (ACh) and the combination of Ach with the receptor initiates a physiologic change of slowing the heart rate, which results in increased efflux of K+ ions and a reduced influx of Ca++ ions, the net result of
+
+which is to hyperpolarize the cell thus slowing the rate of depolarization and thus HR. [28]. Figure2.3 shows the sympathetic and the parasympathetic nervous systems.
+2.4 Physiology Behind the Change in Heart Rate Change in heart rate is sensitive to changes in body temperature, plasma electrolyte concentrations and hormone concentrations [29]. However, the most important influence of beat-to-beat variations of heart rate comes from the autonomic nervous system. More
+
+10
+specifically, sympathetic activity increases heart rate, whereas activity in the parasympathetic (vagus) nerves causes the heart rate to decrease. Due to considerably more parasympathetic activity to the heart than sympathetic activity in the resting state, the normal resting heart rate is below the inherent rate of 100 beats/minute.
+The autonomic nervous system innervates the heart in a number of places. The sympathetic nervous system terminates at the SA node, the conduction system, atrial and ventricular myocardium, and coronary vessels. The parasympathetic fibers terminate in the SA and AV nodes, atrial and ventricular musculature, and coronary vessels. Interplay between the two systems will cause the heart to speed up or slow down, depending on which system is more active. [30].
+Perhaps the most important site of innervation of the autonomic nervous system on the heart occurs at the SA node. As matter of fact, the SA node possesses an inherent discharge rate, often referred to as the pacemaker potential. The pacemaker potential is a slow depolarization of the cells of the SA node. The innervation of the sympathetic and parasympathetic nervous system on the SA node changes the characteristics of depolarization within the SA node cells, thus changing heart rate. Table 2.2 shows the autonomic effects on selected organs of the body.
+
+2.5 Heart Rate Variability as a Measure of Autonomic Function Changes in heart rate usually involve the reciprocal action of the two divisions of the autonomic nervous system. An increased heart rate is the result of reduced parasympathetic tone and a concomitant increase in sympathetic activity. A decrease in heart rate is usually the result of increased parasympathetic tone and a simultaneous decrease in sympathetic tone. Therefore, changes in heart rate reflect the action of the sympathetic and parasympathetic nervous systems on the heart. However, under certain conditions, it is possible for heart rate to change by activity of only one division of the
+
+12
+autonomic nervous system, independent of the other division, rather than reciprocal changes in both. [26]
+Initially, the effect of the autonomic nervous system on the heart was estimated by utilizing the traditional technique of average heart rate [26]. As a reference, the average heart rate was measured under normal resting conditions. Then the average heart rate was measured under the administration of drugs. The drugs used were atropine, which blocks the effects of the parasympathetic nervous system, and propranolol, which masks the effects of the sympathetic nervous system. A qualitative assessment can then be made of the autonomic nervous system by comparing the reference heart rate to the heart rate while under the administration of the drugs. This method looks at the average over time of heart rate. However, when the ECG is looked at on a beat-to-beat basis, rather than over a period of time, fluctuations in the heart rate are observed [26]. Research indicates that fluctuations in heart rate are a healthy sign. [2] By contrast a number of physiologic and disease states produce alterations in autonomic function, which reduce the variability in heart rate [27].
+
+CHAPTER 3 HEART RATE VARIABILITY
+3.1 The ECG Signal The beating heart generates an electric signal that can be used as a diagnostic tool for examining some of the functions of the heart. Its smooth, rhythmic contraction has an underlying electrical precursor in the form of a well-coordinated series of electrical events that takes place within the heart. These events are coordinated by a specialized conduction system within the heart. Cardiac impulses originate in the pacemaking cells of the heart called the sinoatrial (SA) node which is located at the junction of the superior vena cava and the right atrium. From the SA nodes three specialized branches or pathways emerge and terminate at the artrioventricular (AV) nodes. These nodes are named the anterior, middle, and posterior internodal tracts. Another tract also emerges from the SA node and leads into the left atrium. This tract is called the Bachman's bundle and forms an interarterial passage. An impulse passes from the SA node through the specialized tracts in the atria to activate first the right atrium and then the left. Passage of the impulse is delayed once it has reached the AV node and continues into the various tracts emerging out of the AV node. These tracts are as follows:
+1. Bundle of his 2. the right bundle branch 3. the left bundle branch 4. the Purkinje Network
+13
+
+14
+The right bundle branch lies along the right side of the interventricular septum to the apex of the right ventricle before it gives off significant branches. The left common bundle block crosses to the left side of the septum and splits into the anterior division and the posterior division. Each branch of this conduction system of the heart contributes its own signal to the overall ECG signal that is normally seen. The branches are composed of representative cells that are also anatomically different. All these cells are electrically excitable and exhibits their own characteristic action potential. Hence the ECG normally seen is in effect a vector sum of composite signals. Figure 3.1 shows what the building blocks of the commom ECG signal are.
+
+These potentials when measured on the outside surface of the body give rise to what we normally call the Electrocardiogram or ECG. From an engineering point of view, the heart is viewed as an electrical generator. At any instant the electrical activity of the heart can be represented by a net equivalent current dipole located at a point that can be considered the electrical center of the heart and is located within the heart's anatomical boundaries. The net equivalent current is taken because at any instant several regions may be active simultaneously. It is the overall contributions from these active regions which is
+
+16 measured at the electrical center. The magnitude of this signal when measured with respect to time gives the following waveform.
+Figure 3.2 The normal ECG waveform. (From http ://butler. cc . tut. fi/—malmivuo/b emb emb °old 1 5/1 5 . htm) The most significant features of the waveform are alphabetically labeled as the P, Q, R, S, and T waves. The durations of each wave and time intervals such as P-R, S-T, and Q-T intervals is another significant feature which are closely monitored. The P wave is produced by atrial depolarization, the QRS complex primarily by ventricular
+
+17
+depolarization, and the T wave by ventricular repolarization. The manifestations of atrial repolarization are normally masked by the QRS complex. ECG and Heart Rate Variability Studies
+All parameters of heart rate variability, whether in the time or frequency domain are derived from ECG data. Time domain parameters use IBI (inter-beat interval) data. IBI data can be directly obtained from Holter monitors which contain ECG monitors that record cardiac activity beat over prolonged periods In such a scenario, the signal to be studied should be run through what is referred to as a "peak detection" program which will ensure that each heart beat of the subject has been correctly detected. It should also enable the user to correct any peaks that might have been skipped or gone undetected. The errors imposed by the imprecision of the RR interval sequence are known to affect substantially the results of statistical time domain and all frequency domain methods. Another method of HRV analysis is through geometrical methods. In such methods the series of RR intervals is converted into a geometric pattern. Casual editing of the RR interval data is sufficient for the approximate assessment of total HRV in this methods, but it is not known how precise the editing should be to ensure correct results from other methods. Thus when time domain and/or frequency domain methods are used, the manual editing of the RR data should be performed to a very high standard which ensures correct identification and classification of every QRS complex. Automatic filters should not replace manual correction because they are known to behave unsatisfactorily and to have undesirable effects leading potentially to errors. In this study the data were obtained from a Holter monitor and converted to the IBI format.
+
+18 The frequency domain requires the data to be of a format referred to as III or Interpolated Inter-Beat Interval. III data is derived by interpolating IBI data over its sampling frequency. A flowchart summarizing the individual steps used when recording and processing the ECG signal for obtaining data for HRV analysis can be seen in the Figure 3.3.
+The construction of this interpolated inte-beat interval (III) involves several steps. Each R wave is detected and a pulse is produced at the position of each R wave. The height of each pulse is adjusted to be the length of the previous RR interval. For
+
+19 example, two successive pulses occur at T 1 and T2 seconds, respectively, where the distance between the two is Y. Therefore, the interval of Y seconds becomes the height of the pulse that occurs at time T2. The consecutive pulses that follow form a pulse wave. This pulse wave is interpolated to produce a wave with equally spaced samples. This type of interpolation is called backward step interpolation where the height of the wave in a time interval is kept constant at the value of the length of the time interval.
+Figure 3.4 Steps in the construction of an interbeat interval (IBI) signal. (From S. Shin, W. N. Tapp, S. Reisman, and B. H. Natelson, "Assessment of Autonomic Regulation by the Method of Complex Demodulation," IEEE Transactions in Biomedical Engineering, vol. 36, pp. 274-283, 1983.)
+
+20
+3.2 Fundamentals of Heart Rate Variability Heart Rate Variability may be defined as the beat to beat alterations in heart rate.[2] Under resting conditions, the ECG of healthy individuals has a strong periodic component. This rhythmic phenomenon, known as respiratory sinus arrhythmia (RSA), fluctuates with the phase of respiration -- cardio-deceleration during inspiration, and cardio-deceleration during expiration. RSA is predominantly mediated by respiratory gating of parasympathetic efferent activity to the heart: vagal efferent traffic to the sinus node occurs primarily in phase with expiration and is absent or attenuated during inspiration. Reduced HRV has thus been used as a marker of reduced vagal activity. However, because HRV is a cardiac measure derived from the ECG, it is not possible to distinguish reduced central vagal activity (in the vagal centers of the brain) from reduced peripheral activity (the contribution of the target organ -- the sinus node -- or the afferent/efferent pathways conducting the neural impulses to/from the brain). However HRV represents one of the most promising markers of autonomic activity. The term "Heart Rate Variability" is now the general terminology used to describe variations of both instantaneous heart rate and RR intervals. [2]
+The clinical relevance of HRV was first appreciated in 1965 when Hon and Lee noted that fetal distress was preceded by alterations in inter-beat intervals before any appreciable change occurred in heart rate itself. [2]. Its clinical importance became appreciated in the late 1980's when it was confirmed that HRV was a strong and independent predictor of mortality after acute myocardial infarction. With the availability of better and more powerful processing tools, HRV has the potential to provide
+
+21
+additional valuable insight into physiological and pathological conditions and to enhance risk stratification.
+3.3 Domains of Analysis The variations in heart rate may be studied by a number of methods.
+3.3.1 Heart Rate Variability in the Time Domain The simplest and oldest measure would be the evaluation of heart rate with respect to its variation in time. This is called the time domain analysis of HRV. In this method, the heart rate at any moment or the intervals between successive normal complexes are determined and analyzed. In such methods the instantaneous heart rate or the inter- beat intervals are determined and concurrently its variations over time are studied. All studies of HRV originally begin from a raw ECG signals. The interval between two consecutive QRS intervals is termed the inter-beat interval or IBI. Various statistical parameters are derived from the inter-beat interval variations. These form the core of the time domain analysis. Commonly used parameters in the time domain include
+1. Mean RR interval 2. Mean Heart Rate These two are relatively simple and can be calculated without much computing power. Other more complex statistical measures have been defined [2] and can be divided into two classes 1. Direct measures of the RR intervals or instantaneous heart rate
+a. SDNN : Standard deviation of all RR intervals
+
+3.3.2 Geometrical Methods of Heart Rate Variability Analysis The series of RR intervals also can be converted into a geometric pattern such as the sample density distribution of RR interval durations, sample density distribution of differences between adjacent RR intervals, Lorenz plot of RR intervals, and so forth. [2] Common examples of Geometrical Methods include:
+1. HRV triangular index: Total number of of all RR intervals divided by the height of the histogram of all RR intervals measured on a discrete scale with bins of 7.8125
+2. TINN: Baseline width of the minimum square difference triangular interpolation of the highest peak of the histogram of all RR intervals.
+3. Differential index: Difference between the widths of the histogram of differences between adjacent RR intervals measured at selected heights.
+3.3.3 Frequency Domain Measurements of Heart Rate Variability These measures determine the variations in the frequency components of the IBIS
+signals. Power spectral density analysis provides the basic information of how power distributes as a function of frequency. The algorithm used in this study calculates the
+
+23 spectral densities using Fast Fourier Transforms (FFT). Normally spectral components are derived from either 5 minute or 24 hour recordings. The boundaries of the most commonly used frequency bands are as follows [2]:
+The three main spectral components calculated from short term recordings are VLF (power in very low frequency range), LF (power in the low frequency range), HF (power in the high frequency range) components. The distribution of the power and the central frequency of LF and HF are not fixed and may vary in relation to changes in autonomic modulations of heart period. VLF assessed from short-term recordings should be avoided when the PSD of short-term ECG's is interpreted. This is because the physiological explanation of VLF is much less defined [2]. Measurements of power spectral components are usually made in absolute values of power (milliseconds squared per Hertz). Long-term recordings result in frequency components called the ULF (ultra-low frequency) and VLF.
+The main advantage of spectral analysis of signals is the possibility to study their frequency-specific oscillations. It involves the decomposition of the series of sequential RR intervals into a sum of sinusoidal functions of different amplitude and frequencies. Results are displayed in a graph with magnitude of variability as a function of frequency. It represents the amplitude of the heart rate fluctuations present at different oscillation frequencies. The power spectrum is normally divided into a number of spectral bands and
+
+24
+powers are calculated separately for each band. The individual powers have definite physiological significance [2]. Table 3.1 lists the normal values of standard measures of HRV. These values are those measures of HRV that might be suggested for the standardization of further physiological and clinical studies [31].
+
+25
+3.4 Time Domain Analysis The variation of heart rate over time is in essence the time domain analysis of heart rate variability. In these methods either the heart rate any point of time or the intervals between successive normal complexes are determined. In a continuous ECG recording, each QRS complex must be accurately detected and the normal to normal (RR) intervals determined. A number of standard parameters are defined for this type of analysis which has been determined through prior experimentation and study to give reliable prognostic information.
+Common recordings used for the time domain analysis are recorded over 24 hour periods. Using such a series of intervals complex statistical time domain measures can be calculated and divided into two categories.
+1. Those derived from direct measurements of RR intervals or instantaneous heart rate.
+2. Those derived from the differences between RR intervals. Measures from the second category may be derived from analysis of total ECG recordings or may be calculated using smaller segments of the recording. The smaller segments are normally of five to ten minute durations. This would also allow for comparison of HRV to be made during varying activities, for example, during rest, sleep, etc. [2]
+This section will now discus a few of the more commonly used parameters used in the time domain and associated with 24 hour recordings.
+
+26
+3.4.1 SDNN This parameter of time domain analysis is the simplest and most commonly used
+variable today. It is defined as the standard deviation of the RR intervals or the square root of variance over the entire recording of inter-beat intervals. Mathematically, variance is the total power of spectral analysis and SDNN reflects all the cyclic components responsible for variability in the period of recording. [1] When SDNN is calculated over 24 hour periods, it encompasses short-term HF variations as well as the lowest frequency components seen in a 24 hour period. SDNN has a high dependency on the time period of the recordings used. The shorter the recording, the shorter the cycle length it measures. Thus when comparing SDNN measures, durations of the recordings should be standardized. Generally short term recordings are standardized to 5 minutes and long term recordings to 24 hours. The unit of SDNN is milliseconds (ms).
+3.4.2 SDNN index SDNN index is defined as the mean of the standard deviations of all NN intervals for all 5 minute segments of the entire recording [2]. This correlates to the mean of 5 minute total power in the frequency domain. SDNN index takes the SDNN values of all 5 minute intervals in the recording and averages it to come out with one number called the SDNN index. This parameter measures the variability due to cycles shorter than 5 minutes. The unit of SDNN index is milliseconds (ms).
+
+27
+3.4.3 SDANN This parameter may be defined as the standard deviation of the averages of NN
+intervals in all 5 minute segments of the entire recording [2]. It is an estimate of the changes in heart rate due to cycles longer than 5 minutes. SDANN corresponds to the ultra-low frequency (ULF) region of frequency domain methods. SDANN estimates the long term components of HRV. It is unit is also measured in milliseconds (ms).
+3.4.4 pNN5O This measure of the time domain analysis of HRV studies is an interval difference
+parameter. It is defined as the percentage of interval differences of successive RR intervals greater than 50ms. This measure estimates high frequency variations in heart rate and correlates to HF measures of the frequency domain [2]. pNN5O is a percentage and hence has no unit.
+3.4.5 rMSSD This measure of time domain HRV analysis may be defined as the square root of the mean of the sum of the squares of differences between adjacent RR intervals [2]. This is another measure of short term variations of HRV and estimates high frequency variations in heart rate. It highly correlates to pNN5O and corresponds to the HF measure in the frequency domain. The unit of rMSSD is millisecond (ms).
+
+28
+3.5 Frequency Domain Analysis With the availability of more powerful computers spectral methods of HRV analysis have become more readily available and more frequently used. Power spectral density analysis provides the basic information of how power (variance) distributes as a function of frequency. Methods for generating such a density are generally classified as nonparametric and parametric.
+3.5.1 Short term recordings Two main spectral components are distinguished in a spectrum calculated from short term recordings of two to five minutes. These are LF, and HF components. The distribution of the power and the central frequency of LF and HF are not fixed but may vary in relation to changes in autonomic modulations of heart period. In theory the VLF component is also present but the physiological explanation of the VLF component is much less defined. VLF assessed from short term recordings must be avoided when the power spectral densities of short term ECG's are interpreted. This is because the physiological explanation of the VLF component is much less defined, and the existence of a specific physiological process attributable to these heart period changes might even be questioned. [2] The nonharmonic component which does not have coherent properties and is affected by algorithms of baseline or trend removal is commonly accepted as the major constituent of VLF [2].
+The power components are usually measured in absolute values of power (millisecond squared). LF and HF may also be measured in normalized units which represent the relative value of each power component in proportion to the total power
+
+29
+minus the VLF component. The representation of the LF and HF in normalized units emphasizes the controlled and balanced behavior of the two branches of the autonomic nervous system. Normalization also tends to minimize the effect of the changes in total power on the values of the LF and HF components. They should however always be quoted with the absolute values of LF and HF power in order to describe completely the distribution of power in spectral components.
+3.5.2 Long term Recordings When spectral analysis is used to analyze a sequence of RR intervals of an entire 24 hour period, the results include a ULF component in addition to the VLF, LF, and HF components [2]. "Stationarity" is a common problem frequently discussed with long term recordings. If mechanisms responsible for heart period modulations of a certain frequency remain unchanged during the whole period of recording, the corresponding frequency component of HRV may be used as a measure of these modulations. In actuality, this never happens. If, however, the modulations are not stable, the interpretations of the results of frequency analysis is less well defined. In particular, the physiological mechanisms of heart period modulations responsible for LF and HF power components cannot be considered stationary during the 24 hour period. Thus spectral analysis performed on the entire 24 hour period as well as spectral results obtained from shorter segments (5 minutes) averaged over 24 hour periods provide averages of the modulations attributable to the LF and HF components. Such averages obscure the detailed information about autonomic modulation of RR intervals that is available in shorter recordings.
+
+CHAPTER 4 LABVIEW PROGRAMS
+4.1 Labview 7.O and Heart Rate Variability All computer applications associated with this study have been designed using Labview 7.0 engineering software created by National Instruments. Labview 7.0 is the latest version and has been improved with new features to suit all kinds of engineering and programming applications. Labview provides a powerful graphical development environment for signal acquisition, measurement analysis, and data presentation. The topic of heart rate variability is an area within biological signal processing. Labview 7.0 or any version of Labview for that matter is well adapted and constructed for both data acquisition and signal processing objectives. For this matter, all HRV applications for this study were designed and implemented in Labview 7.0. It provides a relatively easy work environment because rather than writing code, Labview uses graphical programming which takes most commonly used programming and engineering functions and creates blocks which can be connected or "wired" to one another in such a way as to develop a real working program. It allows one to develop both the front and back ends of the application simultaneously and with relative ease. Blocks for almost every need have already been developed and implemented. Each block has a fixed set of inputs and outputs which must be wired to or from another block. Only by properly "wiring" the output of one block to the input of another can a definite connection be made. By proper wiring one means that the data types of the outputs and inputs of a set of blocks must
+3O
+
+31
+match. In case a particular function is not found, Labview provides the facility to create a new block and add it to the set of functions already available.
+Programs in Labview are called VI's or virtual instruments and functions used in each VI are referred to as sub-vi's. A VI can be imported and used as a sub-vi in other applications if need arises. In this way, Labview proves extremely powerful and versatile.
+Applications of heart rate variability use many of the built in features available in Labview. Frequency domain analysis utilizes the power spectral analysis block for spectral density calculations. Similarly, time domain analysis call mainly upon statistical blocks. Another prominent feature of Labview is its efficiency of processing. Most data sets used for HRV analyses are extremely large (of the order of 600KB — 700KB for 24 hour recordings) and require complicated processing.
+4.2 Protocol of Research: Program Execution and Analysis For this study, programs were developed for measures most commonly used during HRV analysis in the time and frequency domains. In all, five time domain and two frequency domain measures were constructed. A separate application had to be developed for conditioning and filtering the data files and to ensure the highest possible accuracy of results. Upon conditioning the data the programs were then designed to read the data directly from the computer files, perform the required mathematical calculations, present the results of the particular measure, and write any required information to another user specified file. This was performed on every file of the data set to be tested. This data set consisted of 24 hour Holter Monitor recordings for 11 healthy women. For each subject two recordings were taken, one prior to a cyclical exercise program, and the other
+
+32
+afterwards. Thus for the 11 subjects, 22 data files were available. From each file we derived five time domain and two frequency domain measures. The results were then recorded in an MS Excel spreadsheet and statistical analyses on the various measures were performed to check for any significance. Both a Student's t-test and an ANOVA were performed for the results. The results were then discussed and conclusions drawn.
+The next sections will discuss the various Labview programs and their sub-vi's used in this study.
+4.3 Integrated Sub-Vi's Most of the programs used as a part of this study dealt with matrix manipulations. The matrices used, i.e. the IBI files, are extremely big (600KB — 700BB) and hence subprograms or functions had to be implemented to reduce the complexity and increase the overall efficiency of the programs. For all 11 subjects, the data was stored in the exact same format. Hence a number of generalized functions were designed to be used by each application to simplify its execution.
+4.3.1 Sub — Zero eliminator The zero eliminator was designed to remove zeros from an array. During many
+matrix manipulations performed in the implemented programs, zeros are used to flags or markers for a particular situation, for example, a zero in a matrix could identify a five minute marker in the data set. Zero removal will then facilitate further processing of the data after the zeros have served their purpose. In the designed programs, the Zero eliminator was used to mark 5 minute intervals within the 24 hour recordings.
+
+33
+Algorithm: 1. Read array from which zeros are to be removed. Let the input array be X = 0. Declare the output array as Y and index variable I = 0; 2. For each element of X
+3. The output matrix Y will now contain the indices of all elements of the input matrix which are greater than zero. A -1 is given to each index where the element was found to be a zero. To remove this the following procedure performed:
+a. Use 'Sort 1D Array.vi' to sort the array in ascending order. Now all -1's will be situated at the beginning of the output matrix.
+b. Use 'Reverse 1D Array.vi' to reverse the order of Y. c. Use 'Split 1D Array.vi' to split Y into two. This sub-function will search
+for a specified element and divide the array at that point, i.e. the index at which the specified element is found first. d. The required division, i.e. the array of all non-zero element indexes is then displayed and returned to the main program. Figure 4.1 is the designed Labview program.
+
+Figure 4.1 Labview 7.0 sub-program: Sub- Zero eliminator.vi
+
+35
+4.3.2 Sub — begin and end points for sums.vi For many of the time domain measures, the 24 hour recordings had to be divided into five minute segments for the calculations to be performed. To accomplish such a task conventionally one could use embedded loops to derive the answers. However as the size of the data set increases, the overall efficiency of the program is substantially decreased with the use of embedded looping. The extent to which to program's efficiency is diminished is directly proportional to the number of embedded loops and increases exponentially with the number of loops embedded. The data employed in this study contains on average 100,000 points. Therefore the used of embedded loops in such a scenario would be disastrous, taking hours to reach completion. This sub-vi alleviates such complications by deriving the beginning and end points for each five minute segment in the 24 hour recording. By doing so, one can generate the intervals using an already available 'array subset' block. The algorithm behind this sub-vi is discussed below:
+
+36
+4. Upon completion of step three, remove zeros from output array Y using zero elimination sub-vi. ** The output array Y is now the array of indices of the end points of the nminute intervals **
+5. Calculate Z, the array of begin points for the n-minute intervals, as follows: a. Let Z = Y; b. Eliminate the last element of Z c. Increment all the elements of Z by 1 d. Append 0 to Z as the new first element.
+6. Display the resultant arrays Y and Z; return values to the main program.
+The Labview program for the algorithm of Section 4.3.2 is shown in Figure 4.2
+
+Figure 4.2 Labview 7.0 sub-program: Sub- Begin and end points for sums.vi
+
+38
+4.3.3 Sub — Calculation of SDNN and array of SD.vi
+This sub — vi is used to derive the the standard deviations and/or means of the intervals
+that the 24 hour recording is divided into. The standard deviations are calculated for each
+interval and stored in a separate array of its own. This array of standard deviations can
+also be plotted to show the change in SDNN values over the course of 24 hours.
+Algorithm:
+1. Read input array X which is the 24 hour IBI array.
+2. Call upon sub — vi , Sub — begin and end points for sum.vi to derive the begin and end points (indices) of each 5 minute interval.
+3. Repeat step 3 for each 5 minute interval of the input array:
+a. Call upon the sub — vi, Array subset.vi. This sub — vi uses the inputs • the original 24 hour IBI file. • the begin point (index) of each five minute sub — interval. • length of the five minute subinterval.
+The sub — vi generates all five minute intervals within the input array. The sub — vi outputs each interval as it is generated.
+4. The standard deviation or mean of each interval can then be calculated as specified. Certain measures to be derived require the standard deviation while others might require its mean. The standard deviation or mean from each five minute interval is then stored in an array of its own.
+5. The newly generated array is then displayed as an array of means or an array of standard deviations. Once again the mean or the standard deviation of this array can be calculated to derive the mean of standard deviations or the standard deviation of the means.
+Figure 4.3 shows the Labview program for the above mentioned algorithm.
+
+Figure 4.3 Labview 7.O program: Sub — Calculation of SDNN and array of SD.vi
+
+4O
+4.4 Algorithms and Virtual Instruments (VI's) The following sections discuss the algorithms and programs used to derive the time and frequency domain parameters used in this study.
+4.4.1 File Conditioners These VI's were designed to remove all known anomalies from the original bolter monitor data files. The anomalies of the data set is explained in a Section 5.2.4. This section will adhere to the explanation of the algorithm behind the programs.
+Two file conditioners were used to filter the data set. They are named File conditioner 1 and File Conditioner 2. For the most part file conditioner 1 was limited to searching through each data file and pulling out elements which were above a given threshold value. Upon completion, the resultant array of possible errors were then displayed. The data set file was then opened using MS Notepad, MS Wordpad, or MS Word and using the 'find and replace' function within the Tdiemenu, each possible error was found and compared to its neighboring elements. If the particular element in question was found to be dissimilar in magnitude to its neighbors, it was then deleted. Also the immediate elements preceding and following the element in question are observed for errors of the nature previously mentioned in the section on data set anomalies. File conditioner 2 was designed to automatically remove elements below a given threshold. These elements were found to be too low to be possible IBI values. Also they did not correlate to any of its surrounding elements. In this program the elements are automatically detected, deleted, and the file appended.
+
+41 The Labview program is shown in Figure 4.4.
+
+Figure 4.4 Labview 7.0 program: File Conditioner 1.vi
+
+43
+
+Algorithm: File Conditioner 2.vi
+
+1. Read Input data set file X.
+
+2. Declare output matrix Y, and temporary variables i = 0; j =0;
+
+3. Repeat step 3 for each element of the X
+
+If X[i] < 250 {given threshold value}
+
+Then
+
+• Call 'Search 1D Array.vi'
+{ This function will search
+through the input array and
+and return the index of the 1-1,. ,..1.rwi art+ it full:J.01.i anti
+
+4. Call the Zero eliminator sub — vi to remove all zeros from Y {Y is now the array of indexes of all erroneous elements meeting the filter condition. }
+6. Display resultant ouput matrix Y which is the conditioned data set. 7. Call 'Write to File.vi' to write output array to its own file. The program is shown in Figure 4.5.
+
+Figure 4.5 Labview 7.0 program : File Conditioner 2.vi
+
+45 4.4.2 SDNN.vi SDNN is defined as the standard deviation of all RR intervals in the given time period. Algorithm:
+1. Read input data set file using 'Read from File.vi' 2. Call 'Index Array.vi' to choose the correct channel of input from file. 3. Call 'Standard Deviation and Variance.vi' to calculate the Standard deviation of
+all IBI's. 4. Resultant number is the SDNN of the 24 hour recording. Figure 4.6 shows the Labview program SDNN.vi.
+Figure 4.6 Labview 7.0 program: SDNN.vi
+
+46 4.4.3 SDNN index.vi SDNN index is defined as the mean of the standard deviation of all RR intervals for all five minute segments of the entire recording. The algorithm used will now be discussed. Algorithm:
+1. Read selected input file using 'Read from file. vi'. Label this array as X. 2. Call 'Begin and End points for sums.vi'
+• Inputs: IBI array X, n = interval length • Outputs: Begin points array and End points Array 3. Call 'Sub — Calculation of SDNN and array of SD.vi'. • Input: IBI array X, Begin point array, End point array • Output: Array of standard deviation's and SDNN index value. The Labview program is shown in Figure 4.6
+Figure 4.6 Labview 7.0: SDNN index.vi
+
+47 4.4.4 SDANN.vi SDANN is defined as the standard deviation of the averages of NN intervals in all five minute segments of the entire recording. Algorithm:
+1. Read selected input file using 'Read from file.vi'. Label this array as X. 2. Call 'Begin and End points for sums.vi'
+• Inputs: IBI array X, n = interval length • Outputs: Begin points array and End points Array 3. Call 'Sub — Calculation of SDNN and array of SD.vi'. • Input: IBI array X, Begin point array, End point array • Output: Array of mean IBI values for all five minute intervals and
+SDANN value. The Labview program is shown in Figure 4.7.
+Figure 4.7 Labview 7.0: SDANN.vi
+
+48 4.4.5 pNN5O.vi
+pNN50 is defined as the percentage of consecutive RR intervals whose difference is greater than 50 milliseconds. Algorithm:
+The Labview program is shown in Figure 4.8.
+
+Figure 4.8 Labview 7.0: pNN50.vi
+
+5O
+4.4.6 rMSSD.vi rMSSD is defined as the square root of the mean of the sum of the squares of differences between adjacent RR intervals. Algorithm: rMSSD.vi
+1. Read file from the specified location. Use the 'Read from file.vi' function. Let the input array be X.
+2. Declare the output array Y and variables t = 0, i = 0;
+
+Figure 4.9 Labview 7.0: rMSSD.vi
+
+52
+4.5 IIBI creator The IIBI creator is used for Frequency domain HRV studies to interpolate the IBI signal over its sampling frequency. The task of creating the IIBI over a 24 hour recording had to be subdivided into two tasks.
+1. Creation of the IIBI 2. Decimating the IIBI. Decimation of the original IIBI file was necessary as it consumed a large quantity of storage space and also required much more processing. By decimating the IIBI file we in effect sampled the original IIBI data and reduced its size. The IIBI creator program calls upon two main sub — programs which are discussed in section 4.5.1 and 4.5.2. The main IIBI creator algorithm is given in section 4.5.3
+
+53
+Figure 4.1O Labview 7.0: Sub — Decimator at 10 Hz.vi 4.5.2 Sub — IIBI decimated and mean eliminator -O4O4O4.vi This sub — program was created with the task of creating an IIBI array, decimating it, and returning both arrays to the main VI. Algorithm:
+1. Read IBI data into array X and sample rate into variable s; 2. Declare output array Z, array Y, i =0, mean = 0, n = 0, and t =0; 3. for i = 0 to sizeof(X) Repeat step 3
+
+7. Return Z as the decimated III with zero removed. The Labview program is shown in Figure 4.11.
+
+1)ectm at
+to
+Figure 4.11 Labview 7.0: IIBI decimated and mean eliminator creator.vi
+
+Decimated IIBI array with zero mean
+size decimated III with zero mean
+IIBI array with mean(
+size of III array'
+
+56
+4.5.3 IIBI creator.vi The IIBI creator is a program used during frequency domain analysis of HRV to create IIBI data from and IBI file. This program will create an IIBI but due to the size of the file, it will also decimate it and reduce its overall size by 10%. This is achieved through resampling and was discussed earlier in section 4.5.1. Algorithm:
+1. Read the IBI file from the specified location using 'Read from File.vi' to a variable X
+2. Enter the sampling frequency, s, at which the IBI file was sampled. 3. Call the 'Sub - IIBI decimated and mean eliminator creator -040404.vi' The
+IBI array X and sampling frequency s are the inputs to the called sub — vi. 4. Display the different output of the called sub — vi. Figure 4.12 shows the Labview program for the IIBI creator.
+
+57
+Figure 4.12 Labview 7.0: III creator.vi 4.6 Power Spectrum.vi
+The power spectrum of a signal provides basic information of how power (variance) distributes as a function of frequency. Two HRV parameters derived from the frequency analysis are the LF area and the HF area. The HF/LF ratio is also sometimes used, but for the purpose of this study, the LF and HF areas were found to be sufficient.
+
+58
+4.6.1 Sub — calculation of power spectrum.vi Algorithm:
+1. Accept the IBI array X , the III array Y, and sampling frequency from the main program.
+2. Let the scaling factor be s, mean = m, scaling factor = scale, reversed array = rev, power spectra = PS, and general variables n, t, P, a, b, c, d. Initialize all variables to O.
+3. Calculate the time of record = t.
+4. Calculate scaling factor, scale = 1000/s; 5. Call 'Reverse 1D array.vi' to reverse the order of Y (III array). 6. Multiply each element of Y by scale. 7. Subtract each element of Y by its mean. This will center the power of the IIBI
+signal. 8. Zero pad Y using 'Zero padder.vi'. This function will resize Y to the next highest
+valid power of 2 by appending zeroes to the end of the array.
+9. Let H = s/sizeof(Y). This term is the frequency per point or Hz per point. 10. Call 'Power spectrum.vi' to calculate the power spectrum of the III signal, Y.
+Let this new array be P. 11. Round each element of P to the next lowest integer. 12. Calculate the High Frequency Area:
+
+Figure 4.13 shows the Labview program for the algorithm described in section 4.6.1.
+
+Figure 4.13 Labview 7.0: Sub — Calculation of power spectrum.vi
+
+61 4.6.2 Power Spectra.vi Algorithm:
+1. Read IIBI file from the specified location using the 'Read from file.vi' 2. Call sub — vi 'calculation of power spectrum.vi'. Inputs to sub — vi are the IIBI
+file and the sampling frequency. 3. Outputs of the sub — vi are display. The outputs are:
+a. Graph of the power spectrum b. HF area c. LF area d. Time of record in minutes The Labview program is shown in Figure 4.14 and Figure 4.15.
+Figure 4.14 Labview 7.0: Power spectrum.vi (case 0)
+
+62
+Figure 4.15 Labview 7.0: Power spectrum.vi (case 1) 4.7 SOFTWARE TESTING
+Test files were used to validate the implemented programs before they were used on the 24 hour Holter monitor readings. The results were all found to match calculations which were performed on the same data using software like Matlab and MS-Excel. The results of the programs were also checked and the data ranges were found to lie well within the standard values for normal subjects given in Table 3.1.
+
+63 CHAPTER 5 DATA ACQUISITION INSTRUMENTATION AND THE DATA SET
+As mentioned in section 1.3.3 data obtained from any instrument must be edited and filtering errors from the data set should be performed as carefully as possible to make sure the data that is processed is as free as possible from erroneous data. This chapter discusses the experimental protocol, the obtained data set, acquisition device, and anomalies detected.
+5.1 THE DATA SET
+5.1.1 Experimentation and Purpose The data set used with this study was obtained through a set of clinical trials performed by Lifewaves International as part of their ongoing studies to test the efficacy of a novel exercise program called Heart Waves. The unique feature of Heart Waves is that it trains not only the activation (arousal) phase of exercise, but also he relaxation (recovery) phase in a cyclic (wave-like) fashion.
+Traditional exercise trains a person through continuous prolonged exercise that consists of a warm-up stage, maintained activity level, and a cool down stage. Cyclic exercise on the other hand consists of a series of activation-relaxation cycles. The objective of such cycles is to generate a sequence of heart rates in which the subjects, pulse rate rises and falls. The overall hypothesis of such a program is that cyclic exercise
+
+64
+may improve the quality of life, cardiac function, and immune function in healthy subjects and in subjects with chronic disease.
+5.1.2 Protocol The exercise study was designed to study individuals on a protocol that consisted of:
+• baseline ( pre-cycles) evaluation o functional capacity o quality of life o cardiac function o immune function
+• Individualized cyclic exercise prescription o Based on maximal heart rate response to progressively more vigorous cycles of exercise
+• Eight weeks of cyclic exercise training
+• Post-cycle evaluation o Functional capacity o Quality of life o Cardiac function o Immune function
+Though the above mentioned study was conducted to test this hypothesis, the data derived to test cardiac function was ideal for this study. This data was acquired using an instrument called a Holter monitor. The Holter monitor is a device which can be strapped onto a subject and measures the inter-beat interval between consecutive heart beats. It is normally used to record IBI intervals over 24 hours. The programs described in Chapter 4 were validated using this data from the above mentioned cyclic exercise study. This data set was already analyzed using frequency domain techniques, the results of which
+
+65
+were already known. The validity of our results were then cross-checked with those of the earlier performed analysis.
+The subjects for the study were chosen within an age group of 20 — 70 year olds. The exclusion criteria used was as follows:
+• Chronic drug or medication use • Tobacco use • History chronic illness • Engage in regular exercise Eleven healthy women were chosen. The subject characteristics can be seen in the Table 5.1.
+
+66 5.1.3 The Data Set The data set used in this study consisted of 11 sets of pre and post experimental exercise data, making a total of 22 files. Each file was a 24 hour recording of IBI (inter-beat interval) data and was acquired through a Holter monitor during 24 hours of normal activity. The ECG signals were sampled at a rate of 1000 Hz. All intervals were recorded in milliseconds and were stored as text files after being downloaded from the Holter monitor to a computer. The specifics of data transfer will be discussed in the next section. Each file consisted of a header introducing the subject and noting the starting time of data acquisition, and the first heart beat. An example of the file header from one subject can be seen in the Figure 5.1 below.
+Figure 5.1 Section of a data file from a Holter monitor recording.
+
+67
+The header from each file is oriented in the same manner. Each file is a recording of approximately 24 hours and takes up about 500BB of space. Considering data points only, the file contains about 100,000 points or intervals. Prior to any filtering the data
+points are all preceded by a letter. This is a characteristic of the machine used and not one
+seen in all 24 hour recordings.
+5.1.4 Data Set Anomalies The data discussed in the previous section was not instantly ready for analysis. They had to be filtered from errors and conditioned to be processed by the Labview programs. Molding the data files into such a format that can be processed required much filtering and editing. The major changes that had to be made to each file were as follows:
+1. The header data had to be completely removed. 2. The data points had to be moved to the first line of each text file to ensure it was
+consistently and uniformly accessed by the programs. 3. All letters which preceded each inter-beat interval had to be removed. 4. Each entry had to be verified for a correctness with respect to its neighborhood of
+entries. This was because the acquisition device had a tendancy to place sporadic numbers at random places. Such numbers could not be determined to be of any relevance and were found to be in no way correlated to numbers within its vicinity. If such a discrepancy was found, it had to be carefully examined. If determined to be such a 'sporadic number' the entry was removed and the matrix appended. 5. Another set of discrepancies found within the data set, were seen in pairs. These errors were found out of place when compared to their neighboring entries, and when added together, the sum was found to fit extremely well with the surrounding entries. 6. Finally, sporadic entries were found that were either too high or too low to even be considered part of the data set.
+
+68
+The above mentioned points had to be corrected for each of the 22 data files used. Only after proper conditioning, could the files be used for analysis. A point to be noted is that by conditioning the files in these ways, the true effect on the HRV measure calculation is not known entirely and could contribute to some percentage of error.
+5.1.5 Data Corrections Correcting the anomalies found in each data file had to be done carefully and intellectually. A fixed procedure was defined, and each file was handled and conditioned in the same manner. The manner in which each file was conditioned is explained in the steps below:
+1. Each file was opened using Microsoft Notepad or Microsoft Wordpad. 2. The header of each file was removed. 3. Each letter which preceded the inter-beat interval was deleted using the 'Search
+and Replace' function of the software used. 4. A file conditioner program was written in Labview 7.0 to search through each file
+and pull out entries based on a threshold value given. The entries were then displayed separately. Each entry that was displayed had to be manually found within the file and its neighbors evaluated. If the entry's value was found to be inconsistent with the values of its nearest neighbors, the entry was removed from the list. 5. Similarly if the entry was found to be associated with a pair of numbers found to be inconsistent with its nearest neighbors, the entire set of entries was removed.
+
+69 6. Sporadically found numbers above and below a certain threshold level were then
+passed through a second file conditioner which was designed to remove those entries and append the file. The files were then ready for analysis. The difference between the data sets before and after conditioning can be seen from Figure 5.2 and is taken from the subject CART2O1 01.
+5.2 INSTRUMENTATION: THE HOLTER MONITOR A Holter monitor is a battery operated device used to record prolonged durations of cardiac activity, normally for 24 hours. It is a portable device that can be strapped onto ones waist, neck or shoulder and carried around without much interference to a patient's
+
+7O
+daily life. Holter monitors record cardiac activity through electrodes which are placed on the skin, in a similar fashion as an ECG recording. Normally such a test is prescribed
+• to help detect irregular heart beats (cardiac arrhythmias) • to help evaluate chest pain • to help check the heart's activity after a heart attack • to help check the heart's activity after a pacemaker has been implanted. • to help check how certain medicines are working. • to help discover the cause of certain symptoms like difficulty breathing, dizziness,
+light — headedness, or fainting.
+The advantage of Holster monitors of common ECG systems is that it allows a longer reading which gives the physician a better chance of capturing information about a specific heart ailment. A standard ECG lasts anywhere from five to ten minutes long and captures on average 40 to 90 heart beats per minute. The Holter monitor on the other hand, can capture an average of 100,000 heartbeats over a 24 hour period. It is also more likely to capture any problems on a Holster monitor, especially if the problem occurs irregularly. Another advantage of the Holster monitor is that it enables the recording of a subject's cardiac activity during daily normal activities. Many heart problems arise only during certain activities and will not be visible to a physician during a visit. The Holter monitor helps the physician to see and analyze the patient's cardiac activity during the course of a normal day. It also gives the physician a better chance of detecting irregularities in the heart's electrical signals that might occur during normal daily life.
+The disadvantage of Holter monitor tests is the non-uniform nature of the testing environment. The foundation behind such recordings is to monitor the subject during his
+
+71
+daily routines, but this is inconsistent. Since no uniformity of routine can possibly be guaranteed among any number of subjects, the significance of results of any type of Heart Rate Variability analysis must be questioned. One subject's activity during one part of the day may not correspond to another subject's activity unless routines are scheduled to follow a well defined agenda. This is highly impractical and hence the use of such data for HRV parameters should prove unreliable.
+
+72
+CHAPTER 6 RESULTS
+6.1 The Time Domain Analysis The following sections will display the results of the time domain measures obtained on the exercise data using the designed applications. Table 6.1 lists the results obtained from each of the Labview programs used to derive time domain HRV measures. In all, there are five measures. They are
+• SDNN • SDNN index • SDANN • pNN50 • rMSSD Table 6.1 lists the results for each of the 11 subjects. The measures are listed in such a way that the pre and post exercise results lie side by side. Table 6.2 to Table 6.6 are the results presented from t — tests. All tables show the same results of no significant changes among pre and post exercise values of the time domain parameters. Table 6.7 shows the results of an analysis of variance (ANOVA) conducted on Table 6.1. According to Table 6.7, there is no significant change among the various subjects. MSExcel labels the first column as Sample. There is a interaction among the columns, i.e. the time domain parameters. The F-value for the columns (78.15) is very much larger than the F-critical value of 1.97. The p-value of 3.2014E-41 is also extremely small and means a high significance among the different parameters.
+
+Table 6.1 Time Domain Measures
+
+74 The values shown as #NUM! are numerical errors that occur in MS-Excel. This error occurs when the number is too high or too low for MS-Excel to display.
+
+75
+
+76
+
+6.1.2 Analysis of Variance (ANOVA) Table 6.7 ANOVA: Time Domain Measures.
+
+Anova: Two-Factor With Replication
+
+SUMMERY SDNN-pre
+
+SDNNpost
+
+201
+
+SDANN-pre
+
+Count
+
+11
+
+11
+
+11
+
+Sum
+
+1270.29
+
+1237.99 1125.75
+
+Average
+
+115.48
+
+112.54
+
+102.34
+
+Variance Total
+
+392.58
+
+504.44
+
+386.41
+
+Count
+
+11
+
+11
+
+11
+
+Sum
+
+1270.29
+
+1237.99 1125.75
+
+Average
+
+115.48
+
+112.54
+
+102.34
+
+Variance
+
+392.58
+
+504.44
+
+386.41
+
+ANOVA
+
+Source of
+
+Variation
+
+SS
+
+Sample
+
+0
+
+df
+
+MS
+
+0
+
+65535
+
+Columns
+
+173596.52
+
+9
+
+19288.50
+
+Interaction 1.45519E-11
+
+0
+
+65535
+
+Within Total
+
+24682.71 198279.24
+
+100
+
+246.82714
+
+109
+
+SDANNpost
+11 1064.67 96.78 399.83
+11 1064.67 96.78 399.83
+F 65535 78.145 65535
+
+SDNN Indexpre
+
+SDNN Index-post
+
+pNN50-pre pNN50-post
+
+Rmssdpre
+
+Rpomssist d-
+
+Total
+
+11 575.94 52.35 137.51
+11 575.94 52.35 137.51
+
+11 591.58 53.78 218.32
+11 591.58 53.78 218.32
+
+11 63.41 5.76 37.50
+11 63.41 5.76 37.50
+
+11 83.04 7.54 72.67
+11 83.04 7.54 72.67
+
+11 413.45 37.58 187.66
+
+11 402.58 36.59 131.30
+
+110 6828.74
+62.07 1819.07
+
+11 413.45 37.58 187.66
+
+11 402.58 36.59 131.30
+
+P-value #NUM! 3.20147E-41 #NUM!
+
+F crit #NUM! 1.974 #NUM!
+
+78
+6.2 The Frequency Domain Analysis The frequency domain measures, HF area and LF Area, were derived through a spectral analysis and the results are listed in Table 6.8. 't' — tests were performed for each of the measures to determine significance. The results of these tests are found in Table 6.9 and Table 6.10. For both t-tests there was no significant changes found among pre and post recording LF and HF parameters. A third term was also included in the results shown in Table 6.8. This was the overall time of the 24 hour recording in minutes. An ANOVA was also performed and the results of which can be seen in Table 6.11. According to the results, there was no significant change found among the subjects, i.e. samples. However, significance was found among the columns, i.e. among the frequency domain parameters. This was an anticipated outcome because the columns are different measures and hence will exhibit a large amount of variations in their values. The F-value of 231.9960 was found to be much greater than the F-critical value of 2.36827. No significant interaction among the subjects and measures were found. The analysis did display 4 numerical errors. They are shown as '#NUM!'. These errors occur when the number to be displayed is either too high or too low and cannot be displayed by MS-Excel.
+
+Table 6.8 Frequency Domain Measures.
+
+SUBJECT
+201 202 203 204 205 206 207 208 209 210 211
+
+PRE EXPERIMENTAL DATA
+
+LF AREA-
+
+HF AREA-
+
+TIME-
+
+PRE
+
+PRE
+
+PRE
+
+818.5
+
+503.23
+
+1424.74
+
+155
+
+117.63
+
+1413.63
+
+220.61
+
+160.25
+
+1431.47
+
+287.54
+
+202.33
+
+1378.43
+
+268.89
+
+117.01
+
+1424.41
+
+177.59
+
+102.81
+
+1409.72
+
+269.51
+
+214.39
+
+1423.7
+
+324.47
+
+269.32
+
+1425.74
+
+207.19
+
+221.82
+
+1411.17
+
+302.09
+
+309.24
+
+1417.63
+
+278.45
+
+256.91
+
+1400.61
+
+POST EXPERIMENTAL DATA
+
+LF AREA-
+
+HF AREA-
+
+TIME-
+
+POST
+
+POST
+
+POST
+
+546.4
+
+468.56
+
+1427.31
+
+144.68
+
+115.55
+
+1397.72
+
+192.07
+
+168.14
+
+1432.18
+
+705.29
+
+445.71
+
+1406.65
+
+131.02
+
+102.71
+
+1368.45
+
+202.03
+
+137.05
+
+1395.44
+
+418.34
+
+282.52
+
+1416.25
+
+200.6
+
+222.26
+
+1419.84
+
+156.06
+
+114.97
+
+1383.91
+
+361.23
+
+335.73
+
+1427.52
+
+296.2
+
+355.68
+
+1410.82
+
+8O
+
+6.2.2 Analysis of Variance (ANOVA) Table 6.11 ANOVA: Frequency Domain Analysis.
+
+Anova: Two-Factor With Replication
+
+LF AREA-
+
+SUMMARY
+
+PRE
+
+HF AREA-PRE
+
+201
+
+Count
+
+11
+
+11
+
+Sum
+
+3309.84
+
+2474.94
+
+Average
+
+300.89
+
+224.99
+
+Variance
+
+32287.93
+
+13044.05
+
+Total
+
+Count Sum
+
+11 3309.84
+
+11 2474.94
+
+Average
+
+300.89
+
+224.99
+
+Variance
+
+32287.93
+
+13044.05
+
+ANOVA
+
+Source of
+
+Variation
+
+SS
+
+Df
+
+Sample
+
+0
+
+0
+
+Columns
+
+19147492.3
+
+5
+
+3.49246E-
+
+Interaction
+
+10
+
+0
+
+Within
+
+990404.30
+
+60
+
+Total
+
+20137896.6
+
+65
+
+TIME-PRE
+11 15561.25 1414.65 224.02
+11 15561.25 1414.65
+224.02
+MS 65535 3829498.45 65535 16506.73
+
+LF AREAPOST
+11 3353.92 304.90 34700.11
+11 3353.92 304.90 34700.11
+F 65535 231.99 65535
+
+HF AREA-POST TIME-POST
+
+Total
+
+11 2748.88 249.89 18387.87
+
+11 15486.09 1407.82 396.42
+
+66 42934.92
+650.52 309813.79
+
+11
+2748.88 249.89 18387.87
+
+11
+15486.09 1407.82 396.42
+
+P-value #NUM! 6.9309E-38
+#NUM!
+
+F cut #NUM! 2.368270235
+#NUM!
+
+82 6.3 24 Hour Activity Plots Four programs were also designed in Labview 7.0 to generated activity plots of three time domain measures (SDNN, pNN5O, and rMSSD) and two frequency domain measures (LF and HF area). The plots were obtained through the following steps: 1. The IBI data was parsed and divided into five minute segments. 2. The decimated III for each segment was generated, in case of frequency domain measures. 3. The HRV measures were then calculated for each five minute segment and stored in an array. 4. The array was then plotted with the five minute segments along the X axis and HRV measure along the Y axis. The obtained plots can be seen in Figure 6.1.
+Figure 6.1 24 hour Activity Plots for various heart rate variability measures.
+

@@ -1,0 +1,189 @@
+Detection of Essential Hypertension with Physiological Signals from Wearable Devices
+Arindam Ghosh1, Juan Manuel Mayor Torres1, Morena Danieli1, Giuseppe Riccardi1
+
+Abstract— Early detection of essential hypertension can support the prevention of cardiovascular disease, a leading cause of death. The traditional method of identiﬁcation of hypertension involves periodic blood pressure measurement using brachial cuff-based measurement devices. While these devices are noninvasive, they require manual setup for each measurement and they are not suitable for continuous monitoring. Research has shown that physiological signals such as Heart Rate Variability, which is a measure of the cardiac autonomic activity, is correlated with blood pressure. Wearable devices capable of measuring physiological signals such as Heart Rate, Galvanic Skin Response, Skin Temperature have recently become ubiquitous. However, these signals are not accurate and are prone to noise due to different artifacts. In this paper a) we present a data collection protocol for continuous non-invasive monitoring of physiological signals from wearable devices; b) we implement signal processing techniques for signal estimation; c) we explore how the continuous monitoring of these physiological signals can be used to identify hypertensive patients; d) We conduct a pilot study with a group of normotensive and hypertensive patients to test our techniques. We show that physiological signals extracted from wearable devices can distinguish between these two groups with high accuracy.
+I. INTRODUCTION
+Hypertension is one of the most prevalent diseases of the modern world. According to a recent report [1] by the World Health Organization (WHO), hypertension affects more than 40% adults over the age of 25. In 2008 over 1 billion people worldwide were found to be suffering with hypertension. If left untreated it can lead to serious cardiovascular and cerebrovascular complications, and even death due to renal failure, heart attack or stroke.
+The most common method of diagnosis of hypertension is the detection of the presence of high-blood pressure using brachial cuff-based measurement devices. These devices, however, require careful setup for each measurement, and they are not generally suitable for use outside clinical settings. While doctors have advocated the use of ambulatory blood pressure measuring devices for continuous monitoring, they are more commonly accepted among patients who are already hypertensive or have been diagnosed with high risk of hypertension.
+Several studies have demonstrated that continuous increased activity of the sympathetic nervous system is indicative of health problems. Our sympathetic nervous system
+1 All authors are with the Signals and Interactive Systems Lab, Department of Information Engineering and Computer Science University of Trento, Italy arindam.ghosh@unitn.it, juan.mayortorres@unitn.it, morena.danieli@unitn.it, giuseppe.riccardi@unitn.it
+Mention of Company names or products does not constitute endorsement by the University of Trento
+
+controls our “ﬁght or ﬂight” response [2]. Sympathetic over-activation leads to elevated heart rate, which increases cardiac output. Since blood pressure is a product of cardiac output, elevation of heart rate also leads to elevation of blood pressure. Measurement of Heart Rate Variability (HRV) has thus been shown to be an effective measure for the detection and prediction of hypertension [3]. Other Physiological signals such as Skin Temperature and Galvanic Skin Response (GSR), which are also indicative of the sympathetic activation, can also be of interest for the detection and monitoring of hypertension.
+In the recent years, wearable devices with multiple connected sensors have made healthcare ubiquitous and patientcentric. Unlike ambulatory monitoring systems, wearable devices are mostly comfortable and aesthetic, and are being rapidly adopted by the general population. Devices like the Basis Armband [4], Microsoft Band [5], Empatica Embrace [6] amongst others, are capable of measuring multiple motion and physiological signals such as Galvanic Skin Conductance (GSR), Skin Temperature, Blood Volume Pulse (BVP), and Heart Rate. Such devices have opened up a great unprecedented opportunity for continuous remote monitoring and predictive diagnosis for various medical conditions.
+Researchers have already achieved a wide level of success in the detection and monitoring of people suffering from stress, epilepsy, bipolar disorder, and sleep apnoea [7], [8], [9] using wearable sensors.
+One major drawback of using wearable sensors is the presence of artifacts which can contaminate the signal. Artifacts can be caused due to motion, pressure, vasoconstriction due to cold weather, or nervous ﬁdgeting [10]. Hence there is a need to develop effective signal processing methodology for artifact removal before these signals can be effectively used for experiments on supervised hypertension detection.
+In this paper we implement a robust signal processing pipeline, and explore how individual and combinations of various physiological signals can be used to detect hypertensive patients. The paper is structured as follows. In Section 2 we describe our data collection and experimental design protocol. In Section 3 we describe the signal processing, artifact removal techniques, and results of our hypertension detection task.
+II. EXPERIMENTAL DESIGN
+An observational Pilot Study was conducted with 10 Hypertensive and 10 normotensive adults for 10 days each. Adults (male and female) between the age of 30 and 65 were selected for the study. Patients who were suffering from
+
+978-1-4244-9270-1/15/$31.00 ©2015 IEEE
+
+8095
+
+essential hypertension (EH, n=8) and receiving treatment at the Centro Ipertensione Ospedale Molinette in Turin, Italy were recruited. The healthy control (normotensive) subjects were chosen by a psychologist to rule out hidden hypertension, and any other underlying health problem that might affect the study. The institutional ethics committee of the Azienda Ospedaliera Citta` della Salute e della Scienza di Torino and the ethics committee of the Universita` degli Studi di Trento approved the present research study. All data was anonymized before analysis.
+The data collection protocol was the same for both reference groups. Each participant was provided with an Empatica E3 wearable wristband and an iPhone with an installed agent application capable of recording and securely transmitting the data to the university server. During the ﬁrst interview the participants were instructed on how to use the wristband and application, and were evaluated by a psychologist on perceived stress and emotion regulation. During this interview they also signed an informed consent for participation.
+The Empatica E3 wristband is capable of continuously recording multiple physiological signals. The goal was to monitor the participants during their work day. The participants wore the wristband everyday from morning (before leaving for work) till evening (till they returned home). They periodically answered questions and took notes regarding their mental state and current activity using the agent application.
+At the end of the study, there was a counselling session with the psychologists to assess the adaptation of the protocol among the subjects, and to ensure the effectiveness of the study.
+III. DATA ANALYSIS AND EXPERIMENTS
+The goal of the data analysis is to discover features and trends from physiological signals which can be used to detect hypertension in people. While in literature the relationship between hypertension and blood pressure is well established, the detection of essential hypertension from other physiological signal streams and their fusion has not been comparatively investigated. Our goal is to design a signal processing and feature extraction & combination pipeline which can be applied to this task.
+A balanced subset of 8 hypertensive and 8 normotensive subjects was selected for the experiments with respect to the completeness of the signals collected. A total of 756 hours of data from the hypertensive patients and 780 hours from normotensive control subjects have been analysed.
+A. Signal Processing Techniques
+The Empatica E3 reports Galvanic Skin Response (GSR) and Skin Temperature (ST) at 4 Hz, Photoplethysmograph (PPG) data at 64 Hz, and tri-axial acceleration at 32 Hz. Prior to any analysis, the signal streams need to be preprocessed for artifact removal and normalization.
+When a subject wears the E3 device, there is initial local perspiration because of the contact of the device with the
+
+skin. This causes an initial rapid increase in the GSR signal which requires few minutes to stabilize. The Empatica E3 photoplethysmograph sensor also calibrates itself before it can start reporting the PPG data. Hence for every session, we remove the ﬁrst ﬁve minutes. Then for each individual signal we preprocess it to decrease the amount of noise. For the GSR and Skin Temperature (ST) we ﬁrst use a low pass Butterworth ﬁlter. Then we detrend the GSR to remove the temporal low frequency drift. The Empatica E3 performs on board signal processing to remove motion artifacts from the PPG signal [11]. However, we observed that the reported PPG data still contained certain local motion artifacts, which conditioned the resulting signal entropy. In the physiological signal literature, different methods have been proposed to remove artifacts from PPG data for the derivation of Blood Volume Pulse (BVP) and Heart Rate signals. Adaptive ﬁlters schemes [12], such as Normalized Least Mean Square (NLMS) and Recursive Least Square (RLS) [13], and smoothing algorithms (e.g. Moving average ﬁlters) [14] support the accelerometer subtraction for noise removal.
+Active Noise Cancelation: We process the PPG signal with the Active Noise Cancelation method as proposed in [15] to derive a BVP signal. This method consists of a LeastMean-Squares (LMS) adaptive algorithm, used to minimize the error with respect to the desired ﬁlter impulse response coefﬁcients. In this paper we use the same approach as in [15], and deﬁne a 32nd order FIR passband ﬁlter as our desired response deﬁned by [0.5 − 5]Hz bandwidth. Concordantly, we selected a LMS learning rate of µ = 0.0021 based on the maximum glitch and BVP extra beats attenuation presented in [15].
+
+∂[ e2(n)]
+
+w(n + 1) = w(n) + µ
+
+(1)
+
+∂n
+
+We recursively estimate ω(n) which is the set of coefﬁcients for the desired response matching with iteration index n. LMS receives feedback from e(n) (error between the current noise cancelation ﬁlter mapping and the desired response), and updates the next iteration based on Equation 1. The Figure 1 shows the block diagram for the Active Noise Cancellation [15] method.
+Due to the lack of a ground truth for the Inter-Beat Interval (IBI)/Heart Rate (HR) signal for our dataset, we evaluate the above methodology on the publicly available TROIKA dataset [16]. This dataset contains a collection of PPG and Accelerometer data along with ground truth ECG in an exercise environment. We evaluated this Active Noise Cancellation and prediction methods on the TROIKA data and obtained an absolute error of 12.1% and a relative error rate of 8.9% for Heart Rate estimation.
+Consequently we apply this methodology to our dataset to estimate a continuous Inter-Beat-Interval signal. With the ﬁltered BVP signal, we detect the R-peaks that are above 50% of the BVP signal amplitude. For each detected consecutive R-peak pair, we calculate the time difference between them and detect any variation along the entire BVP
+
+8096
+
+SENSORS
+
+Raw PPG
+
+Cancellation
+
+PPG
+
+Bandpass
+
+Raw GSR Raw ST
+
+IIBI
+BVP GSR ST
+
+Fig. 1: Pipeline for Hypertension prediction from Wearable Devices. We deﬁne four different blocks, Active noise Cancellation based on LMS, R-peak IIBI estimation analyzing the decontaminated PPG, GSR and ST signal conditional and ﬁnal Classiﬁcation task stage.
+
+signal. When we detect a new R-peak according to the above criterion, we update the inferred IBI value. Finally we run a smoothing spline algorithm to ﬁx the resultant IBI signal and avoid undesirable harmonics related to IBI discontinuities. This signal is commonly called interpolated-IBI (IIBI) [14]. We can see both these signals in ﬁgure Fig. 2.
+
+IBI and IIBI
+
+interbeat−interval [s]
+
+1.5
+
+1.4
+
+1.3
+
+1.2
+
+1.1
+
+1
+
+0.9
+
+0.8
+
+0.7 Inferred continuous IBI
+
+0.6
+
+Smoothed
+
+Interpolated IBI − (IIBI) 0.5
+
+0
+
+10
+
+20
+
+30
+
+40
+
+50
+
+60
+
+70
+
+80
+
+time [s]
+
+Fig. 2: Example for inferred IBI and Smoothed IIBI.
+
+B. Feature Extraction and Classiﬁcation
+1) Feature Extraction: We experiment with different window sizes to discover the optimal window for continuous monitoring of physiological signals and how the performance varies. Our feature extraction window sizes range from 15 minutes to 2 and a half hours. We extract features from the preprocessed GSR and Skin Temperature signals, and the BVP and IIBI signals derived from the PPG data. Here we discuss the various features extracted from the individual physiological signal streams.
+From the Galvanic Skin Response we extract statistical features (mean, SD, min and max) for each session. We also extract the counts of the startle responses (instantaneous changes in response to external stimuli) of the GSR signal and their average rise and fall durations. The duration and amplitude of a the startle response of the Galvanic Skin Response has been shown to be highly correlated with sympathetic activation of a person, and its long term monitoring can be useful in detecting subjects who may be hypertensive . In total we extract 24 features from the GSR
+
+signal. We further extract 17 more features form the cleaned Blood Volume Pulse Signal and 8 features from the Skin Temperature Signal.
+From the Interpolated Inter-Beat Interval (IIBI) we extract 17 features from the time and frequency domain. The time domain features of IIBI are related to the parasympathetic and sympathetic baroﬂex function and hence are indicative of Heart Rate Variability. Hence, we extract the maximum and minimum of Heart Rate, RMSSD (root mean square of the successive difference of NN interval), SDNN (Standard Deviation of the NN interval), pNN50 and pNN30 (percentage of consecutive NN intervals which differ by more than 50 and 30 milliseconds respectively). We also derive frequency domain features as indicated in [17], [18]. These features are related to the sympathovagal balance index and indicative of sympathetic and parasympathetic neural activity. We also extract the ratio of the Low Frequency and High Frequency values (LF/HF ratio), and the statistical features given by each frequency range, (e.g. LF and HF: mean, variance, max and min peaks).
+2) Machine Learning: For distinguishing between hypertensive and normotensive subjects, we perform a Leave One Subject Out (LOSO) cross-validation classiﬁcation. Since each test fold contains instances from either a hypertensive subject or a normotensive subject, we compute the ﬁnal global confusion matrix by combining the individual classes per fold for each subject.
+True Positive comprises of all hypertensive subjects classiﬁed as hypertensive. True Negative comprises of all the normotensive subjects classiﬁed as normotensives. False Positive is all normotensives classiﬁed as hypertensives, and all the hypertensives classiﬁed as normotensives makes up the False Negative class.
+We perform classiﬁcation with both individual and combined signal streams. A feature-level fusion of the different physiological signal streams is done before running different classiﬁcation tasks. We perform feature normalization to scale all features to the range [0,1]. We evaluate the performance of ﬁve different classiﬁcation algorithms: KNearest Neighbours, Naive Bayes, Decision Trees, SVM
+
+8097
+
+F-measure
+
+0.9
+
+0.8
+
+0.7
+
+0.6
+
+0.5
+
+0.4
+
+0.3 0.2 0.1
+0 900
+
+GSR IIBI GSR+IIBI GSR+IIBI+ST GSR+BVP+IIBI GSR+BVP+IIBI+ST
+1600 2300 3000 3700 4400 5100 5800 6500 7200 7900 8600 9000 Window Size [sec]
+
+Fig. 3: Effect of the different sampling window sizes (in seconds) for the Adaboost classiﬁer for different Feature combinations.
+
+with Linear kernel, and two ensemble learning algorithms Adaptive boosting and Random Forest. The ensemble based classiﬁers outperform the other classiﬁers for both individual and fusion of features, with Adaptive Boosting performing the best. Adaptive Boosting (Adaboost) is a meta-learner that uses greedy search on a linear combination of weak classiﬁers to generate a single composite strong learner. We use AdaBoostM1 which is a binary classiﬁcation algorithm.
+When considered separately, individual signal streams have low classiﬁcation accuracies, with Blood Volume Pulse having the highest F-measure of 0.62. However, combination of features of different signal streams signiﬁcantly improves the classiﬁcation results. GSR-IIBI and GSR-BVPIIBI combinations providing the best discrimination between hypertensive and normotensive subjects. We observe that we are able to achieve a high F-measure of 0.83 using a combination of features from the BVP, GSR and IIBI signals.
+The length of the feature extraction windows as discussed in section III-B.1, affect the classiﬁcation results. Classiﬁcation results also improve with increase in the signal window. We can see this effect in ﬁgure Fig 3.
+Table I summarizes the best performance results which are obtained for a 9000 seconds (two and a half hour) window for the various classiﬁers.
+
+SIGNAL BVP GSR IIBI ST
+BVP+GSR BVP+IIBI BVP+ST GSR+IIBI GSR+ST IIBI+ST BVP+GSR+IIBI BVP+GSR+ ST BVP+IIBI+ST GSR+IIBI+ST GSR+BVP+IIBI+ST
+
+Adaboost 0.62 0.36 0.52 0.50 0.52 0.63 0.68 0.83 0.48 0.57 0.83 0.64 0.57 0.80 0.81
+
+RandomFor 0.64 0.44 0.49 0.55 0.60 0.56 0.65 0.78 0.41 0.52 0.72 0.53 0.57 0.71 0.76
+
+SVM 0.59 0.25 0.33 0.53 0.41 0.51 0.59 0.59 0.27 0.50 0.60 0.40 0.42 0.67 0.63
+
+TABLE I: Classiﬁcation Results (F-measure) for the three best classiﬁers for different signal combinations for LOSO evaluation for 9000 seconds (2 and a half hour) window. The best performance for each classiﬁer is marked in bold.
+
+IV. CONCLUSION
+In this study we design and train a complete signal pro-
+cessing and classiﬁcation system for early hypertension pre-
+diction by using non-invasive wearable devices. We construct
+a robust signal processing methodology for IIBI estimation
+under real-life scenarios. We demonstrate that the proposed
+computational pipeline which combines several individual
+signal streams is able to distinguish between hypertensive
+and normotensive subjects with high accuracy.
+REFERENCES
+[1] W. H. Organization et al., “A global brief on hypertension,” Silent killer, global public health crisis, p. 40, 2013.
+[2] A. S. Jansen, X. Van Nguyen, V. Karpitskiy, T. C. Mettenleiter, and A. D. Loewy, “Central command neurons of the sympathetic nervous system: basis of the ﬁght-or-ﬂight response,” Science, vol. 270, no. 5236, pp. 644–646, 1995.
+[3] L. Fei, X. Copie, M. Malik, and A. J. Camm, “Short-and long-term assessment of heart rate variability for risk stratiﬁcation after acute myocardial infarction,” The American journal of cardiology, vol. 77, no. 9, 1996.
+[4] “Mybasis,” https://www.mybasis.com/, accessed: 2015-03-30. [5] “Microsoft band,” http://www.microsoft.com/microsoft-band/en-us,
+accessed: 2015-03-30. [6] “Empatica,” http://www.empatica.com, accessed: 2015-03-30. [7] R. Picard, O. Devinsky, B. Dworetzky, J. French, D. Friedman, M. Lai,
+T. Loddenkemper, M. Poh, C. Reinsberger, R. Sarkis et al., “The importance of measuring autonomic data in new epilepsy treatments.” [8] A. Puiatti, S. Mudda, S. Giordano, and O. Mayora, “Smartphonecentred wearable sensors network for monitoring patients with bipolar disorder,” in Engineering in Medicine and Biology Society, EMBC, 2011 annual international conference of the IEEE. IEEE, 2011. [9] M. Rofouei, M. Sinclair, R. Bittner, T. Blank, N. Saw, G. DeJean, and J. Heffron, “A non-invasive wearable neck-cuff system for real-time sleep monitoring,” in Body Sensor Networks (BSN), 2011 International Conference on. IEEE. [10] F. Shaffer, J. Crawford, and D. Moss, “Bcia launches a heart rate variability biofeedback certiﬁcate of completion,” Biofeedback, vol. 41, no. 1, pp. 4–6, 2013. [11] M. Garbarino, M. Lai, D. Bender, R. W. Picard, and S. Tognetti, “Empatica e3a wearable wireless multi-sensor device for real-time computerized biofeedback and data acquisition,” in Wireless Mobile Communication and Healthcare (Mobihealth), 2014 EAI 4th International Conference on. IEEE, 2014, pp. 39–42. [12] T. Shimazaki, S. Hara, H. Okuhata, H. Nakamura, and T. Kawabata, “Cancellation of motion artifact induced by exercise for ppg-based heart rate sensing,” in Engineering in Medicine and Biology Society (EMBC), 2014 36th Annual International Conference of the IEEE. IEEE, 2014, pp. 3216–3219. [13] Z. Zhang, I. Silva, D. Wu, J. Zheng, H. Wu, and W. Wang, “Adaptive motion artefact reduction in respiration and ecg signals for wearable healthcare monitoring systems,” Medical & biological engineering & computing, vol. 52, no. 12, pp. 1019–1030, 2014. [14] D. McDuff, S. Gontarek, and R. W. Picard, “Remote detection of photoplethysmographic systolic-diastolic peaks using a digital camera,” Biomedical Engineering IEEE, 2014. [15] H. Han and J. Kim, “Artifacts in wearable photoplethysmographs during daily life motions and their reduction with least mean square based active noise cancellation method,” Computers in biology and medicine, vol. 42, no. 4, pp. 387–393, 2012. [16] Z. Zhang, Z. Pi, and B. Liu, “Troika: A general framework for heart rate monitoring using wrist-type photoplethysmographic (ppg) signals during intensive physical exercise,” 2014. [17] W. Handouzi, C. Maaoui, A. Pruski, and A. Moussaoui, “Objective model assessment for short-term anxiety recognition from blood volume pulse signal,” Biomedical Signal Processing and Control, vol. 14, pp. 217–227, 2014. [18] C. Holmga˚rd, G. N. Yannakakis, H. P. Mart´ınez, K.-I. Karstoft, and H. S. Andersen, “Multimodal ptsd characterization via the startlemart game,” Journal on Multimodal User Interfaces, pp. 1–13, 2014.
+
+8098
+

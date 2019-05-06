@@ -1,0 +1,332 @@
+Bartels et al. BioMed Eng OnLine (2017) 16:110 DOI 10.1186/s12938-017-0401-4
+
+BioMedical Engineering OnLine
+
+S O F T WA R E
+
+Open Access
+
+SinusCor: an advanced tool for heart rate variability analysis
+
+Rhenan Bartels1  , Leonardo Neumamm1, Tiago Peçanha2 and Alysson Roncally Silva Carvalho1,3*
+
+*Correspondence: roncally.carvalho@gmail.com 1 Pulmonary Engineering Laboratory, Biomedical Engineering Program, COPPE, Federal University of Rio de Janeiro, Cidade Universitária, Rio de Janeiro, Brazil Full list of author information is available at the end of the article
+
+Abstract 
+Background:  Heart rate variability (HRV) is a widespread non-invasive technique to assess cardiac autonomic function. Time and frequency domain analyses have been used in HRV studies, and their interpretations are linked with both clinical prognostic and diagnostic information. Statistical and geometrical parameters, Fast Fourier Transform and Autoregressive based periodograms are commonly used approaches for the assessment of stationary RR intervals (RRi) signals. However, some conditions result in non-stationary HRV behavior such as the “tilt test” and exercise. This study presents the SinusCor, a new free software for HRV analysis that includes the classical time and frequency domain indices and also techniques for non-stationary data analyses in both time (i.e. root mean squared of successive differences; RMSSD calculated with moving segments) and frequency domains (i.e. time–frequency analysis).
+Results:  An example of RRi was acquired from a young male subject and its time and frequency domain indices were calculated. Time-varying and time–frequency analyses were also presented using the RMSSD and total power, respectively. Validation of the present software against a standard software for HRV analysis (Kubios v 3.0.1) was also performed [SinusCor vs. Kubios: RMSSD—93.96 (41.55) vs. 93.96 (41.55) ms; SDNN— 101.29 (29.03) vs. 101.29 (29.03) ms; LF—50.42 (19.76) vs. 50.56 (19.56) n.u.; HF—49.57 (19.76) vs. 49.38 (19.56) n.u.; LF/HF—1.38 (1.08) vs. 1.38 (1.07)].
+Conclusions:  SinusCor might be a useful tool for classical stationary and non-stationary HRV analysis.
+Keywords:  Software, Heart rate variability, Time–frequency, Non-stationary signal
+
+Background Heart rate variability (HRV), defined as the variation of successive heartbeats (RR intervals, i.e. RRi), is a non-invasive tool for autonomic modulation assessment [1, 2]. Respiratory-coupled oscillations in heart rate (HR) are attributed to changes in parasympathetic activity over the sinoatrial node [2, 3], whereas lower frequency oscillations are imputed to phasic modifications in the sympathetic activity over the sinoatrial node [4] and also to other cardiovascular regulatory mechanisms [2, 5]. In general, a decrease in HRV is associated with poor cardiovascular health and prognosis [6, 7]. Classical HRV analyses are performed in stationary signals using time (statistical or geometrical analyses) or frequency (power spectral analysis) domains methods [2]. Most of the software used for HRV analysis employ these methods [8, 9], however the analysis of not well-behaved or
+© The Author(s) 2017. This article is distributed under the terms of the Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/), which permits unrestricted use, distribution, and reproduction in any medium, provided you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons license, and indicate if changes were made. The Creative Commons Public Domain Dedication waiver (http://creativecommons.org/publicdomain/zero/1.0/) applies to the data made available in this article, unless otherwise stated.
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 2 of 15
+
+non-stationary signals, such as those provided by “tilt test”—a clinical maneuver where the subject is submitted to an orthostatic stress; or exercise becomes laborious. To overcome this limitation, our study presents SinusCor, an user-friendly free software developed in Matlab (MathWorks, Massachusetts, USA), with a graphical interface that covers some functions included in others software, with additional features, such as time-varying and time–frequency analysis, different filters, windowing functions and R-peak detection algorithm for electrocardiogram (ECG) signals, with user’s manual edition.
+Implementation
+File extensions This program supports inputs as RRi or ECG data with different file extensions: pure text (.txt), ­Polar® heart rate monitor (.hrm), ­Suunto® heart rate monitor (.sdf ), Data Acquisition System (.bin) [10], ­Biopac® (.acq) and Axon Binary File (.abf ).
+R‑peaks detection SinusCor software uses a simple derivative-based method for R-peaks detection. Initially, the ECG signal is bandpass-filtered with a Butterworth filter with default passband of 5–200 Hz to remove baseline and high frequencies noises. It is possible to set different values for passband according to the specificity of each ECG signal. After filtering, the R peaks are detected if the first derivative of the filtered signal crosses zero and if that corresponding point of the ECG is greater than a fixed threshold, also supplied by the user. The fixed threshold algorithm may not detect correctly some R-peaks [11]. To deal with this problem, a manual edition, in which peaks can be added or removed, is available in our software. Figure 1 shows an example of an ECG tracing with the detected R-peaks and the corresponding RRi values.
+
+Fig. 1  Example of an electrocardiogram (ECG) tracing with the R-peaks detected (upper panel) and the corresponding RR interval (RRi) series (lower panel)
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 3 of 15
+
+Filtering During the acquisition process, artifacts or ectopic beats may contaminate the RRi series, affecting the HRV analysis [12]. RRi filtering is a widely used technique to remove non-natural beats from the tachogram [12–14]. Among existing filters, the present software counts with moving average, moving median and quotient filters [13]. The moving average consists on the convolution of the RRi signal with an N-length series of 1/N factors, in which N is the order of the filter. The moving-median filter applied to a given RRi value replaces this point by the median of the N (odd number) size interval centered on the current RRi value. The removal of non-natural beats using the quotient filter follows a simple rule: if the variation of two consecutive RRi values exceeds 20% (Eq. 1) the filter removes the ectopic beat. Quotient filter was implemented following the algorithm provided by Pikorski and Guzik [13]:
+
+RRin ≥ 1.2 or RRin ≤ 0.8
+
+RRin+1
+
+RRin+1
+
+RRin+1 ≥ 1.2 or RRin+1 ≤ 0.8
+
+(1)
+
+RRin
+
+RRin
+
+where ­RRin is the nth RRi value and ­RRin+1 is the nth + 1 RRi value.
+
+Stationary signal HRV analysis The following parameters can be calculated in SinusCor (Table 1).
+
+Time domain methods Time domain methods use statistical parameterizations of RR intervals. The Standard Deviation of the Normal RR intervals (SDNN) provides information on short and longterm variability of the signal (Eq. 2):
+
+1
+
+N
+
+2
+
+SDNN = N −1
+
+j=1 RRij − RRi
+
+(2)
+
+Table 1  Heart rate variability parameters obtained from stationary analysis in SinusCor
+
+Index
+
+Description
+
+Time domain RMSSD (ms) SDNN (ms) pNN50 (%) NN50 Mean RRi (ms) Mean HR (bpm)
+Frequency domain Total power (­ms2) VLF ­(ms2) LF ­(ms2) HF ­(ms2) LF/HF LFn.u HFn.u
+
+Root mean squared of successive NN differences Standard deviation of NN intervals Percentage of successive NN differences greater than 50 ms Count of successive NN differences greater than 50 ms Mean of RRi values Mean of HR values
+Energy of the PSD from 0 to 0.4 Hz (adjustable) in absolute values Energy of the PSD from 0 to 0.04 Hz (adjustable) in absolute values Energy of the PSD from 0.04 to 0.15 Hz (adjustable) in absolute values Energy of the PSD from 0.15 to 0.4 Hz (adjustable) in absolute values Ratio of LF to HF LF energy normalized by total power and VLF HF energy normalized by total power and VLF
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 4 of 15
+
+where N is the count of RRi values; ­RRij is the jth RRi value and RRi is the average value of the RRi series.
+The root mean square of successive differences (RMSSD) represents the short-term variability (Eq. 3):
+
+1 RMSSD = N − 1
+
+N −1 j=1
+
+RRij+1 − RRij
+
+2
+
+(3)
+
+where N is the count of RRi values and ­RRij is the jth RRi value. Also, the short-term (SD1) (Eq. 4) and long-term (SD2) (Eq. 5), measurements derived
+from a Poincaré plot, give similar information of RMSSD and SDNN, respectively, in terms of variability [15].
+
+SD1 = 2.SDNN 2 − 2.SD22
+
+(4)
+
+1
+
+SD2 = 2.SDNN 2 − .SDSD2
+
+(5)
+
+2
+
+where SDNN is the standard deviation of the RRi value; SDSD is the standard deviation of the differences between adjacent RRi values.
+The pNN50 quantifies the number of successive intervals differing more than 50 ms ­(nRRi50) divided by the total number of RR intervals (nRRi) and multiplied by 100.
+
+pNN 50 = nRRi50 .100 nRRi
+
+(6)
+
+Other simpler calculations are done by the software, such as the mean and the mean of successive differences of the RR intervals. Table 1 summarizes the indices calculated in time domain.
+
+Frequency domain methods HRV analyses in frequency domain are performed through spectral decomposition of the RRi signal, using Fast Fourier Transform (FFT) or Autoregressive (AR) based methods and then decomposed into the following frequency components in absolute power values ­(ms2): very low frequency (VLF: 0.003–0.04 Hz), low frequency (LF: 0.04– 0.15 Hz), high frequency (HF: 0.15–0.4 Hz) and total power (TP: 0–0.4 Hz) [2]. Indices derived from the spectral components such as the ratio of LF to HF (LF/HF), normalized LF (Eq. 7) and HF (n.u.) (Eq. 8) are also calculated. All frequency domain indices calculated in SinusCor are shown in Table 1.
+
+LF
+
+LFn.u =
+
+.100
+
+(7)
+
+TP − VLF
+
+HF
+
+HFn.u =
+
+.100
+
+(8)
+
+TP − VLF
+
+In the SinusCor Software, it is possible to choose power spectral density (PSD) estimation through Welch’s periodogram [16] or via AR method. In Welch’s method, the
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 5 of 15
+
+frequency components are calculated using the average of the estimated PSD (Eq. 9) from P (Eq. 10) sub segments of the original RRi series [16].
+
+1 PSD(f ) = P
+
+P p=1
+
+PSD((pf ))
+
+(9)
+
+where PSD((pf )) is the estimated PSD of each RRi series subsegment.
+
+N −D
+
+P=
+
++1
+
+S
+
+(10)
+
+where N is the number of samples of the tachogram; D is the segment size and S is the shift between adjacent segments.
+When the user chooses the AR, SinusCor estimates the PSD using the Burg algorithm. In this method, an AR prediction model, with the default order 16, fits the RRi series using the least square criteria. After the signal parametrization, the PSD is estimated using the frequency response of the model [17].
+Prior to the PSD estimation and frequency components calculation, the RRi series are interpolated and then resampled using a sampling frequency chosen by the user. SinusCor uses 4 Hz [2] as default value for resampling frequency, which can also be modified by the user. To reduce the influence of lower frequencies in the resulting PSD, it is possible to perform the detrending of the RRi series. The user can choose between linear (default), quadratic or cubic polynomials to be subtracted from the tachogram. It is also possible to choose a custom degree polynomial. In this case, the user chooses the polynomial degree, varying from 1 to N − 1, where N is the number of points in the tachogram. The superior panel of Fig. 2 presents an example of RRi series detrending using a polynomial with degree 5.
+In the Welch’s method, the segment and overlap size can be adjusted. The default values are 256 and 128 (i.e. 50% of overlap), respectively. It’s also possible to apply different window functions (hanning, hamming, kaiser, blackman and triangular) to avoid spectral leakage. When AR method is chosen, the default value of the model order of 16 can be modified to fit different purposes. To achieve higher PSD (Fig. 2) resolutions, it is possible to use a zero-padding function. The area under the curve of each band can be calculated by the spectrum integration using trapezoidal approximation, with the frequency limits specified by the user. The adjustable frequency band makes the software useful for different applications [2, 18].
+
+Non‑stationary signal HRV analysis Since the RRi series may present non-stationary behavior, shorter segments can better represent the RRi changes over time [19–21]. SinusCor presents two methods for HRV analysis in non-stationary signals.
+
+Time‑varying Time-varying analysis refers to the analysis of typical time domain indices of HRV in successive short segments [19, 21, 22]. In the SinusCor software, the user can set a segment and overlap size. All of the above listed time domain indices of HRV (Table 1) can be calculated using this tool. Figure 3 shows a typical example of RMSSD values over time with 30 s segments without overlap.
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 6 of 15
+
+Fig. 2  Example of a RR interval (RRi) series during rest period, detrended with a 5 degree polynomial (upper panel) and the corresponding power spectral density (PSD) function estimated with Welch’s method (lower panel)
+Fig. 3  Non-stationary RR interval (RRi) series during an incremental exercise (upper panel) and the resulting RMSSD index calculated within 30 s segments without overlap (lower panel)
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 7 of 15
+
+Time–frequency The time–frequency technique allows the estimation of spectral components of RRi time series with FFT- or AR-based methods over time [20, 23]. The algorithm works similar to the Welch’s method, but instead of calculating the average of all estimated PSD, the time–frequency method results in a 3D map (time, frequency and PSD) with the PSD for each sub-segments displayed over time (Fig. 4). Afterwards, the spectral components (Table 1) are calculated for each estimated PSD. The user may set the boundaries of each spectral component, the size of each RRi segment and the respective overlap size. AR method’s model order and the window function are also modifiable. For the sake of a better visualization of the spectrogram, in all methods a zero-padding option is also available. To visualize the resulting 3D map from the time–frequency analysis, the user can choose between a surface plot or an image with scaled colors (Fig. 4).
+Exporting results The results from time and frequency domain analyses are displayed in the main interface, as shown in Fig. 5. Two options are available for accessing the results from the time-varying and time–frequency analyses: first, exporting all results to a.csv (commaseparated values) file as illustrated in Fig. 6 or; second, SinusCor provides two tables placed in different windows, one containing the results of the time-varying and the other containing the results of time–frequency analysis (Fig. 7).
+
+Fig. 4  Non-stationary RR interval (RRi) series during a maximal effort exercise (a) and the resulting scaled colors map (b) and surface plot (c). PSD power spectral density
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 8 of 15
+
+Fig. 5  SinusCor interface with a non-stationary RR interval (RRi) series (upper panel) and the resulting time– frequency analysis represented as a scaled color map (middle and lower panels)
+Fig. 6  Exported.csv file containing the results from the analyses
+Results
+Analysis of stationary and non‑stationary RRi series To test the feasibility of SinusCor, we firstly analyzed HRV from a young male at rest and during an incremental exercise test in cycle ergometer (Ergo-Fit, Ergo Cycle 167, Pirmasens, Germany). For resting measurements, the subject remained 10 min in supine position, with spontaneous breathing. The exercise test was preceded by 3 min of pre-exercise measurements. The test workload was initially set to 25 W, and then was increased 25 W every minute until the subject’s exhaustion. Cycling was performed within a cadence of 55–65 rpm. After the test, the subject remained seated on cycle ergometer for 5 min in inactive recovery. RRi was monitored during the whole protocol using a heart rate monitor (PolarTM, S810, Finland; sampling frequency = 1000 Hz). After experimental session, data was imported into SinusCor for HRV analysis.
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 9 of 15
+
+Fig. 7  Tables containing the results from time-varying (upper panel) and from time–frequency (lower panel) analyses
+Resting HRV was calculated using conventional time and frequency domain analyses in the last 5 min of the 10-min resting. The exercise HRV was calculated using the time-varying and time–frequency analyses. For time-varying analysis, we calculated the RMSSD index for successive 30 s segments, without overlap, during the whole exercise test. Time–frequency analysis was estimated via Welch’s method in 512 samples segment with 50% overlap. The hanning window was applied and the signal was detrended using a linear polynomial fit.
+Table 2 presents the resting HRV of the subject. Figure 8 shows the RRi series (panel a) and the resulting RMSSD (panel b) and total power (panel c) from the subject along the exercise test. At pre-exercise, the subject presented a mean RRi of 984.56 ms (corresponding to a heart rate of 61.70 bpm), a RMSSD of 66.41 ms, and a total power of 7300.87 ms2/Hz. Once the subject started the exercise, the RRi and HRV presented a progressive decrease, and, at the end of exercise, RRi was 338.34 ms (corresponding to a heart rate of 176.85 bpm), RMSSD was 2.95 ms, and total power was 3.79 ms2/Hz. During the recovery, RRi and HRV presented an exponential increase, and final RRi was 606.12 ms (corresponding a heart rate of 99.13 bpm), RMSSD was 7.53 ms, and total power was 14.73 ms2/Hz.
+Validation against standard software To validate the results provided by SinusCor, we used RRi signals from 10 healthy subjects during rest in the supine position during 900 s, and analyzed time and frequency domain HRV using SinusCor and Kubios (v 3.0.1, Biosignal Analysis and Medical Imaging Group, Finland), a widely used software for HRV assessment [9]. For time domain analysis, we performed calculations of RMSSD, SDNN, PNN50, NN50, mean RRi and mean HR. For frequency domain, we calculated total power, absolute and normalized LF and HF spectral bands, and LF/HF. In order to provide the same parameters
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 10 of 15
+
+Table 2  Resting HRV indices of a healthy young male
+Index
+Time domain RMSSD (ms) SDNN (ms) PNN50 (%) NN50 Mean RRi (ms) Mean HR (bpm)
+Frequency domain Total power (­ms2/Hz) LF (­ms2/Hz) HF ­(ms2/Hz) LF/HF LFn.u HFn.u
+
+Value
+73.10 88.59 47.99 489 891.47 67.30
+5499.53 1895.67 1616.05 1.17 53.98 46.02
+
+for frequency domain analysis, in both software we used the Welch’s method of power spectrum estimation. In Kubios, the segment size was set to 300 s, with 50% overlap and 5 Hz sampling frequency. Once SinusCor offers segment size and overlap customization based on the number of samples instead of seconds, we chose a segment length of 1500 samples, 50% overlap, and 5 Hz resampling. For each segment, a hanning window was applied to avoid spectral leakage. Because the analysis considered the whole RRi series, five PSD estimation were averaged to obtain the final density function. The linear trend was removed in all signals in both programs, and no artifact correction nor any preprocessing method despite interpolation and resampling was applied to the signals. To assess the agreement between the software, the mean and standard deviation, mean difference and limits of agreement (LOA; 1.96 × standard deviation of differences) were calculated and shown in Table 3. For better visualization Fig. 9 shows a Bland–Altman [24] plot for LF, HF, LFn.u and HFn.u. No difference was found for time domain indices, whereas a slight tendency for bias was present in total power and absolute LF and HF indices on frequency domain, with lower values for SinusCor software.
+Discussion This study presented and validated the SinusCor software, a user-friendly and free software for HRV analysis that includes the classical time- and frequency domain indices and also techniques for non-stationary data analyses. To test the feasibility of our software, we analyzed resting and exercise HRV data of a young male. In this sense, all resting indices were within the normal range of HRV for healthy adults [25]. In addition, the progressive decrease in RRi and HRV during incremental exercise tests has been extensively demonstrated in literature [26–29]. These responses result from the typical autonomic responses occurring during exercise, i.e. a decrease in parasympathetic and an increase in sympathetic activity [30]. Likewise, the exponential increase in RRi and HRV at the recovery phase is an ordinary response and is attributed to the fast parasympathetic reactivation occurring at this phase [21]. Therefore, the results presented above are consistent with the expected physiological responses of the heart rate variability
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 11 of 15
+
+Fig. 8  RR interval (RRi) series during a maximal incremental exercise and recovery (a) and the resulting RMSSD (b) and total power (c) from a healthy young male
+indices during and after exercise, which indicates the ability of SinusCor to capture such responses.
+In order to perform a preliminary validation of SinusCor, we analyzed the agreement of resting time and frequency domain HRV indices between SinusCor and Kubios, a widely used software for HRV analysis [9]. When compared to Kubios, there were no differences in time domain indices, whereas the frequency domain indices presented small differences between software. Regarding the agreement analysis, the time domain indices presented a perfect agreement, whereas slight bias were found for absolute frequency domain indices, with lower values for SinusCor. The fact that time domain indices are calculated with simple statistical equations and do not depend on preprocessing techniques nor on different methods for estimation can explain these findings. Although we
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 12 of 15
+
+Table 3  HRV indices difference and LOA provided by SinusCor and Kubios
+
+Index
+
+Mean ± SD SinusCor
+
+Mean ± SD Kubios
+
+Bias ± LOA
+
+Time domain RMSSD (ms) SDNN (ms) PNN50 (%) NN50 Mean RRi (ms) Mean HR (bpm)
+Frequency domain Total power (­ms2/Hz) LF (­ms2/Hz) HF ­(ms2/Hz) LF/HF LFn.u HFn.u
+
+93.96 ± 41.55 101.29 ± 29.03 49.98 ± 18.32 448.30 ± 140.16 1009.76 ± 112.98 60.13 ± 7.08
+9740.55 ± 4884.26 3614.12 ± 2171.14 3661.61 ± 3056.75
+1.38 ± 1.08 50.42 ± 19.76 49.57 ± 19.76
+
+93.96 ± 41.55 101.29 ± 29.03 49.98 ± 18.32 448.30 ± 140.16 1009.76 ± 112.98 60.13 ± 7.08
+9850.13 ± 4921.08 3682.07 ± 2.193.50 3706.82 ± 3074.75
+1.38 ± 1.07 50.56 ± 19.56 49.38 ± 19.56
+
+0.00 ± 0.00 0.00 ± 0.00 0.00 ± 0.00 0.00 ± 0.00 0.00 ± 0.00 0.00 ± 0.00
+−109.58 ± 136.42 −67.95 ± 66.87 −45.21 ± 68.38
+0.00 ± 0.00 −0.14 ± 0.55
+0.19 ± 0.55
+
+Fig. 9  Bland–Altman plots (systematic bias ± limits of agreement) for a absolute LF. b Absolute HF. c Normalized LF; and d normalized HF
+provided the same parameters for frequency domain analysis in both software, Kubios does not inform some settings parameters that can lead to slight differences in frequency domain indices, such as Window function and integration method. Despite that, it is worth mentioning that differences in frequency domain indices were clearly small compared to the magnitude of the indices (i.e. 1–2%) and, interestingly, when the indices were exposed in normalized units (LFn.u, HFn.u and LF/HF), these differences and bias were not present anymore. All these results together indicate that SinusCor presents reliable results for both time and frequency domain analysis of resting HRV.
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 13 of 15
+
+The present paper describes a software for advanced HRV analysis developed in Matlab. SinusCor allows the calculation of the most common indices of HRV in both time and frequency domains for stationary RRi data. It is also possible to analyze non-stationary HRV signals using time-varying analysis, which allows the calculation of classical time domain indices in RRi signals with amplitude and frequency variations; and time– frequency analysis, for spectral decomposition over time, using FFT or AR based methods. Time-varying and time–frequency analysis can be useful for researchers working with non-stationary HRV signals, such as the exercise or other physiological maneuvers.
+SinusCor was developed to meet the demand of physiologists working with HRV in both clinical and research fields. This software allows the user to perform the most common and clinically validated analyses of stationary and non-stationary HRV analyses [21]. The graphical interface offers a user-friendly experience which makes parameter changing intuitive and easy for users. For conventional time and frequency domain analyses, SinusCor provides all of the preprocessing customization required in most of the guidelines for HRV analysis. For non-stationary time-dependent analyses, SinusCor provides options for specific customization, including setting the segment and overlap sizes and adjusting the spectral boundaries. Furthermore, SinusCor allows the separated visualization of the results of time-varying and time–frequency analyses, which makes the user interpretation clearer and easier. These features are not provided by any other software, therefore limiting the HRV evaluation in situations such as physical exercise. All figures that SinusCor generates can be exported to be embedded in scientific papers or patient reports. The results can also be exported as .csv tables or in separated windows for later analyses.
+This paper herein presents the first version of SinusCor. Many other features will be implemented in the future based on the users’ feedback and suggestions. SinusCor is freely available for both academic and clinical use and can be downloaded on http://bit. ly/sinuscor, where tutorial videos and example files can also be found in order to help users.
+Conclusion SinusCor is a useful tool for classical heart rate variability analysis and for RRi signals with non-stationary behavior. New versions of will continue to be developed offering new features and better performance.
+Abbreviations HRV: heart rate variability; HR: hear rate; ECG: electrocardiogram; FFT: Fast Fourier Transform; AR: Autoregressive; RRi: RR intervals; RMSSD: root mean square of successive differences; SDNN: standard deviation of normal RR intervals; SD1: short-term beat-to-beat R–R variability from the Poincaré plot; SD2: long-term beat-to-beat R–R variability from the Poincaré plot; pNN50: percentage of successive NN differences greater than 50 ms; NN50: count of successive NN differences greater than 50 ms; VLF: very low frequency; LF: low frequency; HF: high frequency; TP: total power; PSD: power spectral density; LFn.u: low frequency in normalized units; HFn.u: high frequency in normalized units; csv: comma-separated values; LOA: limits of agreement.
+Authors’ contributions RB worked on the manuscript, developed the codes of the user’s interface, the code for time and frequency domain analyses and worked on the code organization. LN contributed for time–frequency and Poincaré Analyses. TP worked on the manuscript writing and on the interface design. ARSC participated in the code validation for all types of analysis and is the Project coordinator. All authors read and approved the final manuscript.
+Author details 1 Pulmonary Engineering Laboratory, Biomedical Engineering Program, COPPE, Federal University of Rio de Janeiro, Cidade Universitária, Rio de Janeiro, Brazil. 2 School of Physical Education and Sport, University of São Paulo, São Paulo,
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 14 of 15
+
+Brazil. 3 Laboratory of Respiration Physiology, Carlos Chagas Filho Institute of Biophysics, Federal University of Rio de Janeiro, Cidade Universitária, Rio de Janeiro, Brazil.
+Acknowledgements The authors are grateful to CAPES (Coordenadoria de Aperfeiçoamento de Pessoal de Nível Superior), FAPERJ (Fundação de Amparo à Pesquisa do Estado do Rio de Janeiro), FAPESP (Fundação de Amparo à Pesquisa do Estado do São Paulo) and CNPq (Conselho Nacional de Desenvolvimento Científico e Tecnológico) for financial support.
+Competing interests The authors declare that they have no competing interests.
+Availability of data and materials Project Name: SinusCor
+Project Home Page: http://bit.ly/sinuscor Operating System: Platform Independent Programming Language: Matlab Other Requirements: Matlab Signal Processing Toolbox License: Freeware Any restriction to use by non-academics: No restrictions The datasets generated and/or analysed during the current study are available in: http://bit.ly/sinuscor.
+Consent for publication Not applicable.
+Ethics approval and consent to participate The study conformed to the standards set by the Declaration of Helsinki and the protocol was approved by the Ethics Committee of University Hospital Clementino Fraga Filho, from the Federal University of Rio de Janeiro (Protocol Number: 20595013.9.0000.5257).
+Funding The Brazilian Agencies CNPq, CAPES, FAPERJ and FAPESP provided partial financial support for this study.
+Publisher’s Note
+Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.
+Received: 11 May 2017 Accepted: 7 September 2017
+
+References 1. Kamath MV, Fallen EL. Power spectral analysis of heart rate variability: a noninvasive signature of cardiac autonomic
+function. Crit Rev Biomed Eng. 1993;21(3):245–311. 2. TASK-FORCE: Heart rate variability. Standards of measurement, physiological interpretation, and clinical use. Task
+Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. Eur Heart J. 1996;17(3):354–381. 3. Akselrod S, Gordon D, Ubel FA, Shannon DC, Berger AC, Cohen RJ. Power spectrum analysis of heart rate fluctuation: a quantitative probe of beat-to-beat cardiovascular control. Science. 1981;213(4504):220–2. 4. Malliani A, Lombardi F, Pagani M. Power spectrum analysis of heart rate variability: a tool to explore neural regulatory mechanisms. Br Heart J. 1994;71(1):1–2. 5. Moak JP, Goldstein DS, Eldadah BA, Saleem A, Holmes C, Pechnik S, Sharabi Y. Supine low-frequency power of heart rate variability reflects baroreflex function, not cardiac sympathetic innervation. Heart Rhythm. 2007;4(12):1523–9. 6. Kleiger RE, Miller JP, Bigger JT Jr, Moss AJ. Decreased heart rate variability and its association with increased mortality after acute myocardial infarction. Am J Cardiol. 1987;59(4):256–62. 7. Tsuji H, Larson MG, Venditti FJ Jr, Manders ES, Evans JC, Feldman CL, Levy D. Impact of reduced heart rate variability on risk for cardiac events. The Framingham Heart Study. Circulation. 1996;94(11):2850–5. 8. Carvalho JLAd, Rocha AFd, Nascimento FAdO, Neto JS, Junqueira LF. Development of a Matlab software for analysis of heart rate variability. In: 2002 6th international conference on signal processing, vol. 1482, pp. 1488–1491, 26–30 Aug 2002. 9. Tarvainen MP, Niskanen JP, Lipponen JA, Ranta-Aho PO, Karjalainen PA. Kubios HRV—heart rate variability analysis software. Comput Methods Programs Biomed. 2014;113(1):210–20. 10. Pino AV, Kagami LT, Jandre FC, Gianella A. DAS—Um programa de aquisição e processamento de sinais para engenharia pulmonar. In: 3º Congresso Latino Americano de Engenharia Biomédica. João Pessoa, PB, Brazil: Anais do 3º Congresso Latino Americano de Engenharia Biomédica. 2004: 765–768. 11. Kew HP, Jeong DU. Variable threshold method for ECG R-peak detection. J Med Syst. 2011;35(5):1085–94. 12. Storck N, Ericson M, Lindblad L, Jensen-Urstad M. Automatic computerized analysis of heart rate variability with digital filtering of ectopic beats. Clin Physiol. 2001;21(1):15–24. 13. Piskorski J, Guzik P. Filtering poincare plots. Comput Methods Sci Technol. 2005;11(1):39–48. 14. Karlsson M, Hornsten R, Rydberg A, Wiklund U. Automatic filtering of outliers in RR intervals before analysis of heart rate variability in Holter recordings: a comparison with carefully edited data. Biomed Eng Online. 2012;11:2.
+
+Bartels et al. BioMed Eng OnLine (2017) 16:110
+
+Page 15 of 15
+
+15. Brennan M, Palaniswami M, Kamen P. Do existing measures of Poincare plot geometry reflect nonlinear features of heart rate variability? IEEE Trans Biomed Eng. 2001;48(11):1342–7.
+16. Welch P. The use of fast Fourier transform for the estimation of power spectra: a method based on time averaging over short, modified periodograms. IEEE Trans Audio Electroacoust. 1967;15(2):70–3.
+17. Marple SL. Digital spectral analysis: with applications. Englewood Cliffs: Prentice-Hall; London: Prentice-Hall International; 1987.
+18. Kuwahara M, Yayou K, Ishii K, Hashimoto S, Tsubone H, Sugano S. Power spectral analysis of heart rate variability as a new method for assessing autonomic activity in the rat. J Electrocardiol. 1994;27(4):333–7.
+19. Goldberger JJ, Le FK, Lahiri M, Kannankeril PJ, Ng J, Kadish AH. Assessment of parasympathetic reactivation after exercise. Am J Physiol Heart Circ Physiol. 2006;290(6):H2446–52.
+20. Mainardi LT, Bianchi AM, Cerutti S. Time-frequency and time-varying analysis for assessing the dynamic responses of cardiovascular control. Crit Rev Biomed Eng. 2002;30(1–3):175–217.
+21. Peçanha T, Bartels R, Brito LC, Paula-Ribeiro M, Oliveira RS, Goldberger JJ. Methods of assessment of the post-exercise cardiac autonomic recovery: a methodological review. Int J Cardiol. 2017;227:795–802.
+22. Ng J, Sundaram S, Kadish AH, Goldberger JJ. Autonomic effects on the spectral analysis of heart rate variability after exercise. Am J Physiol Heart Circ Physiol. 2009;297(4):H1421–8.
+23. Keselbrener L, Akselrod S. Selective discrete Fourier transform algorithm for time-frequency analysis: method and application on simulated and cardiovascular signals. IEEE Trans Biomed Eng. 1996;43(8):789–802.
+24. Bland JM, Altman DG. Statistical methods for assessing agreement between two methods of clinical measurement. Lancet. 1986;1(8476):307–10.
+25. Nunan D, Sandercock GR, Brodie DA. A quantitative systematic review of normal values for short-term heart rate variability in healthy adults. Pacing Clin Electrophysiol. 2010;33(11):1407–17.
+26. Tulppo MP, Makikallio TH, Seppanen T, Laukkanen RT, Huikuri HV. Vagal modulation of heart rate during exercise: effects of age and physical fitness. Am J Physiol. 1998;274(2 Pt 2):H424–9.
+27. Cottin F, Papelier Y, Escourrou P. Effects of exercise load and breathing frequency on heart rate and blood pressure variability during dynamic exercise. Int J Sports Med. 1999;20(4):232–8.
+28. Macor F, Fagard R, Amery A. Power spectral analysis of RR interval and blood pressure short-term variability at rest and during dynamic exercise: comparison between cyclists and controls. Int J Sports Med. 1996;17(3):175–81.
+29. Casadei B, Moon J, Johnston J, Caiazza A, Sleight P. Is respiratory sinus arrhythmia a good index of cardiac vagal tone in exercise? J Appl Physiol. 1996;81(2):556–64.
+30. White DW, Raven PB. Autonomic neural control of heart rate during dynamic exercise: revisited. J Physiol (Lond). 2014;592(12):2491–500.
+
+Submit your next manuscript to BioMed Central and we will help you at every step:
+• We accept pre-submission inquiries • Our selector tool helps you to ﬁnd the most relevant journal • We provide round the clock customer support • Convenient online submission • Thorough peer review • Inclusion in PubMed and all major indexing services • Maximum visibility for your research
+Submit your manuscript at www.biomedcentral.com/submit
+

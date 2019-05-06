@@ -1,0 +1,560 @@
+2018 年 5 月 第44 卷 第5 期
+
+北京航空航天大学学报 Journal of Beijing University of Aeronautics and Astronautics
+
+May 2018 Vol.44 No.5
+
+http：∥bhxb.buaa.edu.cn jbuaa＠buaa.edu.cn ＤＯＩ： 10.13700 ／j.bh.1001-5965.2017.0371
+基于形态学的自动驾驶仪振动信号基线漂移去噪
+
+张景元， 何玉珠*
+（ 北京航空航天大学 仪器科学与光电工程学院， 北京 100083）
+
+摘
+
+要： 导弹自动驾驶仪在振动测试过程中存在信号基线漂移且污染严重的问题，
+
+而传统的时频处理方法难以达到去噪要求，因此基于形态学基本原理提出了一种用于解决振
+
+动信号基线漂移的滤波方法。 该滤波方法由 3 级结构组成，前 2 级结构均是基于形态学基本
+
+原理，第 3 级进行相消与平滑处理，通过相互级联，可以有效抑制基线漂移。 此外，通过引入粒
+
+子群优化（PSO）算法使得该滤波方法更具适应性。 对比实验利用该滤波方法和对比方法对自
+
+动驾驶仪实测振动信号与标准 ECG 信号进行了处理，结果表明：该滤波方法在抑制基线漂移
+
+方面要优于小波阈值去噪和传统的形态学去噪。
+
+关 键 词： 形态学滤波； 振动信号； 基线漂移； 阈值去噪； 粒子群优化（PSO）
+
+中图分类号： TP391
+
+文献标识码： A
+
+文章编号： 1001-5965（2018）05-0907-07
+
+导弹自动驾驶仪包含陀螺仪、加速度计等敏 感元件，其对调整和稳定弹体姿态有着重要的作 用。 为了更好地检测自动驾驶仪性能，测试中通 常要进行环境振动试验。 然而振动测试中，由于 硬件不稳定，使采集到的信号污染严重［1］ ，再加 之由于敏感元件零偏不稳定，造成积分器输出的 信号存在基线漂移，这对后续信号特征的提取产 生了很大影响。 因此，有必要对振动测试信号进 行有效的滤波处理。
+为了抑制基线漂移，最常用的方法是通过一 个高通滤波器去除采样数据中的漂移噪声［2-3］ 。 但是当基线漂移非常严重时，这种方法的去噪效 果并不理想。 潘超等［4］ 将传统的多项式算法进 行改进，用于校正长周期加速度信号中的基线漂 移，但是在进行降维时，这种方法容易丢失信号的 有用成分。 Morita 和 Kitagawa［5］ 利用一系列模拟 光谱研究了扰动相关移动窗口二维基线漂移的影 响。 王远等［6］ 利用改进的小波变换对信号进行 10 层分解，然后通过预测相消的方法有效抑制了
+
+ATEM （Array Transient Electromagnetic） 数据中的 基线漂移，虽然这种方法的去噪效果优于插值算 法，但是需要对被测信号的细节信息十分了解。 庞宇等［7］ 利用改进的形态学算法抑制了 ECG 信 号中的基线漂移。 此外，罗玉荣等［8］ 利用陷波滤 波器和盲源分离法实现了对微弱信号基线漂移的 抑制。 在光谱研究方面，很多研究者根据实际的 应用背景和信号特征，也提出了许多适用于抑制 光谱基线漂移的算法［9-12］ 。 本文则是根据振动信 号的特点，将形态学去噪思想应用到了具体的工 程实践中。
+形态学滤波器是一种非线性信号滤波器，有 着严格的数学理论基础。 这种方法的局部修正能 力较好，去噪过程相对简单，不需要信号的频域信 息，只需通过简单的闭-开、开-闭运算即可达到提 取信号、抑制噪声的目的［13］ 。 近年来，这种方法 被广泛应用于图像处理［14-15］ 、电力系统［16］ 以及振 动信号处理［17］ 领域。 因此，通过比较上述方法的 优缺点，本文基于形态学基本原理和粒子群优化
+
+收稿日期： 2017-06-05； 录用日期： 2017-08-01； 网络出版时间： 2017-12-15 16：58 网络出版地址： kns.cnki.net ／kcms ／detail ／11.2625.V.20171215.1130.004.html *通信作者.E-mail： heyuzhuhe＠buaa.edu.cn
+
+引用格式： 张景元， 何玉珠.基于形态学的自动驾驶仪振动信号基线漂移去噪［ J］ .北京航空航天大学学报， 2018， 44（ 5） ： 907-913 .
+万Z方HA数NG据J Y， HE Y Z.Removing baseline drift in vibration signal of autopilot based on morphology ［ J］ .Journal of Beijing Universi-
+ty of Aeronautics and Astronautics， 2018， 44（5） ： 907-913（ in Chinese） .
+
+908
+
+北京航空航天大学学报
+
+2018 年
+
+（ PSO） 算法，提出了一种用于 振动 信号 去噪 处理 的 3 级形态学滤波方法，并对 3 种自动驾驶仪的 实测振动信号进行了处理，效果较好。
+１ 基础理论
+
+抑制信号中正、负脉冲干扰的作用。 实际应用中， 为了抑制形态开的反扩展性和形态闭的扩展性， 尽可能降低滤波过程中统计偏移所造成的影响， 通常将这 2 种滤波器组合使用，组合滤波器的输 出形式为
+
+数学 形 态 学 最 初 是 由 数 学 家 Matereron 和
+
+Serra 创立的一种信号分析方法，其基本思想主要
+
+包括 2 部分：①目标信号由集合来描述；②通过预
+
+先设计的结构元素来局部地修正被测信号的几何
+
+结构。 这种方法在结构上较为简单，其基本变换仅
+
+有 2 种：腐蚀和膨胀。 其他运算（如形态开-闭和形
+
+态闭-开）都是这 2 种基本变换的线性组合。 以一
+
+维离散信号 f（n）为例，数学描述如下。 设 g（n）为形态学滤波中所用结构元素，其定
+义域为 G ＝｛0，1，⋯，M -1｝，F ＝｛0，1，⋯，N -1｝ 则是 f（n）的定义域，且 N☺M，则 f（ n） 关于 g（n） 的腐蚀和膨胀运算定义如下［18］ ：
+
+（fΘg）（n） ＝ min ｛f（n ＋m） -g（m）｝ m ＝0，1，⋯，M -1
+
+n ＝0，1，⋯，N ＋M -2
+
+（1）
+
+（f ⊕ g）（n） ＝ max ｛f（n -m） ＋g（m）｝ m ＝0，1，⋯ ，M -1
+
+n ＝0，1，⋯，N -M
+
+（2）
+
+式中：Θ 与⊕分别代表腐蚀、膨胀运算。 腐蚀运
+
+算和膨胀运算分别代表了一个收缩过程和一个膨
+
+胀过程。 收缩过程对于减少信号峰值、加宽谷域
+
+方面效果良好；而膨胀过程则起到了相反的作用。
+
+形态学滤波中，通常是将这 2 种运算进行级联得
+
+到开、闭运算，其定义如下：
+
+（f ☺g）（n） ＝［（fΘg） ⊕ g］（n）
+
+（3）
+
+（f· g）（n） ＝［（f ⊕ g）Θg］（n）
+
+（4）
+
+式中：符号“ ☺” 表示开运算，“· ”表示闭运算。 开运
+
+算和闭运算是形态学滤波中最基本的滤波方式，分
+
+别用于抑制信号的正、负脉冲噪声。 但是单独使用
+
+的去噪效果不好，通常将两者级联使用，形成形态
+
+开-闭（OC）和形态闭-开（CO）运算，其定义如下［18］ ：
+
+OC （f（ n） ） ＝f ☺g· g
+
+（5）
+
+CO （f（n）） ＝f· g ☺g
+
+（6）
+
+据上述定义，开-闭、闭-开运算可以同时起到
+
+R（n） ＝（ OC （f（n）） ＋CO （f（ n））） ／2
+
+（7）
+
+式中：R（n） 为组合滤波器的输出信号；f（ n） 为输
+
+入信号，即待滤波信号。
+
+２ 滤波器设计
+
+２.１ 滤波器实现方式 对于实测信号 y（n）而言，其信号成分可以表
+示为
+
+y（n） ＝x（n） ＋h（n） ＋l（n） ＋σ（n）
+
+（8）
+
+式中：x（n）为有用信号；h（n）为高频干扰；l（ n） 为
+
+基线漂移噪声；σ（ n） 为随机干扰。 h（ n） 在时域
+
+上表现出很窄的波形，利用形态学去噪时，可以通
+
+过较窄的形态滤波器予以滤除； 基线漂移噪声
+
+l（ n） 变化缓慢，其特征接近于低频线性变化，可以
+
+通过较宽的形态滤波器予以滤除；σ（ n） 则可以通
+
+过适当的平滑处理进行解决。
+
+基于上述分析，振动信号形态学级联滤波器
+
+的数学模型可以表示为如图 1 所示的基本结构。
+
+根据图 1，去噪步骤共有 3 步。
+
+步骤 １ 利用式（5）、式（6）对输入信号 x（n）
+
+进行去噪，其目的是滤除背景杂波及高频脉冲干
+
+扰，滤波器数学模型为
+
+f1，1 （ n） ＝OC x（ n，k1 ）
+
+（9）
+
+f1，2 （ n） ＝CO x（ n，k1 ）
+
+（10）
+
+式中：f1，1 （ n） 和 f1，2 （ n） 分别为 2 种运算 方式步 骤 1滤波后的输出信号；x （ n，k1 ） 为待滤波信号 x（n）通过结构元素 k1 进行形态滤波。 步骤 1 的 目的是去除 h（ n）。 滤波后所剩信号包含 x（ n）、 l（n）和 σ（n）。
+步骤 ２ 将步骤 1 滤波后的信号再次进行处 理。 步骤 2 选择较宽的结构元素滤除有用信号 x（ n） ，该级滤波器的结构形式为
+
+万方数据
+
+图 1 级联滤波器结构模型 Fig.1 Structure model of cascading filter
+
+第5期
+
+张景元，等：基于形态学的自动驾驶仪振动信号基线漂移去噪
+
+909
+
+f2，1 （ n） ＝OC f1，1 （ n，k2 ）
+
+（11）
+
+f2，2 （ n） ＝CO f1，2 （ n，k2 ）
+
+（12）
+
+式中：f2，1 （n） 和 f2，2 （ n） 分别为采用 2 种运算方式 进行步骤 2 滤波后的输出信号。 步骤 2 滤波后，
+
+所剩信号只有 l（n）和 σ（n）。
+
+步骤 ３ 将步骤 1 和步骤 2 滤波所得信号进
+
+行相消与平滑处理，得到最终的去噪信号，其表达
+
+式为
+
+n
+∑ f（ n） ＝21T0 n -T0 （ f1，1 （ n） -f2，1 （ n） ＋
+f1，2 （ n） -f2，2 （ n） ） 式中：T0 为滑动滤波周期。
+２.２ 滤波器关键元素选取
+
+（13）
+
+h（ n）和 l（n） 滤除的关键在于形态学滤波器
+
+形状的选择，而该形状可由形态学结构元素来决
+
+定。 结构元素种类繁多，常见的有直线形、矩形、
+
+菱形、抛物线形等规则或不规则曲线，去噪时往往
+
+根据需要进行选择。 滤波结构元素 k1 、k2 的选择 对于去噪结果有很大影响，其形状、尺寸决定了去
+
+噪的效果［11］ 。 但是，越复杂的结构元素，如圆盘
+
+结构元素和抛物线结构元素，计算量较大，直接影
+
+响信号处理速度，难以适应实时性要求较高的自
+
+动驾驶仪振动测试。 因此，本文选用简单实用的
+
+直线形结构元素。
+
+对于直线形结构元素而言，决定其形状的元
+
+素有 2 个，即宽度 L 和角度 θ，L 决定了滤波器的
+
+宽度，θ 决定了滤波器的方向。 图 2 为直线形结
+
+构元素的示意图，其中 L ＝｛3，5｝，θ ＝｛0，45，90｝。
+
+这2 个 元 素 的 选 取 会 对 去 噪 效 果 产 生 一
+
+定的 影响，如果选取不当，甚至可能使去噪失败。
+
+因此，考虑到 L 和 θ 对去噪的影响，并将其代
+
+入式（13 ） ，得到最终的输出信号表达式为
+n
+∑ fo （ n） ＝21T0 n -T0 （ f1，1 （ n ｜（ L1 ，θ1 ） ） -
+
+f2，1 （ n ｜（ L2 ，θ2 ） ） ＋f1，2 （ n ｜（ L1 ，θ1 ） ） -
+
+f2，2 （ n ｜（ L2 ，θ2 ） ） ）
+
+（14）
+
+式中：L1 和 θ1 分别为第 1 级滤波器中所使用结
+
+构元 素 的 宽 度 和 角 度 ； L2 和 θ2 分 别 为 第2 级 滤
+
+万图方2数据直线形结构元素基本模型 Fig.2 Basic model of linear structural elements
+
+波器中所使用结构元素的宽度和角度。
+
+为了合理选择直线形 结构元素 K （ L， θ） 的 2 个参数 L 和 θ，本文采取以下方式：如果考虑结 构元素所有可能的情况，那么由其组成的集合可
+
+以称为全方位结构元素，即
+
+KL，θ ＝｛K（L ＋i，θ ＋j） ｜i ∈ Ｎ ＋，j ∈ ［0，2π］｝ 但是在实际的去噪过程中，不同的样本信号
+
+需要采用不同的结构元素才能实现较好的去噪效
+
+果。 因此，为了提高本节所述滤波器的自适应能
+
+力，本文又进一步引入了 PSO 算法来实现对结构
+
+元素的最优化选择。
+
+PSO 算法是一种解决工程优化问题的有效方
+
+法，经典的 PSO 算法可以表示为
+
+vij （ t ＋1） ＝vij ＋c1 r1 （pij -xij （t） ） ＋
+
+c2 r2 （ gj -xij （ t） ）
+
+（15）
+
+式中：c1 和 c2 为学习因子； r1 和 r2 为随机变量；xij
+
+为个体最佳位置， i ＝1， 2， ⋯， NP，j ＝1， 2，⋯，
+
+N，NP 为种群大小，N 为节点数；vij 为用于更新个
+
+体的最佳位置（ pij ） 和最佳位置的全局自适应值
+
+（gj）。
+
+为了优化滤波器的参数，目标函数定义为
+
+QSNR （ L1 ，θ1 ，L2 ，θ2 ） ＝
+
+S
+
+∑ （ x（ n） ） 2
+
+10lg S
+
+n ＝1
+
+∑（x（n） -y（n，L1 ，θ1 ，L2 ，θ2 ））2
+
+n ＝1
+
+（16）
+
+式中：x（n）表示原始信号， y（n） 表示滤波后的信
+
+号；S 为信号长度， 且 n ＝1，2，⋯，S。
+
+３ 应用实验
+为了验证本文方法在去除自动驾驶仪振动信 号基线漂移噪声方面的优越性，将现场采集到的 信号作为去噪样本，利用小波阈值去噪、传统形态 学去噪和本文方法分别进行去噪处理。 图 3（ a） 为现场采集到 A 型号导弹自动驾驶仪在静止状 态时的反馈信号，图 3（b）为振动测试时的反馈信 号。 由图 3 可知，在静止状态下，信号虽然也受到 了一定的干扰，但是不存在基线漂移噪声，经过振 动试验，同一反馈信号出现了漂移噪声。 ３.１ 传统形态学去噪
+为了对图 3（b）所示的信号进行处理，首先采 用式（7） 所示的传统形态学去噪方法进行处理。 消噪后的信号波形如图 4 所示。
+利用传统形态学 去噪后， 信噪 比 （ Signal to Noise Ratio，SNR） 提高到了15 .17 ，均方差（ Root
+
+910
+
+北京航空航天大学学报
+
+2018 年
+
+表 １ 不同分解层数下小波阈值去噪结果 Ｔａｂｌｅ １ Ｄｅｎｏｉｓｉｎｇ ｒｅｓｕｌｔｓ ｏｆ ｗａｖｅｌｅｔ ｔｒａｎｓｆｏｒｍａｔｉｏｎ
+ｗｉｔｈ ｄｉｆｆｅｒｅｎｔ ｗａｖｅｌｅｔ-ｂａｓｅｓ
+
+小 波 基 分解层数 均 方 差
+
+信 噪 比 波形相似比
+
+sym8 sym8 sym8 db3 db3 db3
+
+2
+
+0 .151
+
+20 .80
+
+0 .94
+
+3
+
+0 .202
+
+13 .82
+
+0 .89
+
+4
+
+0 .428
+
+-218.4
+
+0 .32
+
+2
+
+0 .165
+
+18 .71
+
+0 .93
+
+3
+
+0 .254
+
+7 .76
+
+0 .83
+
+4
+
+0 .428
+
+-21 .42
+
+0 .32
+
+图 3 静止和振动状态实测信号 Fig.3 Measured signals in static and vibration states
+
+图 4 传统形态学方法去噪结果
+Fig.4 Denoising results of traditional
+morphological method
+Mean Square Error，RMSE） 为 0.164，对振动信号 的噪声起到了一定的抑制作用，但是根据图 4 所 示的去噪结果来看，基线漂移噪声仍然存在。 ３.２ 小波阈值去噪
+本文利用小波变换同样对该实测振动信号进 行了去噪处理。 选择常用的“db” 小波和“sym” 小 波作为小波基，分别进行去噪处理。 表 1 为 2 种小 波基经过不同分解层数（2，3，4）后的去噪指标。
+由表 1 所示的去噪指标可知，当分解层数大 于 3 时，信噪比变为负值，而且波形相似比急速下 降至 0.3 左右，说明有用信号丢失严重，因此分解 层数不能大于 3 层。 此外，比较表 1 中数据可知， 当分解层数为 2 时，去噪效果较好，此时去噪后的 波形如图 5 所示。 可知，“ sym8” 小波去噪后的信 号光滑度较好，但 2 种小波基去噪后都存在一个 问题，即基万线方漂数移据噪声仍然存在。
+
+图 5 小波阈值方法去噪结果
+Fig.5 Denoising results of wavelet threshold method
+３.３ 本文方法去噪 在利用本文方法进行去噪之前，需确定第 1
+级和第 2 级滤波器的结构元素。 根据 2.2 节对全 方位结构元素的定义，由式（16）可得 L1 、L2 和 θ1 、 θ2 的取值对去噪效果的影响。 由图 6 可知，当信 噪比达到最大时，L1 ＜5，L2 ＞28，θ1 ＜22， θ2 ＞40。
+利用 PSO 算法进行 6 次优化实验，优化结果 如表 2 所示。 信噪比最终达到 28 左右，此时优化 所得结构元素的具体取值如表 2 所示。
+由表 2 的优化结果可知，6 次优化实验所得 结果符合图 6 所得结构元素的取值范围，进一步 说明 PSO 算法的引入增加了本文方法的健壮性 和鲁棒性。
+结构元素确定之后，根据式（9） ～式（13），得 到本文方法滤波后的结果，如图 7 所示。 由滤波 结果可知，本文方法能够对基线漂移进行校正。 ３.４ 第 ２ 种振动信号去噪
+为了进一步验证本文方法适用于处理导弹自
+
+第5期
+
+张景元，等：基于形态学的自动驾驶仪振动信号基线漂移去噪
+
+911
+
+动驾驶仪振动测试信号，将 B 型号导弹自驾仪振 动过程中的某实测信号进行滤波处理，处理后的 结果如图 8 所示。
+
+图 6 L 和 θ 对去噪效果的影响 Fig.6 Influence of L and θ on denoising
+
+表 ２ ＰＳＯ 算法优化结果 Ｔａｂｌｅ ２ Ｏｐｔｉｍｉｚａｔｉｏｎ ｒｅｓｕｌｔｓ ｕｓｉｎｇ ＰＳＯ ａｌｇｏｒｉｔｈｍ
+
+实验次数 L1
+
+θ1
+
+L2
+
+θ2
+
+信噪比
+
+1
+
+2
+
+2
+
+29
+
+40
+
+28.7
+
+2
+
+3
+
+3
+
+30
+
+80
+
+28.7
+
+3
+
+3
+
+2
+
+78
+
+72
+
+28.7
+
+4
+
+3
+
+5
+
+68
+
+65
+
+27.6
+
+5
+
+3
+
+5
+
+76
+
+40
+
+27.6
+
+6
+
+2
+
+3
+
+36
+
+72
+
+28.1
+
+图 7 本文方法对自动驾驶仪实测振动信号的去噪结果 Fig.7 Denoising results of measured vibration signal of 万方au数top据ilot using proposed method
+
+图 8 本文方法和对比方法对 B 型号导弹自动驾驶仪 实测振动信号的去噪结果
+Fig.8 Denoising results of measured vibration signal of Type B missile autopilot by proposed method and reference method
+
+912
+
+北京航空航天大学学报
+
+2018 年
+
+由图 8（ a） 可知，理论上被测信号应当为正 ／ 余弦形式的波形，但是振动过程中测得的原始信 号波形失真严重，且含有基线漂移噪声，此时无法 有效提取信号特征，直接影响对自动驾驶仪相关 性能的分析。 利用本文方法去噪后，根据图 8（b） 可明显看出，此时基线漂移噪声被有效抑制，而且 背景杂散噪声也被消除，有效信号得到了恢复。 而另外 2 种对比方法虽然对噪声有一定的抑制作 用，但是无法消除根本性的基线漂移噪声。
+
+４ 对比实验
+医学心电信号（ ECG） 是一种常见的非周期 振动信号，该类信号经常伴有基线漂移。 为了验 证本文方法在矫正基线漂移时的自适应能力，本 文从 MIT-BIH 心率失常数据库中随机选择了一 种含有 基 线 漂 移 成 分 的 心 电 信 号， 其 编 号 为 12431＿04，利用本文方法和对比方法分别对该样 本信号进行了去噪分析，结果如图 9 所示。
+
+图 9 含有基线漂移噪声的 ECG 信号去噪结果 Fig.9 Denoising results of ECG signals containing baseline drift noise
+
+５结论
+本文分析了工程应用背景，根据形态学基本 原理提出了适用于自动驾驶仪振动信号去噪处理 的具体方法，通过对实测数据进行处理，得到如下 结论：
+1） 不同的振动信号，其基线漂移噪声不同， 需选择不同的结构元素进行基线漂移校正。 线性 结构元素的 2 个参数，即宽度和角度的取值对去 噪结果有很大影响。
+2） 与传统的小波阈值去噪和形态学去噪相 比，本文方法能够有效抑制基线漂移，降低样本信 号的均方差，提高信噪比。
+3） 通过对典型的含有基线漂移的 ECG 信号 进行处理，进一步验证了本文方法在去除同类型 振动信号时具有较强的自适应能力。
+参考文献 （Ｒｅｆｅｒｅｎｃｅｓ） 万方数据
+［ 1 ］ EVANS J W， KUNDU P， HOROVITZ S G， et al.Separating
+
+slow BOLD from non-BOLD baseline drifts using multi-echo FMRI［ J］ .NeuroImage，2015，105：189-197. ［ 2 ］ CHIU H C.Stable baseline correction of digital strong-motion data［ J］ .Bulletin of Seismological Society of America，1997，87 （4） ：932-944. ［ 3 ］ BOORE D M，BOMMER J J.Processing of strong-motion accelerograms：Needs，options and consequences［ J］ .Soil Dynamics and Earthquake Engineering，2005，25（2） ：93-115. ［ 4 ］ PAN C，ZHANG R F，LUO H，et al.Baseline correction of vibration acceleration signals with inconsistent initial velocity and displacement［ J］ .Advances in Mechanical Engineering，2016， 8（10） ：1-11. ［ 5 ］ MORITA S，KITAGAWA K.Effect of baseline drift on perturbat-correlation moving-window two-dimensional correlation spectroscopy［ J］ .Vibrational Spectroscopy，2012，60：217-219. ［ 6 ］ WANG Y，JI Y J，LI S Y.A wavelet-based baseline drift correction method for grounded electrical source airborne transient electromagnetic signals ［ J ］ .Exploration Geophysics，2013，44 （4） ：229-237. ［ 7 ］ 邓璐，庞宇，赵艳霞，等.基于形态学的心电信号基线漂移矫 正方法［ J］ .数字通信，2013，40（3） ：14-16. DENG L，PANG Y，ZHAO Y X，et al.Removal method of baseline drift from ECG signals based on morphology filter［ J］ .Dig-
+
+第5期
+
+张景元，等：基于形态学的自动驾驶仪振动信号基线漂移去噪
+
+913
+
+ital Communication，2013，40（3） ：14-16（ in Chinese） . ［ 8 ］ LUO Y R，HARGRAVES R H，BELLE A，et al.A hierarchical
+method for removal of baseline drift from biomedical signals： Application in ECG analysis ［ J ］ .Scientific World Journal， 2013 ，2013 ：896056 . ［ 9 ］ DU Y G，CHAMBERS S A.Etalon-induced baseline drift and correction in atom flux sensors based on atomic absorption spectroscopy［ J］.Applied Physics Letters，2014，105（16） ：163113. ［10］ LOPATKA M， BARCARU A， SJERPS M J， et al.Leveraging probabilistic peak detection to estimate baseline drift in com plex chromatographic samples ［ J］ .Journal of Chromatography A，2016 ，1431 ：122 -130 . ［11］ LIU G F，LUO X L，YANG J.Baseline drift effect on the performance of neutron and γray discrimination using frequency gradient analysis［ J］ .Chinese Physics C，2013，37（6） ：63-69. ［12］ ZHU F，QIN B J，FENG W Y，et al.Reducing Poisson noise and baseline drift in x-ray spectral images with bootstrap Poisson regression and robust nonparametric regression ［ J ］ .Physics in Medicine and Biology，2013，58（6） ：1739-1758. ［13］ WANG R Q，LI Q，ZHANG M.Application of multi-scaled morphology in denoising seismic data ［ J ］ .Applied Geophyiscs，
+
+niques［ J］ .IEEE Signal Processing Magazine，2009，26 （ 6 ） ： 136 -157 . ［15］ 赵于前，王小芳，李桂源.基 于多尺度多 结构元素的 肝 脏图 像分割［ J］ .光电子· 激光，2009，20（4） ：563-566. ZHAO Y Q， WANG X F， LI G Y.Liver image segmentation based on multi-scale and multi-structure elements ［ J］ .Journal of Optoelectronics · Laser， 2009， 20 （ 4 ） ： 563-566 （ in Chinese） . ［16］ GAUTAM S， BRAHMA S M.Overview of mathematical morphology in power systems-A tutorial approach［ C］ ∥2009 IEEE Power ＆ Energy Society General Meeting.Piscataway，NJ：IEEE Press，2009 ：3523 -3529 . ［17］ KOZUMPLÍK J， PROVAZNÍK I.Fast timevarying linear flters for suppression of baseline drift in electrocardiographic signals ［ J］ .Biomedical Engineering Online，2017，16：24. ［18］ SERRA J.Image analysis and mathematical morphology ［ M］ . New York：Academic Press，1982.
+作者简介： 张景元 男，硕士研究生。 主要研究方向：自动测试技术与故 障诊断。
+
+2008，5（3） ：197-203. ［14］ SALEMBIER P， WILKINSON M H F.Connected operators： A
+review of region-based morphological image processing tech-
+
+何玉珠 男，博士，教授。 主要研究方向：测试系统通用性技 术、故障诊断、定位技术。
+
+Ｒｅｍｏｖｉｎｇ ｂａｓｅｌｉｎｅ ｄｒｉｆｔ ｉｎ ｖｉｂｒａｔｉｏｎ ｓｉｇｎａｌ ｏｆ ａｕｔｏｐｉｌｏｔ ｂａｓｅｄ ｏｎ ｍｏｒｐｈｏｌｏｇｙ
+ZHANG Jingyuan， HE Yuzhu*
+（ School of Instrumentation Science and Opto-electronics Engineering， Beijing University of Aeronautics and Astronautics， Beijing 100083， China）
+Ａｂｓｔｒａｃｔ： The baseline drift and heavy pollution for vibration test of missile autopilot are still problems. The requirement of denoising is difficult to be achieved by traditional time-frequency method.In this paper， to filter out the baseline drift noise， a new morphological filtering method based on the basic principle of generalized morphology is proposed.The proposed method is composed of three-level structure： the former two are based on the morphological principle， and the third level is designed for cancellation and smoothing.Thus， baseline drift can be effectively suppressed by cascading.In addition， the proposed method is more adaptive by introducing particle swarm optimization （PSO）.In the final experiments， the real signals of autopilot and ECG signals are denoised by the proposed method and reference methods.The experimental results show that the proposed method is better than wavelet denoising and traditional morphological denoising in suppressing baseline drift.
+Ｋｅｙｗｏｒｄｓ： morphological filtering； vibration signal； baseline drift； threshold denoising； particle swarm optimization （PSO）
+
+Ｒｅｃｅｉｖｅｄ： 2017-06-05； Ａｃｃｅｐｔｅｄ： 2017-08-01； Ｐｕｂｌｉｓｈｅｄ ｏｎｌｉｎｅ： 2017-12-15 16：58
+ＵＲＬ： kns万.cn方ki.数ne据t ／kcms ／detail ／11.2625.V.20171215.1130.004.html
+*Ｃｏｒｒｅｓｐｏｎｄｉｎｇ ａｕｔｈｏｒ.E-mail： heyuzhuhe＠buaa.edu.cn
+

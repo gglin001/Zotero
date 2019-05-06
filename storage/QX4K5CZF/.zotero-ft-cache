@@ -1,0 +1,4149 @@
+Novel Framework for Nonlinear HRV Analysis and its Physiological Interpretation
+
+Instituto Universitario de Investigación
+de Ingeniería de Aragón
+
+Juan R. Bolea Bolea
+Advisor: Dr. Raquel Bailón Luesma
+Dr. Esther Pueyo Paules
+Biomedical Signal Interpretation and Computational Simulation (BSICoS) Group Instituto de Investigación en Ingeniería de Aragón (I3A)
+University of Zaragoza
+
+Dissertation submitted for the degree of Doctor of Philosophy on Biomedical Engineering
+
+University of Zaragoza
+
+April 2018
+
+A mi familia A Eva
+
+Acknowledgements
+This PhD thesis entitled "Novel framework for nonlinear HRV analysis and its physiological interpretation" has been developed in the frame of the following scientific projects:
+• "Investigación computacional de arritmias cardiacas y efecto de fármacos: de los canales iónicos al electrocardiograma de superficie" (TEC2010-191410, Ministerio de Ciencia e Innovación, Gobierno de España)
+• "Procesado multimodal de señales biomédicas para el análisis y la caracterización fisiológica de afecciones cardiovasculares, respiratorias y autonómicas" (TEC2010-21703-C03-02, Ministerio de Ciencia e Innovación, Gobierno de España)
+• "Predicción de la hipotensión del bloqueo espinal de las cesáreas mediante análisis de la actividad del sistema nervioso autónomo, y efectos de la profilaxis farmacológica de la hipotensión sobre el bienestar fetal. (PI10/02851, Instituto de Salud Carlos III, FIS)
+• "Procesado de señales guiado por la fisiología para la estratificación del riesgo cardiovascular y guiado de la terapia: herramientas para mejorar la toma de decisiones" (TEC2013-42140-R, Ministerio de Economía y Competitividad, Gobierno de España)
+• "El sistema nervioso autónomo como modulador de la función cardiaca: investigación integral mediante procesado de señal y modelado computacional" (TIN2013-41998-R, Ministerio de economía y competitividad, Gobierno de España; Fondos FEDER)
+• "Evaluación no invasiva del sistema nervioso autónomo mediante análisis de la variabilidad de bioseñales. Aplicación a situaciones clínicas relacionadas con el estrés" (TIN2014-53567-R, Ministerio de economía y competitividad, Gobierno de España; Fondos FEDER)
+• Biomedical Signal Interpretation and Computational Simulation (BSICoS) Group (Grupo consolidado T96, Gobierno de Aragón)
+I would like to mention the HERMES high computational cluster from the Instituto de Investigación en Ingeniería de Aragón (I3A), Universidad de Zaragoza. It has been a privilege for me to have HERMES available that allowed parallel computing reducing significantly the computational cost of analysis.
+
+vi
+Special thanks to my supervisors Dr. Raquel Bailón and Dr. Esther Pueyo for your support, it was essential to carry this thesis out. I am very proud of being guided by two brilliant and passionate scientists.
+My acknowledgments to Dr. Pablo Laguna, Dr. Juan Pablo Martínez, and Dr. Eduardo Gil. To Arantxa Trigo, I will never forget your support, thank you very much. It is a pleasure to work with all of you. Lab-mates, Ana Mincholé, Michele Orini, Violeta Monasterio, Mariano Llamedo, Daniel Romero, Maikel Noriega, Carlos Sanchéz, José Vicente (Pepo), Alejandro Alcaine, David Sampedro, Maite Valderas, without you these years would have been totally different. We have tried to fix the world problems as many times as I cannot remember. Thank you for the huge amount of good moments we shared. You have been more than lab-mates, you have become friends. I know that this is a long list but each of you deserve to be mentioned because you were part of my life. Fer, Rute and Sonia, thank you very much to be always unconditionally there even in the distance.
+The BSICoS "new generation", they have already demonstrated their scientific potential. Jesús Lázaro, Julia Ramirez, David Hernando, Alba Martín, Javier Milagro, Spyros Kontaxis thank you, I have learnt many things from you.
+Thanks to Augusto Navarro, Eva Rovira and Jose María Remartínez from Miguel Servet Hospital Anesthesiology division team. From the beginning I saw your will to investigate with us and the path we took led successfully to this thesis. Thank you very much for your availability, patience and for the scientific discussions that were very productive.
+Gracie mile to Riccardo Barbieri and the lab-mates of Italy: Luca, Eros, Federica, Pier, Stefania... I would point out your kindness when I was there. Although you were in the third floor, there is no doubt that you are the engine of the fourth floor.
+Quiero agradecer a aquellas personas que han servido de inspiración para mi en este camino, en especial a David Izquierdo e Israel Guío. A mis amig@s del grupo de los telecos, gracias por saber estar ahí.
+A mis amigos de Calanda: Ruben, Fran, Almu, Jenny, Juanjo, Marcos. Sin ninguna duda hay gente que te cambia la vida como Glory. Su apoyo incondicional e infinito junto con el del Dr Ro ha sido muy gratificante todo este tiempo. Una parte muy importante de esta tesis es vuestra. Muchas gracias por estar siempre ahí. A Chema, bro, eres muy grande.
+A mi familia. Ma, Pa! ¡ya está! Cuánta paciencia, cuánta comprensión y cuánto apoyo. Esto va por vosotros, gracias por haber confiado en mí en los peores momentos. Estoy muy orgulloso de todos y cada uno de vosotros, por lo que hemos vivido, por cómo hemos superado y superaremos cada prueba que la vida nos ponga. Papás, tatas, cuñados, sobrinos os tengo en mi pensamiento todos los días, aunque no haya podido compartir más tiempo con vosotros. He sentido vuestro apoyo y eso me ha llevado hasta aquí. Os quiero.
+A mi cielo y estrellas, Eva. Gracias por ser cómo eres, por tu amor, por la paciencia en momentos de desesperación, por tu comprensión, por otras tantas cosas que las palabras se quedan cortas.
+
+Abstract
+Nonlinear methods applied to heart rate variability (HRV) signals have been reported to provide new insights to characterize abnormalities occurring in the context of cardiac conditions or pathologies like congestive heart failure or atrial fibrillation, to name a few. Also, alterations in the Autonomic Nervous System (ANS), which modulates heart rate, have been shown to lead to changes in nonlinear HRV patterns. Nonetheless, the still unclear mechanisms underlying physiological or pathophysiological variations in nonlinear HRV indices, in combination with the time-consuming algorithms required to estimate these indices, represent bottlenecks for their application in clinical practice.
+Following an introduction to the topics of the thesis, which is covered in chapter 1, the second chapter, chapter 2, is devoted to the first major contribution of this thesis, which consists of the proposal and development of a methodology to reliably estimate a nonlinear HRV index, namely correlation dimension, while notably reducing the computational cost associated with its computation. The proposed framework is shown to be highly effective in reducing the time for calculation of short-term nonlinear HRV analysis to just a few seconds.
+With regards to interpretation of nonlinear HRV analysis, it is important to note that there are a number of factors that affect its calculation and should be taken into account when comparing different studies from the literature. Characteristics of HRV time series like sampling rate as well as selection of parameter values in nonlinear methods all have an impact on nonlinear HRV results and could under some circumstances lead to misleading interpretations. A major objective of chapter 3 is to study the influence of sampling rate on nonlinear HRV indices and to propose methods to attenuate this influence. The proposed methods include, on the one hand, heart rate-correction of HRV estimates by individual- or population-based regression formulas and, on the other hand, pre-processing of HRV time series by interpolation or point-process models.
+Chapter 4 focuses on investigating the effect of parameter value selection as required for calculation of certain nonlinear HRV indices (e.g. approximate entropy) and proposes a novel index independent of a-priori parameter value definition. This novel index is called multidimensional approximate entropy. Nonlinear HRV analysis, including the novel proposed index, is applied to the study of conditions associated with alterations in cardiac ANS modulation, like aging and congestive heart failure (CHF). All evaluated nonlinear HRV indices are found to be significantly decreased in elderly subjects with respect to young ones under resting supine conditions. Additionally, congestive heart failure patients are shown to have statistically significantly larger values of the evaluated nonlinear indices as compared to healthy subjects, in all cases analyzing the night period. Also, nonlinear HRV analysis is assessed in response to sympathetic provocations, as induced by changing from supine to standing position or by atropine administration, where a decrease in all estimated nonlinear indices is observed.
+
+ii
+Chapter 5 is devoted to assess the performance of nonlinear HRV analysis in the triage of prophylaxis administration to prevent hypotensive episodes caused by spinal anesthesia during cesarean delivery. The study is conducted in collaboration with the Anesthesia Department of Hospital Universitario Miguel Servet (Zaragoza, Spain). Since prophylaxis may produce side effects on the fetus, the challenge is to predict normotensive outcomes for which prophylaxis could be disregarded. The hypothesis in this thesis is based on the fact that altered ANS regulation caused by the last period of pregnancy and the proximity to surgery could be reflected on nonlinear HRV indices and this could help to predict hypotensive vs normotensive outcomes with higher accuracy than when using demographic variables only. Importantly, the methodological knowhow on nonlinear HRV analysis developed in the thesis is applied to characterize other cardiovascular signals, like the pulse photopletysmographic signal. Time series derived from this signal, including peripheral vascular information, are incorporated into a logistic regression-based classifier together with nonlinear HRV indices. The proposed classifier reaches 76.5 % sensitivity and 72.2 % accuracy in detecting normotensive outcomes, thus providing relevant objective information to support clinicians’ decisions.
+In Chapter 6 the main conclusions derived from the thesis are presented and future extensions of the conducted investigations are considered. Emphasis is made on the contribution of the thesis to the development of novel methodologies to more robustly characterize nonlinear HRV indices and reliably interpret corresponding results. Based on the developed methodologies, conditions or pathologies associated with altered cardiac ANS modulation are investigated and the contribution of nonlinear HRV analysis for their characterization is highlighted.
+In summary, methodological objectives of this thesis include: i) proposal of a novel framework to improve reliability of correlation dimension estimation by using an algorithm with reduced computational load that facilitates its applicability in clinical practice; ii) development of alternative methods to attenuate the dependency of nonlinear heart rate variability (HRV) indices on mean heart rate (HR); iii) proposal of a novel multidimensional nonlinear HRV index independent of a priori parameter definition for its computation. In addition, objectives related to clinical application of the methodological contributions are: i) characterization of the effect of aging on nonlinear HRV; ii) assessment of complexity and irregularity of heart rate in congestive heart failure (CHF) patients as compared to healthy subjects; iii) improvement in the efficacy of prophylaxis administration for the prevention of hypotensive events after spinal anesthesia during programmed cesarean delivery.
+
+Resumen y Conclusiones
+La inclusión de métodos no lineales aplicados a señales de variabilidad del ritmo cardiaco (HRV, del inglés Heart Rate Variability) proporciona una nueva visión en la caracterización de anomalías en el contexto de las enfermedades cardiacas o patologías como la insuficiencia cardiaca o la fibrilación auricular, por nombrar algunas. Se ha demostrado que alteraciones en el sistema nervioso autónomo (ANS, del inglés Autonomic Nervous System), el cuál modula el ritmo cardiaco, conllevan a cambios en los patrones no lineales de la HRV. Sin embargo, la incertidumbre, todavía presente, en los mecanismos que subyacen a variaciones fisiológicas o patofisiológicas en los índices no lineales de la HRV, junto con el alto tiempo que requieren los algoritmos para la estimación de estos índices, representan el cuello de botella para su aplicación en la práctica clínica.
+Después de una breve introducción sobre los temas abordados en esta la tesis en el capítulo 1, el segundo capítulo, el capítulo 2, está dedicado a la primera gran contribución de esta tesis, que consiste en la propuesta y desarrollo de una metodología con el fin de reducir el coste computacional asociado a la caracterización no lineal de la HRV. El esquema propuesto es muy eficaz, reduciendo el tiempo de cálculo a unos pocos segundos para el análisis no lineal de señales de HRV de corta longitud (5 minutos).
+Con respecto a la interpretación del análisis no lineal de la HRV, es importante señalar que hay una serie de factores que afectan a su cálculo y deben tenerse en cuenta al comparar diferentes estudios de la literatura. Las características de las series de HRV, como la frecuencia de muestreo, así como la selección de valores de parámetros en los métodos no lineales, tienen un impacto en los resultados de los índices no lineales de la HRV y, en algunas circunstancias, pueden dar lugar a interpretaciones erróneas. Uno de los principales objetivos del capítulo 3 es estudiar la influencia de la tasa de muestreo en los índices no lineales de la HRV y proponer alternativas para atenuar esta influencia. Los métodos propuestos incluyen, por una parte, la corrección de la frecuencia cardiaca de las estimaciones de la HRV mediante fórmulas de regresión individuales o basadas en la población y, por otra, el preprocesamiento de las series temporales de HRV mediante modelos de interpolación o de point-process.
+El capítulo 4 se centra en investigar el efecto de la selección del valor de los parámetros requeridos para el cálculo de ciertos índices no lineales de la HRV (por ejemplo, la entropía aproximada) y proponiendo un nuevo índice independiente de la definición del valor de éstos parámetros a-priori. Este novedoso índice se denomina entropía multidimensional aproximada. El análisis no lineal de la
+
+iv
+HRV, incluido el nuevo índice propuesto, se aplica al estudio de afecciones asociadas a alteraciones de la modulación cardiaca del ANS, como el envejecimiento y la insuficiencia cardiaca congestiva (CHF, del inglés Congestive Heart Failure). Por un lado, todos los índices no lineales de la HRV evaluados ven disminuidos significativamente sus valores en las personas mayores en comparación con los jóvenes ambos grupos en condiciones de reposo en posición de decubito supino. Por otro lado, los pacientes con insuficiencia cardiaca muestran valores más altos de los índices no lineales significativamente con respecto al grupo de sujetos sanos, en ambos casos analizando el período nocturno. Además, el análisis no lineal de la HRV es evaluada en respuesta a provocaciones simpáticas, inducidas por el cambio de la posición supina a la posición de pie o por la administración de atropina, donde se observa una disminución en todos los índices no lineales estimados.
+El capítulo 5 está dedicado a la evaluación del rendimiento del análisis no lineal de la HRV en el triaje de la administración profiláctica con el fin de prevenir los episodios de hipotension causados por la anestesia espinal durante el parto por cesárea. El estudio se realiza en colaboración con el Servicio de Anestesia del Hospital Universitario Miguel Servet (Zaragoza, España). Debido a que la profilaxis puede producir efectos secundarios en el feto, el desafío consiste en predecir los casos normotensos para los cuales se puede prescindir del tratamiento profilactico. La hipótesis de esta tesis se basa en el hecho de que la alteración de la regulación del ANS causada por el último período de embarazo y la proximidad a la cirugía podría reflejarse en los índices no lineales de la HRV, lo que podría ayudar a predecir los casos que deriven en hipotension y normotension con mayor precisión que cuando se utilizan solamente variables demográficas. Es importante destacar que las propuestas metodológicas para el análisis no lineal de la HRV desarrolladas en la tesis se aplican en la caracterización de otras señales cardiovasculares, como la señal fotopletismografica de pulso. Las series temporales derivadas de esta señal, que incluyen información del sistema vascular periférico, se incorporan en un clasificador basado en la regresión logística junto con los índices no lineales de la HRV. El clasificador propuesto alcanza un 76,5% de sensibilidad y un 72,2% de precisión en la detección de los casos normotensos, proporcionando así información pertinente y objetiva respaldando la decisión final del equipo médico.
+En el capítulo 6 se presentan las principales conclusiones derivadas de la tesis y se consideran futuras ampliaciones en base a las investigaciones llevadas a cabo. Se hace hincapié en la contribución de la tesis al desarrollo de metodologías novedosas para caracterizar de manera más robusta los índices no lineales de la HRV e interpretar con fiabilidad los resultados correspondientes. Basándose en las metodologías desarrolladas, se investigan las condiciones o patologías asociadas con alteraciones en la modulación autonómica de la actividad cardiaca y se destaca la contribución del análisis no lineal de la HRV para su caracterización.
+En conclusión, entre los objetivos metodológicos desarrollados en esta tesis se encuentran: i) la propuesta de un esquema de trabajo para incrementar la fiabilidad de la estimación de la dimensión de correlación, usando un algoritmo que reduce la carga computacional, facilitando su aplicabilidad en la práctica clínica; ii) el desarrollo de métodos alternativos para atenuar la dependencia de los índices no
+
+v
+lineales de la HRV con el ritmo cardiaco medio; iii) la propuesta de un índice no lineal de la HRV multidimensional independiente de la definición a priori de parámetros para su estimación. Además, los objetivos relacionados con la aplicación clínica de las contribuciones metodológicas son: i) la caracterización del efecto del envejecimiento en los índices no lineales de la HRV; ii) la evaluación de la complejidad e irregularidad del ritmo cardiaco en pacientes que sufren de insuficiencia cardiaca comparada con sujetos sanos; iii) la mejora de la eficacia de la profilaxis para la prevención de eventos de hipotensión después de anestesia espinal durante parto programado por cesárea.
+
+Contents
+
+List of Figures
+
+xi
+
+List of Tables
+
+xiii
+
+List of Acronyms
+
+xv
+
+1 Introduction
+
+1
+
+1.1 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+
+1.2 Autonomic Nervous System Regulation of the Heart . . . . . . . . . . . . . . . . . 2
+
+1.3 Heart Rate Variability . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+
+1.4 Autonomic Nervous System Assessment . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+1.4.1 Time Domain Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+1.4.2 Frequency Domain Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+1.4.3 Nonlinear Domain Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+
+1.5 Applications of Nonlinear HRV Analysis . . . . . . . . . . . . . . . . . . . . . . . 13
+
+1.5.1 Aging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+
+1.5.2 Congestive Heart Failure . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+
+1.5.3 Hypotension during Cesarean Section . . . . . . . . . . . . . . . . . . . . . 13
+
+1.6 Objectives . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+
+2 Correlation Dimension Estimation
+
+17
+
+2.1 Correlation Dimension . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+
+2.1.1 Mathematical Definition . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+
+2.1.2 Scaling Range Assessment: Sigmoid Curve Fitting . . . . . . . . . . . . . . 19
+
+2.1.3 New Approaches for D2 Assessment . . . . . . . . . . . . . . . . . . . . . . 22 2.1.4 Fast Computation of Correlation Sums . . . . . . . . . . . . . . . . . . . . . 26
+
+2.2 Validation Study . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+
+2.2.1 Lorenz Attractor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+
+2.2.2 MIX(P) Processes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+
+2.3 Evaluation Study on HRV Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+
+2.4 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+
+viii
+
+Contents
+
+2.4.1 Validation on Synthetic Time Series . . . . . . . . . . . . . . . . . . . . . . 28 2.4.2 HRV Time Series Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30 2.4.3 Evaluation of the Computational Load . . . . . . . . . . . . . . . . . . . . 31 2.5 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33 2.6 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34
+
+3 Nonlinear HRV Measurement Dependencies
+
+37
+
+3.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+
+3.2 Materials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+
+3.2.1 Fantasia Database . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+
+3.2.2 BPC Database . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+
+3.2.3 Simulation Study . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+
+3.3 Evaluation by Nonlinear Techniques . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+
+3.3.1 Correlation Dimension . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+
+3.3.2 Approximate and Sample Entropy . . . . . . . . . . . . . . . . . . . . . . . 42
+
+3.4 Nonlinear Indices Dependence on HR as Sampling Rate . . . . . . . . . . . . . . . 43
+
+3.4.1 Regression Formulas . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+
+3.4.2 Interpolation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+
+3.4.3 Point-process . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+
+3.5 Statistical Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
+
+3.6 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
+
+3.6.1 Nonlinear HRV Indices and Mean HR Reflect Body Position induced Changes 47
+
+3.6.2 Nonlinear HRV Indices and RR Relationship by Simulation Study . . . . . . 47
+
+3.6.3 Nonlinear Analysis of BPC Database . . . . . . . . . . . . . . . . . . . . . 51
+
+3.7 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 53
+
+3.7.1 Simulated Data . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 53
+
+3.7.2 Real Data . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 55
+
+3.8 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57
+
+4 Multidimensional Approximate Entropy
+
+59
+
+4.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 60
+
+4.2 Approximate Entropy-based Indices . . . . . . . . . . . . . . . . . . . . . . . . . . 61
+
+4.2.1 Multidimensional Approximate Entropy . . . . . . . . . . . . . . . . . . . . 61
+
+4.2.2 Time- and Frequency-domain HRV Indices . . . . . . . . . . . . . . . . . . 62
+
+4.3 Materials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 62
+
+4.3.1 Synthetic Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 62
+
+4.3.2 HRV Signals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 62
+
+4.3.3 Statistical Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 63
+
+4.4 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 63
+
+Contents
+
+ix
+
+4.4.1 Synthetic Data . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 63 4.4.2 HRV Data . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 65 4.5 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 71 4.6 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 73
+
+5 Improvement in the Prevention of Hypotensive Episodes
+
+75
+
+5.1 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+
+5.2 Materials and Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 77
+
+5.2.1 Programmed Cesareas Database . . . . . . . . . . . . . . . . . . . . . . . . 77
+
+5.2.2 Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 78
+
+5.3 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 82
+
+5.4 Discussion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 88
+
+5.5 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 91
+
+6 Conclusions and Future Lines
+
+93
+
+Bibliography
+
+103
+
+List of Figures
+1.1 Innervation of the heart by autonomic nervous system. . . . . . . . . . . . . . . . . 3 1.2 Physiological phases of the heart and electrocardiograph signal representation. . . . . 4 1.3 Electrocardiographic lead chest positions and signal. . . . . . . . . . . . . . . . . . 5 1.4 HRV signal representations. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 1.5 Example of power spectral density of a HRV signal . . . . . . . . . . . . . . . . . . 8 1.6 Lorenz attractor representation. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9 1.7 A simplified model of HR regulation. . . . . . . . . . . . . . . . . . . . . . . . . . 10 1.8 Milestones towards the nonlinear heart rate variability assessment. . . . . . . . . . . 11 1.9 Usage rate of most common nonlinear methods in HRV studies. . . . . . . . . . . . 12
+2.1 Log-log curves for a dynamic system. . . . . . . . . . . . . . . . . . . . . . . . . . 20 2.2 Log-log curves discarding and accepting self-comparisons. . . . . . . . . . . . . . . 20 2.3 Sigmoid Curve Fitting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21 2.4 Proposals for correlation dimension (D2) estimation. . . . . . . . . . . . . . . . . . 23 2.5 Correlation dimension estimate from starting points. . . . . . . . . . . . . . . . . . . 24 2.6 SampEn surface. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 2.7 Effect of norm selection in D2. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30 2.8 D2 estimation over MIX(P) signals. . . . . . . . . . . . . . . . . . . . . . . . . . . 30 2.9 D2 estimation over RR time series. . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+3.1 Simulated spectra from Fantasia database. . . . . . . . . . . . . . . . . . . . . . . . 40 3.2 Simulation data scheme for Fantasia database. . . . . . . . . . . . . . . . . . . . . 41 3.3 Dependence of approximate entropy (ApEn) on threshold r. . . . . . . . . . . . . . 43 3.4 Dependence of ApEn on threshold r. . . . . . . . . . . . . . . . . . . . . . . . . . . 43 3.5 Representation of local log likelihood estimation in point-process paradigm. . . . . 46 3.6 HR-corrected nonlinear HRV indices for supine and standing. . . . . . . . . . . . . 48 3.7 Nonlinear HRV indices computed from simulation study varying mean heart period. 49 3.8 Nonlinear HRV indices computed from simulation study varying mean heart period. 50 3.9 Nonlinear HRV indices computed from synthetic point-process time series varying
+mean heart period. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51 3.10 Example of time-varying HRV series extracted from point-process. . . . . . . . . . . 53
+
+xii
+
+List of Figures
+
+3.11 Comparison of interpolation and point-process approach in temporal and nonlinear indices. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 54
+4.1 Nonlinear indices evaluated over MIX(P), pink and white time series. . . . . . . . . 64 4.2 MApEn(0.2) and MApEnmax evaluated on MIX(P) processes, white, and pink noises. 65 4.3 ApEn(2, r) and ApEn(6, r) computed over MIX(P) processes. . . . . . . . . . . . . 66 4.4 ApEn computed throughout embedding dimensions and MApEn(r) for pink noise
+(blue) and white noise (red) using different thresholds. . . . . . . . . . . . . . . . . 66 4.5 Regularity and complexity indices comparing young vs. elderly, and healthy subjects
+vs. CHF patients. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 67 4.6 MApEn(0.2) and MApEnmax values computed for young, elderly, CHF, and healthy
+subjects. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 67 4.7 ApEn values computed for thresholds set at 0.2 and rmax(m) through embedding
+dimensions in young vs. elderly and healthy vs. CHF patients. . . . . . . . . . . . . 68 4.8 Regularity and complexity indices comparing healthy subjects vs. CHF patients
+restricted to an age range of 50 to 75 years old and healthy vs. CHF patients classified III-IV. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 69 4.9 MApEnmax values computed for young, elderly, CHF, and healthy subjects in 4000sample time series. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 70 4.10 Time domain index values for young vs. elderly during awake and CHF patients vs. healthy subjects during the night period. . . . . . . . . . . . . . . . . . . . . . . . . 70 4.11 Frequency domain indices computed comparing young vs. elderly, and CHF patients vs. healthy subjects. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 71
+5.1 Cross-validation scheme combining leave-one-out with bootstrapping. . . . . . . . . 81 5.2 Time series of interest for predicting hypotension. . . . . . . . . . . . . . . . . . . . 82 5.3 Correlation between nonlinear indices computed over RR and pulse rate (PR) time
+series. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 84 5.4 ApEn(m, rmax(m)) vs. m and MApEnmaxPR(SD−LD) computed on PR time series dur-
+ing lateral decubitus and supine decubitus. . . . . . . . . . . . . . . . . . . . . . . . 84 5.5 Box-plots of features that reached best classification performance. . . . . . . . . . . 87
+
+List of Tables
+2.1 Correlation dimension estimation for attractors. . . . . . . . . . . . . . . . . . . . . 29 2.2 D2 estimation for Lorenz attractor series and HRV signals. . . . . . . . . . . . . . . 32 2.3 ROC area for correlation dimension. . . . . . . . . . . . . . . . . . . . . . . . . . . 32 2.4 Computational load of correlation sums estimated varying sample length. . . . . . . 32 2.5 Computational load for correlation dimension estimates by all proposed approaches. 32
+3.1 Correlation study of uncorrected and HR-corrected nonlinear HRV indices on mean HR. 49 3.2 Uncorrected and HR-corrected nonlinear HRV indices evaluated in the body position
+change (BPC) database. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+5.1 Parturient characteristic data. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 78 5.2 Relation of features for the lateral decubitus (LD)-supine decubitus (SD) cohort. . . . 83 5.3 Classification results comparing classifiers. . . . . . . . . . . . . . . . . . . . . . . 85 5.4 Classification performance results for the three considered cohorts. . . . . . . . . . 86 5.5 Logistic regression parameters for the different cohorts. . . . . . . . . . . . . . . . . 86
+
+List of Acronyms
+
+ANS A pE n ARMA AUC AV BMI BP BPC BPM CHF CVD D2 ECG HF HR HRM HRV ICC IPFM LD LF LF/HF MO MSE
+
+autonomic nervous system . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1 approximate entropy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xi autoregressive moving average . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40 area under curve . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 90 atrio-ventricular . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2 body mass index . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 90 blood pressure . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 88 body position change . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xiii beats per minute . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 congestive heart failure . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ii cardiovascular disease correlation dimension . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xi electrocardiogram . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5 high frequency . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7 heart rate . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ii heart rate mean . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7 heart rate variability . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ii intraclass correlation coefficient . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47 integral pulse frequency modulation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 lateral decubitus . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xiii low frequency . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7 sympathovagal ratio . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7 matrix operations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26 Multiscale entropy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 60
+
+xvi
+
+List of Acronyms
+
+NNT
+
+number needed to treat . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+
+PAT
+
+pulse arrival time . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+
+PEP
+
+pre-ejection period . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 78
+
+PP
+
+pulse-to-pulse . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 78
+
+PPG
+
+pulse photoplethysmographic signal . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+
+PR
+
+pulse rate . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xii
+
+PRV
+
+pulse rate variability . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+
+PTT
+
+pulse transit time . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+
+RMSSD the square root of the mean squared differences of successive normal heartbeat intervals7
+
+ROC receiver operating characteristic . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+
+RP
+
+respiration . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+
+RSA
+
+respiratory sinus arrhythmia . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 88
+
+SampEn sample entropy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+
+SCF
+
+Sigmoid curve fitting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+
+SA
+
+sino-atrial . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+
+SD
+
+supine decubitus . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xiii
+
+SDNN standard deviation of consecutive normal beats . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+SP
+
+sitting position . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 77
+
+xvii
+
+“The heart has reasons which reason does not know.”
+- Blaise Pascal (1623-1662) -
+1
+Introduction
+Summary
+In this chapter, the motivation for the development of this thesis is introduced. The human body is a source of biomedical signals that can be used to characterize and identify health status and pathologies. This thesis is based on the heartbeat interval variations and their relation to the regulation of the autonomic nervous system (ANS) on the heart. The modulation of the heart rate through sympathetic and parasympathetic systems is introduced. Finally, technical approaches commonly used for assessing autonomic nervous system (ANS) activity using heart rate dynamics are presented throughout this dissertation.
+
+2
+
+Introduction
+
+1.1 Motivation
+Heart rate variability is considered a non-invasive technique for assessing ANS regulation of heart rate [179]. During the last few decades, interest in this analysis has risen. Around 1600 related scientific papers were published in 2017 (data from Pubmed search engine https://www.pubmed.gov). Its potential is widely recognized and used. The analysis of HRV has been applied to characterize changes in ANS response due to several pathologies or habits, e.g. cardiovascular diseases (CVD), metabolic disorders, mental disorders and stress [49, 48, 136, 153, 90, 26, 72, 45, 163, 82, 128, 112]. The World Health Organization reported that 31% of all world global deaths were related to CVD, which is 17.7 million people, 422 million people worldwide have diabetes and 1.6 million deaths are directly related to this disease each year. In addition, more than 300 million people worldwide are suffering from a mental disorder (depression, bipolar affective disorder, schizophrenia, psychosis, dementia, developmental disorders). Early detection is crucial to reduce the incidence, morbidity and mortality of CVD, and metabolic disorders and to increase the efficacy of treatment for mental and stress disorders (retrieved from http://www.who.int).
+After years of study, in 1996, the standards of measurement of heart rate variability, including physiological interpretation and clinical use, were published [179]. However, despite the huge number of studies related to HRV analysis, linear indices (referred to as time- and frequency-domain) are sometimes not enough to extract conclusive findings. The relationship between intrinsic pacemaker cells and ANS modulation expressed in HRV has been reported as nonlinear [194]. Nonlinear techniques have been highlighted as powerful tools to assess HRV for diagnosis and prognosis, pointing out the presence of nonlinearities in heart rate regulation, but further research is needed to relate these nonlinear techniques to a physiological interpretation [87, 85, 177].
+During the following 20 years, many authors focused their research studies on this new branch. In 2015, the advances in HRV signal analysis were released, paying attention to these nonlinear techniques [161]. However, physiological interpretation of nonlinear indices is still unclear, since methodological aspects, such as their dependence on parameter setting, which has not been addressed in any great depth yet, may be misleading.
+
+1.2 Autonomic Nervous System Regulation of the Heart
+Cardiovascular and respiratory systems are regulated by ANS. Heart rate, lung volume and blood pressure are modulated in order to supply the body’s needs. A sensor net, made up of sensory receptors, detects variations of these variables, information which is managed by regulatory systems. In this thesis, we focus our attention on the regulation of ANS on the heart. The presence of ANS innervation in the heart can be found at several locations. ANS fibers are present in the sino-atrial (SA) node, the atria, atrio-ventricular (AV) node and also in the ventricles, see figure 1.1. As with most of the body’s organs, the heart is innervated by the two main subsystems of the ANS, the parasympathetic (vagal)
+
+1.2 Autonomic Nervous System Regulation of the Heart
+
+3
+
+and the sympathetic system. These subsystems are described as antagonistic and they work together to maintain the cardiovascular homeostasis.
+
+Cardioregulatory center and chemoreceptors in medulla oblongata
+Sensory nerve fibers
+
+Baroreceptors in wall of internal carotid artery
+
+Parasympathetic nerve fibers
+
+Carotid body chemoreceptors
+Baroreceptors in aorta
+SA node
+
+Sympathetic nerve fibers
+
+Heart
+
+Adrenal medulla
+
+Circulation
+Epinephrine and norephinephrine
+
+Figure 1.1 Innervation of the heart by autonomic nervous system.
+
+The vagal system decreases heart rate and cardiac contractility (rest and digest response), while the sympathetic system acts antagonistically increasing the heart rate and cardiac contractility, and regulating the peripheral vasoconstriction (fight or flight response) [65]. The underlying mechanisms of these two subsystems present different physiological dynamics. On one hand, parasympathetic modulation acts by releasing acethylcholine into the synaptic space of the neurons, where muscarinic cholinergic receptors of cardiomyocytes are stimulated, changing properties such as ionic currents and conductances, decreasing the excitability of the cells, and then reducing the heart rate. On the other hand, sympathetic regulation stimulates the adrenal medulla, releasing adrenaline and noradrenaline into the bloodstream, which stimulates β -receptors, changing the cardiomyocyte properties, increasing the heart rate. Parasympathetic system regulation shows a faster response than the sympathetic one.
+Pharmacological blockades are used for treatment of certain pathologies in which ANS response is altered, such as silent ischemia or heart failure, or to explore the subsystems behavior separately [169, 138, 96]. These drugs could stimulate or inhibit ANS subsystem activity. On one hand, the muscarinic antagonist (anticholinergic) drugs reduce the respiratory sinus arrhythmia degree, inhibiting vagal modulation, and are used in Parkinson’s disease. On the other hand, β -adrenergic receptor blocker therapy plays a key role in the treatment of cardiovascular diseases due to their
+
+4
+
+Introduction
+
+antiischemic, antiarrhythmic and antihypertensive properties, and also it has been reported to be beneficial in cases of heart failure [108].
+
+1.3 Heart Rate Variability
+In normal sinus rhythm, heart rate is determined by the SA node, which receives impulses from both sympathetic and parasympathetic systems, increasing or decreasing heart rate respectively, in order to meet internal and external demands to maintain homeostasis. Heart rate variability refers to the beat-to beat heart rate variations, and its analysis has been proposed for the assessment of ANS regulation on the heart. HRV is derived from the electrocardiogram (ECG), which describes the electrical activity of the heart, recorded by electrodes placed on the body surface.
+
+Figure 1.2 Physiological phases of the heart and electrocardiograph signal representation. 1) Pace-marker cells of SA
+node are ready to fire (Atrial depolarization). 2) SA cells fire and electrical activity begins (Atrial repolarization). 3) Atrium pumps blood to ventricles. 4) Electrical activity travels from atrioventricular node to Purkinje fibers to depolarize ventricles (QRS complex). 5) Ventricles begin repolarizing from endocardium to epicardium. 6) End of the ventricular repolarization and ventricles pump blood to aorta artery.
+The mechanical contraction of the heart is preceded by electrical cell (cardiomyocytes) excitation, the so-called depolarization stage, while, the return to electro-mechanical relaxed condition is called repolarization. Each heartbeat generation is composed of several phases illustrated in Fig. 1.2. The cardiomyocytes belonging to the SA node present the special characteristic of being auto-activated, generating the beginning of a heartbeat. They are known as the natural pacemaker of the heart. These cells generate the stimulus to be transmitted to the rest of cardiomyocytes. First, atria are depolarized,
+
+1.3 Heart Rate Variability
+
+5
+
+producing the mechanical contraction (P wave). The electrical activity travels to the atrioventricular node, where it is delayed and then, ventricles receive the electrical impulse via Purkinje fibers (QRS complex). Atria are repolarized, and ventricles start depolarizing as well as contracting (T wave). The electrocardiogram (ECG) represents the global electrical activity of the heart.
+Electrodes
+
+Amplitude (mV)
+
+t(k-1) t(k)
+
+3
+
+*
+2
+
+*
+
+*
+
+1
+
+0
+
+-1
+
+34
+
+**
+36 Time (s)
+
+**
+38
+
+Holter recorder
+
+Figure 1.3 Position of electrodes placed in the chest is illustrated in the left panel. On the right, an ECG signal is shown
+produced by the electrical activity of each heartbeat. Asterisks represent the heartbeat location in time, t(k), where k is the beat index.
+
+To obtain HRV, the detection of each heartbeat occurrence time from the ECG is needed (see Fig. 1.3). The selection of a proper fiducial points for HRV analysis is important. The heartbeat location is commonly extracted from the R wave peak, corresponding to the fast propagation of the impulse from atria to ventricles through the AV node and the bundle of His, since it is usually the dominant wave within the QRS complex. However, in certain QRS complex morphologies, with dominant negative peak, detection of the latest would be more robust. On the other hand, switching from main positive peak to main negative peak from beat to beat would induce extra variability. Thus, in this thesis, fiducial points are selected to be either the positive or the negative QRS complex peaks, depending on which of them represent the most recurrent morphology.
+
+Heart Rate Variability Representations
+RR time Series The tachogram or RR time series is defined as the difference between consecutive R wave peaks. Hence:
+
+RR(k) = t(k) − t(k − 1),
+
+(1.1)
+
+where t(k) is the kth heartbeat location in time.
+
+6
+
+Introduction
+
+Heart Rate Series HR time series are defined as the inverse of RR time series in beats per minute (BPM) units:
+
+HR(k) = 60
+
+(1.2)
+
+RR(k)
+
+These series are naturally unevenly sampled, but methods, such as interpolation, could be applied when necessary to generate evenly sampled series.
+
+Figure 1.4 illustrates both series and their differences.
+
+1.5
+
+Heart Rate (BPM) RR (s)
+
+1
+
+0.5 80
+
+60
+
+40 8.2 8.21 8.22 8.23 8.24 8.25 8.26 8.27 8.28 8.29 8.3
+Time (h)
+
+Figure 1.4 From top to bottom, RR interval and heart rate as HRV signal representations. Data extracted from a 24h
+Holter recording of Normal Sinus Rhythm database from www.physionet.org.
+
+Other Alternative Representations
+Alternative representations of HRV have been proposed based on physiological models.
+On one hand, integrate-and-fire models such as the integral pulse frequency modulation (IPFM) model provides a physiologically plausible model for HRV representation, assuming that the ANS influence on the SA node can be described by a modulating signal, M(t) [115]. The modulating signal over a DC level of 1 is integrated until reaching a threshold, which is the mean heart period, when a new heartbeat is generated and the integral is reseted.
+On the other hand, models taking into account the stochasticity of the process, like the pointprocess model, have been also used for HRV representation. This model was firstly applied in neuroscience, analyzing the electrical activity of the brain through electroencephalogram (EEG), obtaining promising results [181]. Its application to HRV analysis provides a probability model to describe heart rate dynamics mathematically. The waiting time from one heartbeat time t(k) until the next one is assumed to obey an inverse Gaussian probability density function [10].
+
+1.4 Autonomic Nervous System Assessment
+
+7
+
+1.4 Autonomic Nervous System Assessment
+As aforementioned, HRV is considered a non-invasive technique for assessing the ANS activity related to heart regulation [179]. Approaches based on the time- frequency-domain and in terms of complexity/irregularity have been applied to HRV analysis and they are described in the following.
+
+1.4.1 Time Domain Analysis
+
+Time domain indices are based on statistical characteristics of HRV signals. Time domain indices give a description of the time series first moments, heart rate mean (HRM), standard deviation of consecutive normal beats (SDNN), referring to those whose origin is the SA node, and the square root of the mean squared differences of successive normal heartbeat intervals (RMSSD). In particular, SDNN and RMSSD have been related to parasympathetic activity [179].
+1.4.2 Frequency Domain Analysis
+
+In 1981, Akselrod et al. [2] characterized heart rate fluctuations in the frequency domain, describing the relation between ANS modulation (sympathetic and parasympathetic subsystems) and power spectral density content in specific bands.
+The sympathetic activity was reported to contribute to low frequency (LF) band content (PLF : 0.04-0.15 Hz), whereas the parasympathetic activity contribution was related to high frequency (HF) band content (PHF : 0.15-0.4 Hz), but also to LF band. Figure 1.5 illustrates an exemplary spectral representation of HRV signal, corresponding to relaxed conditions. HF content was proposed as an index to estimate the parasympathetic activity . In addition, the ratio between LF and HF power spectral density band content, known as sympathovagal ratio (LF/HF), was reported to provide a measure of the balance between sympathetic and parasympathetic system regulation. The mentioned spectral band definitions are suitable for adult healthy subjects who are breathing normally. HF band definition can be modified, depending on the subject status, to ensure that parasympathetic activity is captured [9, 70], since factors such as respiratory sinus arrhythmia could be reflected in higher frequencies and thus, the pre-defined HF boundaries should be adjusted [80].
+Spectral analysis can be carried out by analyzing the raw RR time series by Lomb-Scargle periodogram, since raw RR time series is unevenly sampled, or by Fourier transform on interpolated RR time series.
+
+8
+0.04
+
+Introduction
+
+Power spectral density (a.u.)
+
+0.03
+
+0.02
+PLF
+0.01
+
+PHF
+
+0
+
+0
+
+0.1
+
+0.2
+
+0.3
+
+0.4
+
+0.5
+
+Frequency (Hz)
+
+Figure 1.5 Example of power spectral density of a HRV signal (modulating signal M(t)) where low and high frequency
+contributions are illustrated.
+
+1.4.3 Nonlinear Domain Analysis
+
+From Deterministic to Stochastic Processes
+A system can be classified as deterministic, stochastic or mixed. When an input always produces the same output, the system is said to be deterministic. Deterministic systems can be mathematically described with an unambiguous relationship between the input and the output of the system. There are deterministic systems whose response is highly influenced by initial conditions, producing a very different output depending on those conditions. Such an influence is known as the butterfly effect, as the dependence on initial conditions is represented as the beating of a butterfly’s wings in California that could unleash a tornado in another part of the world. Those deterministic systems are known as chaotic. Although the output of a chaotic system could seem to be random, it is not, since it can be exactly determined. In Fig. 1.6, the Lorenz attractor, which is a chaotic system, is illustrated. This system consists of three coupled differential equations, generating three outcome signals with a randomness-like behavior (see section 2.2.1 for the Lorenz attractor mathematical description). The most widespread methods used to characterize nonlinear system dynamics are the ones based on chaos theory, where the greater the amount of information, the higher the accuracy of the measurements. In stochastic systems the output is totally random or has a certain degree of randomness.
+The HRV signal could be interpreted as the observable outcome of a system containing information on cardiac ANS regulation. The HRV signal can contain information related to intrinsic physiological nonlinearities, such as changes in the gain of baro-reflex feedback loops or delays in conduction time, which might not be properly described by temporal and spectral signal characteristics [200, 6, 165]. The presence of nonlinear characteristics in HRV time series has been highlighted by surrogate data
+
+1.4 Autonomic Nervous System Assessment
+
+9
+
+z [adim] x [adim]
+
+100
+
+80
+
+60
+
+40
+
+20
+
+0
+
+-50 x
+
+[adim0 ]
+
+50
+
+-30
+
+-20
+
+-10 y
+
+0 10 [adim]
+
+20
+
+30
+
+40 20 0 -20 -400 200 400 600 800 1000 1200 1400 1600 1800 2000
+samples
+
+Figure 1.6 Left panel: Lorenz attractor is represented in the phase-space. Right panel: random-like behavior of one of its
+single outputs is illustrated.
+
+analysis [87, 85, 177, 88]. The question of whether HRV arises from a low-dimensional attractor associated with a deterministic nonlinear dynamical system or has an stochastic origin is still unclear.
+System complexity is a concept referring to dynamic richness of subsystem interconnections and feedback. In particular, HRV is known to be related to the outcomes of coupled cardiovascular and respiratory systems such as heart rate, lung volume and blood pressure, among others. Based on transfer functions and models, proposals to quantify the interaction between these variables influencing HRV have been reported [162, 187, 16, 192]. A simplified model of these interactions proposed in [187] is illustrated in Fig. 1.7. Nonlinear complexity indices have been shown to provide complementary information to linear approaches in the characterization of HRV signals [30]. Techniques based on detrended fluctuation analysis [84], Lempel-Ziv complexity [105], Lyapunov exponents [191], D2 [145] and approximate and sample entropies [142] have been used to assess HRV complexity.
+State of the Art
+Availability of faster computing resources as well as development of more efficient algorithms for computation of nonlinear HRV characteristics has been crucial for the boost of these methods in research, since the associated high computational load was considered as a limitation for their applicability. Fig. 1.8 shows a timeline with relevant milestones in the characterization of HRV, both using classical and nonlinear methodologies. Some of these methodologies, like approximate entropy or detrended fluctuation analysis, have been widely applied in the last three decades, as illustrated in Fig. 1.9, which shows usage rate of nonlinear methodologies.
+Nonlinear HRV indices have been highlighted as promising markers to characterize cardiovascular diseases, such as congestive heart failure, atrial fibrillation or myocardial infarction as well as risk for sudden cardiac death or other type of deaths [118, 167, 187, 40, 43, 50, 75, 173, 12, 73, 50]. Also,
+
+10
+
+Introduction
+
+cortex hypotalamus
+medulla
+
+physical exercise movements mental load personality
+
+parasympathetic ganglia
+
+sympathetic ganglia
+humoral effects
+
+respiration
+
+arterial tone
+
+sinus node
+blood pressure baroreceptors
+
+stroke volume
+arrhythmia
+
+preload posture
+
+Figure 1.7 A simplified model of HR regulation, adapted from Voss et al. [187]
+
+nonlinear HRV analysis has been applied to investigate the effects of aging [14], mental disorders [16, 122, 124] or unbalanced cardiovascular regulation [149].
+According to Sassi et al. [161], nonlinear methods can be classified as: long-range correlation and fractal scaling (e.g. 1/ f factor, DFA), short-term complexity (e.g. Poincaré plot analysis, acceleration/deceleration capacity), entropy and regularity (e.g. approximate and sample entropy), and nonlinear dynamical systems and chaotic behavior (e.g. correlation dimension, Lyapunov exponents). In this thesis, the nonlinear indices most commonly used in the literature (see Fig. 1.9), like those based on entropy and regularity (approximate and sample entropy, ApEn and SampEn respectively) and nonlinear dynamical systems and chaotic behavior (correlation dimension, D2), have been considered.
+The above mentioned nonlinear indices are based on Takens’ work, which was focused on detecting strange attractors [178]. He concluded that an attractor could be properly reconstructed when the phase-space dimensionality is sufficient to unfold the attractor. He also postulated that it is possible to assess the information of a system by taking into account just one experimental output. Based on this, ApEn, a measure of system complexity, was introduced by Pincus [144]. Almost a decade later, Richman and Moorman introduced sample entropy (SampEn), an irregularity index for
+
+1.4 Autonomic Nervous System Assessment
+
+11
+
+RecurrenceC QuatificationCQnalysis
+-RajendraCetCal3CwDL8&
+TV)QpEn
+-HuCetCal3CwDDK&
+RenyiNsCentropy
+-LakeCetCal3CwDD5&
+MultiscaleCentropy
+-jostaCetCal3CwDD9&
+RecurrenceCplots
+-MarwanCetCal3CwDDw&
+MultifractalCanalysis
+-StanleyCetCal3CL222&
+PoincaréCPlots
+-WooCetCal3CL22w&
+MarginalCredundancy
+-Fraser3CL2K2&
+K)SCentropy
+-EckmannCqCRuelle3CL2K9&
+Power)lawCcorrelation
+-KobayashiCqCMushaCL2Kw&
+HRV Non)linearCdynamics
+-L2KDNs&
+FetalCdistressCqCHRV
+-L259&
+QmbulatoryCEjG
+-HolterCL25L&
+RoleCofCVagusCinCRSQ
+-DondersCLK5K&
+XeatCtoCbeat pulseCvariability
+-HalesCL688&
+
+Multiscale)multifractalCanalasis
+-GieraltowskiCetCal3CwDLw&
+FuzzyEn
+-XieCetCal3CwDDK&
+PointCprocess
+-XarbieriCetCal3CwDD9&
+Lempel)ZivCcomplexity
+-FerrarioCetCal3CwDD4&
+SampEn
+-RichmanCqCMoorman3CwDDD&
+SymbolicCdynamics -KurthsCetCal3CL229& DetrendedCfluctuationCanalysis
+-PengCetCal3CL229&
+QpEn
+-PincusCetCal3CL22L&
+LyapunovCspectra
+-Wolf3CL2K9&
+jorrelationCdimension KwCentropy
+-GrassbergerCqCProcaccia3CL2K8&
+HRV FrequencyCdomainCanalysis
+-L26DNs&
+HRV TimeCdomainCanalysis
+-L25DNs&
+EjGCdeveloped
+-EnthovenCLK29&
+RSQCLstCrecorded
+-LudwigCLK46&
+PhysicianNsCPulseCWatch
+-FloyerCL6D6&
+
+PulseCLstCdescribed
+-HerophilosCca.C8DDCXj&
+
+PulseCinCdiagnosis0prognosis
+-GalenCca.CL6DCQD&
+
+Figure 1.8 Milestones over the time towards the nonlinear heart rate variability assessment. Figure adapted from G.E.
+Billman (Frontiers in Physiology, 2011) [18].
+
+which dependency on data length was attenuated with respect to ApEn [125]. Meanwhile, Grassberger
+
+12
+
+Introduction
+
+Figure 1.9 Graphical representation of usage rate of most common nonlinear methods for HRV analysis (data from
+Pubmed search engine e, statistical sample of two hundred studies.).
+and Procaccia introduced an algorithm to estimate D2 also based on Takens’ conjecture to characterize strange attractors (chaotic systems) [60].
+Shedding light into physiological interpretation of nonlinear HRV indices has been the focus of different research studies. Some studies have shown correlation between frequency-domain and nonlinear HRV indices and have postulated the role of vagal modulation in underlying nonlinear characteristics [198, 132, 75, 193]. Other studies have shown that nonlinear HRV indices are almost unaffected by postural changes known to elicit autonomic responses [172]. In contrast, a statistically significant reduction in HRV irregularity during tilt test, eliciting sympathetic activation, has been reported [75, 148]. The effect of ANS blockades on healthy subjects has been analyzed to improve physiological interpretation of HRV dynamics [135, 75, 193, 23]. Inhibition of vagal nerve activity on the heart by atropine administration revealed lower complexity in nonlinear HRV analysis, whereas no differences were found in nonlinear HRV indices following administration of the β -adrenoceptor antagonist propranolol. In response to exercise, an increase in the exercise load has been related to a decrease in the irregularity and chaos-like behavior of the HRV time series [79, 188, 64].
+Nevertheless, caution is required when interpreting results obtained by using nonlinear HRV measurements. First, nonlinear HRV indices are highly influenced by values given to the parameters
+
+1.5 Applications of Nonlinear HRV Analysis
+
+13
+
+involved in their definitions [118, 177, 34, 75, 20, 182, 69]. In addition, nonlinear HRV indices show a strong dependence on mean HR [202, 146, 123, 195], which should be attenuated before establishing any comparison. Standardizing the use of nonlinear HRV indices by accounting for both associated parameter definition and mean HR attenuation would be advisable if such indices are aimed to be more extensively used and interpreted.
+
+1.5 Applications of Nonlinear HRV Analysis
+The methodologies proposed in this thesis for nonlinear HRV analysis will be applied to assess cardiovascular disorders and conditions like heart failure, aging and hypotension during cesarean section.
+1.5.1 Aging
+Aging has been reported to be associated with a decrease in cardiac vagal modulation [24, 44, 54]. These effects have been related to a decrease in HRV, as assessed by frequency-domain indices [98]. In this thesis nonlinear HRV characteristics will be investigated in a database of healthy subjects spanning a broad range of ages.
+1.5.2 Congestive Heart Failure
+CHF has been associated with increased sympathetic activity and decreased peripheral response to adrenergic input [38, 63]. A decrease in the low frequency power of HRV was related to the progression of the disease in patients with severe CHF [62]. This result can be explained by: (i) a central autonomic regulatory impairment in heart failure, supported by results of muscle sympathetic nerve activity in CHF patients with absent low frequency content [186]; (ii) a decreased responsiveness to sympathetic modulation, which may reduce the capability of the heart to oscillate at this frequency [63]; and (iii) an increased chemoreceptor sensitivity, which may be related to an increase in very low frequency power (PVLF ) and a decrease in low frequency power in CHF patients [147]. In the case of nonlinear HRV analysis, controversial findings have been reported. While some studies report lower complexity and irregularity in CHF patients than healthy subjects [73, 107], other studies have described HRV of CHF patients as more complex and irregular than that of healthy subjects [204, 41]. In this thesis, light will be shed on potential reasons underlying these results, particularly taking into account important methodological considerations that influence nonlinear HRV analysis.
+1.5.3 Hypotension during Cesarean Section
+Prophylaxis treatment has become essential to prevent the development of hypotensive events after spinal anesthesia during cesarean section. However, prophylaxis administration could increase fetal distress in those cases where there is no need for it, i.e. for normotensive outcome. The combination
+
+14
+
+Introduction
+
+of symptoms caused by late pregnancy period, physiological and psychological stress and ANS disability to compensate for the drop in blood pressure induced by anesthesia could be responsible for hypotensive episodes during cesarean delivery. HRV characteristics have been found to correlate with hypotensive episodes on the day of surgery [21, 31, 66, 199]. Prediction of hypotensive episodes would benefit the wellbeing of both the mother and the fetus during the intervention, thus increasing the efficacy of prophylactics. In this thesis novel nonlinear HRV analysis will be applied to improve classification of hypotensive vs normotensive events.
+
+1.6 Objectives
+The interaction of the diverse physiological mechanisms involved in HR regulation, and how each of them is reflected by the HR dynamics, becomes an ambitious and complicated challenge to understand. Nonlinear HRV analysis was highlighted as a powerful tool to extend the description of several cardiovascular diseases, complementing the information provided by linear approaches. However, the main caveat in the nonlinear HRV analysis lies in its physiological interpretation. Searching for dependencies, such as HRM or a priori parameters that have to be selected for nonlinear HRV indices estimation, is of great interest in order to attenuate these influences, and clarify their physiological interpretation.
+In chapter 2 alternative methodologies for more reliable estimation of nonlinear HRV indices while reducing the associated computational cost are explored. A methodological framework is initially introduced for estimation of D2. Based on the similarities found in the computation of approximate and sample entropy with respect to correlation dimension, the framework will be considered for the estimation of those other indices as well.
+The effect of heart rate, as sampling rate of HRV signal, on nonlinear HRV indices will be investigated in chapter 3 and strategies for attenuation of this effect will be introduced. The proposed strategies will be validated in synthetic time series reproducing physiological characteristics of heart rate signals.
+Nonlinear HRV indices, like approximate entropy, are to a large extent dependent on parameters which values need to be set a priori. In chapter 4, a nonlinear multidimensional approximate entropybased index, independent of a priori parameters is proposed. Synthetic time series with different levels of randomness are used to validate the proposed index. This index, as well as other nonlinear HRV indices commonly used in the literature are applied to assess the effects of aging as well as to compare CHF patients and healthy subjects.
+In chapter 5, the knowhow developed along the thesis is applied to assess a stress-related clinical problem, namely prediction of hypotensive episodes after spinal anesthesia during cesarean section. Linear and nonlinear analysis of HRV, pulse wave variability and pulse rate variability (derived
+
+1.6 Objectives
+
+15
+
+from photoplethysmographic signal) are investigated to derive combinations of indices with optical capability to classify hypotensive versus normotensive events.
+Concluding remarks of this thesis are presented in chapter 6.
+In summary, methodological objectives of this thesis include: i) proposal of a novel framework to improve reliability of correlation dimension estimation by using an algorithm with reduced computational load that facilitates its applicability in clinical practice; ii) development of alternative methods to attenuate the dependency of nonlinear HRV indices on mean HR; iii) proposal of a novel multidimensional nonlinear HRV index independent of a priori parameter definition for its computation.
+Objectives related to clinical application of the methodological contributions are: i) characterization of the effect of aging on nonlinear HRV; ii) assessment of complexity and irregularity of heart rate in CHF patients as compared to healthy subjects; iii) improvement in the efficacy of prophylaxis administration for the prevention of hypotensive events after spinal anesthesia during programmed cesarean delivery.
+
+“But the trouble was that ignorance became more interesting, especially big fascinating ignorance about huge and important things like matter and creation, and people stopped patiently building their little houses of rational sticks in the chaos of the universe and started getting interested in the chaos itself – partly because it was a lot easier to be an expert on chaos, but mostly because it made really good patterns that you could put on a t-shirt.”
+- Terry Pratchett (1948-2015) -
+
+2
+
+Framework for Correlation Dimension Estimation
+
+Summary
+In this chapter, correlation dimension is introduced, based on that it is possible to reconstruct certain system characteristics with just considering one single system output (Takens hypothesis). The novelties, presented here, covered a new strategy to estimate the scaling region of the log-log curves (correlation sums vs. tolerance values), being crucial for improving reliability of correlation dimension. Besides, two proposed approaches for its estimation and an algorithm for a fast computation are introduced. The proposed framework is validated through synthetic and real data, pointing out the caveats and limitations for correlation dimension estimation.
+
+18
+
+Correlation Dimension Estimation
+
+2.1 Correlation Dimension
+As mentioned in the introduction chapter, nonlinear HRV analysis measurements have been described as complementary to time- and frequency-domain indices, but some pitfalls could mislead their interpretation. One of such limitations arises from their application to time series with limited duration. In particular, D2 estimation has shown a strong dependence on the length of the time series [60]. Alternatives to alleviate this effect were proposed in [78, 180]. In addition to this, stationarity is another requirement that a time series has to fulfill to obtain reliable results. However, these methodological constraints, regarding data length duration and stationarity, are usually difficult to satisfy at the same time [88]. Furthermore, computation of D2 is time-consuming, increasing exponentially with data length. In this regard, several attempts have been reported trying to reduce this disadvantage, including parallel computing using MPI (Message Passing Interface) [190, 205].
+In this chapter, a new methodological framework to estimate D2 is proposed, increasing correlation dimension reliability and reducing its computational time.
+
+2.1.1 Mathematical Definition
+
+Let x(n), n = 1, . . . , N, be the time series of interest, which in HRV analysis will be the RR interval series normalized to unit amplitude (divided by absolute maximum value), and N the total number of beats. A set of m-dimensional vectors, ym(i), called reconstructed vectors, are generated [178]:
+
+ymi = [x(i), x(i + τ), x(i + 2τ), . . . , x(i + (m − 1)τ)]T
+
+(2.1)
+
+where τ represents the delay between consecutive samples in the reconstructed space. The amount of reconstructed vectors is Nm = N − τ(m − 1) for each embedding dimension m. The distance between each pair of reconstructed vectors, ymi , ymj , is denoted as:
+
+dim, j = d(ymi , ymj )
+
+(2.2)
+
+computed as the norm of the difference vector ∆ymi, j = ymi − ymj . In section 2.4.1, different norms and their effect on D2 estimates from finite time series are discussed.
+The self-similarity is addressed by computing the correlation sums, which represents the probability of finding similar reconstructed vectors, according to a certain threshold r. Hence, correlation sums are defined as follow:
+
+∑ Cm(r)
+
+=
+
+1 Nm(Nm
+
+− 1)
+
+Nm
+H(r
+i, j=1
+
+− dim, j)
+
+∑ =
+
+1 Nm(Nm
+
+− 1)
+
+Nm
+cmi (r)
+i=1
+
+(2.3)
+
+2.1 Correlation Dimension
+
+19
+
+where H(·) is the Heaviside function,
+1 x≥0 H(x) =
+0 x<0
+and
+Nm
+∑ cmi (r) = H(r − dim, j) j=1
+
+(2.4) (2.5)
+
+For deterministic systems, Cm(r) decreases monotonically to 0 as r approaches 0, and it is expected that Cm(r) is well approximated by Cm(r) ≈ rDm2 . Thus, Dm2 can be defined as:
+
+Dm2
+
+=
+
+lim
+r→0
+
+logCm(r) log(r)
+
+(2.6)
+
+For increasing m, Dm2 values tend to saturate to a D2 value, constituting the correlation dimension estimate.
+
+2.1.2 Scaling Range Assessment: Sigmoid Curve Fitting
+D2 is estimated from Eq. (2.6), whose numerator and denominator both tend to −∞ as r tends to 0. Therefore, making use of L’Hôpital’s rule, the equation can be rewritten as [104]:
+
+Dm2
+
+=
+
+lim
+r→0
+
+dlogCm(r) dlog(r)
+
+(2.7)
+
+Since the size of the time series is finite, choosing small values of r to evaluate this limit is problematic. For values of r close to 0, very few distances contribute to the correlation sum, making the estimation unreliable. Therefore, the evaluation of this expression is usually done in a linear region in the log(Cm(r)) vs log(r) representation, called the log-log curve, where its slope value is considered an estimate of Dm2 .
+The slope of the linear region could be estimated by different approaches, e.g. searching for maximum slope can be done by directly computing the increments in the log-log curve, or as the maximum of the first derivative of the log-log curve [78]. Nevertheless, these approaches encounter some limitations, since logarithmic r values produce non-equidistant sampling . Another limitation arises in the presence of dynamic systems, whose log-log curves could present several linear regions, as can be seen in Fig. 2.1, where data corresponds to a RR interval series extracted from a 30-minute ECG recording. In order to estimate the slope of the linear region of the log-log curve, an attempt to artificially extend the linear region is made by excluding the self-comparisons (dim, j) from the correlation sums (see Eq. 2.5).
+
+20
+m=1 m=2 m=3
+
+Correlation Dimension Estimation
+1st linear region 2nd linear region
+
+log(Cm(r))
+
+m = 10
+log(r) Figure 2.1 Log-log curves for a dynamic system. Data correspond to a RR interval series extracted from 30 mins of ECG
+recording.
+
+−2
+
+discarding-self-comparisons
+
+admitting-self-comparisons
+
+−4
+
+shared-region
+
+log(Cm(r))
+
+−6 m = 1 −8
+
+−10 m=2
+
+−12
+
+m=3
+
+m=4
+
+m=5
+
+−5
+
+−4
+
+−3
+
+−2
+
+−1
+
+0
+
+log(r)
+
+Figure 2.2 Log-log curves discarding and accepting self-comparisons. Arrows show the slope of the scaling range. Data
+correspond to a RR interval series of 300 beats.
+
+However, the basis of the proposed approach, to improve D2 estimation, lies in considering self-comparisons. Fig. 2.2 illustrates how log-log curves behave in both situations, considering or not considering self-comparisons. As shown, both share part of the linear region. Sigmoid curve
+
+2.1 Correlation Dimension
+
+21
+
+fitting (SCF) over the log-log curves provides an analytic function, whose maximum slope in the linear region is well defined. These log-log curves are reminiscent of the bi-asymptotic fractals, showing upper and lower asymptotic log-log values. This was studied by Rigaut [156] and Dollinger et al. in [47], where exponential fittings were proposed. The sigmoid curve fitting technique is applied to log-log curves, after interpolating them, in the logarithmic scale, to achieve evenly-spaced r values.
+To do so, a modified Boltzmann sigmoid function was considered. This was used by Navarro et al. [130] as a model for the phase transition of smart gels:
+
+f
+
+(x)
+
+=
+
+A2
+
+−
+
+(A2 − A1)
+
+B
+
++
+
+e
+
+(−x+xo α
+
+)
+
+where A1, A2, α, xo and B are the design parameters. The first derivative of f (x) is:
+
+(2.8)
+
+d
+
+f (x) dx
+
+=
+
+−
+
+(A2
+
+−
+
+A1
+
+)
+
+e
+
+(−x+xo α
+
+α
+
+B
+
++
+
+e
+
+(−x+xo α
+
+)
+
+)
+2
+
+(2.9)
+
+In this study, the sigmoid curve, f (x), is fitted to each log-log curve. The first derivative, Eq. 2.9, is analytically determined and its maximum value constitutes the estimation of the slope of the linear region, i.e. Dˆ m2 , see Fig. 2.3. Note that hat notation refers the application of SCF on its estimation.
+
+A1
+
+0
+
+α
+
+(a.u.)
+
+xo
+
+B
+
+-2
+
+Δlog(Cm(r)) Δlog(r)
+
+f(x) (adim) log(Cm (r))
+
+A2 x (a.u.)
+
+-4
+
+-5
+
+-4
+
+-3 log(r)-2
+
+-1
+
+0
+
+Figure 2.3 In the left panel a modified Boltzman sigmoid curve is shown where the parameters according to Eq. 2.8 are
+illustrated; In the right panel, an example of a log-log curve ( black dashed line), the SCF curve obtained (black solid line). The derivative of both curves is shown in gray color, dashed and solid respectively. Maximum slope estimations are marked with dots.
+
+In order to achieve a good fitting, the threshold values, r, have to guarantee that both upper and
+
+lower asymptotes are reached. Then, threshold values, r ∈ [0.01 3] with a step of 0.01 are considered.
+
+The upper asymptote is reached when all comparisons are above the threshold, Cm(r) ≈ 1, and the
+
+lower
+
+asymptote
+
+when
+
+only
+
+the
+
+self-comparisons
+
+are
+
+below,
+
+Cm(r)
+
+=
+
+1 Nm(Nm
+
+−1)
+
+.
+
+22
+
+Correlation Dimension Estimation
+
+The requirement for a good fitting is to achieve a regression factor greater than 0.8 with respect to log-log curve values. Thus, the SCF approach is robust against erroneous D2 estimates. In those cases, where dynamic systems exhibits log-log curves with more than one linear region, no estimation of D2 is given, since the fitting is not enough satisfactory to reach the minimum necessary regression factor.
+As the embedding dimension m increases, the linear regions of the log-log curves tend to be parallel to each other. Thus, Dˆ m2 estimates tend to saturate to a certain value, which is considered the Dˆ 2. D2 is estimated by fitting the Dˆ m2 vs. m curve following a modified version of the one used by Carvajal et al. [29]:
+
+Dm2 = D2 1 − Ae−km
+
+(2.10)
+
+where A, is here introduced to reach the saturation level more quickly than the previously proposed, and k is the exponential growth factor.
+
+2.1.3 New Approaches for D2 Assessment
+In this section, new alternatives, based on (SCF) approach, to estimate D2 are introduced. As mentioned in section 2.1.2, we chose Dˆ m2 as the maximum slope on each fitted sigmoid curve. Nevertheless, the linear region is composed of more than one single point. Based on this, a new approach for D2 estimation is proposed by considering a set of points, i.e. slope estimations, extracted from these linear ranges, instead of considering only one single point per curve.
+The main idea is based on selecting one point of the linear range in the SCF log-log curve of the lowest embedding dimension m, and moving forward to the next embedding dimension m + 1, selecting the point of the corresponding SCF log-log curve that satisfies the minimum distance to the former curve following the gradient descent technique (i.e. where an hypothetical perpendicular line starts in the mth log-log curve and intersects the (m + 1)th log-log curve, see Fig. 2.4). Minimum distance was considered, assuming that the linear range of log-log curves tend to be parallel to each other. The procedure is repeated up to the maximum considered embedding dimension. Then, several sets of slopes are computed (one for each point in the linear region around the maximum slope of the SCF log-log curve of the lowest embedding dimension), providing a set of D2 estimates per embedding dimension (Dˆ m2(⊥),r). The dependence on r in the notation indicates that each set of D2 estimates is linked to an r value, corresponding to the first value of each set.
+Finally, Eq. 2.10 is used to estimate the final D2 (Dˆ 2(⊥),r) for each set of points. These (Dˆ 2(⊥),r) estimates are linked to the log(r) value of the lowest embedding dimension. Finally, regarding the criterion in searching for the maximum slope value in the log-log curves, the maximum of the Dˆ 2(⊥),r is selected as the new D2 estimate, called Dˆ 2(⊥), see Fig 2.5.
+Another new approach for D2 estimation based on SampEn is now presented. SampEn was defined by Zurek et al. [205] as:
+
+2.1 Correlation Dimension
+
+23
+
+Gradient descent 0
+
+^
+
+−2
+
+^r
+
+rjj
+
+rii
+
+m=1
+
+−4
+
+2
+
+log(Cm(r))
+Correlation Dimension
+
+−6
+
+1.5
+
+−8
+
+m = 21
+
+10
+
+10
+
+20
+
+m
+
+−5
+
+−4
+
+−3
+
+−2
+
+−1
+
+0
+
+1
+
+2
+
+log(r)
+
+Figure 2.4 Maximum slope points are marked with crosses over fitted sigmoid curves. Points calculated using gradient
+descent criteria from two starting points are shown in dots and circles. r j is the point which corresponds to the maximum slope in the lowest embedding dimension. The inset illustrates the D2 estimation of the three sets of points.
+
+SampEn(m, r) = log(Cm(r)) − log(Cm+1(r))
+
+(2.11)
+
+where, in this case, Cm(r) is computed as in Eq. 2.1.1, but without considering self-comparisons. Let us define SampEni= j(m, r) as the sample entropy considering self-pairs, which is easily computed for all embedding dimensions m and a huge set of thresholds r using the fast algorithm which will be described in section 2.1.4. We can generate a SampEni= j(m, r) surface from the fitted sigmoid curves. An example of a 300-beat RR interval series extracted from one recording of the database
+used in [27] is shown in Fig. 2.6. For each embedding dimension, the value of r which maximizes SampEni= j(m, r) is used to estimate the slope of the linear region of the SCF log-log curves, Dˆ m2(max), yielding another D2 estimate, called in this thesis Dˆ 2(max).
+
+24
+
+Correlation Dimension Estimation
+
+log(Cm(r))
+Correlation dimension
+
+0 a)
+-2 -4 -6 -8 -10 -7 -6 -5 -4 -3log(r)-2 -1 0 1 2
+
+2.2
+b)
+2 1.8 1.6 1.4 1.2
+11 2
+
+3 456 78 EmbEmebdedddiendgdimdeinmsioennmsion m
+
+9 10
+
+2.20.055
+c)
+22
+
+1.19.955
+
+11.9.9
+
+1.18.855
+
+11.8.8-5
+
+-4.5
+
+-4
+
+-3.5
+
+-3
+
+log(r)
+
+Figure 2.5 a) Set of points where slope is estimated from the fitted sigmoid curves in the approach proposed in section
+2.1.3.; b) Set of Dˆ m2(⊥),r estimates for different starting points vs. embedding dimensions are fitted by the exponential Eq. 2.10; c) Correlation dimension estimate for each set corresponding to different starting points. Data extracted from Lorenz
+attractor of 5000 sample length.
+
+2.1 Correlation Dimension
+
+25
+
+D^ 2m(max) D^ 2m( )
+
+SampEn(i = j) (SCF)
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+5
+
+-0.5
+
+-8
+
+-6
+
+-4
+
+-2
+
+log(r)
+
+0
+
+10 m
+2 15
+
+Figure 2.6 SampEni= j(m, r) surface for a 300-beat RR interval series. For each embedding dimension maximum point is
+marked with solid triangle. Circles correspond to the r values which define Dˆ 2(⊥).
+
+26
+
+Correlation Dimension Estimation
+
+2.1.4 Fast Computation of Correlation Sums
+One important limitation of D2 estimation is the high computational time required, mainly due to the sequential estimation of correlation sums.
+This section describes an algorithm for the fast computation of correlation sums based on matrix operations (MO). A matrix S, containing the differences between all pairs of samples of x(n), is computed as:
+
+S = X − XT
+
+(2.12)
+
+where X is the N × N matrix:
+
+
+
+
+
+x(1) x(2) . . . x(N)
+
+x(1) x(2) . . . x(N)
+
+
+
+
+
+X = x(1) x(2) . . . x(N)
+
+
+
+
+
+ 
+
+...
+
+...
+
+...
+
+...
+
+ 
+
+
+
+
+
+x(1) x(2) . . . x(N)
+
+(2.13)
+
+where xi, j symbolizes x(i) − x( j). For instance, the dashed box contains the elements of the difference
+vector ∆ymi, j for τ = 1. For each embedding dimension m and the reconstructed vector i, the difference vectors ∆ymi, j generates a Smi matrix:
+
+ x1,1
+
+...
+
+xi,1
+
+xi+1,1
+
+...
+
+xi+m−1,1
+
+...
+
+xN,1 
+
+ 
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+ 
+
+
+
+ 
+
+x1, j
+
+...
+
+xi, j
+
+
+
+xi+1, j
+
+...
+
+xi+m−1, j
+
+...
+
+xN, j  
+
+
+
+ S= 
+  
+
+x1, j+1 ...
+
+... ...
+
+xi, j+1 ...
+
+
+
+xi+1, j+1
+
+...
+
+xi+m−1, j+1
+
+...
+
+xN, j+1
+
+ 
+
+...
+
+...
+
+...
+
+...
+
+...
+
+  
+
+x1, j+m−1
+
+...
+
+xi, j+m−1
+
+xi+1, j+m−1
+
+...
+
+xi+m−1, j+m−1
+
+...
+
+xN
+
+,
+
+ j+m−1
+
+  
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+  
+
+x1,N
+
+...
+
+xi,N
+
+xi+1,N
+
+...
+
+xi+m−1,N
+
+...
+
+xN,N
+
+(2.14)
+
+ xi,1
+
+ 
+
+...
+
+xi+1,2 . . . ... ...
+
+xi+m−1,m   ∆ymi,1T 
+
+...
+
+ 
+
+...
+
+ 
+
+
+
+
+
+
+
+Smi
+
+=
+
+ 
+
+xi,
+
+j
+
+xi+1, j+1
+
+...
+
+xi+m−1,
+
+ j+m−1
+
+=
+
+ 
+
+∆ymi, jT
+
+ 
+
+  
+
+...
+
+... ...
+
+...
+
+  
+
+...
+
+  
+
+xi,Nm xi+1,Nm+1 . . . xi+m−1,N
+
+∆ymi,Nm T
+
+(2.15)
+
+The selected norm is applied to the matrix Smi , generating the norm vector dmi , whose elements are distances dmi, j.
+
+2.2 Validation Study
+
+27
+
+To compute the limit described in Eq. 2.6, distances should be compared with a set of thresholds,
+which implies the repetition of all the process as many times as the number of thresholds. The proposed algorithm avoids this repetition, since distances in dmi are compared with a whole set of thresholds r = [r1, r2, . . . , rNr ]:
+
+ H(r1 − dim,1) H(r2 − dim,1) .. H(rNr − dim,1) 
+
+Γmi
+
+=
+
+   
+
+H
+
+(r1
+
+− ...
+
+dim,2)
+
+
+
+H(r2 − dim,2)
+
+..
+
+H (rNr
+
+−
+
+dim,2)
+
+ 
+
+...
+
+...
+
+...
+
+ 
+
+
+
+H(r1 − dim,Nm ) H(r2 − dim,Nm ) .. H(rNr − dim,Nm )
+
+(2.16)
+
+where Γmi is a Nm × Nr matrix, which contains ones and zeros. The summation of all elements per column of Γmi represents the partial correlation sums of the ith reconstructed vector for a set of
+thresholds r:
+
+ cmi (r1) 
+
+cmi
+
+=
+
+Γmi T
+
+1
+
+=
+
+   
+
+cmi (r2) ...
+
+   
+
+
+
+
+
+cmi (rNr )
+
+where 1 is a Nm × 1 vector of ones. Finally, the procedure is repeated varying the i index Nm times to compute Cm(r).
+
+(2.17)
+
+2.2 Validation Study
+The selected time series chosen to validate the proposed approaches to estimate D2 are the Lorenz attractor and the MIX(P) process.
+2.2.1 Lorenz Attractor
+The Lorenz attractor is a chaotic system, which is described by three coupled first order differential equations. Its evolution exhibits a chaotic behavior for certain parameter values and initial conditions.
+
+dx dt = σ (y − x), dy dt = ρx − y − xz, dz dt = β z + xy
+
+(2.18) (2.19) (2.20)
+
+For parameter values σ = 10, ρ = 28, and β = 8/3, the theoretical D2 value is 2.02 [109]. The Lorenz attractor was illustrated in chapter 1 Fig. 1.6.
+
+28
+
+Correlation Dimension Estimation
+
+2.2.2 MIX(P) Processes
+MIX(P) is a family of stochastic processes that samples a sine for P = 0 and becomes more random as P increases, becoming totally random for P = 1. These processes were reported by Pincus et al. [145] following the expression
+
+MIX (P) j = (1 − Z j)Xj + Z jYj,
+
+(2.21)
+
+√
+
+√√
+
+where Xj = 2sin(2π j/12), Yj ≡ i.i.d. uniform random variables on [− 3, 3], and Z j ≡ i.i.d.
+
+random variables, with Z j = 1 with probability P, and Z j = 0 with probability 1 − P. MIX(P indicates
+
+a mixture of deterministic and stochastic components.
+
+2.3 Evaluation Study on HRV Signals
+The database used for evaluation was recorded at the Miguel Servet University Hospital in Zaragoza (Spain), for the prediction of hypotensive events in elective cesarean delivery [27]. It consists of ECG signals from 11 women with programmed cesarean section recorded at a 1000 Hz sampling frequency immediately before cesarean surgery. Five of them suffered from hypotension during the surgery (Hyp) and 6 did not (NoHyp). The database used in this chapter represents a subgroup of the whole database, since clinicians continued recording signals during 3 years. In chapter 5, the clinical problem will be deeply assessed. In the meantime, novel D2 estimates were considered to evaluate their capability to track some changes in ANS modulation moments before intervention.
+RR time series of 5 minutes in lateral decubitus position were analyzed. Ectopic beats as well as missed and false detections were detected and corrected [116].
+
+2.4 Results
+2.4.1 Validation on Synthetic Time Series
+Lorenz attractor series were used to validate the new proposed methodologies computed using the ℓ∞-norm. Figure 2.5(a) displays the SCF log-log curves for embedding dimensions m from 1 to 10. The sets of points, where the slope was evaluated according to [88], are displayed for different starting points. For each starting point, the corresponding set of points, Dˆ m2(⊥),r, was selected by gradient descent approach. Figure 2.5(b) shows the slope estimation Dˆ m2(⊥),r versus m for each starting point. Figure 2.5(c) displays the D2 estimate Dˆ 2(⊥),r versus log(r) for each starting point. The maximum Dˆ 2(⊥),r constitutes the novel D2 estimate, Dˆ 2(⊥). Tab. 2.1 illustrates D2 estimates through the three proposed approaches presented in this chapter. The three of them led to close results to the Lorenz attractor theoretical value of D2, being Dˆ 2(⊥) the closest one. Relative errors for Dˆ 2 and Dˆ 2(max) were found above 4%, while for Dˆ 2(⊥) was just 1%; D2 estimated, as described in [27], was also included for comparison purposes.
+
+2.4 Results
+
+29
+
+Table 2.1 Correlation dimension estimates for the different proposed approaches, using different norms for Lorenz
+attractor series (5000 samples).
+
+Estimates
+D2 [27] D2 D2(⊥) D2(max)
+
+Lorenz attractor
+
+ℓ1
+
+ℓ2
+
+ℓ∞
+
+1.95
+
+1.94
+
+1.93
+
+1.69
+
+1.70
+
+1.93
+
+1.84
+
+1.74
+
+2.01
+
+1.99
+
+1.71
+
+1.93
+
+Use of Norms in Proposed D2 Estimates
+Although the D2 is considered norm-invariant [180], the selection of the norm in D2 estimates deserves further attention when applied to a finite duration time series. The norm of the difference vector, ∆ymi, j = ymi − ymj , defines the distance dim, j in Eq. 2.2. Norms from ℓ1 (|| · ||1) to ℓ∞ (|| · ||∞) could be selected. Left panel in Fig. 2.7 shows norm unity for ℓ1 and for ℓ2.
+In Fig. 2.7, the right panel shows how different norms shifts the log-log curves, losing the entire linear region in some cases when a fixed range of thresholds is used. In those cases, the range of these thresholds should be long enough to ensure that the linear regions are contained therein, thus, the election of the norm is linked to the range of the thresholds.
+In the SCF approach, it is particularly important that the two asymptotic regions of the log-log curve should be reached. Therefore, the correct selection of the norm and the range of the set of thresholds are critical to assure the goodness of the SCF approach. Tab. 2.1 shows the D2 estimates for 5000 sample length of Lorenz attractor series. The effect of different norms is reflected in the estimates, since the set of thresholds was fixed. As shown, the usage of ℓ∞-norm together with the considered fixed set of thresholds achieves closest values for the novel proposed estimates with respect to the theoretical D2 value for the Lorenz attractor, 2.01. In the case of the approach used in [27], where self-comparisons were not considered on the computation, D2 values was found lower than the theoretical value.
+Hereinafter, due to the effect of different norms on D2 estimation, all the results presented in this thesis were computed using the ℓ∞-norm.
+MIX(P) processes were analyzed by considering P values of 0.1, 0.4, and 0.8. The greater the P value, the higher the level of randomness of the time series is. Dˆ 2 was found increased as P increases, thus, these estimates can be considered as measures of the degree of randomness of the time series, as shown in Fig 2.8.
+
+30
+
+Correlation Dimension Estimation
+
+||· ||�=1 ||· ||2 =1 ||· ||1=1 0.5
+
+Δyi2,j
+
+0
+
+l1-norm
+
+l2-norm
+
+-1
+
+l�-norm
+
+-2
+
+log(Cm(r))
+
+x(i+1)-x(j+1)
+
+-0.5
+
+0.5
+
+-3
+
+-4 -0.5
+-5
+
+x(i)-x(j)
+
+-6-5
+
+-4
+
+-3
+
+-2
+
+-1
+
+0
+
+1
+
+log(r)
+
+Figure 2.7 In the left panel, vector differences of any two reconstructed vectors for m=2, ∆y2i, j), are shown, where dotted
+circles and dashed lines represent the points whose ℓ2-norm and ℓ1-norm are equal to 1, respectively. The dots are the differences below ℓ2-norm unity and the dots with circles are below ℓ1-norm unity. In the right panel log-log curves of one HRV signal (300 samples) used in the study are shown for a m = 10 and ℓ1, ℓ2 and ℓ∞ norms.
+
+MIX (0.8)
+
+6
+
+1
+
+MIX(0.8)
+
+= 5.43
+
+0 5
+-1
+
+MIX (0.4)
+
+1
+
+4
+
+= 3.70
+
+0
+
+m
+
+MIX(0.4)
+
+-1
+
+3
+
+MIX (0.1)
+
+1 0 -1
+20
+
+2
+
+60
+
+100
+
+140
+
+180 1 0
+
+j
+
+MIX(0.1)
+
+= 1.83
+
+20
+
+40
+
+60
+
+80 100
+
+Embedding dimension m
+
+Figure 2.8 MIX(P) signals with different degree of randomness and their correspondent estimation of the Dˆ 2.
+
+2.4.2 HRV Time Series Results
+Same database, as the one used in [27] , was studied in this chapter. The results, shown in Tab. 2.2, are divided into hypotensive and non-hypotensive groups. As an example, Fig. 2.9 shows the RR time series of one woman of each group (left panel) and their Dˆ 2(⊥) estimate (right panel).
+
+RR interval (s)
+
+2.4 Results
+
+31
+
+1
+
+7
+
+X: -2.14
+
+0.8
+
+6
+
+Y: 6.65
+
+0.6
+
+D~ 2(
+
+r
+)
+
+5
+
+0.4
+
+4
+
+0.2
+
+Hyp
+
+3
+
+N-Hyp
+
+01.5 2
+
+2.5
+
+3
+
+3.5
+
+4
+
+4.5
+
+5
+
+5.5
+
+2-3
+
+Time (min)
+
+X: -1.89 Y: 5.26
+
+-2.5
+
+-2
+
+log(r)
+
+Hyp N-Hyp
+
+-1.5
+
+-1
+
+Figure 2.9 The left panel shows two RR intervals, one corresponding to a patient who developed a hypotensive event
+(Hyp) and the other to one who did not (N-Hyp); the right panel shows the Dˆ 2(⊥) estimation using the perpendicular points in the log-log curves.
+
+Besides the approaches proposed in this paper, the sequential approach used in [27], referred to as classical, was added for the sake of comparison. The data distribution of the results was found to be not normal by the Kolmogorov-Smirnov test, and, therefore, the Mann-Whitney U test was applied. The differences between both groups for all estimates were found to be significant with a p-value lower than 0.03. In order to evaluate their discriminant power, comparing normotensive and hypotensive groups, a receiver operating characteristic (ROC) analysis was performed. The area under the ROC curve, accuracy, sensitivity, and specificity for all the indices were computed, see Tab. 2.3. Similar accuracy value with respect to the one reported in [27] was achieved by the proposed Dˆ 2 estimate, whereas the proposals, based on the the gradient descent and SampEn surface, were higher, reaching an accuracy of 90.9% in both cases.
+2.4.3 Evaluation of the Computational Load
+The computational time cost of the correlation sums depends on the length of the data to analyze, the maximum embedding dimension considered, and the number of thresholds used. The results shown in Tab. 2.4 correspond to the computational time cost, estimating correlation dimension on Lorenz attractor series by varying the data length (where m = 1 - 16 and r = 0.01-3 with 0.01 step size). The computational time required for a sequential approach is denoted by TSeq, whereas the time required for the proposed technique, based on matrix operations to estimate correlation sums, is denoted by TMO. The speed-up is defined as Sp = TSeq/TMO, which is the ratio between sequential and the proposed approach. As shown in Tab. 2.4, Sp was increased by one order of magnitude in the estimation of correlation sums on 5000- and 10000-sample time series with respect to 300-sample time series. It is worth noting that for a 300-sample time series, standard length for a 5-minute RR interval series, correlation sums were estimated in less than 1 s.
+In table 2.4, the time cost was considered for the Dˆ 2 estimation, but not for the other two novel proposals. Therefore, Tab. 2.5 shows the time required for the correlation dimension estimates
+
+32
+
+Correlation Dimension Estimation
+
+Table 2.2 D2 estimated by different approaches for HRV signals (300 samples). Data expressed as median | interquartile
+range.
+
+Estimates
+D2 [27] Dˆ 2 Dˆ 2(⊥) Dˆ 2(max)
+
+Hyp
+5.9 | 0.6 5.9 | 0.6 6.4 | 0.7 5.9 | 0.5
+
+HRV
+
+N-Hyp
+4.4 | 1.3 4.8 | 0.8 5.1 | 0.8 4.8 | 0.7
+
+p-value
+0.03 0.03 0.03 0.01
+
+Table 2.3 ROC area for the nonlinear HRV analysis of all studied correlation dimension estimates for real data. Accuracy
+(Acc.), sensibility (Sen.), and specificity (Spe.) are expressed in percentage.
+
+Estimates
+
+ROC area
+
+Acc.
+
+Sen.
+
+Spe.
+
+D2 [27] Dˆ 2 Dˆ 2(⊥) Dˆ 2(max)
+
+0.90
+
+81.8
+
+71.4
+
+100
+
+0.90
+
+81.8
+
+71.4
+
+100
+
+0.90
+
+90.9
+
+100
+
+85.7
+
+0.97
+
+90.9
+
+83.3
+
+100
+
+Table 2.4 Computational time of correlation sums estimated for Lorenz attractor series of different sample lengths. Sp is
+the speed-up achieved and defined as Sp = TSeq/TMO, where TSeq is the time demand for a sequential algorithm and TMO the time demand for the proposed technique, based on matrix operations.
+
+N (samples)
+300 5000 10000
+
+TSeq (s)
+1086 8.69·105 3.63·105
+
+TMO (s)
+0.9 50 300
+
+Sp
+≈ 1200 ≈ 16000 ≈ 12000
+
+Table 2.5 Computational load for correlation dimension estimates by all proposed approaches analyzing Lorenz attractor
+series and HRV signals where ℓ∞-norm was selected. Data expressed as mean ± standard deviation.
+
+Time Estimate
+TD2 (s) [27] TDˆ 2 (s) TDˆ 2(⊥) (s) TDˆ 2(max) (s)
+
+Lorenz attractor (5000 samples)
+(8.86 ± 0.35) ·105 194 ± 29 260 ± 38 194 ± 29
+
+HRV (300 samples)
+3314 ± 180 4.66 ± 0.58 214 ± 30 4.30 ± 0.56
+
+including the one used in [27]. To do so, 10 realizations of Lorenz attractor series were generated, whose initial conditions were randomly chosen. It is noticeable that the time cost of Dˆ 2(⊥) was higher compared to the others in both cases, the Lorenz series and the HRV signals (11 subjects), since sets of slope estimations per log-log curve to compute correlation dimension are considered. Each of the
+
+2.5 Discussion
+
+33
+
+different sets of thresholds was associated with an r value within an interval centered on the maximum slope for m = 1. The boundaries of this interval were defined taking into account a decrease of 50% in the amplitude of the maximum slope value by considering the SCF first derivative. The more abrupt the transition zone in the sigmoid, the lower the amount of starting points. Thus, different number of points were considered on each realization, leading to computational time variations.
+
+2.5 Discussion
+In this chapter, a methodological framework was proposed to compute the D2 of a finite duration time series and also to reduce the computational time cost of the estimation. A new approach for estimating the slope of the linear region from the log-log curves was proposed, fitting log-log curves through sigmoid ones. Finally, D2 was estimated, exploiting the asymptotic value of an exponential relationship between Dˆ m2 and m.
+One important limitation for the application of D2 on HRV analysis is the long computational time required for the correlation sums. In an attempt to solve this problem, an algorithm has been proposed based on matrix operations. In [205], another approach was described based on parallel computing, which also decreased the time demand with respect to the sequential approach. Nevertheless, the computational times, achieved in the present work, were obtained with a regular computer (Windows 7 based PC, Intel Core i7 3.5 GHz, 16 Gb RAM with Matlab R2011a). As an example, for a signal of 300-sample length (a usual length in typical 5 min HRV analysis, ≈ 300 beats), the time demand was reduced with respect to the sequential approach from 18 minutes to 1 second, which allows the on-line computation of D2 in clinical practice.
+Another limitation for the D2 estimation is the reliability. Non-stationary data can lead to an unreliable measurement of D2. Regarding this problematic issue, several techniques, attempting to characterized dynamical systems, have been reported [180, 190, 205]. Searching the linear region of the log-log curves becomes a difficult challenge, when the system is non-stationary, since more than one linear region could appear and classical D2 estimate would be unreliable. The SCF approach is robust against those cases, since no estimate is provided when fitting is not good enough, below to 0.8 of determination coefficient.
+The novel approaches, proposed in this thesis regarding estimation of D2, use the SCF approach. Dˆ 2(⊥) exploits the fact that the linear regions of the log-log curves tend to be parallel when embedding dimension increases. This allows the consideration of a set of points surrounding the maximum slope point, and therefore, several D2 estimates are obtained for these starting points. Dˆ 2(max) is based on the differences between two consecutive log-log curves, defining the SampEni= j surface. This surface showed maximum values for each embedding dimension, m, and a specific threshold, r, providing another estimation of the D2, Dˆ 2(⊥). This estimation was found to be the closest to the theoretical D2 for the Lorenz attractor, resulting in a relative error of 4%, considering 5000-sample size and for a differential equation resolution of 0.01.
+
+34
+
+Correlation Dimension Estimation
+
+D2 is known to be a surrogate of the fractal dimension of a chaotic attractor [60]. However, when applied to finite duration time series, nonzero finite D2 values do not imply the existence of an underlying chaotic attractor. For example, when applied to MIX(P) processes, nonzero finite D2 values were obtained, the higher the value was as much as the random content. Thus, although D2 could not be interpreted as the fractal dimension of an underlying chaotic attractor, in this case, it still provides a measure of the complexity of the process, at least regarding its unpredictability.
+D2 estimate in HRV signals may shed light on the degree of complexity of the ANS regulation. The group of women (Hyp) suffering from hypotension during a programmed cesarean section under spinal anesthesia showed higher D2 values than the group who did not (N-Hyp), at least when evaluated during lateral decubitus position. All the proposed correlation dimension estimates not only maintain the accuracy obtained in [27], but they increased it. Predicting hypotension is a challenge, since it occurs in the 60% of the cases and may lead to fetal stress [42]. On one hand, estimates that performed 100% of specificity, D2 [27], Dˆ 2, and Dˆ 2(max), may provide clinicians valuable information to apply prophylaxis to any woman that might potentially suffer from a hypotensive event. On the other hand, estimates that performed 100% of sensitivity, Dˆ 2(⊥), may provide information about the usage of prophylaxis on the less number of patients to prevent hypotension. The effect of prophylaxis on patients who finally are not going to suffer from a hypotensive event and its relation with fetal stress deserves further studies. This clinical study will be deeply assessed in chapter 5.
+
+2.6 Conclusion
+
+The contribution of this chapter is the introduction of a novel methodological framework for a reliable estimation of the correlation dimension from a limited time series, such as HRV signals. Three alternatives for estimating correlation dimension were proposed. Sigmoid curve fitting was used to assess the slope of the linear region of the log-log curves based on considering self-comparisons. The computational speed-up achieved may allow considering correlation dimension for monitoring in clinical practice. Nevertheless, the main limitation for the application of these methodologies to HRV analysis lies in its relation to the underlying physiology, which is still unclear and needs further studies. In spite of the fact that the framework proposed in this chapter focuses on the characterization of HRV signals, its applicability could be extended to a wide range of fields.
+
+2.6 Conclusion
+
+35
+
+“I am enough of the artist to draw freely upon my imagination. Imagination is more important than knowledge. Knowledge is limited. Imagination encircles the world.” - Albert Einstein (1879-1955) -
+3
+Nonlinear HRV Measurement Dependencies
+Summary
+The purpose of this study is to characterize the influence of mean HR on nonlinear HRV indices. The hypothesis is that HR, which is considered the intrinsic sampling rate of HRV signal, may influence nonlinear HRV indices, leading to biased ANS modulation information.
+
+38
+
+Nonlinear HRV Measurement Dependencies
+
+3.1 Introduction
+In the previous chapter, a framework for improving D2 estimation was presented. Using this methodology, sample and approximate entropy can be concomitantly computed, since they are also based on correlation sums (see section 1.4.3 and 2.1.3). Despite the improvements achieved in terms of estimation reliability and computational load, these nonlinear indices still require further analysis for their application to HRV analysis.
+The physiological interpretation of HRV as a marker of ANS activity may be misled by how intrinsic pacemaker cells and ANS activity are expressed in HRV [194]. The nonlinear relationship between temporal and complexity HRV indices with respect to HR has been addressed, emphasizing the importance of attenuating this effect [202, 146, 123, 195]. Furthermore, different mathematical models have demonstrated a relationship between HRV amplitude and HR, and alternatives to correct it [33, 121, 8, 159, 150, 19].
+Nonlinear indices, such as D2, SampEn, and ApEn are computed over linearly detrended and normalized series, so this effect on HRV amplitude is already compensated for [135, 143, 148, 187, 22]. Despite this normalization, HR may still influence nonlinear HRV indices, due to the fact that HR is the intrinsic sampling rate of HRV signal. This implies that the amount of information captured during the same time interval depends on HR. Alternatives to increase nonlinear index reliability (e.g. increasing data length), such as interpolating RR time series, have been used [180, 135, 64, 152, 79, 94]. However, the reported dependence of nonlinear indices on data length may compromise the comparison between different studies[67]. Our hypothesis is that the influence of HR, as sampling rate, on nonlinear HRV indices is still noticeable even when the same data length is considered.
+To summarize, in this chapter the assessment of HR influence on nonlinear HRV indices is tackled. To do so, a simulation study is carried out emulating ANS conditions of healthy subjects during resting supine position. Since this HR influence might mislead the physiological interpretation of nonlinear HRV indices in terms of ANS evaluation, alternative methods are proposed to attenuate this effect. Finally, the methodology is applied to evaluate a body position changes database consisting of supine and standing position.
+
+3.2 Materials
+3.2.1 Fantasia Database
+Twenty young rigorously-screened healthy subjects underwent 120 min of supine resting while continuous ECG and RP signals were recorded at 250 Hz while watching the movie Fantasia (Disney 1940), to help maintain wakefulness. Further database information is available elsewhere [77] and can be downloaded from http://www.physionet.org/ [59].
+
+3.2 Materials
+
+39
+
+3.2.2 BPC Database
+This database was developed collaboratively at Harvard Medical School, Massachusetts Institute of Technology, and the Favaloro Foundation Medical School. The whole cohort of short-term recordings comes from two data collecting studies. Further details of this database can be found in [175].
+First Study: Thirteen male subjects of age 21.6 ± 4.4 years (Mean ± SD; range, 19-38 years) with no history of cardiopulmonary disease participated in a study carried out at Clinical Research Center at the Massachusetts Institute of Technology, USA.
+Second Study: It comprises groups of subjects of different ages. The database was created to evaluate the effect of age distinguishing three ranges. In this thesis, only the young group was included (9 subjects, 26.7 ± 4.7 years; range, 20-35 years).
+Thus, subjects from the first and second study were selected, being 22 subjects. Two recordings per subject were acquired containing 7-min ECG and respiration (RP) signals, sampled at 360 Hz. The protocol included postural changes. First, ECG and RP signals were recorded while subjects were in supine position. Then, subjects changed to standing position and after 5 min, to allow reaching hemodynamic equilibrium, ECG and RP signals were recorded in standing position. Subjects were asked to breathe following an irregular sequence of tones.
+
+3.2.3 Simulation Study
+
+A simulation study was conducted to assess the mathematical relationship between HR and nonlinear HRV indices. The simulation study was carried out based on a HRV representation through the IPFM model. This model assumes that ANS influence on the sinoatrial node can be represented by a modulating signal, M(t) [115]. According to this model, when the integral of 1 + M(t) reaches a threshold, T , a new heartbeat is generated at time instant t(k). Threshold T represents the inverse mean HR.
+Fantasia database was selected to compute modulating signals, according to the following procedure. Assuming that M(t) is causal, band-limited and M(t) < 1 then, the instantaneous HR can be described as:
+
+1 + M(t)
+
+dHR(t) = T
+
+(3.1)
+
+Instantaneous heart rate dHR(t) is obtained from the heartbeat times, t(k), based on the IPFM model [116], and sampled at 4 Hz. A time-varying mean heart rate dHRM(t) is computed by low pass filtering dHR(t) with a cut-off frequency of 0.03 Hz. The heart rate variability signal is obtained as dHRV (t) = dHR(t) − dHRM(t). Finally, the modulating signal, M(t) ≈ dHRV (t)/dHRM(t) [8], that is
+
+the HRV signal corrected or normalized by the mean HR.
+
+40
+
+Nonlinear HRV Measurement Dependencies
+
+Spectral analysis was applied to 5-min modulating signals M(t) by Welch periodogram. Frequency domain indices were estimated based on spectral bands (LF band from 0.04 to 0.15 Hz and HF band from 0.15 to 0.4 Hz). Respiratory frequency was checked to be within the HF band.
+
+Among all modulating signals, only those which presented one marked peak on each band (LF and HF band) were selected for the simulation study. Spectral indices such as the powers and the frequency peaks were used to generate synthetic stochastic modulating signals using an autoregressive moving average (ARMA) technique [134]. A total of one hundred 5-min segments were selected and their spectral indices were used to feed the ARMA model. A total of M = 50 stochastic modulating signals M j(t) with j = 1, ..., M, were simulated for each M(t), where the stochastic content was modeled in the moving-average term by zero-mean unit variance white noise. Figure 3.1 shows the spectra of 50 stochastic realizations, their median spectrum and one of the segment-recording they are based on.
+
+Then, the IPFM model was applied to each stochastic realization, varying the parameter Tn, where
+n = 1, ..., 16, corresponding to T from 0.46 to 1.1 s in steps of 0.04 s, to simulate the heartbeat occurrence times, tTjn(k). In this way, simulated 300-sample RR series are generated, where ANS modulation is independent of changes in mean HR. Simulation scheme is illustrated in Fig. 3.2. D2,
+SampEn and ApEnmax were computed over these simulated RR time series.
+
+0.5
+
+LF
+
+HF
+
+0.4
+
+Simulation spectra Median simulation spectrum Real data spectrum
+
+PS D(adim )
+
+0.3
+
+0.2
+
+0.1
+
+00
+
+0.1
+
+0.2
+
+0.3
+
+0.4
+
+0.5
+
+Frequency (Hz)
+
+Figure 3.1 Spectra derived from 50 stochastic realizations of simulated modulating signals during supine conditions (data
+simulates subject conditions from Fantasia database) applying ARMA technique fixing LF and HF spectral content (red lines). Average spectrum is shown in circles (blue) and spectrum belonging to real data in dashed line (green).
+
+Another simulation was done based on the BPC database characteristics. However, since subjects were asked to breathe following an irregular sequence of tones, the spectral analysis did not revealed dominant peaks on HF band, evaluating all subjects. The ARMA model was fed, on one hand,
+
+3.3 Evaluation by Nonlinear Techniques
+
+41
+
+tbkL tbkPIL
+
+Fantasia
+
+Database
+
+} RR j (k) = t j(k)-t j(k-1)
+
+T1
+
+T1
+
+T1
+
+RR j (k) = t j (k)-t j (k-1)
+
+T2
+
+T2
+
+T2
+
+...
+
+RR j (k) = t j (k)-t j (k-1)
+
+Tn
+
+Tn
+
+Tn
+
+nm=mI6m
+
+IPF BFaMsFemmdmT oodnem l
+
+tTj bnkL tjTnbkPIL
+
+IPFMmmodel reset
+∫
+Tn
+
+IP ^jbtL
+
++
+W
+
+Tnmismvariedm frommnm=mIHcccHmI6cmbBc46mtomIcImsL
+
+btL
+
+peak
+f LFm
+
+HmPLF
+
+perWiFodFeolTcghrmam
+
+}^ IbtL
+^ - btL ccc
+
+peak
+f HFm
+
+HmPHF
+
+Onlymvalidmsegments
+
+ARMAbmL
+
+^MbtL
+
+Mm=m5Bmrealizations
+
+Figure 3.2 Simulation data scheme is illustrated. Heartbeat time occurrences are detected from ECG. Based on the IPFM
+model the ANS modulating signal M(t) is estimated. Spectral analysis by Welch periodogram is computed on M(t) in
+order to estimate the parameters needed for the simulation, frequency and power of LF and HF components, which are used to construct a new set of modulating signals, M j(t), through ARMA technique, with M = 50 realizations. Then, IPFM model is used to generate simulated heartbeat occurrences tTjn (k) with different values of T from 0.46 to 1.1 s. Simulated RR series are computed from the tTjn (k).
+
+by the power spectral density from LF and HF bands and, on the other hand, by the middle band frequencies of LF and HF, 0.095 and 0.275 Hz respectively. Then, modulating signals were simulated from spectral indices derived from supine and upright positions. This extends the analysis of HRV dependence on HR under enhanced sympathetic activity.
+
+3.3 Evaluation by Nonlinear Techniques
+ECG preprocessing: Because the reliability of the HRV analysis can be compromised by low sampling frequency of ECG recordings [120], the ECGs belonging to BPC and Fantasia databases were interpolated by cubic splines to a frequency of 1080 and 1000 Hz, respectively. Then, heartbeat times, t(k), where k symbolizes the kth beat, were estimated using an ECG wavelet-based detector [114]. Ectopic beats were identified imposing a time-varying threshold on instantaneous heart rate variations. Then, these ectopic beats were corrected using the IPFM model, as described in [116].
+3.3.1 Correlation Dimension
+Correlation dimension, D2, measures the degree of complexity of the system that generates the time series [60]. In the previous chapter 2, techniques to improve the estimation of D2 were introduced. On that study, log-log curves (logarithm of correlation sums vs. logarithm of thresholds) were fitted to sigmoid curves, thus, increasing the accuracy of maximum slope estimation. Moreover, another estimate of D2 denoted as D2(max) based on the points that maximize the difference between each pair of sigmoid curves was presented. Both D2 and D2(max) were computed by varying m = 1-16 and r = 0.01-3 in steps of 0.01.
+
+42
+
+Nonlinear HRV Measurement Dependencies
+
+3.3.2 Approximate and Sample Entropy
+
+SampEn and ApEn are irregularity measurements of the time series [140]. Although both entropies are closely related to each other, SampEn was introduced to overcome the self-pairs-related limitation of ApEn computation. Briefly, patterns of time series values (reconstructed vectors) of a certain length (embedding dimension, m) are compared to the rest of the possible pattern candidates. Those comparisons, whose differences are below a threshold r, are summed up and used to calculate correlation sums. The final entropy value measures the changes produced when increasing the length of the patterns in one unit. The parameters m and r have to be previously defined to estimate these entropy values. In this chapter, parameter values are set to m = 2 and r = 0.15 for SampEn.
+The computation of approximate entropy recalls the definition to estimate correlation dimension. But in this case, time series of interest is normalized by its standard deviation. In this approach, correlation sums are modified with respect to the ones used by correlation dimension as follows:
+
+∑ Cim(r)
+
+=
+
+1 Nm
+
+Nm
+H(r − dim, j)
+j=1
+
+(3.2)
+
+where Cim(r) is the correlation sum and H is the Heaviside function 2.4; the amount of reconstructed vectors is Nm = N − (m − 1) for each embedding dimension, m; and the distance, computed by the ℓ∞ norm, between each pair of reconstructed vectors, ymi , ymj , is denoted as dim, j.
+This procedure is repeated with all reconstructed vectors and the probability of a pattern of length,
+
+m, appearing along the time series is denoted by:
+
+∑ φ m(r)
+
+=
+
+1 Nm
+
+Nm
+log(Cim(r))
+i=1
+
+(3.3)
+
+ApEn provides information about how regular the time series is when two consecutive length
+
+patterns are compared:
+
+ApEn(m, r) = φ m(r) − φ m+1(r)
+
+(3.4)
+
+For the further ApEn estimations, the embedding dimension was set to m = 2. A graphical interpretation of SampEn and ApEn estimation, based on Eq. 2.11 and Eq. 3.4 respectively, is shown in Fig. 3.3.
+
+Maximum Approximate Entropy, ApEn(m, rmax(m))
+Figure 3.4 shows an example of the dependence of ApEn estimate on threshold r, when embedding dimension m is fixed, by analyzing a 2000-sample Lorenz attractor time series.
+Here, threshold values used in the literature, varying commonly between 0.1 and 0.2, provides an underestimation of ApEn value, whereas the proposed methodology is able to provide the maximum
+
+log(Cm(r)) log(Cm(r))
+
+3.4 Nonlinear Indices Dependence on HR as Sampling Rate
+
+43
+
+0
+
+0
+
+-2
+
+SampEn(2, 0.2)
+
+-1
+
+-4
+
+-2
+
+ApEn(2, 0.2)
+
+-6
+
+-3
+
+-8
+
+-4
+
+-10
+
+-5
+
+-12
+
+-6
+
+-14
+
+-7
+
+-16
+
+-8
+
+-10
+
+-8
+
+-6
+
+-4
+
+-2
+
+0
+
+2
+
+-10
+
+-8
+
+-6
+
+-4
+
+-2
+
+0
+
+2
+
+log(r)
+
+log(r)
+
+Figure 3.3 Graphical representation of SampEn and ApEn computation. The vertical dashed lines in both panels
+illustrates the threshold value as r = 0.2. To compute SampEn(2, 0.2) and ApEn(2, 0.2) the lost of probability as embedding dimension increases is evaluated, therefore, differences of solid lines, m = 2 and m =3, are considered.
+
+ApEn(2, r)
+
+0.6
+0.5
+0.4
+0.3
+0.2
+0.1
+0 0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1
+Threshold r
+Figure 3.4 Dependence of ApEn on threshold r. Example of ApEn estimation using the proposed methodology for
+correlation dimension described in chapter 2. Vertical dotted lines indicate the three most common threshold values, r = 0.1, 0.15, and 0.2. Data analyzed extracted from a 2000-sample time series of Lorenz attractor system.
+
+value which it is not found in the SampEn estimation as a consequence of considering self-comparisons [117].
+As mentioned before, the framework for estimating correlation dimension, described in chapter 2, was used to obtain: the value of the threshold r that maximizes ApEn for a given value of m, denoted by rmax(m) [196, 155]; and the maximum entropy value for a given value of m, ApEn(m, rmax(m)). In particular, ApEn(2, rmax(2)) and SampEn(2, 0.2) were considered for further analysis.
+3.4 Nonlinear Indices Dependence on HR as Sampling Rate
+The methodology used to compute nonlinear HRV indices, considered in this study, was applied to linearly detrended and normalized RR time series. The detrending ensures that mean HR values are
+
+44
+
+Nonlinear HRV Measurement Dependencies
+
+removed from the series, whereas the normalization eliminates the influence of mean HR on HRV amplitude. Despite this fact, the effect of mean HR, as sampling rate, might still be present on them. In this section, this effect is investigated on the simulation study, where changes in mean HR are independent from changes in ANS modulation. First, a mathematical relationship between nonlinear HRV indices and HRM is assessed by two regression formulas; then, a HR-correction is proposed based on these formulas. Second, alternatives based on interpolation of RR series and instantaneous mean RR, provided by point-process model, are proposed for attenuating the sampling rate influence of mean HR on nonlinear HRV indices.
+
+3.4.1 Regression Formulas
+In order to explore the relationship between nonlinear HRV indices and HR, the following regression models were proposed.
+
+X = β + αRR (Linear),
+
+(3.5)
+
+X = β (RRα ) (Parabolic),
+
+(3.6)
+
+where X ∈ {D2, SampEn, ApEn} and α and β are regression coefficients.
+Based on the former models, HR-correction formulas were obtained by projecting each nonlinear index onto a standard level of RR = 0.5 s, hence:
+
+Linear : XC1 = X + ξ (0.5 − RR) ,
+
+(3.7)
+
+0.5 ξ
+
+Parabolic : XC2 = X RR ,
+
+(3.8)
+
+where ξ is the correction factor.
+
+Transformation of XC1 or XC2 and RR into linear relationship was used to compute Pearson’s correlation coefficient ρ. Then, optimization was assessed by total least squares, providing correction factors by a golden cut search algorithm to minimize ρ(ξ ).
+
+Correction factors were computed on each stochastic realization. Thus, subject-specific correction was defined, considering the correction factors of the 50 stochastic realization for each modulating signal and computing the median of the HR-corrected indices.
+
+Furthermore, a unique correction parameter was additionally computed, considering all stochastic realization for all modulating signals. In that case, the transformation and optimization technique, described above, was applied to obtain median values for each nonlinear index, thus, defining a median correction approach to obtain XCξ1 and XCξ2.
+
+3.4 Nonlinear Indices Dependence on HR as Sampling Rate
+
+45
+
+3.4.2 Interpolation
+RR series are unevenly sampled, being the HR its sampling rate. This implies that the number of data information for the same time interval is dependent on HR. On the other hand, it is known that estimation of nonlinear indices, such as D2, SampEn, and ApEn, are data length dependent [67]. Therefore, interpolating RR time series at the same sampling rate may alleviate the influence of mean HR on nonlinear HRV indices, since it allows considering the same number of data for the same time interval. Interpolation at 2, 4 and 8 Hz were studied (XI2, XI4, and XI8 respectively).
+
+3.4.3 Point-process
+
+Point-process modeling: Another alternative to overcome the dependency of RR time series on HRM is based on the point-process paradigm, where derived time series resolution is not related to HRM. Point-process model provides a probabilistic framework to characterize the stochastic properties of the beat-to-beat RR time series [10]. It is based on the assumption that the beat generation events follow a probability distribution, in particular, the inverse Gaussian probability distribution. In this study, history dependence of previous events was considered. Thus, the distribution is named history-dependence inverse Gaussian distribution:
+
+f (t|Ht(k), θ ) =
+
+θp+1 2π(t − t(k))3
+
+1 2
+ex p
+
+−
+
+θp+1(t − t(k) − µ(Ht 2µ(Ht(k), θ )2(t −
+
+(k), θ ))2 t(k))
+
+(3.9)
+
+where t(k) represents the time occurrence of the kth heartbeat,
+
+Ht(k) = {t(k), RR(k), RR(k − 1), ..., RR(k − p + 1)} the elements involved in the history-dependence of p order of previous beats and RR(k) = t(k) − t(k − 1) the RR values.
+
+The estimation of θ parameters is carried out by considering the local maximum-likelihood within a time interval l (l = 60 s for this study). This interval should be long enough to obtain an estimate of µ(Ht(k), θ ) that represents the behavior of the beat-to-beat time series. Statistical Kolmogorov-Smirnov test is used to measure the goodness-of-fit, comparing heartbeat events t(k) and the ones obtained after time-rescaling derived from the point-process model [203]. The parameters θ are updated by shifting the estimation interval, ∆ ms, which is considered the point-process resolution, see Fig. 3.5.
+
+Therefore, the instantaneous mean RR can be defined as:
+
+p
+∑ µ(Ht(k), θ ) = θ0 + θ jRR(k − j + 1) j=1
+
+(3.10)
+
+Ectopic-free RR time series were obtained by a point-process model based on the methodology described in [36]. Instantaneous mean RR was computed by setting a resolution of ∆ = 50 ms, trying to capture the effect of right censoring, described as the influence of the next event out of the analysis
+
+46
+local log likelihood local joint probability density rigth censoring
+
+Nonlinear HRV Measurement Dependencies
+
+RR (s)
+
+0.9 RRt-1+Δ:t+Δ={RR(n),...,RR(nt )}
+
+0.85 0.8
+0.75
+
+RR(k)
+
+RR(nt )
+
+0.7 RR(n)
+
+0.65
+
+0
+
+10
+
+20
+
+30
+
+40
+
+50
+
+60
+
+70
+
+80
+
+Δ (time resolution)
+
+Time (s)
+
+0
+
+l (length likelihood observation)
+
+0 (t-l+Δ,t+Δ] t
+
+T
+
+θ^t θ^t+Δ
+
+Figure 3.5 Graphical representation of the intervals for estimation of θ t using the local log likelihood.
+
+window, and a model order of p = 12, set as a trade-off to represent subject resting conditions from Fantasia database and supine and standing conditions from BPC database [5].
+The nonlinear indices considered on this study are commonly computed over raw RR time series. The embedding dimension, m, needs to be reviewed for the analysis of point-process derived time series, since it is related to the number of events in the raw RR time series. In order to compare nonlinear HRV indices computed from the point-process instantaneous mean RR with those computed from the interpolated RR time series, the embedding dimension was scaled by a factor, depending on the point-process model resolution.
+
+madap = m ∆2Hz ∆X H z
+
+(3.11)
+
+where m values ∈ {1, ..., 16}, ∆2Hz is the resolution of RR time series interpolated at 2Hz correspon-
+
+ding to 500 ms, and ∆XHz refers to the new resolution of the RR time series at sampling rate of XHz
+
+corresponding
+
+to
+
+1 X
+
+s.
+
+For instance, embedding dimension m is set as 2 for maximum approximate entropy for interpo-
+
+lated RR time series at 2 Hz. Then, the computation of the same index over derived point-process
+
+time series at 50 ms resolution needs to adapt the embedding dimension value by a factor of 10 to
+
+represent the same information.
+
+3.5 Statistical Analysis
+
+47
+
+3.5 Statistical Analysis
+Kolmogorov-Smirnov test was used to test the normality of data distributions and Mann-Whitney U-test or paired T-test were used, according to data normality. Furthermore, Pearson correlation was used to assess linear correlation between corrected nonlinear HRV indices and RR. p < 0.05 was considered as statistically significant.
+Bland-Altman plots were used to analyze the agreement of subject-specific vs. median correction formulas. The intraclass correlation coefficient (ICC) was computed by SPSS for Windows, Version 15.0. Chicago, SPSS Inc.
+
+3.6 Results
+3.6.1 Nonlinear HRV Indices and Mean HR Reflect Body Position induced Changes
+Nonlinear HRV indices, D2, SampEn, and ApEn(2, rmax(2)), were computed for the BPC database, considering 300-sample segments. All of them were found significantly higher in supine than in standing position (see Fig. 3.6 b)). Mean RR was also significantly higher in supine than in standing position (Fig. 3.6 a)), which might explain the statistical differences observed in the computed nonlinear HRV indices.
+3.6.2 Nonlinear HRV Indices and RR Relationship by Simulation Study
+The relationship between nonlinear HRV indices and RR was assessed in the simulation study, where RR was changed remaining ANS modulation. Nonlinear HRV indices computed from simulated data are illustrated in Fig. 3.7 (median values shown as blue circles). The correlation of nonlinear indices and mean RR was evaluated by Pearson correlation coefficient, finding high correlation for a wide range of median index values, being these ranges 3.5-5.02 for D2, 0.42-1.02 for SampEn, and 0.72-1.24 for ApEn(2, rmax(2)), see Table 3.1.
+HR-Corrected Nonlinear Indices by Regression Formulas
+Regression formulas were applied to the nonlinear HRV indices derived from each simulated modulating signal (subject-specific approach), providing corrected indices with minimal mean RR correlation. The obtained HR-corrected nonlinear indices are shown in Fig. 3.7 (median values by taking into account all segments, in triangles right and left for linear and parabolic regressions, respectively). The application of correction formulas provided nonlinear HRV indices where the effect of mean RR values was attenuated. The range covered by them was highly reduced, being in this case 3.81-3.95 for D2, 0.57-0.61 for SampEn, and 0.8-0.9 for ApEn(2, rmax(2)), see Table 3.1.
+A set of correction factors (median approach) was obtained by considering the median of all nonlinear index values for each heart rate and computing global correction parameters (Table 3.1).
+
+48
+
+Nonlinear HRV Measurement Dependencies
+
+RR(s)
+
+UNCORRECTED
+
+a)
+
+1.2
+
+*
+
+1
+
+0.8
+
+0.6
+
+Sup
+
+Std
+
+c)
+
+Linear regression Parabolic regression
+
+INTERPOLATION CORRECTION
+
+SUBJECT-SPECIFIC CORRECTION
+
+MEDIAN CORRECTION
+
+D2
+
+D2
+
+D2
+
+D2
+
+b)
+
+8 7
+
+*
+
+6
+
+5
+
+4
+
+3
+
+2
+
+Sup
+
+Std
+
+8 7
+
+**
+
+6
+
+5
+
+4
+
+3
+
+2
+
+Sup
+
+Std
+
+9
+
+8 7
+
+**
+
+6
+
+5
+
+4
+
+3
+
+2
+
+Sup
+
+Std
+
+9
+
+8
+
+7
+
+*
+
+6
+
+5
+
+4
+
+3
+
+2
+
+Sup
+
+Std
+
+SampEn
+
+SampEn
+
+SampEn
+
+SampEn
+
+1
+
+0.8
+
+*
+
+0.6
+
+0.4
+
+0.2
+
+0
+
+Sup
+
+Std
+
+1
+
+0.8
+
+*
+
+0.6
+
+0.4
+
+0.2
+
+0
+
+Sup
+
+Std
+
+1
+
+0.8
+
+0.6
+
+0.4
+
+0.2
+
+0
+
+Sup
+
+Std
+
+1
+
+0.8
+
+*
+
+0.6
+
+0.4
+
+0.2
+
+0
+
+Sup
+
+Std
+
+ApEn(2,rmax(2))
+
+ApEn(2,rmax(2))
+
+ApEn(2,rmax(2))
+
+ApEn(2,rmax(2))
+
+1.4
+
+1.2
+
+*
+
+1
+
+0.8
+
+0.6
+
+0.4
+
+Sup
+
+Std
+
+1.4
+
+1.2
+
+*
+
+1
+
+0.8
+
+0.6
+
+0.4
+
+Sup
+
+Std
+
+1.4
+
+1.2
+
+*
+
+1
+
+0.8
+
+0.6
+
+0.4
+
+Sup
+
+Std
+
+1.4
+
+1.2
+
+*
+
+1
+
+0.8
+
+0.6
+
+0.4
+
+Sup
+
+Std
+
+CORRECTED
+
+Figure 3.6 BPC database (22 subjects) was analyzed in which supine and standing positions were compared. (a, b)
+illustrate mean RR and uncorrected nonlinear HRV indices while c) shows HR-corrected nonlinear HRV indices. ∗ indicates p < 0.05 by Mann-Whitney U-test between supine (Sup) and standing (Std) positions.
+
+To evaluate the agreement between subject-specific vs. median correction approaches, the intraclass correlation coefficient (ICC) of data distributions was analyzed. It was found above 0.8 for all HR-corrected nonlinear indices and for both proposed regression formulas. The Bland-Altman plot in Fig. 3.8 illustrates the difference between linear and parabolic approaches for D2, SampEn, and ApEn(2, rmax(2)).
+
+3.6 Results
+
+49
+
+D2
+SampEn ApEn(2,rmax(2))
+
+6
+
+1.4
+
+1.2 5
+1
+
+4
+
+0.8
+
+3
+
+0.6
+
+0.4 2
+0.2
+
+10.4
+
+0.6
+
+0.8
+
+1
+
+00.4
+
+0.6
+
+0.8
+
+1
+
+RR(s)
+
+RR(s)
+
+X
+
+X C1
+
+X C2
+
+X I2
+
+X I4
+
+X I8
+
+1.4
+
+1.2
+
+1
+
+0.8
+
+0.6
+
+0.40.4
+
+0.6
+
+0.8
+
+1
+
+RR(s)
+
+Figure 3.7 Nonlinear HRV indices computed from simulation study, X ∈ {D2, SampEn, ApEn(2, rmax(2))}, varying
+mean heart period, distribution of all uncorrected nonlinear HRV indices are shown in (blue) circles, corrected by linear regression in (brown) down triangles, corrected by parabolic regression in (green) up triangles, both former cases only subject-specific correction value of non-linear indices for each RR were shown. Finally, HR-corrected nonlinear indices by interpolating RR time series at 2, 4, and 8 Hz in (orange) diamonds. Data corresponds to all simulations derived from Fantasia database. Data distributions are represented by median and interquartile range.
+
+Table 3.1 Pearson correlation factor ρ and p-values of nonlinear indices and RR obtained from simulation study. Linear
+and parabolic dependence of nonlinear indices on RR were evaluated. Coefficient of determination (R2) as well as Pearson
+correlation factor and p -values (considering subject-specific and median correction) and ξ correction factor are presented for both regressions. Pearson correlation factor ρ and p-values of nonlinear indices and RR obtained, interpolating the simulated RR time series at 2 Hz. Data are shown as median ± interquartile range.
+
+Uncorrected
+
+D2
+
+Sam pE n
+
+ApEn(2, rmax(2))
+
+ρ p-value Median ± IQR
+
+0.959 ± 0.068 0.0002 ± 0.0015
+4.26 ± 0.7
+
+0.947 ± 0.1 0.0004 ± 0.0044
+0.72 ± 0.30
+
+0.949 ± 0.074 0.0003 ± 0.0022
+0.98 ± 0.26
+
+Regression Formulas
+
+Linear
+
+Parabolic
+
+Subject-specific
+R2 ρ (·10−05 ) p-value Median ± IQR
+Median correction
+R2 ρ (·10−05 ) p-value Median ± IQR ξ Correction factor
+
+D2C1
+
+SampEnC1 ApEn(2, rmax(2))C1
+
+D2C2
+
+SampEnC2 ApEn(2, rmax(2))C2
+
+0.919 ± 0.129 0.013 ± 0.20
+1±0 3.88 ± 0.07
+
+0.896 ± 0.186 0.016 ± 0.21
+1±0 0.59 ± 0.02
+
+0.902 ± 0.139 -0.0051 ± 0.20
+1±0 0.85 ± 0.04
+
+0.923 ± 0.129 -0.016 ± 0.20
+1±0 3.85 ± 0.02
+
+0.896 ± 0.179 0.0109 ± 0.20
+1±0 0.59 ± 0.01
+
+0.910 ± 0.125 0.01 ± 0.20
+1±0 0.84 ± 0.03
+
+D2Cξ 1
+0.997 -0.787
+1 3.88 ± 0.07
+2.068
+
+SampEnCξ 1
+0.988 -0.109
+1 0.59 ± 0.02
+0.869
+
+ApEn(2, rmax(2))Cξ 1
+0.970 -0.051
+1 0.85 ± 0.05
+0.541
+
+D2Cξ 2
+0.999 0.661
+1 3.85 ± 0.02
+0.375
+
+SampEnCξ 2
+0.990 0.232
+1 0.59 ± 0.01
+0.813
+
+ApEn(2, rmax(2))Cξ 2
+0.982 0.061
+1 0.84 ± 0.03
+0.417
+
+2 Hz Interpolation
+ρ p-value Median ± IQR
+
+D2I2
+-0.47 ± 1.41 0.0005 ± 0.04
+3.85 ± 0.01
+
+Sam pE nI2
+-0.39 ± 1.09 0.008 ± 0.19 0.59 ± 0.002
+
+ApEn(2, rmax(2))I2
+-0.29 ± 0.77 0.07 ± 0.37 0.83 ± 0.006
+
+HR-Corrected Nonlinear Indices by Interpolation
+The nonlinear indices were computed from simulated RR time series interpolated at 2, 4, and 8 Hz. As shown in Fig. 3.7, the corrected nonlinear index values obtained by regression formulas projected
+
+50
+
+Nonlinear HRV Measurement Dependencies
+
+ξ D2C1 - D2 C1
+
+Bland-AltmanRPlotR|LinearRRegressionb 1.5
+MeanR=R0.0003 1 STDR=R0.14 0.5 0 −0.5
+
++2*STD))
+Mean -2*STD))
+
+ξ D2C2 - D2 C2
+
+Bland-AltmanRPlotR|ParabolicRRegressionb 1.5
+MeanR=R0.008 1 STDR=R0.17
+
+0.5
+
++2*STD))
+
+0 Mean
+
+−0.5
+
+-2*STD))
+
+−1
+
+−1
+
+SampEnC1-SampEnξC1
+
+−1.5
+ICCR=R0.969R|0.968R|R0.970bR
+
+−2
+
+3
+
+3.5
+
+4
+
+4.5
+
+5
+
+5.5
+
+6
+
+6.5
+
+7
+
+ξ
+
+( D2C1 + D2C1 )/2
+
+Bland−AltmanEPlotEDLinearERegression9 0.4
+
+0.3
+
+0.2
+
++2*STD))
+
+0.1
+
+0
+
+Mean
+
+−0.1
+
+−0.2 -2*STD))
+−0.3
+
+−0.4
+
+−0.5 MeanE=E−0.01 STDE=E0.096
+−0.6 0.2 0.4 0.6
+
+ICCE=E0.879EDE0.875E|E0.883E9
+
+0.8
+
+1
+
+1.2 1.4 1.6 1.8
+
+2
+
+(SampEnC1+SampEnCξ 1)/2
+
+ξ
+SampEnC2-SampEnC2
+
+−1.5
+ICCR=R0.969R|0.968R|R0.969bR
+
+−2
+
+3
+
+3.5
+
+4
+
+4.5
+
+5
+
+5.5
+
+6
+
+6.5
+
+7
+
+ξ ( D2C2 + D2C2 )/2
+
+Bland−AltmanIPlotIDParabolicIRegression9 0.6
+
+MeanI=I−0.014 0.4 STDI=I0.1I
+
+ICCI=I0.900IDI0.895I|I0.905I9
+
++2*STD)) 0.2
+
+0
+
+Mean
+
+−0.2 −0.4
+
+-2*STD))
+
+−0.6
+
+−0.8
+
+0.2 0.4 0.6 0.8
+
+1
+
+1.2 1.4 1.6 1.8
+
+2
+
+(SampEnC2+SampEnCξ 2)/2
+
+ApEn(2,rmax(2))C1-ApEn(2,rmax(2))ξC1
+
+Bland−AltmanpPlotp=LinearpRegressionS 0.3
+Meanp=p−0.007 0.2 STDp=p0.045p
+
+0.1
+
++2*STD))
+
+0 Mean
+−0.1 -2*STD))
+−0.2
+
+−0.3 ICCp=p0.940p=p0.935p|p0.944pS
+
+−0.4
+
+0.7 0.8 0.9
+
+1
+
+1.1 1.2 1.3 1.4 1.5 1.6
+
+ξ ApEn(2,rmax(2))C1+ApEn(2,rmax(2))C1)/2
+
+ApEn(2,rmax(2))C2-ApEn(2,rmax(2))ξC2
+
+Bland−Altman)Plot)=Parabolic)RegressionS 0.4
+
+0.3
+
+Mean)=)−0.007 STD)=)0.07)
+
+0.2
++2*STD)) 0.1
+
+0 Mean
+−0.1
+-2*STD)) −0.2
+
+−0.3
+
+−0.4 ICC)=)0.888)=)0.885)|)0.892)S
+
+−0.5
+
+0.7 0.8 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6
+
+ξ ApEn(2,rmax(2))C2+ApEn(2,rmax(2))C2)/2
+
+Figure 3.8 Bland-Altman plots and ICC illustrate the agreement between subject-specific and median correction ap-
+proaches computed on Fantasia database to correct HR effect for both proposed regressions for corrected D2, SampEn, and ApEn(2, rmax(2)) indices: linear (left panels) and parabolic (right panels).
+
+3.6 Results
+
+51
+
+onto RR = 0.5 s and by interpolating RR time series at 2 Hz revealed similar median values. However, the interpolation of RR time series at 4 and 8 Hz resulted in decreased nonlinear values. In these cases, m values were not adapted, regarding Eq. 3.11. Despite the fact that Pearson correlation factor computed between HR-corrected nonlinear HRV indices, by interpolation, and mean HR values is still significant, their range is now much reduced, being 3.84-3.86 for D2, 0.588-0.592 for SampEn, and 0.824-0.836 for ApEn(2, rmax(2)), almost negligible compared to the range of uncorrected nonlinear ones.
+
+Nonlinear Indices of Synthetic Point-process Time Series
+
+The obtained heartbeat occurrence times, tTjn(k), from the simulation study were used to generate instantaneous mean RR time series by considering a point-process model resolution of 500 ms. Nonlinear indices were computed over these synthetic time series, where the mean RR was varied, see Fig. 3.9. The dependence of nonlinear indices, in particular, for SampEn and ApEn(2, rmax(2)), on mean RR above 0.5 s was found attenuated compared with same index values computed over synthetic raw RR time series (Fig. 3.6, with the exception of D2 index, whose dependence on mean RR values was still present. Instantaneous mean RR time series derived from the point-process could not capture variations of mean RR below 0.5 s, due to model resolution (∆ = 500 ms) and then, this effect influenced the studied nonlinear indices (Fig. 3.9).
+
+6
+
+1.4
+
+1.4
+
+1.2
+
+5
+
+1.2
+
+1
+
+4
+
+0.8
+
+1
+
+3
+
+0.6
+
+0.8
+
+0.4
+
+2
+
+0.6
+
+0.2
+
+1 0.4
+
+0.6
+
+0.8
+
+1
+
+RR(s)
+
+00.4
+
+0.6
+
+0.8
+
+1
+
+RR(s)
+
+0.40.4
+
+0.6
+
+0.8
+
+1
+
+RR(s)
+
+Figure 3.9 Nonlinear HRV indices, X ∈ {D2, SampEn, ApEn(2, rmax(2))}, computed from synthetic point-process time
+series at 500 ms resolution and model order of 12 where mean heart period were varied. Data corresponds to all simulations derived from Fantasia database. Data distributions are represented by median and interquartile range.
+
+D2
+SampEn ApEn(2,rmax(2))
+
+3.6.3 Nonlinear Analysis of BPC Database
+The proposed HR-corrections were evaluated in the BPC database. The results shown in Fig. 3.6 c) illustrate the differences found between supine and standing conditions. Median and interquartile range of uncorrected and HR-corrected nonlinear HRV indices are provided in Table 3.2.
+
+52
+
+Nonlinear HRV Measurement Dependencies
+
+Table 3.2 Uncorrected nonlinear HRV indices and HR corrected by proposed approaches evaluated in the BPC database.
+Data are shown in terms of median and interquartile range. C1 and C2 refer to HR-correction by linear and parabolic regression formulas respectively applied to all cases separately. ξ refers to HR-correction by C1 or C2 approach but regression parameters were obtained as the median values of all regression formulas according to C1 or C2. Statistical differences were tested by Mann-Whitney U-test.
+
+Nonlinear index
+D2 D2C1 D2C2 D2Cξ 1 D2Cξ 2 D2I2
+Sam pE n Sam pE nC1 Sam pE nC2
+SampEnCξ 1 SampEnCξ 2 Sam pE nI 2
+ApEn(2, rmax(2)) ApEn(2, rmax(2))C1 ApEn(2, rmax(2))C2 ApEn(2, rmax(2))Cξ 1 ApEn(2, rmax(2))Cξ 2 ApEn(2, rmax(2))I2
+
+Supine
+5.61 (4.88 | 6.38) 5.10 (4.33 | 5.62) 4.85 (4.19 | 5.25)
+4.66 (3.98 | 5.27)
+4.47 (3.93 | 4.93) 3.67 (3.23 | 4.08)
+0.73 (0.53 | 0.83) 0.28 (0.05 | 0.38) 0.40 (0.28 | 0.44)
+0.33 (0.16 | 0.43)
+0.44 (0.34 | 0.49) 0.50 (0.42 | 0.54)
+1.11 (1.03 | 1.17) 0.94 (0.91 | 1.01) 0.94 (0.91 | 0.99)
+0.78 (0.68 | 0.84)
+0.78 (0.74 | 0.83) 0.80 (0.74 | 0.85)
+
+Standing
+4.41 (3.64 | 4.88) 4.07 (3.41 | 4.57) 3.97 (3.31 | 4.46)
+3.88 (3.24 | 4.42)
+3.82 (3.25 | 4.32) 3.02 (2.84 | 3.64)
+0.48 (0.37 | 0.67) 0.24 (0.15 | 0.37) 0.33 (0.25 | 0.44)
+0.27 (0.19 | 0.42)
+0.36 (0.27 | 0.47) 0.35 (0.26 | 0.42)
+0.88 (0.77 | 0.95) 0.88 (0.80 | 0.97) 0.87 (0.79 | 0.96)
+0.77 (0.71 | 0.86)
+0.78 (0.71 | 0.84) 0.71 (0.66 | 0.80)
+
+p-value
+0.003 0.001 0.002
+0.005
+0.006 0.02
+0.008 0.7 0.4
+0.4
+0.06 0.001
+0.008 0.06 0.04
+0.5
+0.9 0.01
+
+In a first study, the value of the median correction factor ξ extracted from the simulation study was used. It is worth noting that after linear correction there was no significant difference in SampEn and ApEn(2, rmax(2)) between supine and standing positions, while parabolic correction only reduced differences below significance for SampEn.
+In a second study, regression formulas were used to correct nonlinear indices of each simulated recording’s, referred as subject-specific correction. HR-corrected D2 was found statistically significantly different for linear and parabolic regression formulas, whereas ApEn(2, rmax(2)) was only significant for parabolic.
+Finally, nonlinear HRV indices were computed on RR time series interpolated at 2, 4, and 8 Hz. We can conclude that the higher the interpolation order, the lower the nonlinear HRV values. In all cases, HR-corrected nonlinear indices calculated by interpolation showed statistical differences between position, regardless of the interpolation order used, being their range notably reduced.
+
+3.7 Discussion
+
+53
+
+Assessing HRV Analysis by Point-process Paradigm
+Time-varying series generated from the previously described point-process model are shown in Fig. 3.10. There, an example of a set of heartbeat occurrence times from subject number 1 of the BPC database, during supine position, is illustrated.
+1.1
+
+1.0
+
+0.9
+
+0.8
+
+0
+
+100
+
+200
+
+300
+
+400
+
+Time (s)
+
+RR (s)
+
+μRR (s)
+
+Figure 3.10 Example of instantaneous RR series derived from point-process (Data correspond to subject 1 during supine
+conditions from BPC database).
+
+Interpolated RR time series at 20 Hz and instantaneous RR derived from a point-process model at 50 ms resolution were analyzed by means of nonlinear indices, see Fig. 3.11. Embedding dimension m values were adapted in both cases by a multiplying factor of 10. Nonlinear indices computed over point-process derived time series were not found statistically significant, whereas the nonlinear indices obtained by interpolation of RR time series at 20 Hz provided statistically significantly different values between supine and standing positions.
+
+3.7 Discussion
+3.7.1 Simulated Data
+HRV analysis has been widely used as non-invasive technique to assess and quantify cardiac ANS modulation [179, 187, 161]. However, HRV analysis is still under investigation, due to HRV characteristics that could lead to physiological misinterpretations [135, 33]. ANS modulation is linked to ANS tone (HR mean) and, as a consequence, an increase in the sympathetic activity and a decrease in the vagal tone are related to an increment in the HR and a reduction on its variability [33, 91]. This implies that there is a physiological correlation between HRV and HR. However, we have demonstrated that it exists also a methodological influence between nonlinear HRV indices and HR, due to the fact that HR is the intrinsic sampling rate of HRV signal. A simulation was carried out to study an hypothetical case, where the relationship of ANS modulation and HR is uncorrelated.
+
+54
+
+Nonlinear HRV Measurement Dependencies
+
+SampEn ApEn(2,rmax(2))
+
+2
+1.5
+1
+0.5
+SUC
+Raw RR Time Series
+
+**
+
+1.3
+
+1.2
+
+1.1
+
+1 0.9 0.8
+
+0.7
+
+STC
+
+SUC
+
+Instantaneous mean RR (Point-process)
+
+**
+STC
+Interpolated RR Time Series
+
+Figure 3.11 Nonlinear indices computed over i) raw RR time series and over ii) instantaneous heart rate (µRR(t))
+considering a memory order of 12 varying with 50 ms resolution, and iii) RR time series interpolated at 20 Hz. Embedding dimension m was adapted to point-process and interpolation resolution.
+
+ANS modulating signals were generated as realizations of stochastic processes [134]. Then, heartbeat occurrences were calculated, using an IPFM model, which is based on action potential generation in SA node cells, and has been proven appropriate to describe the genesis of HRV [115]. This simple model allows keeping the ANS modulation constant, emulating healthy subject’s conditions at resting, for different mean HR values. Two approaches have been proposed to attenuate the effect of HR in nonlinear HRV indices, as shown by the simulation study: regression formulas and interpolation.
+Regression Formulas
+Regression formulas are commonly used to characterize the relationship between two magnitudes such as ventricular repolarization and heart rate [151, 174, 13]. The relationship between D2, SampEn, and ApEn, computed over simulated 300-sample RR series, and mean HR was studied by linear and parabolic regression formulas. Although the usage of other regression models, different from linear or parabolic ones, may provide improved fittings to the relationship between nonlinear HRV indices and mean RR, coefficients of determination R2 ≥ 0.9 were obtained for all cases for these to regression models. Then, a correction was proposed based on regression formulas derived for each simulated case, the so-called subject-specific correction, minimizing nonlinear HRV indices correlation to mean HR. A correction based on regression formulas derived from median parameters was proposed as an extension to be applied to other databases. ICC values > 0.8 were found, when evaluating subject-specific vs. median correction approaches for all nonlinear HRV indices, suggesting the usage of either of the approaches, see Fig. 3.8.
+
+3.7 Discussion
+
+55
+
+Interpolation
+Simulated RR time series were interpolated at 2, 4, and 8 Hz. The higher the interpolation rate, the lower the nonlinear index values. The addition of new data, resulting from interpolation, can be interpreted, in terms of entropy, as an increase in signal regularity, being in concordance with a previous work where electroencephalogram complexity through D2 was evaluated by varying the sampling rate [81]. In this chapter, interpolation was used as a technique to reduce the dependence of nonlinear HRV indices on mean HR as sampling rate effect, since it allows the estimation of nonlinear indices over the same time interval and the same number of points. Sampling rate value should be greater than the maximum HR. HR-correction nonlinear HRV indices computed by interpolating at 2 Hz and by regression formulas presented similar values and range. In some studies, RR time series were interpolated to increase the number of data points for improving the accuracy of nonlinear measurements, thus, compensating mean HR effect on them. The used sampling rates varied including 2, 4, and 8 Hz, or even higher, 20 KHz [135, 64, 94]. However, since nonlinear HRV indices estimates are strongly dependent on the selected sampling rate, results should be compared with caution.
+
+On the Comparison with Respect to Point-process
+Interpolation of raw RR time series has been proposed, in this thesis, as a method to attenuate the influence of mean HR on nonlinear HRV indices. Furthermore, another alternative to overcome this limitation was explored by using a point-process model, which provides a representation of the RR time series, based on a probability description, whose resolution is not dependent on HR. In particular, the influence of HR on D2, SampEn and ApEn(2, rmax(2)), computed over the point-process derived instantaneous mean RR (see Fig. 3.6), was lower than when these indices were computed over the raw RR time series, see Fig. 3.9.
+Despite the dependence of nonlinear HRV indices, computed over raw RR time series, on mean HR revealed by the simulation study, no HR-correction of nonlinear HRV indices is considered in most of the studies found in the literature, where mean HR values are even not provided in some cases [137, 146, 119, 97, 124, 188]. The application of nonlinear indices without HR correction should be restricted to HR steady-state group conditions, avoiding study cohorts that present statistically different mean HR, as for example in [188].
+
+3.7.2 Real Data
+Classical nonlinear HRV indices evaluated in the BPC database showed around 21, 34, and 21% of reduction in median values from standing with respect to supine position for D2, SampEn, and ApEn(2, rmax(2)) respectively, while mean HR increased by around 28%. Changes in these indices may reflect changes in mean HR as well as additional changes in ANS modulation, as suggested in previous studies [146, 195].
+
+56
+
+Nonlinear HRV Measurement Dependencies
+
+In the BPC database, HR-corrected nonlinear indices were computed under supine and standing conditions and D2 was found to be significantly different for all regression approaches, while ApEn(2, rmax(2)) only showed statistical differences for subject-specific by parabolic regression. Linear and parabolic regression formulas were selected to be suitable for the three indices under simulation conditions, although coefficients of determination were slightly lower for ApEn(2, rmax(2)) and SampEn than for D2.
+On the other hand, all nonlinear HRV indices were still found significantly different, when corrected by interpolation. It was found a statistically significant reduction in standing with respect to supine of 18, 30, and 12% for HR-corrected D2, SampEn, and ApEn(2, rmax(2)) respectively, mostly reflecting ANS modulation changes, while mean HR effect was attenuated. HR-corrected nonlinear index ranges, calculated as the difference of median values for supine and standing positions, were found reduced, when compared to uncorrected nonlinear HRV index ranges.
+The embedding dimension, m, refers to the length of reconstructed vectors whose elements correspond to values of the raw RR time series. The same set of values for embedding dimension were assumed either for interpolated RR time series, interpolated at 2Hz, and for raw RR time series. Based on this, the necessity to adapt this parameter setting to the resolution of the derived point-process time series was suggested, since nonlinear index values computed over interpolated RR time series at 4 and 8 Hz were found reduced, but unrelated to a loss of complexity/irregularity, see Fig. 3.6.
+The adaptation of the embedding dimensions, m, was taken into account for nonlinear HRV analysis in the BPC database, where analysis results (Fig. 3.11 were obtained from: RR time series derived from the point-process model at 50 ms resolution; and interpolated RR time series at 20 Hz. Results regarding nonlinear HRV analysis over raw RR time series were also displayed for the sake of comparison. SampEn and ApEn(2, rmax(2)) computed over raw and interpolated RR time series were statistically significantly decreased, comparing supine with respect to standing position, whereas no statistical differences were found for both indices, when point-process derived time series were analyzed. The point-process model was used by setting the same parameters for all considered subjects in supine and in standing position. The results could be influenced by not adjusting the model parameters in a subject-specific way, but this was not addressed in the thesis. The analysis of derived point-process time series at 50 ms resolution in a 5-min window was found more time-consuming than the analysis of interpolated RR time series at 2 Hz, due to the increase of data length as it was described in section 2.4.1 Table 2.4. This fact may suppose a limitation in the application of point-process model in the clinical practice, being, in such a case, suitable for an off-line approach.
+Note that, although HR-correction attenuates the effect of mean HR as sampling rate, HR-corrected nonlinear HRV indices may be still correlated with mean HR, since both parameters could vary in the same direction. After HR-correction, nonlinear HRV indices were able to capture information about ANS modulation in response to body position changes, regardless HRM values. Correction
+
+3.8 Conclusion
+
+57
+
+approaches may lead to better understanding the complexity and irregularity ANS changes unbiased by mean HR, as natural sampling rate of RR time series.
+HR-corrected nonlinear HRV indices addressed in this thesis, pointed out to a reduction in the complexity of the underlying system and an increase in the HRV series regularity caused by an increase of the sympathetic activity, when changing from supine to standing position, being in agreement with previous works with similar conditions, considering tilt table test or even exercise [135, 83, 152, 79, 148, 23]. Nevertheless, these results and their physiological interpretation are limited by the low number of subjects of study and further studies are needed.
+
+3.8 Conclusion
+In this chapter, changes in nonlinear HRV indices were studied under different sympathetic conditions, where mean HR also was changed. D2, SampEn, and ApEn(2, rmax(2)) dependence on mean HR, as sampling rate, was explored. A simulation study was carried out, emulating ANS modulation unrelated to mean HR. Simulation results showed that heart rate affects nonlinear indices as it is the intrinsic sampling rate of HRV signal, even when considering the same data length. Two HRcorrection methodologies, regression formulas and interpolation, were proposed. Another alternative, based on a point-process model, was explored. The evaluation on a BPC database revealed a reduction of all studied HR-corrected nonlinear HRV indices in standing with respect to supine position. After HR-correction, nonlinear HRV indices were able to capture changes in the sympathetic modulation by body position-induced changes. HR-correction by interpolation was found suitable to attenuate the mean HR effect. Although the application of a point-process model was also found as an alternative to obtain HRV representation unrelated to its resolution, its computation was more time-consuming than for interpolation approach. HR-correction could represent an improvement for nonlinear HRV analysis, extending its application in such cases of non-steady mean HR.
+
+58
+
+Nonlinear HRV Measurement Dependencies
+
+“A right-hand glove could be put on the left hand, if it could be turned round in four-dimensional space.” - Ludwig Wittgenstein (1889-1951) -
+4
+Multidimensional Approximate Entropy: A priori-free Approximate Entropy-based Index
+Summary
+Nonlinear HRV indices, such as ApEn, requires the selection of a priori parameters to be computed. In this chapter, an approximate entropy-based index called multidimensional approximate entropy, MApEnmax, is proposed. This index is independent of the a priori parameters, taking into account information from long-term correlations (large embedding dimensions). The validation of the proposed index was carried out by analyzing synthetic time series by varying their degree of stochasticity. MApEnmax was applied to characterize aging and congestive heart failure to capture ANS regulation changes.
+
+60
+
+Multidimensional Approximate Entropy
+
+4.1 Introduction
+ApEn was introduced by Pincus and co-workers [144] in 1991 as an entropic measurement to quantify the regularity of medical data. Ten years later, Richmann and Moorman [125] introduced SampEn, a variation of ApEn, reducing the bias of considering self-comparisons and being less dependent on data length. Both approaches have been widely used to characterize and distinguish between healthy and pathological conditions [53, 100, 141, 164, 197, 15, 158].
+However, caveats in the computation of these nonlinear indices have been pointed out, such as the dependence on mean HR and on certain parameters needed for their estimates. The dependence of nonlinear HRV indices has already been addressed in chapter 3, while in this chapter, the analysis is focused on the relevance of a priori parameters, that have to be selected for their computation, evaluating their effect on SampEn and ApEn results’ interpretation. In particular, the embedding dimension, m, (i.e. the length of reconstructed vectors); and the tolerance threshold, r, used to evaluate reconstructed vectors which are similar to each other, are the two parameters considered for further analysis. These parameters have been assigned diverse values in published HRV studies (e.g. m = 1 or 2; and r = 0.1 to 0.25 times the standard deviation of the time series) [158, 145, 176, 201, 1, 52, 40, 140, 168, 11, 3]. Thus, one main drawback lies in the comparison between studies, since the a priori selection of m and r values can lead to different physiological interpretations.
+Different approaches have been proposed to identify the values for the embedding dimension m or the threshold r used by nonlinear dynamics characterizing chaotic time series [92, 28, 110, 34, 171, 106]. With regards to the embedding dimension, the false nearest neighbor method has been used to search for the lowest embedding dimension, m, that allows the phase-space reconstruction, with very different values of m in accordance with the diverse underlying dynamics of the analyzed time series [92]. Minimum values of m were reported, being 2, 3 and 6 for Hénon, Lorenz, and Mackey-Glass time series, respectively [28]. With regards to the tolerance threshold, some studies have been focused on searching for the value of the threshold r, denoted by rmax(m), maximizing ApEn estimate. This ApEn-based index has served to show that white noise series is more irregular than the cross-chirp signal [34]. Furthermore, this index has been reported to better enhanced HRV and blood pressure variability differences between supine and upright position with respect to the usage of fixed r values, such as 0.1-0.25 times the standard deviation [171]. It should be noted that, although, in those cases, r is generally referred as fixed, to be precise, the parameter that is fixed is the factor multiplying the standard deviation, rather than the threshold r itself. In the literature, identification of the values of r and m used to characterize different types of time series is still unclear, as highlighted by the high diverse published values [171, 106].
+Multiscale entropy (MSE) and refined MSE methods have been introduced to account for complexity properties at different scales [40, 41, 183]. These methods provide information from SampEn across a range of time scales. By applying the coarse-graining technique, each time scale is represented as a new time series derived from the original one [40]. Short time scales (1 to 4) have been
+
+4.2 Approximate Entropy-based Indices
+
+61
+
+proposed to be more related to parasympathetic and respiratory control, whereas long time scales (5 to 20) have been postulated to be more related to sympathetic control [170]. However, one caveat of the MSE methods lies in the usage of coarse-graining technique, since the data length is reduced as the scale increases. This limits the applicability of MSE for short-term HRV analysis and the reliability of SampEn estimation becomes compromised for short data length [183].
+In this study, a novel ApEn-based index, exploiting maximum ApEn and multidimensional, properties is presented for short-term HRV analysis. This proposed index, MApEnmax, avoids the usage of the coarse-graining technique and, thus, the variations in data length for the different time scales. Furthermore, its computation provides an entropic estimation without the need of selecting input parameter values ad hoc. The ability of the proposed index MApEnmax to represent different degrees of randomness in time series was firstly tested on synthetic signals and subsequently, the index was used to characterize HRV changes induced by aging and by CHF.
+
+4.2 Approximate Entropy-based Indices
+The mathematical definition of ApEn was previously described in section 3.3.2. The use of fixed threshold values and the one, denoted by rmax(m), that maximizes the ApEn, referred as ApEn(m, rmax(m)), were introduced. In this chapter, ApEn(2, 0.2) and ApEn(2, rmax(2)) were considered for the sake of comparison.
+
+4.2.1 Multidimensional Approximate Entropy
+
+ApEn(m, r) and ApEn(m, rmax(m)) provide information about the regularity of the time series when two consecutive length patterns (embedding dimensions m and m + 1) are compared. Increasing the length pattern, m, the probability of finding similar patterns decreases. Although this probability tends to zero as m approaches infinity, the information contained could still be of great interest. Therefore, one of the novelties in the multidimensional approach proposed in this thesis lies in considering a range of embedding dimensions to compute a single entropy value, making it independent of the embedding dimension m. The multidimensional entropy index, MApEn(r), is defined as:
+
+M
+
+MApEn (r) = ∑ ApEn (m, r) ,
+
+(4.1)
+
+m=1
+
+where M = 15 was set based on correlation dimension estimation described in [22]. The other novelty
+
+lies in considering rmax(m) for each given value of m. In this way, the definition of MApEn(r) can be used to define MApEnmax.
+
+M
+∑ MApEnmax = ApEn (m, rmax(m)) , m=1
+
+(4.2)
+
+62
+
+Multidimensional Approximate Entropy
+
+Note that the proposed index MApEnmax does not require any a priori selection of embedding dimension or tolerance threshold values for its definition, regardless of M.
+Correlation dimension and sample entropy were also computed, using the methodology described in chapter 2. All nonlinear HRV indices were computed over RR time series interpolated by cubic splines at 2 Hz to attenuate the HR effect as sampling rate, as described in chapter 3.
+4.2.2 Time- and Frequency-domain HRV Indices
+Time- and frequency-domain indices were obtained from the raw RR time series and from the modulating signal of the IPFM model, respectively, using the same analysis windows.
+Mean heart rate HRM and the square root of the mean squared differences of successive normal heartbeat intervals RMSSD were calculated.
+Spectral analysis was performed on a modulating signal, M(t) estimated by applying the IPFM model, where the influence of HRM was compensated[8]. Power spectral density content regarding low frequency (PLF , 0.04-0.15 Hz) and high frequency (PHF , 0.15-0.4 Hz) bands, as well as normalized low frequency power (PLFn = PLF /(PLF + PHF )) were estimated [179, 161].
+
+4.3 Materials
+4.3.1 Synthetic Signals
+MIX Processes: a family of processes combining deterministic and stochastic behavior were studied. The degree of stochasticity was controlled by parameter P. MIX(P) generated a sine for P = 0 (pure deterministic) and became more random as P increased up to 1 (P = 1, pure stochastic) [144], see section 2.2.2 for its definition.
+For each P value in {0, 0.25, 0.5, 0.75, 1}, 30 processes were generated, each containing 300 samples.
+Noise Time Series: white and pink noise (1/ f ) time series with zero mean and unit variance were studied. A total of 30 white and pink noise processes, respectively, were generated, each containing 300 samples.
+4.3.2 HRV Signals
+Fantasia Database: ECG signals sampled at 250 Hz were acquired from twenty young (21-34 years old, 25.9 ± 4.3) and 20 elderly (68-85 years old, 74.5 ± 4.5) rigorously-screened healthy subjects undergoing 120 minutes of supine resting while watching the movie Fantasia (Disney, 1940) to help maintain wakefulness. Further database information is available in [77]. Recordings can be downloaded from www.physionet.org [59].
+
+4.4 Results
+
+63
+
+Congestive Heart Failure Database: ECG recordings from the Congestive Heart Failure RR Interval Database (including patients in NYHA classes I, II, and III) and the BIDMC Congestive Heart Failure Database (including patients in NYHA classes III and IV) were selected. These recordings, sampled at 128 and 250 Hz respectively, can be downloaded from www.physionet.org [59]. The mixed databases consist of a total of 44 CHF patients aged 55.5 ± 11.4 y.o. Heartbeat locations were obtained from automatic ECG annotations and subsequently manually reviewed and corrected by experts, are available in the same repository. ECG recordings from 72 healthy subjects, aged 54.6 ± 16 y.o., were obtained from the Normal Sinus Rhythm Database available from www.physionet.org. Long-term ECG recordings sampled at 128 Hz and their corresponding heart beat annotations are included.
+Heartbeat locations provided by the repository were corrected for ectopic beats based on instantaneous heart rate variation [116]. The time interval between consecutive heartbeats was used to define the RR interval time series.
+4.3.3 Statistical Analysis
+For the Fantasia database, the whole 2-hour recordings were analyzed. For the CHF and Normal Sinus Rhythm databases, a 3-hour night period was selected centered on the minimum HRM to establish a fair comparison under similar stationary conditions, with minimal influence of potentially different daily activities. 5-minute windows with 50% overlapping were used for analysis in all cases.
+The proposed index, MApEnmax, as well as all other nonlinear HRV indices were evaluated on synthetic and real data. The normality of data distributions was tested by Kolmogorov-Smirnov test. Nonlinear as well as time- and frequency-domain HRV indices were used for the comparison between young and elderly subjects, and between CHF patients and healthy subjects by ANOVA test or Mann-Whitney U test depending on whether data distributions satisfied the normality criterion or not respectively.
+
+4.4 Results
+4.4.1 Synthetic Data
+Figure 4.1 and Fig. 4.2 show the values of the nonlinear HRV indices computed over MIX(P) processes and pink and white time series. In the comparison of MIX(P) processes with the degree of randomness below P = 0.75 (0 vs. 0.25; 0.25 vs. 0.5; and 0.5 vs. 0.75) all nonlinear indices led to statistically significant differences. In the comparison between MIX(P) processes with P above 0.75 (0.75 vs. 1) no statistically significant differences were found for any of the nonlinear indices. On the other hand, all the analyzed indices were able to separate pink and white noise time series. In addition, the multidimensional index MApEn(r) was able to separate pink and white noise time series for all tested values of the tolerance threshold r (results only shown for r = 0.2, Fig. 4.2).
+
+64
+
+Multidimensional Approximate Entropy
+
+ApEn(2, 0.2)
+
+1.2 * * *
+
+*
+
+1.2 * * *
+
+*
+
+SampEn(2, 0.2)
+
+1
+
+1
+
+0.8
+
+0.8
+
+0.6
+
+0.6
+
+0.4
+
+0.4
+
+0.2
+
+0.2
+
+0
+
+0
+
+ApEn(2,rmax(2))
+
+1.2 * * *
+
+*
+
+1
+
+0.8
+
+0.6
+
+0.4
+
+0.2
+
+0 MIX(0)MIX(0.25M) IX(0.5M) IX(0.75)MIX(1)Pink NoWisehite Noise
+
+D2
+
+8 ***
+
+*
+
+6
+
+4
+
+2
+
+0 MIX(0)MIX(0.25M) IX(0.5M) IX(0.75)MIX(1)Pink NoWisehite Noise
+
+Figure 4.1 Nonlinear indices evaluated over MIX(P) processes with varying stochastic levels and pink and white noise
+time series. Data are shown as median and interquartile range over 30 realizations.
+
+While statistically significant differences were found for both MApEn(0.2) and MApEnmax when comparing different stochastic processes, the former presented decreased values as randomness increased, while the latter showed opposite results. To analyze these differences, the results of evaluating ApEn for two embedding dimensions, namely m = 2 and m = 6, are illustrated in Fig. 4.3. The use of a fixed threshold did not always allow ApEn to characterize the randomness level of the MIX(P) processes. As an example, for m = 6, the use of the fixed threshold r = 0.2 led to MIX(0.25) having much larger complexity than MIX(0.5), MIX(0.75), and MIX(1). For m = 2, however, MIX(0.25) presented the lowest complexity. When combining results from different scales, MApEn(0.2) showed lower values as the randomness level increased, thus, not being able to reflect the degree of stochasticity in the time series (Fig. 4.2 left panel). However, MApEnmax served to characterize MIX(P) processes according to their stochasticity level for any value of m, which then rendered MApEnmax suitable to characterize stochasticity levels (Fig. 4.2 right panel).
+
+4.4 Results
+
+65
+
+MApEn(0.2) MApEnmax
+
+3.5
+
+***
+
+*
+
+3
+
+2.5
+
+2
+
+1.5
+
+1 MIX(0)MIX(0.25)MIX(0.5)MIX(0.75)MIX(1)Pink noisWehite noise
+
+8 ***
+
+*
+
+7
+
+6
+
+5
+
+4
+
+3
+
+2 MIX(0)MIX(0.25)MIX(0.5)MIX(0.75)MIX(1)Pink noisWehite noise
+
+Figure 4.2 MApEn(0.2) and MApEnmax evaluated on MIX(P) processes with varying stochastic levels as well as white,
+and pink noises. Data are shown as median and interquartile range by considering 30 realizations.
+
+In Fig. 4.4 a) ApEn(m, 0.2) and ApEn(m, rmax(m)) are shown for pink and white noises when the embedding dimension m was varied from 1 to 15. ApEn(m, 0.2) values were higher for white noise than for pink noise for low embedding dimension values, while presented the opposite behavior for large embedding dimensions. The multidimensional index MApEn(0.2) resulted in higher values for white than for pink noise, reflecting the behavior found for the lowest embedding dimensions (Fig. 4.4 b) left). On the other hand, ApEn(m, rmax(m)) was consistently larger for white than pink noise throughout all embedding dimensions and, consequently, differences between these noise time series were amplified when computing MApEnmax (Fig. 4.4 b) right) with respect to MApEn(0.2).
+4.4.2 HRV Data
+Nonlinear HRV Analysis
+One subject from the young cohort and another one from the elderly cohort were discarded for analysis, as their RR time series were not suitable for ectopic beats correction. Their variability values reached the maximum allowed HR variation, thus precluding distinction between normal and ectopic beats [116].
+ApEn(2, 0.2), ApEn(2, rmax(2)), MApEn(0.2), MApEnmax, SampEn(2, 0.2), and D2 values showed a trend for higher values in young than in elderly subjects, but only MApEnmax showed statistically significantly higher values in young subjects (see Fig. 4.5 and 4.6). On the other hand, all analyzed nonlinear HRV indices, with the exception of MApEn(0.2), were statistically significantly larger in CHF patients than in healthy subjects (4.5 and 4.6).
+Figure 4.7 illustrates the contribution of ApEn(m, 0.2) and ApEn(m, rmax(m)) throughout the embedding dimensions for MApEn(0.2) and MApEnmax respectively, for each of the analyzed cohorts. The index ApEn(m, 0.2) was found to have higher values in young subjects than in elderly subjects for
+
+66
+
+Multidimensional Approximate Entropy
+
+ApEn(2, r) ApEn(6, r)
+
+1 0.8 0.6 0.4 0.2
+0 0
+
+X: 0.26
+
+X: 0.22
+
+Y: 1.10
+
+0.5
+
+Y: 1.02
+
+X: 0.28
+
+0.4
+
+Y: 0.98
+
+0.3
+X: 0.21 Y: 0.71
+0.2
+
+MIX(0.25)
+
+MIX(0.5) MIX(0.75)
+
+0.1
+
+MIX(1)
+
+0
+
+0.1
+
+0.2
+
+0.3
+
+0.4
+
+Threshold (r)
+
+X: 0.73 Y: 0.47
+
+X: 0.83 Y: 0.49
+
+X: 0.77 Y: 0.42
+
+X: 0.74 Y: 0.30
+
+MIX(0.25) MIX(0.5) MIX(0.75) MIX(1)
+
+0.2 0.4 0.6 0.8
+
+1
+
+Threshold (r)
+
+Figure 4.3 Approximate entropy values computed over MIX(P) processes considering a set of thresholds and evaluated
+
+by setting m = 2 (left panel) and m = 6 (right panel) for a particular stochastic realization. Dashed line indicates r = 0.2 in
+
+both panels. ApEn(2, rmax(2)), ApEn(6, rmax(6)), rmax(2)) and rmax(6) values are displayed for each case.
+
+a) 2
+********
+1.5
+
+Pink Noise White Noise
+
+2.5
+
+2
+
+* * * * * * * * * * *Pi*nk *Noi*se *
+White Noise
+
+ApEn(m, rmax(m))
+
+ApEn(m, 0.2)
+
+1.5 1
+1
+
+0.5
+
+0.5
+
+0 2 4 6 8 10 12 14
+Embedding dimension (m)
+
+b)
+
+3.5
+
+3.4
+
+*
+
+0 2 4 6 8 10 12 14 Embedding dimension (m)
+8.6
+*
+8.2
+7.8
+
+MApEn(0.2)
+
+MApEnmax
+
+3.3
+
+7.4
+
+7
+
+3.2
+
+Pink White
+
+Pink White
+
+Figure 4.4 a) ApEn computed throughout embedding dimensions for pink noise (blue) and white noise (red) using
+different thresholds. b) MApEn(r) computed using different thresholds. ∗ indicates statistically significant differences (p-values < 0.05). Data are shown as median and interquartile range by considering 30 realizations.
+
+low embedding dimensions (m <= 3), even if not achieving statistical significance in all cases (Fig. 4.7, left upper panel). Similarly, CHF patients showed higher ApEn(m, 0.2) values than healthy subjects for low values of the embedding dimension m (Fig. 4.7 left lower panel). For large embedding
+
+4.4 Results
+
+67
+
+SampEn(2, 0.2)
+
+ApEn(2, 0.2)
+
+1
+
+*
+
+*
+
+1.5
+
+0.8
+
+0.6
+
+1
+
+0.4
+
+0.5
+
+ApEn(2,rmax(2))
+
+0.2 1.2 1.1
+1 0.9 0.8 0.7
+Young Elderly
+
+*
+Healthy CHF
+
+D2
+
+7 6 5 4 3
+Young Elderly
+
+*
+Healthy CHF
+
+Figure 4.5 Regularity and complexity indices comparing young vs. elderly, and healthy subjects vs. CHF patients. ∗
+indicates statistically significant differences (p-values < 0.05). Data are shown as median and interquartile range.
+3.8 8
+
+3.6
+
+7.5
+
+MApEn(0.2)
+
+MApEnmax
+
+7 3.4
+6.5
+
+3.2
+
+6
+
+3
+
+2.8
+
+Young Elderly Healthy CHF
+
+5.5 5
+Young Elderly Healthy CHF
+
+Figure 4.6 MApEn(0.2) and MApEnmax values computed for young (solid black) vs. elderly (solid gray), and healthy
+subjects (dotted blue) vs. CHF patients (dashed red). ∗ indicates statistically significant differences (p-values < 0.05). Data are shown as median and interquartile range.
+
+dimensions, opposite results were found in the two comparisons. Regarding ApEn(m, rmax(m)), statistically significantly higher values were found in young vs. elderly and in CHF patients vs.
+
+68
+
+Multidimensional Approximate Entropy
+
+ApEn(m, 0.2)
+
+1.5 *
+
+*
+
+1
+
+0.5
+
+*
+Young
+Elderly
+
+ApEn(m, rmax(m))
+
+2*
+1.5 1
+0.5
+
+***********
+Young Elderly
+
+ApEn(m, 0.2)
+
+0
+
+**
+1.5
+
+* * * * * * * * * H*ealthy
+CHF
+
+1
+
+0.5
+
+ApEn(m, rmax(m))
+
+0
+2*****
+1.5
+1
+0.5
+
+* * * H*eal*thy*
+CHF
+
+0 2 4 6 8 10 12 14 Embedding dimension (m)
+
+0 2 4 6 8 10 12 14 Embedding dimension (m)
+
+Figure 4.7 ApEn values computed for thresholds set at 0.2, and rmax(m) through embedding dimensions in young (black)
+and elderly (gray) groups shown in the upper panels, and in healthy subjects (blue) and CHF patients (red) during the night period in the lower panels. ∗ indicates statistically significant differences. Data are shown as median and interquartile range.
+
+healthy subjects for most values of the embedding dimension m, while for the remaining values of m the compared values could not be statistically distinguished.
+Figure 4.8 shows results for the comparison of healthy subjects and CHF patients obtained when: i) restricting the age range (from 50 to 75 years old); and ii) considering only those CHF patients classified III-IV regardless their age. Nonlinear index values were found statistically higher for CHF patients than for healthy subjects in both comparisons.
+In addition, MApEnmax values were computed for young, elderly, CHF, and healthy subjects in 4000-sample time series and results are displayed in Fig. 4.9. Statistical differences between studied groups are maintained when data length was increased with respect to the case of considering 5-minute analysis window.
+Time- and Frequency-domain HRV Analysis
+HRM and RMSSD are displayed in Fig. 4.10 for the studied groups. No statistically significant differences were found for HRM when comparing young and elderly subjects, although a tendency to lower HRM values for the elderly group was observed with respect to the young group. HRM was statistically significantly higher in CHF patients as compared to healthy subjects. On the other
+
+4.4 Results
+
+69
+
+ApEn(2, 0.2)
+
+SampEn(2, 0.2)
+
+*
+
+*
+
+*
+
+*
+
+1
+
+1.5
+
+0.8
+
+1 0.6
+
+0.4
+
+0.5
+
+0.2
+
+1.2
+
+*
+
+*
+
+*
+7
+
+*
+
+1.1 6
+1
+
+D2
+
+0.9
+
+5
+
+0.8
+
+4
+
+0.7
+
+3
+
+ApEn(2,rmax(2))
+
+rmax(2)
+
+0.4
+
+*
+
+*
+
+0.3
+
+0.2
+
+0.1
+
+0
+Healthy CHF Healthy CHF (55-75) (55-75) (all) (III-IV)
+
+MApEnmax
+
+8
+
+*
+
+*
+
+7.5
+
+7
+
+6.5
+
+6
+
+5.5
+
+5
+
+Healthy CHF Healthy CHF (55-75) (55-75) (all) (III-IV)
+
+Figure 4.8 Regularity and complexity indices comparing healthy subjects vs. CHF patients restricted to an age range of
+50 to 75 years old and all healthy subjects with respect to CHF patients classified III-IV. (∗) indicates statistically significant differences (p-values < 0.05). Data are shown as median and interquartile range.
+
+hand, the RMSSD index showed statistically significant differences between both pairs of groups, with elderly subjects and CHF patients presenting reduced RMSSD values.
+
+70
+
+Multidimensional Approximate Entropy
+
+MApEnmax
+
+13 12 11 10
+9 8 7
+Young Elderly
+
+Healthy CHF
+
+Figure 4.9 MApEnmax values computed for young (solid black) vs. elderly (solid gray), and healthy subjects (dotted blue)
+vs. CHF patients (dashed red) in time series of 4000 samples. (∗) indicates statistically significant differences (p-values < 0.05 (dark), p-values < 0.07 (gray)). Data are shown as median and interquartile range.
+
+HRM(bpm) RMS S D(ms)
+
+110 100 90 80 70 60 50 40
+Young Elderly
+
+*
+Healthy CHF
+
+150
+
+*
+
+*
+
+100
+
+50
+
+0
+
+Young Elderly
+
+Healthy CHF
+
+Figure 4.10 HRM and RMSSD values in young vs. elderly and CHF patients vs. healthy subjects during the night period.
+(∗) indicates statistically significant differences.
+
+Values of frequency-domain HRV indices PLF , PHF , and PLFn are shown in Fig. 4.11 for the four studied groups. Significant differences were found for PLF and PHF in the two comparisons. PLFn only showed statistically significant differences for the comparison between CHF patients and healthy subjects.
+
+4.5 Discussion
+
+71
+
+10-3
+
+10-3
+
+10
+
+*
+
+*
+
+10
+
+*
+
+*
+0.8
+
+*
+
+PLF (adim) PHF (adim)
+PLFn(%)
+
+0.6
+
+5
+
+5
+
+0.4
+
+0
+YoungElderly
+
+HealthyCHF
+
+0
+YoungElderly
+
+HealthyCHF
+
+0.2
+YoungElderly
+
+HealthyCHF
+
+Figure 4.11 Frequency domain indices computed comparing young vs. elderly, and CHF patients vs. healthy subjects
+during the night period. (∗) indicates significant p-values < 0.05.
+
+4.5 Discussion
+Searching for Standardizing Approximate Entropy
+Nonlinear HRV analysis has extended the description of ANS regulation of cardiac electrical activity. The use of nonlinear HRV indices has provided new physiological insights into ventricular dysfunction, ventricular tachycardia, obstetrical complications under anesthesia, mental disorders and aging, among others [53, 100, 141, 164, 198, 15, 158]. Nevertheless, the physiological interpretation of some common nonlinear HRV indices could be biased by the a priori selection of parameter values intrinsic to their definitions. Automatic search for those parameter values based on methodological and/or time series characteristics has already been addressed [110, 106]. Nevertheless, indices like maximum approximate entropy are still linked to the embedding dimension m by definition. The values of m vary from one study to another even though there is a general tendency to set m = 2 to estimate ApEn(2, rmax(2)), commonly denoted as ApEnmax. In this study, the index MApEnmax has been proposed, which is based on the summation of maximum approximate entropies for a set of embedding dimensions, and thus, the necessity of selecting a particular value for the dimension parameter is avoided. Additionally, the proposed index does not rely on the definition of a tolerance threshold, since the threshold used is the one leading to the maximal entropy value in each embedding dimension.
+Analysis of Synthetic Data
+The proposed index MApEnmax has been tested for characterizing synthetic time series. MApEnmax values were found statistically significantly larger for white than for pink noise. This behavior was also reproduced by all other tested nonlinear HRV indices including MApEn(0.2), although such differences were found to be attenuated when using a fixed tolerance threshold as compared to using the one leading to maximum entropy.
+
+72
+
+Multidimensional Approximate Entropy
+
+The evaluation of the proposed marker on synthetic data, generated by MIX(P) processes, revealed that the greater the stochastic level, the higher the MApEnmax value, which is in agreement with the results shown by other nonlinear HRV indices, like correlation dimension or approximate and sample entropy, describing complexity of time series. On the contrary, the usage of a fixed threshold r, e.g. with value 0.2, in the computation of MApEn(r) was not able to reflect the degree of randomness according to the MIX(P) time series.
+Aging and CHF Assessment by Nonlinear HRV Analysis
+The effect of aging was evaluated on healthy subjects during supine resting conditions, with subjects being awake. Lower values were found for all analyzed nonlinear indices in the elderly cohort with respect to the young one, with differences being statistically significant for our proposed MApEnmax index. Our results are in agreement with previous studies where aging was reported as a cause for decreased complexity and irregularity of beat-to-beat RR series [41, 77, 89, 15]. This reduction has been associated with an impairment to adapt against external or internal perturbations [77, 154]. HRM, RMSSD, and PHF values were also decreased, while PLFn values were increased in the elderly cohort, pointing to a potential enhancement in the sympathetic modulation of SA node activity.
+Congestive heart failure was assessed by comparing failing patients and healthy controls during the night period while they were sleeping. According to the results obtained for all the studied nonlinear HRV indices, including the proposed MApEnmax index, statistically significantly higher complexity and irregularity were found in CHF patients with respect to healthy subjects. Similar results were found when restricting the age of the individuals to the range covering from 55 to 75 years old, pointing out that age has no relevant effect on the comparison between CHF patients and healthy subjects for the compared cohorts. Similarly, NYHA class had no impact on the distinction between CHF patients and healthy subjects, as demonstrated by restricting the analysis to CHF patients in NYHA classes III-IV, which led to similar results to those found for the whole CHF population (Fig. 4.8).
+Spectral HRV analysis showed a significant decrease in PLFn for CHF patients with respect to healthy subjects. In previous studies CHF has been reported to be associated with an increase of the sympathetic tone and a decreased peripheral response to adrenergic input [93, 62]. In other studies, a reduction in HRV low frequency content has been associated with the progression of heart failure in CHF patients with advanced disease [62].
+CHF has been characterized by ApEn in the literature, but results were found dependent on methodological factors [204]. Multiscale entropy, which extends the classical SampEn definition to a time-scale representation, has been applied to describe heart rate dynamics in CHF [40]. Costa et al. reported that healthy subjects presented greater MSE values than CHF patients, but in particular, the elderly healthy cohort showed lower MSE values than CHF group in the first scale. In our study CHF patients and healthy subjects showed diverse ApEn values, being greater in one or in the other
+
+4.6 Conclusion
+
+73
+
+group depending on the tolerance r and the embedding dimension m. Therefore, the different results obtained in the present study and those in [183] could be due to the method itself (ApEn here and SampEn in [183]) and/or to the values used for the tolerance threshold (rmax(m) in this study and fixed thresholds in [183]).
+ApEn(m, rmax(m)) values were found greater for CHF patients than healthy subjects for all considered embedding dimensions, contrary to the lower MSE values in CHF reported for all scales in [183]. Additionally, to discard the effect of data length in underlying differences between the results presented here and results described in [183], our proposed multidimensional index MApEnmax was also tested on increased HRV signal lengths (4000 samples), confirming its discriminant capacity between healthy and CHF patient’s groups, with higher values for CHF patients (Fig. 4.9).
+Although a relationship between derived-MSE indices and sympathetic/parasympathetic modulation has been reported [170], the methodological differences comparing derived-MSE and MApEnmax do not allow the translation of the physiological interpretation to the present study.
+The CHF patients included in the present study were enrolled in a long-term study to evaluate the efficacy of drugs, in particular, milrinone and digoxin, and these drugs may have had an effect into the ANS response mechanisms. In addition, no information was available in relation to other concomitant disorders that CHF patients might suffer, such as obstructive sleep apneas, which could interfere, misleading the nocturnal nonlinear analysis [129].
+
+4.6 Conclusion
+A multidimensional approximate entropy index, MApEnmax, was introduced as a priori-free parameter entropy measurement. The evaluation on synthetic time series, such as MIX(P), pink and white noise, revealed that MApEnmax characterized the degree of randomness in the series consistently. In the analysis of aging, MApEnmax was higher in the elderly than the young population, thus, capturing the heart rate complexity changes due to aging that may reflect loss of ANS adaptability. In addition, MApEnmax was increased in CHF patients as compared to healthy subjects during the night period suggesting greater complexity in CHF than healthy subjects. The addition of MApEnmax in nonlinear HRV analysis could provide robust information according to the HR dynamics complexity, since maximum approximate entropy computed throughout embedding dimensions contribute to its value.
+
