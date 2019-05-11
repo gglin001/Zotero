@@ -1,0 +1,1549 @@
+CHAPTER 5
+Automated Classification of Hypertension and Coronary Artery Disease Patients by PNN, KNN, and SVM Classifiers Using HRV Analysis
+M.G. Poddar*, Anjali C. Birajdar*, Jitendra Virmani†, Kriti‡ *M.B.E. Society’s College of Engineering, Ambajogai, India, †CSIR-CSIO, Chandigarh, India, ‡Thapar Institute of Engineering and Technology, Patiala, India
+
+1 Introduction
+The heart rate variability (HRV) is the variation in consecutive RR intervals extracted noninvasively from electrocardiogram (ECG) signal [1]. The traditional way of clearly discriminating healthy and nonhealthy cases solely by morphological features of ECG alone is bit hectic and may not be precise, since the subtle variations are partially unobservable. In such circumstances the HRV analysis plays a vital role in finding the variations existing in the ECG signal. HRV is extensively used to evaluate the activity of the cardiovascular system as well as autonomic nervous system. HRV has always been a subject of active research in biomedical community. During, hypertension (HTN) the arteries consistently remain in elevated blood pressure (BP), generally exceeding 140/90 mm Hg. High BP damages critical organs of human body without showing any significant symptoms [2]. The coronary artery disease (CAD) which is characterized by blockage or narrowing of coronary arteries is a major cardiovascular disorder. During CAD, the plaque and cholesterol gets deposited on the inside walls of the arteries [3]. As, CAD is asymptomatic therefore early detection is essential to avoid development of ischemia and myocardial infarction (MI). Therefore, there is a significant impetus in the research community to develop low cost noninvasive technique for early diagnosis of CAD which results in high morbidity and mortality [4]. Standard guidelines for HRV analysis are well summarized by different techniques [5]. Many researchers provide the basic literature that includes measures and models [6],
+
+Machine Learning in Bio-Signal Analysis and Diagnostic Imaging. https://doi.org/10.1016/B978-0-12-816086-2.00005-9
+
+# 2019 Elsevier Inc. All rights reserved.
+
+99
+
+100 Chapter 5
+physiological origins and mechanisms of heart rate [7]. For the analysis of HRV time series data different techniques have been proposed that include statistical time domain (TD) methods [1, 2, 5–7], frequency domain (FD) methods [1, 2, 5–10] based on fast Fourier transform (FFT) or autoregressive (AR) modeling and several nonlinear techniques [9–15]. Literature provides the wide range of factors that influence the HRV signal, majorly considered are age group, gender, habits, race, religion, in healthy volunteers [16–19] and also diseased patients such as HTN [20, 21], CAD [22, 23], diabetes mellitus [24], cardiac arrhythmia [25–28], fibrillation [29], MI [30], and so on. In the recent years, many researchers utilized the computed features by different methods for binary classification tasks to classify diseased patients by comparing with normal subjects. Poddar et al. [20, 21] used linear and nonlinear methods to analyze the HRV for differential diagnosis between normal and hypertensive patients using SVM classification technique. Acharya et al. [22] proposed a technique to differentiate between normal and CAD affected patients by using linear and nonlinear methods for analyzing the heart rate from ECG signals. Giri et al. [23] proposed a method to differentiate between the normal and CAD conditions using heart rate signals using wavelet transform and different dimension reduction techniques. In another study, Acharya et al. [24] proposed a method to determine the cardiac health of normal and diabetic patients using nonlinear methods for HRV analysis. However, to a certain extent, multi classification has also been carried out by different studies to classify the different diseases by comparing with normal subjects [25, 28, 31–35]. Tsipouras and Fotiadis [25] proposed a method for arrhythmia detection in time and time-frequency domain. Babak et al. [28] proposed a method to discriminate between six different types of arrhythmia classes using HRV signals based on linear and nonlinear methods. Acharya et al. [31] proposed a method to classify four different types of cardiac disorders using heart rate data and artificial neural network (ANN) classifier. Acharya et al. [32] proposed a method to classify different cardiac rhythms using ANN and fuzzy logic on heart rate signals.
+In the present work, attempt has been made to develop computer aided classification system for differential diagnosis between HTN, and CAD affected patients with normal subjects using features derived using linear and nonlinear methods with various classifiers.
+2 Materials and Methods
+The evolution of computer technology, image processing algorithms and different artificial intelligence as well as data mining and machine learning techniques has provided ample opportunities to various researchers for investigating the potential of computer aided classification systems for characterization and analysis of different medical conditions using the medical images or signals captured using various modalities [33–44]. The characterization refers to quantitative analysis of different features (extracted from the captured data) using computer based algorithms resulting in accurate distinction between normal and abnormal conditions of the data under study.
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 101
+2.1 Data Collection and Processing
+The protocol followed for data collection and processing in the present work is represented in Fig. 1. From Fig. 1 it has been seen that the number of NOR subjects chosen was 20, hence an equal number of data in each group was considered for the analysis and classification purposes. The general block diagram of computer aided classification system indicating the different stages involved in HRV analysis is shown in Fig. 2.
+
+Data collection
+Equipment details ECG of lead-II, 16 channel BIOPAC MP 150 system with acqknowledge 4.0 software Sampling frequency: 500 Hz
+ECG amplifier module: 100°C Amplifier’s gain: 1000
+Initial number of subjects: 185 NOR: 60 HTN: 61 CAD: 64
+Data recording and patient details
+
+Data for NOR subjects was recorded at IIT Roorkee, India. Age group: 18–60 years Subjects were nonsmokers, nondrug addicts and caffeine abstained for 24 h prior to data recording. 40 volunteers were excluded.
+
+Data for HTN and CAD subjects was recorded at PGIMER, Chandigarh, India Age group: 36–60 yrs Exclusion criteria for HTN patients: Hypertensive patients with or a history of cardiac diseases and medical conditions like diabetes mellitus, hormonal disturbances, treatment with psychotic drugs and respiratory diseases. Exclusion criteria for CAD patients: patients with high BP, history of MI, left ventricular dysfunction, cardiac rhythm disturbances and coronary angioplasty. 40 HTN subjects and 41 CAD subjects were excluded
+
+Final number of subjects: 64 NOR: 20 HTN: 21 CAD: 23
+Fig. 1 Protocol followed for data collection and processing.
+
+102 Chapter 5
+Fig. 2 Generalized block diagram of the classification system design. The BIOPAC system with Acknowledge 4.0 software has been used for obtaining the RR tachogram which contains unevenly placed samples as the RR interval varying from one beat to another. To maintain the uniformity among the entire length of tachogram data, tachogram signal has been sampled again at a frequency of 4 Hz [45–47]. The obtained RR interval tachogram signal in text format has been used further for HRV analysis.
+2.2 HRV Analysis For HRV analysis different linear and nonlinear methods are employed. Using these methods different indices can be computed that are used as features in differentiating between the NOR, HTN, and CAD subjects. The different methods and computed indices are represented in Fig. 3. For details of the computed features refer [17, 25, 26, 48–54].
+Fig. 3 Different methods of HRV analysis.
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 103 2.3 Classification Module In the present work, popular classifiers namely probabilistic neural network (PNN), K nearest neighbor (KNN) and support vector machine (SVM) have been used after normalizing the training and testing data with min-max normalization procedure. 2.3.1 Probabilistic neural network (PNN) classifier The operation of a PNN classifier is organized in the form of a multilayered feed forward network. The steps followed in the classification task are shown in Fig. 4. For further details refer [36, 55]. 2.3.2 K nearest neighbor (KNN) classifier This classifier identifies the class of an unknown instance based on the majority voting of its nearest neighbors. The instances are categorized into disjoint sets based on the assumption that instances of feature vector that are near each other in feature space represent instances that belong to the same class. The nearest neighbors of the unknown instance are decided on the basis of a distance metric [36]. The different distance metrics available are: Euclidean, City block, Cosine, Correlation, Hamming, and so on. In the present study, Euclidean distance is
+Fig. 4 Steps followed in PNN classification.
+
+104 Chapter 5
+Fig. 5 Steps followed in KNN classification.
+used as the distance metric. The optimal value of K is determined by performing repeated experiments with K E {1, 2, …, 9}. The steps followed for the classification task are shown in Fig. 5. 2.3.3 Support vector machine (SVM) classifier In this classifier, the instances are separated into disjoint classes in feature space using a hyper-plane that maximizes the margin between two classes [37–39]. The SVM classifier has been implemented using LibSVM library [56]. The nonlinear data has been mapped to the higher dimensionality feature space using Gaussian radial basis function (GRBF) kernel. The steps followed in the classification task are shown in Fig. 6. For further details refer [28, 57–60].
+3 Results and Discussion
+In this section, first the comparative analysis results are compiled from three categories of data including NOR, HTN, and CAD with linear and nonlinear methods with their mean and SD and then classification results are presented with accuracy (A) and individual sensitivities (SNOR, SHTN and SCAD) expressed in percentage (%). A comparative HRV analysis of NOR, HTN, and CAD classes using TD features are summarized in Table 1 and few features like HRmean, Variance, SDNN, pNN50 are shown in Fig. 7.
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 105
+
+Fig. 6 Steps followed in SVM classification.
+
+Features
+HRmean Variance SDNN
+SDSD RMSSD
+CV% pNN50
+
+Table 1 Time domain HRV features of three classes
+
+NOR (Mean Æ SD)
+67.82 Æ 5.32 3618.1 Æ 1605.1 56.54 Æ 15.14 50.13 Æ 15.14 50.05 Æ 17.25
+6.11 Æ 1.27 22.29 Æ 10.21
+
+HTN (Mean Æ SD)
+76.80 Æ 9.12 628.96 Æ279.78
+23.76 Æ 5.22 17.66 Æ 1.43 16.89 Æ 6.42
+3.05 Æ 0.87 1.62 Æ 1.83
+
+CAD (Mean Æ SD)
+72.20 Æ 3.6 1307.57 Æ428.56
+33.41 Æ5.74 25.87 Æ4.25 25.83 Æ4.51
+3.93 Æ0.53 7.49 Æ 4.64
+
+106 Chapter 5
+
+120
+
+100
+
+80
+HRmean (bpm) 60
+
+40
+
+20
+
+0
+
+1 2 3 4 5 6 7 8 9 10 1112 13 14 15 16 17 18 19 20
+
+(A)
+
+Subjects
+
+9000
+
+8000
+
+7000
+
+6000
+
+NOR HTN CAD
+
+5000 Variance
+4000
+3000
+2000
+
+1000
+
+0
+
+1 2 3 4 5 6 7 8 9 10 1112 1314 15 16 17 18 19 20
+
+(B)
+
+Subjects
+
+NOR HTN CAD
+
+120
+
+45
+
+40 100
+35
+
+80
+
+30
+
+60 SDNN
+40
+20
+
+NOR HTN CAD
+
+25 pNN50
+20
+15
+10
+
+5
+
+NOR HTN CAD
+
+0
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+
+(C)
+
+Subjects
+
+0
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+
+(D)
+
+Subjects
+
+Fig. 7 Comparison of NOR, HTN, and CAD cases using time domain features (A) HRmean, (B) Variance, (C) SDNN, and (D) pNN50.
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 107
+
+Table 2 Frequency domain (FFT) HRV features of three classes
+
+Features
+P-VLF (ms2) P-LF (ms2) P-HF (ms2) P-Total (ms2)
+LF/HF
+
+NOR (Mean Æ SD)
+350.43 Æ 156.37 340.76 Æ 179.99 245.57 Æ106.32 996.77 Æ 248.49
+1.59 Æ 0.40
+
+HTN (Mean Æ SD)
+117.02 Æ 72.27 60.07 Æ 54.76 28.20Æ 21.47 222.04 Æ 140.76
+2.21 Æ 0.54
+
+CAD (Mean Æ SD)
+166.28Æ 20.86 115.47Æ 43.08
+69.26 Æ 29.12 363.52Æ 95.34
+1.93 Æ 0.13
+
+Table 3 Frequency domain (AR) HRV features of three classes
+
+Features
+P-VLF (ms2) P-LF (ms2) P-HF (ms2) P-Total (ms2)
+LF/HF
+
+NOR (Mean Æ SD)
+415.09Æ 353.27 359.87Æ 245.60 259.80Æ 255.71 1034.76 Æ 643.36
+1.50 Æ 0.44
+
+HTN (Mean Æ SD)
+112.36 Æ 57.70 51.79 Æ 18.42 30.53 Æ 13.56
+208.51 Æ 99.10 2.25 Æ 0.63
+
+CAD (Mean Æ SD)
+186.73 Æ 48.74 117.67 Æ 57.30
+76.73 Æ 32.87 338.64 Æ 120.27
+1.96 Æ 0.15
+
+The HRmean in all three cases is clearly distinguishable that NOR subjects have the lesser HRmean as compared to both HTN and CAD patients. The HTN group has the highest value of HRmean than other groups. The parameter variance is much lesser in HTN patients than both NOR subjects and CAD patients and also the NOR case has the highest variance than HTN and CAD patients. In the same way, other features such as SDNN, SDSD, RMSSD, CV%, and pNN50 have higher values for the NOR class as it shows more variability in the HR than HTN and CAD patient groups. Results obtained from analysis of HRV features calculated from FD by FFT and AR methods with three groups of the data are compared in Tables 2 and 3 respectively.
+The FD features P-VLF, P-LF, P-HF, and LF/HF from both FFT and AR are shown in Figs. 8 and 9 respectively. Spectral domain features calculated from parametric method by FFT and nonparametric method by AR modeling indicate similar trend for all the features. Slight variations have been noted in absolute values because of the difference in methodology. Power in all frequency ranges and entire range was calculated by PSD in ms2 by both parametric and nonparametric methods and ratio of LF to HF was also calculated.
+The general trend is that power in all three groups goes on decrementing from VLF to LF and LF to HF which is the natural tendency of spectral analysis. The power in NOR group is higher in all the frequency ranges and entire range as compared to patients groups of HTN and CAD. HTN patient group has the lower values of power in the said ranges than other two groups. However, LF/HF has inverse effects which is lower in
+
+108 Chapter 5
+
+700
+
+600
+
+500
+
+400
+P-VLF 300
+
+200
+
+100
+
+0
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+
+(A)
+
+Subjects
+
+900
+
+800
+
+700
+
+600
+
+NOR HTN CAD
+
+500 P-LF
+400
+300
+200
+
+100
+
+0
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 14 16 17 18 19 20
+
+(B)
+
+Subjects
+
+NOR HTN CAD
+
+700
+
+4
+
+600
+500
+400 P-VLF
+300
+200
+
+3.5
+
+3
+
+2.5
+
+LF/HF
+
+NOR
+
+2
+
+HTN 1.5
+
+CAD
+
+1
+
+NOR HTN CAD
+
+100
+
+0.5
+
+0
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+
+(C)
+
+Subjects
+
+0
+
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+
+(D)
+
+Subjects
+
+Fig. 8 Comparison of NOR, HTN, and CAD cases using frequency domain (FFT) features (A) P-VLF, (B) P-LF, (C) P-HF, and (D) LF/HF.
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 109
+
+700
+
+900
+
+600
+500
+400 P-VLF
+300
+200
+100
+
+800
+700
+600
+500 NOR P-LF
+300 HTN
+300 CAD
+200
+100
+
+NOR HTN CAD
+
+0
+
+1 2 3 4 5 6 7 8 9 10 111213 14 1516 1718 19 20
+
+(A)
+
+Subjects
+
+0
+
+1 2 3 4 5 6 7 8 9 10 1112131415 16 17 1819 20
+
+(B)
+
+Subjects
+
+500 450 400
+350 300 P-HF 250
+200 150 100
+50
+
+4
+
+3.5
+
+3
+
+2.5
+
+NOR
+
+LF/HF 2
+
+HTN 1.5
+
+CAD 1
+
+0.5
+
+NOR HTN CAD
+
+0
+
+1 2 3 4 5 6 7 8 9 10 111213 14 1516 1718 19 20
+
+(C)
+
+Subjects
+
+0
+
+1 2 3 4 5 6 7 8 9 10 11 1213 1415 1617 18 19 20
+
+(D)
+
+Subjects
+
+Fig. 9 Comparison of NOR, HTN, and CAD cases using frequency domain (AR) features (A) P-VLF, (B) P-LF, (C) P-HF, and (D) LF/HF.
+
+110 Chapter 5
+Features SD1 SD2 ApEn
+SampEn
+
+Table 4 Nonlinear HRV features of three classes
+
+NOR (Mean Æ SD)
+36.83 Æ 10.40 71.44 Æ 17.22
+1.22 Æ 0.22 1.64 Æ 0.26
+
+HTN (Mean Æ SD)
+12.45 Æ 4.52 30.53 Æ 6.50
+1.06 Æ 0.03 1.48 Æ 0.16
+
+CAD (Mean Æ SD)
+19.38 Æ 5.04 48.50 Æ 10.87
+1.00 Æ 0.10 1.27 Æ 0.15
+
+NOR case and higher in HTN group than remaining two groups as it is a ratio and signifies sympathovagal balance.
+A comparative analysis of features by nonlinear method from all three groups of NOR, HTN and CAD are shown in Table 4 and Fig. 10.
+Higher PP values of SD1 and SD2 indicate that more spread of data points is exhibited in the elliptic structure for NOR subjects in comparison with HTN and CAD patients. However, HTN has lower values of SD1 and SD2 than NOR group and CAD patients. In NOR group, the values of ApEn and SampEn are noted to be marginally higher as compared to HTN and CAD patients CAD patents are having the lesser values of ApEn and SampEn than controlled group.
+A multiclass classification is carried out after the analysis of HRV on three different classes using PNN, KNN, and SVM classifiers. Equal number of data was used for training and testing to maintain the uniformity for the classification testing. Total 21 features were included for classification, seven features from TD, five features each from FD by FFT and AR methods and four features from nonlinear method, Classification was carried out individually on features of TD, FD by FFT, FD by AR, nonlinear methods and all features combined altogether. Classification results obtained from TD features are presented in Table 5 and graphically represented in Fig. 11.
+It can be observed from Table 5 that the PNN classifier achieves highest classification accuracy of 90.0%, greater than both KNN and SVM classifiers. The number of misclassified cases in testing instances encountered was 3/30.
+Classification results obtained from FD features by FFT are shown in Table 6 and graphically represented in Fig. 12 while Table 7 and Fig. 13 represent the classification results obtained from FD features by AR.
+It can be observed from Tables 6 and 7, in FD methods, KNN classifier works better than PNN and SVM classifiers in case of both FFT method and AR method. Also the FFT method has better classification accuracy than AR method. In case of FFT method, the accuracy achieved was 83.33% with the number of misclassified instances equal to 5/30. In
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 111
+
+70
+
+140
+
+60
+
+120
+
+50
+
+100
+
+40 SD1
+30
+20
+
+80 NOR SD2 HTN 60
+CAD 40
+
+NOR HTN CAD
+
+10
+
+20
+
+0 1 2 3 4 5 6 7 8 9 10 11 121314 15 16 16 1819 20
+
+(A)
+
+Subjects
+
+0
+
+1 2 3 4 5 6 7 8 9 10 11 12 131415 1617 18 19 20
+
+(B)
+
+Subjects
+
+2.5
+
+2.5
+
+2
+
+2
+
+1.5 ApEn
+1
+0.5
+
+1.5 NOR Samp En
+
+HTN
+
+1
+
+CAD
+
+0.5
+
+NOR HTN CAD
+
+0 1 2 3 4 5 6 7 8 9 10 11 121314 15 16 17 18 19 20
+
+(C)
+
+Subjects
+
+0 1 2 3 4 5 6 7 8 9 10 1112 131415 1617 18 19 20
+
+(D)
+
+Subjects
+
+Fig. 10 Comparison of NOR, HTN, and CAD cases using nonlinear features (A) SD1, (B) SD2, (C) ApEn, and (D) SampEn.
+
+112 Chapter 5
+
+Table 5 Classification results using features obtained from time domain method
+
+Confusion Matrix
+
+Classifier
+
+NOR
+
+HTN
+
+CAD
+
+A (%) SNOR (%) SHTN (%) SCAD (%)
+
+PNN
+
+NOR
+
+10
+
+0
+
+0
+
+90
+
+100
+
+70
+
+100
+
+HTN
+
+0
+
+7
+
+3
+
+CAD
+
+0
+
+0
+
+10
+
+KNN
+
+NOR
+
+10
+
+0
+
+0
+
+80
+
+100
+
+70
+
+70
+
+HTN
+
+0
+
+7
+
+3
+
+CAD
+
+2
+
+1
+
+7
+
+SVM
+
+NOR
+
+4
+
+0
+
+6
+
+70
+
+40
+
+70
+
+100
+
+HTN
+
+0
+
+7
+
+3
+
+CAD
+
+0
+
+0
+
+10
+
+Note: A, accuracy; SNOR, sensitivity of NOR case; SHTN, sensitivity of HTN case; SCAD, sensitivity of CAD case.
+
+case of ARV method, the accuracy achieved was 76.67% with the number of misclassified instances equal to 7/30.
+The classification results obtained using features extracted by nonlinear method are shown in Table 8 and graphically represented in Fig. 14.
+It is observed from Table 8 that PNN classifier achieves highest classification accuracy of 83.33% with the number of misclassified instances equal to 5/30.
+Classification results of all features obtained from linear and nonlinear methods are presented in Table 9 and graphically represented in Fig. 15.
+It can be observed that the SVM classifier performs better than both PNN and KNN classifiers in differentiating between NOR, HTN, and CAD cases. The peculiar results can be observed when classification of features involving individual methods has the lower values of accuracy than the combined features altogether in all the three classifiers which signify the importance of features altogether rather than the individual features category.
+Using the different features extracted from the HRV signals, an attempt has been made to discriminate between normal subjects and hypertensive and CAD affected patients. The extracted features explore different properties of the HRV thus achieving different accuracies in each case. From the exhaustive experiments carried out in the present work, it has been observed that the features computed from the HRV signals using different linear and nonlinear methods when combined together result in better differential diagnosis between normal, hypertensive and CAD affected patients as compared to individual feature sets. The SVM classifier classifies the time domain, frequency domain by FFT, frequency domain by AR and nonlinear features with an accuracy of 70.0%, 80.0%, 60.0%, and 53.33%, respectively, but when all features are considered together, an accuracy of 96.67% is achieved
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 113
+10
+
+No. of testing instances
+
+10 8 6 4 2 0
+(A)
+
+10 7
+
+NOR
+
+0 0
+0
+HTN
+
+3 0
+0 CAD
+
+CAD HTN NOR
+
+No. of testing instances
+
+10 8 6 4 2 0
+(B)
+
+10 7
+
+2
+
+0 0
+
+NOR
+
+HTN
+
+1
+
+3
+
+0 CAD
+
+7
+CAD HTN NOR 10
+
+10
+
+7
+
+No. of testing instances
+
+8
+
+6
+
+6 4 2 0
+(C)
+
+4 NOR
+
+0 0
+0
+HTN
+
+0 CAD
+
+3
+CAD HTN NOR
+
+Fig. 11 Graphical representation of confusion matrices (A) PNN, (B) KNN, and (C) SVM.
+
+114 Chapter 5
+
+Table 6 Classification results using features obtained from frequency domain (FFT) method
+
+Confusion Matrix
+
+Classifier
+
+NOR
+
+HTN
+
+CAD
+
+A (%) SNOR (%) SHTN (%) SCAD (%)
+
+PNN
+
+NOR
+
+10
+
+0
+
+0
+
+76.67
+
+100
+
+80
+
+50
+
+HTN
+
+0
+
+8
+
+2
+
+CAD
+
+0
+
+5
+
+5
+
+KNN
+
+NOR
+
+10
+
+0
+
+0
+
+83.33
+
+100
+
+90
+
+60
+
+HTN
+
+0
+
+9
+
+1
+
+CAD
+
+0
+
+4
+
+6
+
+SVM
+
+NOR
+
+9
+
+0
+
+1
+
+80
+
+90
+
+50
+
+100
+
+HTN
+
+0
+
+5
+
+5
+
+CAD
+
+0
+
+0
+
+10
+
+Note: A, accuracy; SNOR, sensitivity of NOR case; SHTN, sensitivity of HTN case; SCAD, sensitivity of CAD case.
+
+with sensitivities of 90.0%, 100%, and 100% for NOR, HTN, and CAD cases respectively. The systematic representation of the proposed classification system based on the computed results is shown in Fig. 16.
+
+4 Conclusion
+The CAD and HTN diseases are the main cardiac problems which are asymptomatic and have high morbidity and mortality. For better prognosis of these conditions, an early diagnosis is of utmost importance. An efficient classification system has been designed in the present work using relevant features derived from HRV signal. The results show that the analysis of the variation in RR interval of time series data hold significant promise for capturing the information required for differential diagnosis between patients affected with HTN and CAD with the normal healthy subjects.
+Hence it can be concluded that the proposed computer aided classification system can be used as an additional diagnostic tool in routine clinical practice to effectively differentiate between the normal subjects and HTN and CAD affected patients.
+The present work can be extended by using Adaptive Neuro-Fuzzy Inference System (ANFIS) for the differential diagnosis between normal, hypertensive and CAD affected patients.
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 115
+
+No. of testing instances
+
+10 8 6 4 2 0
+(A)
+
+10 8
+
+5
+
+5
+
+0 0
+0
+
+NOR
+
+HTN
+
+0 CAD
+
+2 CAD
+HTN NOR
+
+No. of testing instances
+
+10 8 6 4 2 0
+(B)
+
+10
+
+9
+
+6
+
+5
+
+0 0
+0
+
+NOR
+
+HTN
+
+1
+
+CAD
+
+HTN 0
+NOR
+
+CAD
+
+10
+
+9 10
+
+No. of testing instances
+
+8
+
+5
+
+5
+
+6
+
+4 2 0
+(C)
+
+0 0
+0
+
+NOR
+
+HTN
+
+0 1
+CAD
+
+CAD HTN NOR
+
+Fig. 12 Graphical representation of confusion matrices (A) PNN, (B) KNN, and (C) SVM.
+
+Table 7 Classification results using features obtained from frequency domain (AR) method
+
+Confusion Matrix
+
+Classifier
+
+NOR
+
+HTN
+
+CAD
+
+A (%)
+
+PNN
+
+NOR
+
+8
+
+0
+
+2
+
+73.33
+
+HTN
+
+0
+
+7
+
+3
+
+CAD
+
+0
+
+3
+
+7
+
+KNN
+
+NOR
+
+9
+
+0
+
+1
+
+76.67
+
+HTN
+
+0
+
+7
+
+3
+
+CAD
+
+3
+
+0
+
+7
+
+SVM
+
+NOR
+
+5
+
+0
+
+5
+
+60
+
+HTN
+
+0
+
+7
+
+3
+
+CAD
+
+0
+
+4
+
+6
+
+Note: A, accuracy; SNOR, sensitivity of NOR case; SHTN, sensitivity of HTN case; SCAD, sensitivity of CAD case.
+
+SNOR (%) 80
+90
+50
+
+SHTN (%) 70
+70
+70
+
+SCAD (%) 70
+70
+60
+
+116 Chapter 5
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 117
+
+No. of testing instances
+
+10 8 6 4 2 0
+(A)
+
+7
+
+8
+
+7
+
+0 0
+0
+
+NOR
+
+HTN
+
+3 3
+
+2 CAD
+
+CAD HTN NOR
+
+No. of testing instances
+
+10 8 6 4 2 0
+(B)
+
+7 3
+
+0 0
+
+NOR
+
+HTN
+
+7
+
+3
+
+0 CAD
+
+1
+
+HTN
+
+NOR
+
+CAD
+
+10
+
+7
+
+6
+
+No. of testing instances
+
+8 6 4 2 0
+(C)
+
+5
+0 0
+0
+
+NOR
+
+HTN
+
+4
+
+5 CAD
+
+3
+CAD HTN NOR
+
+Fig. 13 Graphical representation of confusion matrices (A) PNN, (B) KNN, and (C) SVM.
+
+Table 8 Classification results using features obtained from nonlinear method
+
+Confusion Matrix
+
+Classifier
+
+NOR
+
+HTN
+
+CAD
+
+A (%)
+
+PNN
+
+NOR
+
+8
+
+1
+
+1
+
+83.33
+
+HTN
+
+0
+
+10
+
+0
+
+CAD
+
+0
+
+3
+
+7
+
+KNN
+
+NOR
+
+8
+
+0
+
+2
+
+76.67
+
+HTN
+
+0
+
+7
+
+3
+
+CAD
+
+0
+
+2
+
+8
+
+SVM
+
+NOR
+
+5
+
+2
+
+3
+
+53.33
+
+HTN
+
+0
+
+10
+
+0
+
+CAD
+
+0
+
+9
+
+1
+
+Note: A, accuracy; SNOR, sensitivity of NOR case; SHTN, sensitivity of HTN case; SCAD, sensitivity of CAD case.
+
+SNOR (%) 80
+80
+50
+
+SHTN (%) 100
+70
+100
+
+SCAD (%) 70
+80
+10
+
+118 Chapter 5
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 119
+
+No. of testing instances
+
+10 8 6 4 2 0
+(A)
+
+10 7
+8
+3
+
+0 0
+1
+
+NOR
+
+HTN
+
+1 CAD
+
+CAD 0
+HTN
+NOR
+
+No. of testing instances
+
+10 8 6 4 2 0
+(B)
+
+8
+
+8
+
+7
+
+0 0
+0
+
+NOR
+
+HTN
+
+2 3
+
+2 CAD
+
+CAD HTN NOR
+
+10 9
+
+10
+
+No. of testing instances
+
+8 6 4 2 0
+(C)
+
+5
+0 02
+
+NOR
+
+HTN
+
+3 CAD
+
+1
+CAD 0
+HTN NOR
+
+Fig. 14 Graphical representation of confusion matrices (A) PNN, (B) KNN, and (C) SVM.
+
+Table 9 Classification results using features obtained from linear and nonlinear methods
+
+Confusion Matrix
+
+Classifier
+
+NOR
+
+HTN
+
+CAD
+
+A (%)
+
+PNN KNN SVM
+
+NOR
+
+10
+
+0
+
+0
+
+90
+
+HTN
+
+0
+
+9
+
+1
+
+CAD
+
+0
+
+2
+
+8
+
+NOR
+
+10
+
+0
+
+0
+
+93.33
+
+HTN
+
+0
+
+10
+
+0
+
+CAD
+
+0
+
+2
+
+8
+
+NOR
+
+9
+
+0
+
+1
+
+96.67
+
+HTN
+
+0
+
+10
+
+0
+
+CAD
+
+0
+
+0
+
+10
+
+Note: A, accuracy; SNOR, sensitivity of NOR case; SHTN, sensitivity of HTN case; SCAD, sensitivity of CAD case.
+
+SNOR (%) 100
+100
+90
+
+SHTN (%) 90
+100
+100
+
+SCAD (%) 80
+80
+100
+
+120 Chapter 5
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 121
+
+No. of testing instances
+
+10 8 6 4 2 0
+(A)
+
+10
+
+9
+
+8
+
+0 0
+
+NOR
+
+0 HTN
+
+2
+
+1
+
+CAD
+
+HTN
+
+0
+
+NOR
+
+CAD
+
+10 8
+
+10
+
+No. of testing instances
+
+8 6 4 2 0
+(B)
+
+0 0
+
+NOR
+
+0 HTN
+
+2
+
+CAD 0
+HTN
+
+0
+
+NOR
+
+CAD
+
+10 10
+
+9 10
+8
+
+No. of testing instances
+
+6 4 2 0
+(C)
+
+NOR
+
+0 0
+0 HTN
+
+0 1 CAD
+
+CAD 0
+HTN
+NOR
+
+Fig. 15 Graphical representation of confusion matrices (A) PNN, (B) KNN, and (C) SVM.
+
+122 Chapter 5
+Fig. 16 Proposed classification system design for differentiating between NOR, HTN, and CAD classes.
+References
+[1] U.R. Acharya, K.P. Joseph, N. Kannatha, C.M. Lim, J.S. Suri, Heart rate variability: a review, Med. Biol. Eng. Comput. 44 (12) (2006) 1031–1051.
+[2] R. Virtanen, A. Jula, T. Kuusela, H. Helenius, L.M. Voipio-Pulkki, Reduced heart rate variability in hypertension association with life style factors and plasma rennin activity, J. Hum. Hypertension 17 (3) (2003) 171–179.
+[3] Coronary Artery Disease, Available at http://my.clevelandclinic.org/heart/disorders/cad/understandingcad. aspx. (Accessed 22 July 2014).
+[4] World Health Organization, Global Status Report on Non-Communicable Diseases 2010, World Health Organization, Geneva, 2011. Available at http://www.who.int/cardiovascular_diseases/about_cvd/en/. (Accessed 28 July 2014).
+[5] A.J. Camm, M. Malik, J.T. Bigger, G. Breithardt, S. Cerutti, R.J. Cohen, P. Coumel, E.L. Fallen, H. L. Kennedy, R.E. Kleiger, F. Lombardi, A. Malliani, A.J. Moss, J.N. Rottman, G. Schmidt, P.J. Schwartz, D. H. Singer, Task force of the European Society of Cardiology and the North American Society of pacing and electro-physiology: heart rate variability: standards of measurement, physiological interpretation and clinical use, Circulation 93 (5) (1996) 1043–1065.
+[6] M. Teich, S.K. Lowen, C.H. Vibe-Rheymer, Heart Rate Variability: Measures and Models in Nonlinear Biomedical Signal Processing, vol. II, Dynamic Analysis and Modelling, IEEE Press, New York, 2001, pp. 159–213.
+[7] G. Berntson, J. Bigger, D. Eckberg, P. Grossman, P. Kaufmann, M. Malik, H. Nagaraja, S. Porges, J. Saul, P. Stone, M. van der Molen, Heart rate variability: origins, methods, and interpretive caveats, Psychophysiology 34 (6) (1997) 623–648.
+[8] M. Kamath, E. Fallen, Power spectral analysis of HRV: a non-invasive signature of cardiac autonomic functions, Crit. Rev. Biomed. Eng. 21 (3) (1993) 245–311.
+[9] D.A. Litvack, T.F. Oberlander, L.H. Carney, J.P. Saul, Time and frequency domain methods for heart rate variability analysis: a methodological comparison, Psychophysiology 32 (5) (1995) 492–504.
+[10] V.C. Kunz, E.N. Borges, R.C. Coelho, L.A. Gubolino, L.E.B. Martins, E. Silva, Linear and nonlinear analysis of heart rate variability in healthy subjects and after acute myocardial infarction in patients, Braz. J. Med. Biol. Res. 45 (5) (2012) 450–458.
+[11] P. Melillo, M. Bracale, L. Pecchia, Nonlinear heart rate variability features for real-life stress detection. Case study: students under stress due to university examination, Biomed. Eng. Online 10 (1) (2011) 96.
+[12] R.K.A. Radhakrishna, D.D. Narayana, V.K. Yeragani, Nonlinear measures of heart rate time series: influence of posture and controlled breathing, Auton. Neurosci. 83 (3) (2000) 148–158.
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 123
+[13] C. Bogaert, F. Beckers, D. Ramaekers, A.E. Aubert, Analysis of heart rate variability with correlation dimension method in a normal population and in heart transplant patients, Auton. Neurosci. 90 (1) (2001) 142–147.
+[14] R. Silipo, D. Gustavo, V. Rossano, G. Celio, A characterization of HRV’s nonlinear hidden dynamics by means of Markov models, IEEE Trans. Biomed. Eng. 46 (8) (1999) 978–986.
+[15] M.P. Tarvainen, P.O. Ranta-Aho, P.A. Karjalainen, An advanced detrending method with application to HRV analysis, IEEE Trans. Biomed. Eng. 49 (2) (2002) 172–175.
+[16] G.D. Clifford, Signal Processing Methods for Heart Rate Variability (PhD diss.), Department of Engineering Science, University of Oxford, 2002.
+[17] D. Singh, V. Kumar, S.C. Saxena, K.K. Deepak, Spectral evaluation of aging effects on blood pressure and heart rate variations in healthy subjects, J. Med. Eng. Tech. 30 (3) (2006) 145–150.
+[18] R.K. Sunkaria, V. Kumar, S.C. Saxena, Aging effects on dynamics: a comparative study with FFT and AR models, Int. J. Signal Imaging Syst. Eng. 6 (4) (2013) 240–249.
+[19] U.R. Acharya, N. Kannathal, O.W. Sing, L.Y. Ping, T. Chua, Heart rate analysis in normal subjects of various age groups, Biomed. Eng. Online 3 (1) (2004) 24.
+[20] M.G. Poddar, V. Kumar, Y.P. Sharma, Linear-nonlinear heart rate variability analysis and SVM based classification of normal and hypertensive subjects, J. Electrocardiol. 46 (4) (2013) e25.
+[21] M.G. Poddar, V. Kumar, Y.P. Sharma, Heart rate variability based classification of normal and hypertension cases by linear-nonlinear method, Def. Sci. J. 64 (6) (2014) 542–548.
+[22] U.R. Acharya, O. Faust, V.S. Sree, G. Swapna, R.J. Martis, N.A. Kadri, J.S. Suri, Linear and nonlinear analysis of normal and CAD-affected heart rate signals, Computer Methods Progra. Biomed. 113 (1) (2014) 55–68.
+[23] D.G. Giri, U.R. Acharya, R.J. Martis, V.S. Sree, T.C. Lim, T.V.I. Ahamed, J.S. Suri, Automated diagnosis of coronary artery disease affected patients using LDA, PCA, ICA and discrete wavelet transform, Knowl. Based Syst. 37 (2013) 274–282.
+[24] U.R. Acharya, O. Fraust, N.A. Khadri, J.S. Suri, W. Yu, Automated identification of normal and diabetes heart rate signals using nonlinear measures, Computers Biol. Med. 43 (10) (2013) 1523–1529.
+[25] M.G. Tsipouras, D.I. Fotiadis, Automatic arrhythmia detection based on time and time–frequency analysis of heart rate variability, Computer Methods. Progra. Biomed. 74 (2) (2004) 95–108.
+[26] S.W. Chen, A wavelet-based heart rate variability analysis for the study of nonsustained ventricular tachycardia, IEEE Trans. Biomed. Eng. 49 (7) (2002) 736–742.
+[27] K. Minami, H. Nakajima, T. Toyoshima, Real-time discrimination of ventricular tachyarrhythmia with Fourier transform neural network, IEEE Trans. Biomed. Eng. 46 (2) (1999) 179–185.
+[28] M.A. Babak, K.S. Seyed, M. Maryam, Support vector machine-based arrhythmia classification using reduced features of heart rate variability signal, Artif. Intell. Med. 44 (1) (2008) 51–64.
+[29] M. Roopaei, R. Boostani, R.R. Sarvestani, M.A. Taghavi, Z. Azimifar, Chaotic based reconstructed phase space features for detecting ventricular fibrillation, Biomed. Signal Process. Control 5 (4) (2010) 318–327.
+[30] R.E. Kleiger, J.P. Miller, J.T. Bigger, A.J. Moss, Decreased heart rate variability and its association with increased mortality after acute myocardial infarction, Am. J. Cardiol. 59 (4) (1987) 256–262.
+[31] U.R. Acharya, P.S. Bhat, S.S. Iyengar, A. Rao, S. Dua, Classification of heart rate data using artificial neural network and fuzzy equivalence relation, Pattern Recognit. 36 (1) (2003) 61–68.
+[32] R. Acharya, A. Kumar, P.S. Bhat, C.M. Lim, S.S. Iyengar, N. Kannathal, S.M. Krishnan, Classification of cardiac abnormalities using heart rate signals, Med. Biol. Eng. Comput. 42 (3) (2004) 288–293.
+[33] P. Vidyasree, G. Madhavi, S. Viswanadharaju, S. Borra, A bio-application for accident victim identification using biometrics, in: N. Dey, A. Ashour, S. Borra (Eds.), Classification in BioApps, Lecture Notes in Computational Vision and Biomechanics, vol. 26, 2017, pp. 407–447.
+[34] A. Annavarapu, S. Borra, P. Kora, ECG signal dimensionality reduction-based atrial fibrillation detection, in: N. Dey, A. Ashour, S. Borra (Eds.), Classification in BioApps, Lecture Notes in Computational Vision and Biomechanics, vol. 26, 2017, pp. 383–406.
+
+124 Chapter 5
+[35] P. Kora, A. Annavarapu, S. Borra, ECG based myocardial infarction detection using different classification techniques, in: N. Dey, A. Ashour, S. Borra (Eds.), Classification in BioApps, Lecture Notes in Computational Vision and Biomechanics, vol. 26, 2017, pp. 57–77.
+[36] J. Virmani, V. Kumar, N. Kalra, N. Khandelwal, A comparative study of computer-aided classification systems for focal hepatic lesions from B-mode ultrasound, J. Med. Eng. Technol. 37 (4) (2013) 292–306.
+[37] J. Virmani, V. Kumar, N. Kalra, N. Khandelwal, PCA-SVM based CAD system for focal liver lesions from B-mode ultrasound, Def. Sci. J. 63 (5) (2013) 478–486.
+[38] J. Virmani, V. Kumar, N. Kalra, N. Khandelwal, SVM based characterization of Liver cirrhosis by singular value decomposition of GLCM matrix, Int, J. Artif. Intel. Soft Comput. 3 (3) (2013) 276–296.
+[39] J. Virmani, V. Kumar, N. Kalra, N. Khandelwal, in: Prediction of cirrhosis from liver ultrasound B-mode images based on laws masks analysis, 2011 IEEE International Conference on Image Information Processing (ICIIP), 2011, pp. 1–5.
+[40] N. Zemmal, N. Azizi, M. Sellami, N. Dey, in: Automated classification of mammographic abnormalities using transductive semi supervised learning algorithm, Proceedings of Mediterranean Conference on Information and Communication Technologies, 2015, pp. 657–662.
+[41] S. Hore, S. Chatterjee, V. Santhi, N. Dey, A.S. Ashour, Indian sign language recognition using optimized neural networks, in: V. Balas, L. Jain, X. Zhao (Eds.), Information Technology and Intelligent Transportation Systems. Advances in Intelligent Systems and Computing, Springer, Cham, 2017, vol. 455, pp. 553–563.
+[42] S. Chatterjee, S. Ghosh, S. Dawn, S. Hore, N. Dey, Forest type classification: a hybrid NN-GA model based approach, in: S. Satapathy, J. Mandal, S. Udgata, V. Bhateja (Eds.), Information Systems Design and Intelligent Applications. Advances in Intelligent Systems and Computing, Springer, New Delhi, 2016, vol. 435, pp. 227–236.
+[43] S. Cheriguene, N. Azizi, N. Zemmal, N. Dey, H. Djellali, N. Farah, Optimized tumor breast cancer classification using combining random subspace and static classifiers selection paradigms, in: A.E. Hassanien, C. Grosan, M. Fahmy Tolba (Eds.), Applications of Intelligent Optimization in Biology and Medicine. Intelligent Systems Reference Library, Springer, Cham, 2015, vol. 96, pp. 289–307.
+[44] R. Thanki, S. Borra, N. Dey, A.S. Ashour, Medical imaging and its objective quality assessment: an introduction, in: N. Dey, A. Ashour, S. Borra (Eds.), Classification in BioApps, Lecture Notes in Computational Vision and Biomechanics, vol. 26, 2017, pp. 3–32.
+[45] BIOPACTM, Available at http://www.biopac.com/. (Accessed 21 September 2012). [46] D. Singh, V. Kumar, S.C. Saxena, K.K. Deepak, Effects of RR segment duration on HRV spectrum estimation,
+Physiol. Meas. 25 (3) (2004) 721–735. [47] D. Singh, V. Kumar, S.C. Saxena, K.K. Deepak, Sampling frequency of the RR-interval time-series for spectral
+analysis of the heart rate variability, J. Med. Eng. Technol. 28 (6) (2004) 263–272. [48] D. Singh, V. Kumar, S.C. Saxena, K.K. Deepak, An improved windowing technique for heart rate variability
+power spectrum estimation, J. Med. Eng. Technol. 29 (2) (2005) 95–101. [49] G.D. Clifford, L. Tarassenko, Quantifying errors in spectral estimates of HRV due to beat replacement and
+resampling, IEEE Trans. Biomed. Eng. 52 (4) (2005) 630–638. [50] D. Singh, V. Kumar, in: Effect of RR segment duration on short-term HRV assessment using Poincare plot,
+2005 IEEE International Conference Intelligent Sensing and Information Processing Proceedings, 2005, pp. 430–434. [51] M. Brennan, M. Palaniswami, P. Kamen, Do existing measures of Poincare plot geometry reflect nonlinear features of heart rate variability? IEEE Trans. Biomed. Eng. 48 (11) (2001) 1342–1347. [52] S.M. Pincus, Approximate entropy as a measure of system complexity, Proc. Natl. Acad. Sci. USA 88 (6) (1991) 2297–2301. [53] J.S. Richman, M.J. Randall, Physiological time-series analysis using approximate entropy and sample entropy, Am. J. Physiol. Heart and Circulatory Physiol. 278 (6) (2000) H2039–H2049. [54] S.K. Sunkaria, V. Kumar, S.C. Saxena, Sample entropy-based HRV characterisation, Int. J. Med. Eng. Informatics 4 (4) (2012) 398–405. [55] D.F. Specht, Probabilistic neural networks, Neural Netw. 3 (1) (1990) 109–118.
+
+Automated Classification of Hypertension and Coronary Artery Disease Patients 125
+[56] C.C. Chang, C.J. Lin, LIBSVM: a library for support vector machines, ACM Trans. Intell. Syst. Technol. 27 (2) (2011) 1–27.
+[57] J. Virmani, V. Kumar, N. Kalra, N. Khandelwal, SVM based characterization of liver ultrasound images using wavelet packet texture descriptors, J. Digit. Imag. 26 (3) (2013) 530–543.
+[58] J. Virmani, V. Kumar, N. Kalra, N. Khandelwal, Characterization of primary and secondary malignant liver lesions from B-mode ultrasound, J. Digit. Imag. 26 (6) (2013) 1058–1070.
+[59] J.F. Ramirez-Villegas, E. Lam-Espinosa, D.F. Ramirez-Moreno, P.C. Calvo-Echeverry, W. AgredoRodriguez, Heart rate variability dynamics for the prognosis of cardiovascular risk, PLoS One 6 (2) (2011) e17060.
+[60] J. Virmani, V. Kumar, N. Kalra, N. Khandelwal, Prediction of liver cirrhosis based on multiresolution texture descriptors from B-mode ultrasound, Int. J. Convergence Comput. 1 (1) (2013) 19–37.
+

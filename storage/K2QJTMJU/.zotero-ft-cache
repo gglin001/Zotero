@@ -1,0 +1,256 @@
+See discussions, stats, and author profiles for this publication at: https://www.researchgate.net/publication/309340501
+Towards 24/7 continuous heart rate monitoring
+Conference Paper in Conference proceedings: ... Annual International Conference of the IEEE Engineering in Medicine and Biology Society. IEEE Engineering in Medicine and Biology Society. Conference · August 2016
+DOI: 10.1109/EMBC.2016.7590671
+
+CITATION
+1
+7 authors, including: Adrian Tarniceriu PulseOn SA 24 PUBLICATIONS 78 CITATIONS
+SEE PROFILE
+Philippe Renevey Centre Suisse d'Electronique et de Microtechnique 59 PUBLICATIONS 581 CITATIONS
+SEE PROFILE
+
+READS
+134
+Jakub Parák Tampere University 25 PUBLICATIONS 149 CITATIONS
+SEE PROFILE
+Marko Nurmi 3 PUBLICATIONS 12 CITATIONS
+SEE PROFILE
+
+Some of the authors of this publication are also working on these related projects: Association of Peripheral Physiological Variables and Mood (emotion) Changes in Daily Life View project speech recognition View project
+
+All content following this page was uploaded by Adrian Tarniceriu on 01 May 2018.
+The user has requested enhancement of the downloaded file.
+
+Towards 24/7 Continuous Heart Rate Monitoring
+Adrian Tarniceriu, Jakub Parak, IEEE Student Member, Philippe Renevey, Marko Nurmi, Mattia Bertschi, Ricard Delgado-Gonzalo, and Ilkka Korhonen, IEEE Senior Member
+
+
+Abstract— Heart rate (HR) and HR variability (HRV) carry rich information about physical activity, mental and physical load, physiological status, and health of an individual. When combined with activity monitoring and personalized physiological modelling, HR/HRV monitoring may be used for monitoring of complex behaviors and impact of behaviors and external factors on the current physiological status of an individual. Optical HR monitoring (OHR) from wrist provides a comfortable and unobtrusive method for HR/HRV monitoring and is better adhered by users than traditional ECG electrodes or chest straps. However, OHR power consumption is significantly higher than that for ECG based methods due to the measurement principle based on optical illumination of the tissue. We developed an algorithmic approach to reduce power consumption of the OHR in 24/7 HR trending. We use continuous activity monitoring and a fast converging frequency domain algorithm to derive a reliable HR estimate in 7.1s (during outdoor sports, in average) to 10.0s (during daily life). The method allows >80% reduction in power consumption in 24/7 OHR monitoring when average HR monitoring is targeted, without significant reduction in tracking accuracy.
+I. INTRODUCTION
+Heart rate (HR) and HR variability (HRV) are controlled by the autonomous nervous system and are modified by both internal (e.g. mental stress, relaxation, sleep, alertness) or external (e.g. physical load / activity, posture, etc.) factors. HR/HRV provide rich information about the physical, mental, and health status of an individual. Wearable HR monitoring based on chest straps has been used during physical exercise to facilitate the control of exercise intensity and training effect. Wearable HR/HRV monitoring has also been widely used for objective monitoring of physical activity [1] and stress and recovery [2]. However, the use of a chest-strap or ECG electrodes can cause discomfort, reducing the device’s usability and used acceptance, and especially long term adherence. If designed as a wristband, optical HR (OHR) devices do not suffer from this drawback, representing a less obtrusive and more comfortable alternative for HR monitoring. Today, the best OHR devices provide accuracy comparable to ECG based methods for HR during sports [3] and even HRV during low motion interference [4]. Hence, OHR monitoring would offer an
+A. Tarniceriu is with PulseOn SA, Jacquet-Droz 1, 2002, Neuchâtel, Switzerland; e-mail : adrian.tarniceriu@pulseon.com.
+J. Parak and I. Korhonen are with the Department of Signal Processing, Tampere University of Technology, Tampere, Finland, and PulseOn Oy, Espoo, Finland.
+Marko Nurmi is with PulseOn Oy, Espoo, Finland. R. Delgado-Gonzalo, Ph Renevey, and M. Bertschi are with CSEM Centre Suisse d’Electronique et Microtechnique, Jacquet-Droz 1, 2002 Neuchâtel, Switzerland
+
+attractive method for 24/7 monitoring of behaviors, physical activity, stress, and health. Unfortunately, due to its measurement principle based on optical illumination of the tissue, the inherent power consumption of the OHR technology is significantly higher than that of the ECG based methods.
+Our objective was to develop an algorithmic approach to reduce power consumption of the OHR technology in 24/7 HR monitoring. In this approach, HR is sampled semicontinuously, and continuous activity monitoring and fast adapting frequency domain estimation is used for fast convergence of the algorithm to provide a reliable HR estimate during various activities. The method was evaluated during sports, daily life and sleep.
+II. OPTICAL HEART RATE MONITORING
+Optical HR monitoring is based on the photoplethysmography (PPG) principle. Light emitted by a LED is transmitted at the surface of the body tissue. During the propagation, the light-wave suffers reflection, refraction, scattering, and absorption and the resulting signal is detected by a photodetector (PD) [5]. The PD can detect reflected light (reflectance mode) or back-scattered light (transmission mode). Given that the received light intensity depends on the variations of the subcutaneous blood flow, and as these variations are directly related to heart pulsations, we can use the detected signal to estimate the heart rate.
+One of the main problems of PPG measurement is that the useful signal is corrupted by ambient light and other electromagnetic radiations (ambient light artefacts), by gravity and by voluntary and involuntary subject movements (motion artefacts). The ambient light artefacts influence can be measured using multiplexing techniques and eliminated by subtractive techniques [6]. An efficient way to reduce the motion artefacts is to use a motion reference signal provided by an accelerometer and to perform signal enhancement afterwards [7]. In this way, we may obtain reliable HR estimates even under intense physical activities.
+The OHR device used in this study is the PulseOn device (PulseOn, Espoo, Finland). It is a wearable wristband consumer OHR monitor which uses two light wavelengths (green and infrared) and has optimally matched LED-PD distances to allow the measurement of blood flow in the wrist. Both the mechanical casing and the strap are designed to provide a stable sensor-skin contact, reducing the artefacts [3, 4]. The HR detection algorithm applies the accelerometer data to reduce the motion artefacts and provide accurate HR estimation for a range of activities from rest or daily office routine to intensive training. Added to this, the acceleration data is used to determine activity related parameters such as
+
+978-1-4577-0220-4/16/$31.00 ©2016 IEEE
+
+186
+
+step or calory count. The device can monitor HR, performed activity, PPG and accelerometer signals.
+
+III. POWER CONSUMPTION IMPROVEMENT
+Most algorithms for HR detection from PPG are based on frequency domain estimation of the HR frequency in a noisy PPG signal. As the PPG signal-to-noise ratio during motion is usually poor (even below 1:100) and the signal may include several rhythmic components close to the HR frequency due to e.g. physical motion artefact, the convergence of the algorithms is usually slow.
+We developed a semi-continuous OHR monitoring algorithm (“sampled HR”). In this approach, acceleration is continuously monitored to estimate the activity status, to predict the expected HR level based on activity, and to continuously estimate the motion artefact frequency. The OHR sensor is sampled semi-continuously in pre-determined intervals (e.g., every 60s or 300s, depending on the application). When OHR is sampled, the initial HR is estimated from the activity to speed up convergence, and the frequency content of the motion is used to filter out activity related frequencies from the HR spectrum. HR is estimated until a reliable HR is achieved or when timeout (P) is reached (the HR reliability is estimated based on spectral separation of HR and motion related signals in PPG). In this study, we chose N = 60 seconds, as one HR estimate per minute still provides a reliable description of the heart activity and training effect and maintains HR trend information over 24/7. We defined an indicator for the HR estimation reliability and follow the next steps:
+- Set P to a value higher than the algorithm convergence time (e.g., 20 seconds).
+- Every N seconds, repeat:
+1. Start PPG acquisition and optimize PPG acquisition parameters for current ambient light and motion conditions;
+2. Initialize HR algorithm with predicted HR based on activity status;
+3. For each new sample, estimate HR and iterate algorithm to remove motion artefact and adapt frequency domain estimator to HR frequency;
+4. If a reliable HR value is found, return the value and stop estimation;
+5. If no reliable HR value is found after P seconds, return the latest HR estimate.
+A visual description of the algorithm is given in Figure 1. In the estimation interval starting from 0, a reliable HR is found after 9 seconds. In the interval starting from 60 seconds, there is no reliable HR found. In this case, the algorithm returns the last estimated value, represented by the blue square.
+
+Figure 1. Heart-rate estimation example for the proposed algorithm
+IV. EXPERIMENTAL VALIDATION
+To validate the algorithm, we compare the performances of the sampled algorithm against continuous OHR estimation and ECG based reference during sports, daily life and sleep. As the sampled-mode algorithm was designed with the aim of faster convergence, we might expect that its performance is not as high as for the continuous-mode algorithm. But this should be compensated by reduced power requirements.
+For performance estimation, we compute the following parameters:
+ Mean Absolute Error (MAE): average of the absolute difference between the reference and the estimated HR.
+ Reliability: percentage of time when the absolute error is below 10 beats per minute (bpm).
+ Accuracy: 100 – mean absolute percentage error.
+In addition, for the sampled mode, we compute
+ Reliability rate: the percentage of 60-second intervals for which a reliable HR value was found.
+ Estimation delay: the average time duration required to obtain a HR value.
+ Reliable estimation delay: the average time duration required to obtain a reliable HR value.
+These measures will be computed for four different datasets, covering a wide range of activities.
+The experimental procedures described in the following comply with the principles of the Helsinki Declaration of 1975, as revised in 2000. All subjects gave informed consent to participate and they had the right to withdraw from the study at any time.
+1) Controlled Laboratory Protocol The test group consists of 19 volunteers, 9 male and 10 female, 28.3±5.69 years old, non-smokers. All subjects perform moderate physical activities weekly. Each subject followed a protocol including rest, walking and running on a treadmill, and ergo-cycling (Table I). The PPG was monitored using the PulseOn device, and the ECG-based Polar Electro RS800CX [8] was used as reference.
+
+187
+
+TABLE I.
+
+LABORATORY PROTOCOL
+
+Activity
+Standing Walking on a treadmill at 3km/h, 0% inclination Walking on a treadmill at 3km/h, 5% inclination Walking on a treadmill at 3km/h, 10% inclination Walking on a treadmill at 5km/h, 0% inclination Walking on a treadmill at 5km/h, 5% inclination Walking on a treadmill at 5km/h, 10% inclination Running on a treadmill at 9km/h, 0% inclination Running on a treadmill at 11km/h, 0% inclination Rest sitting Cycling 60rpm* Cycling 90rpm* Rest sitting
+
+Duration
+1min 3min 3min 3min 3min 3min 3min 3min 3min 4min 3min 3min 4min
+
+2) Outdoor Activities The outdoor activities consist of walking, running, and cycling, both on and off-road. The test group contains 28 recordings made by 9 subjects, 8 male and 1 female, 33.5±10.3 years old, with a total duration of 21.3 hours. The used reference was either Polar Electro RS800CX or Firstbeat Bodyguard 2, both ECG-based. PPG was recorded with the PulseOn device.
+3) Sleep The test group consists of 10 volunteers, 8 male and 2 female, 35.9±10.3 years old, non-smokers. All subjects perform moderate physical activities weekly. A total of 13 recordings were made. Firstbeat Bodyguard 2 was used as reference and PPG was recorded with the PulseOn device. Subjects performed the recordings at their homes in normal bedroom sleeping conditions. The average non-stop recorded sleep time of all subjects was 5.1±1.2 hours, and the total recording duration is 65.2 hours.
+4) Daily Activities These activities consist of daily office or house work. The used reference was either Polar Electro RS800CX or
+
+Firstbeat Bodyguard 2. The PPG signal was recorded with the PulseOn device. These recordings were made by three subjects and have a total duration of 17 hours.
+All the analysis were performed offline. HR was derived from PPG with PulseOn’s PPG algorithm and with the sampled mode algorithm as presented above.
+V. RESULTS
+The performance metrics for each dataset are summarized in Table II. The sampled mode algorithm resulted in slightly higher MAE and lower reliability during sports but lower MAE and higher reliability during daily activity and sleep. The average reliable estimation delay varied from 7.1s during outdoor sports to 10.0s during daily life. Figures 2-5 show one example of continuous and sampled-mode HR estimation for each dataset. The black line represents the reference and the green line is the continuous mode estimate. The red dots are sampled mode estimates considered reliable. The blue dots indicate cases when no reliable HR was found after 20 seconds (even so, the estimated values are still close to the reference most of the time).
+VI. CONCLUSIONS
+We developed and evaluated an algorithm for semicontinuous OHR monitoring during various activities. The results show that very low power semi-continuous OHR trending is possible without sacrificing the accuracy of HR detection as compared to continuous monitoring. For sports, the sampled-mode performance is below the continuousmode performance, but this was expected: continuous HR tracking is able to correct some errors caused by the motion, while in sampled mode this is not possible. The accuracy difference is below 1%, and the MAE difference is below 1 bpm (note that even the sampled-mode performance is better than other optical heart rate monitors [4, 9]). The average
+
+TABLE II.
+
+PERFORMANCE METRICS FOR THE LAB PROTOCOL, OUTDOOR ACTIVITIES, SLEEP, AND DAILY ACTIVITIES
+
+N subjects Duration [hours]
+MAE [bpm] Reliability [%] Accuracy [%] Estimation delay[s] Reliable estimation delay[s] Reliability rate [%]
+
+Lab protocol 19 12.3
+
+Continuous Sampled
+
+mode
+
+mode
+
+3.4
+
+4.2
+
+93.9
+
+92.4
+
+97.1
+
+96.3
+
+-
+
+8.6
+
+-
+
+7.8
+
+-
+
+89.6
+
+Outdoor 9
+21.3
+
+Continuous Sampled
+
+mode
+
+mode
+
+3.1
+
+4.5
+
+92.8
+
+89.1
+
+97.4
+
+96.6
+
+-
+
+8.1
+
+-
+
+7.1
+
+-
+
+89.8
+
+Sleep 10
+65.2
+
+Continuous Sampled
+
+mode
+
+mode
+
+1.8
+
+1.3
+
+98.5
+
+99.5
+
+96.6
+
+97.6
+
+-
+
+9.4
+
+-
+
+9.3
+
+-
+
+94.4
+
+Daily 3 17
+
+Continuous Sampled
+
+mode
+
+mode
+
+3.3
+
+2.9
+
+93.2
+
+94.7
+
+95.4
+
+95.9
+
+-
+
+12.2
+
+-
+
+10.0
+
+-
+
+77.1
+
+188
+
+Figure 2. Heart-rate estimation example for the laboratory protocol
+
+Figure 3. Heart-rate estimation example for outdoor activities (walk, run, and short break)
+
+Figure 4. Heart-rate estimation example for sleep
+
+Figure 5. Heart-rate estimation example for daily activities
+
+estimation duration is 8.6 seconds for the laboratory protocol, 8.1 seconds for outdoor activities, 9.4 seconds for the sleep recordings, and 12.2 seconds for daily activities. If we estimate the heart rate every minute, this means a reduction of 85.7%, 86.5%, 84.3%, and 79.7% of the optical chain power consumption, respectively; for longer sampling intervals, the savings are even more significant. Future work will focus on further reducing these durations, but the current results already allow extending OHR monitoring towards real 24/7 use without sacrificing accuracy.
+REFERENCES
+[1] S. Mutikainen, E. Helander, J. Pietilä, I. Korhonen, U.M. Kujala,
+“Objectively measured physical activity in Finnish employees: a cross-sectional study, “ BMJ Open, 4:e005927. doi:10.1136/bmjopen2014-005927, 2014. [2] J. Pietilä, E. Helander, T Myllymäki, I. Korhonen, H Jimison, M Pavel, ”Exploratory analysis of associations between individual lifestyles and heart rate variability –based recovery during sleep,” in 37th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), Milan, 2015 [3] R. Delgado-Gonzalo, J. Parak, A. Tarniceriu, P. Renevey, M. Bertschi, and I. Korhonen, “Evaluation of Accuracy and Reliability of PulseOn
+
+Optical Heart Rate Monitoring Device,” in Proc. 37th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), Milan, 2015, pp. 430-433. [4] J. Parak, A. Tarniceriu, P. Renevey, M. Bertschi, R. Delgado-Gonzalo, and I. Korhonen, “Evaluation of Beat-to-Beat Detection Accuracy of PulseOn Wearable Optical Heart Rate Monitor,” in Proc. 37th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), Milan, 2015, pp. 8099-8102. [5] M. Bertschi, P. Renevey, J. Solà, M. Lemay, J. Parak and I. Korhonen, "Application of optical heart rate monitoring," in Wearable Sensors. Fundamentals, Implementation and Applications, Elsevier Academic Press, 2014, p. 656. [6] L. Rossini, R. Vetter, C. Verjus, P. Theurillat, P. Renevey, M. Bertschi, J. Krauss, "Robust ear located heart rate monitor," in Proc. 2nd International Conference on Biomedical Electronics and Devices, Porto, 2009, pp. 214-219.. [7] S. Vaseghi, Advanced Digital Signal Processing and Noise Reduction, 4th Edition. Wiley, 2009. [8] M. Kingsley, M. Lewis and R. Marson, "Comparison of Polar 810s and an ambulatory ECG system," International Journal of Sports Medicine, vol. 26, pp. 39-43, 2005 [9] J. Parak and I. Korhonen, "Evaluation of wearable consumer heart rate monitors based on photopletysmography," in Proc. 36th Annual International Conference of the IEEE Engineering in Medicine and Biology Society, Chicago, USA, 2014, pp. 3670-3673.
+
+189
+
+View publication stats
+

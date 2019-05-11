@@ -1,0 +1,151 @@
+This full text paper was peer-reviewed at the direction of IEEE Instrumentation and Measurement Society prior to the acceptance and publication.
+
+Continuous Heart Rate Monitoring System as an
+IoT edge device
+Johan Bhurny Bathilde1, Yi Lung Then2*, Rajith Chameera3, Fei Siang Tay4, and Dyg Norkhairunnisa Abang Zaidel5
+1,2,3Department of Electrical and Electronic Engineering, Faculty of Engineering, Computing and Science, Swinburne University of Technology, Sarawak Campus, 93350 Kuching, Malaysia.
+4Department of Robotics and Mechatronics Engineering, Faculty of Engineering, Computing and Science, Swinburne University of Technology, Sarawak Campus, 93350 Kuching, Malaysia.
+5Department of Electrical and Electronics Engineering, Faculty of Electrical Engineering, Universiti Malaysia Sarawak, 94300, Kota Samarahan, Sarawak.
+*Corresponding author ythen@swinburne.edu.my
+
+Abstract—Detection of atrial fibrillation is done by checking the variations in the period of the heart rate, if a patient has atrial fibrillation then the period between each heart beat will vary. A light-based sensor can be used to detect these variations in heart rate; this is done by using Photoplethysmography (PPG) sensor which is non-invasive. The sensor consists of a LED with a photodetector and is able to detect the variations in blood volume or blood flow in the body and directly correlates to heart rate. The detected signal needs to be amplified and filtered as the signal contains a lot of high frequency noise as well as low frequency motion artifacts. The benefits of compact low-cost Wi-Fi module can be harnessed to develop a wireless continuous heart rate monitoring system enhancing possibility of atrial fibrillation detection.
+Keywords- Light-based sensor, amplification, arrhytmia, filtering, Photoplethysmography, IoT, Wi-Fi.
+I. INTRODUCTION
+Photoplethysmography refers to the non-invasive measurement of blood volume in a specified region (wrist). The volume of blood in a specified region increases in the systole phase and decreases in the diastole phase during the cardiac cycle of the heart. This changing blood volume can be directly used to calculate the heart rate and also to measure other characteristics of cardiovascular functions. It uses LEDs and their corresponding sensor as pairs in retrieving information in the form of electrical signals which a low in amplitude. This electrical signal known as the blood volume pulse signal has to be filtered from high frequency noise sources such as sunlight and ambient light, the signal also contains low frequency noise in the form of motion artifacts. The high frequency noise can be eliminated from the signal completely with the help of an active low pass filter. Most of the low frequency noise contributed by the motion artifacts can be eliminated with the use of a passive high pass filter. The problem with motion artifacts is that they overlap with the blood volume pulse and is difficult to get rid of completely. To get rid of the motion artifacts completely more complex methods will have to implement such as Discrete Saturation Transform, Adaptive Noise Cancellation etc. This project will
+
+not try to completely get rid of motion artifacts as this is an on-going research area which has not yet found a comprehensive solution as yet. After the filtering and amplification stage the signal is fed to a microcontroller where the heart rate will be calculated and the period between heart beats will be analyzed to determine the presence of atrial fibrillation. Interfacing the controller with a Wi-Fi module allows the transfer of the measured PPG signal and heart rate provided an access point (AP) with internet. A vast number of physical object are given internet access using a small and low power Wi-Fi module hence realizing the concept of Internet of Things (IoT) which refers to the interconnection of “things” and can integrate wireless sensor network with the internet [12]. The application of IoT in healthcare can provide a consequent improvement in healthcare by exploiting its wireless nature as well as the mostly preferred cloud computing and analytics offered by the IoT platform.
+An alternative to this method is the photoplethysmographic (PPG) technique used in existing pulse-oximeters. A none invasive method of continuous heart rate monitoring coupled with internet access via a Wi-Fi module allows the wireless monitoring annexed with the cloud computing platform of IoT can offer the possibility of detecting atrial fibrillation for the PPG sensor wearers in the healthcare context where it is assumed little movement during the measuring period in an initial phase.
+II. METHODOLOGY
+A. Heart rate measurement Photoplethysmography is a method used to determine and
+register the variations in blood volume or blood flow in the body. This is achieved by directing light to the surface of the skin (finger, wrist) which is absorbed differently by various bodies like pigments in the skin, bone and arterial and venous blood [1]. The arterioles and arteries is where the changes in blood flow are significant. For instance, during the systolic phase the arteries contain more blood volume than the diastolic phase. Therefore, the amount of light absorbed by the blood during the systolic phase is higher than in the diastolic phase, PPG sensors optically detect these variations, by
+
+978-1-5386-2092-2/18/$31.00 ©2018 IEEE
+
+changes in the intensity of detected light. The PPG sensor can be implemented in two methods reflectance or transmission to detect the variations in blood volume in the micro vascular bed of tissue [1].
+Figure 1. Transmisson System (left) and Reflectance System (right) [2]
+Transmission system the LED and photodetector (PD) are on opposite ends, light transmitted through the medium, whereas in reflectance system light detected by the PD is back scattered from tissue, bone and vessels [2].
+A 3mm LED (Product code: DS-LED-3NG) of normal brightness (Luminous Intensity: 100-200 mcd) with a forward voltage of 2-2.5 V DC which is capable of transmitting light in 520 nm (greenlight) is chosen to construct the PPG sensor [3]. The photodiode used will be a Vishay Silicon Photodiode (BPW21R) which has a peak sensitivity wavelength at 565 nm. B. Design of Filtering and Amplification Circuit
+
+and 47k and a cutoff frequency of 0.7 Hz is achieved (2πR4C1). The active low pass filter has a cutoff frequency of 2.34 Hz (2πR3C2) this is done by using the following values 100nF and 680k.
+The output of the first stage of signal conditioning is fed into the second stage of signal conditioning. The second stage of signal conditioning is actually a clone of the first stage and has a gain of 201, resulting in a final gain of 40401 (201x201). If such a large gain is not desirable, a potentiometer (R4) can be attached between ground and output of the first stage signal conditioning.
+Figure 3. Simulation of filtering and amplification circuit on Multisim
+The combination of a high pass filter and an active low pass filter results in a band pass filter with lower cutoff frequency at 0.7 Hz and higher cutoff frequency 2.34 Hz. The cutoff frequencies are chosen such that 0.7 Hz and 2.34 Hz corresponds to a lower and upper limit of 42 BPM and 140 BPM [4]. To make filtering process more effective the band pass filter is used twice (second stage signal conditioning).
+
+Figure 2. Circuit topology created on Multisim
+The complete circuit is implemented in three main steps; the first stage consists of the external biasing of the LED and photo-diode, first stage signal conditioning and second stage signal conditioning circuit.
+In the first stage, the LED biased for an operational voltage of 5V, a resistor of (Vcc - Vf)/If = (5V-2.4)/30mA =87Ω can be used, with Vf and If the forward voltage and current from the datasheet.
+Next the photo-diode is biased, the choice of this biasing resistor is made based on the circuits in references [6, 7] and a value of 22k Ω can be used with satisfying results.
+In the first stage signal conditioning the circuit removes the DC component of the PPG signal. It also amplifies the AC component by a factor of 201 (1 + R3/R5). A passive high pass filter is used to boost the AC component. The generalpurpose op amp MCP6004-I/S is used to construct active low pass filter. The particular values used for this circuit are 4.7uF
+
+Figure 4. Effective Bandpass filter simulated on Multisim, fL = 0.7 Hz fH = 2.55 Hz
+The correct PPG waveform is obtainable when a current to voltage conversion is done using a transimpedance amplifier between the photo-diode biasing and the high pass filter.
+
+Figure 5. Electronic building blocks used in PPG measurement system
+The transimpedanc amplifier is commonly used in biomedical sensors like the PPG sensor where the voltage resoinse is more linear than the current response. The gain of the amplifier is set by the feedback resistor with a value of 100 which proved to be sufficient to convert the low current output to an acceptable voltage level.
+Capacitance built up occures when the depletion region of the photodiode act as plates of a parallel capacitor. The junction capacitance is directly proportional to the diffused area and inversely proportional to the width of the depletion region. Photodiode employed as a photoconductor will enhance the speed requirement as the junction capacitance is reduced with
+increase in reverse bias [12].
+
+Figure 6. Block diagram of the UART serial communication
+The block diagram above illustrates the serial communication of the Wi-Fi module and the Arduino Uno which was used for data acquisition of the PPG signal. The ESP8266 can be flashed using either a TTL converter or the Arduino board after bypassing the ATMega328 controller and booting the latter in the programming mode by grounding the GPIO0 pin during boot-up.
+
+Cf 
+
+Ci R f GBW
+
+Junction capacitance when reversed biased at 5V is 400 pF according to data sheet, this needs to be compensated by adding a capacitor in the feedback network of the transimpedance amplifier this is because the built up capacitance introduces a phase shift and shunts the feedback signal. Introducing a feedback capacitor compensates for the phase shit by adding a zero in the feedback network [15]. It was calculated that a capacitor valued a 14 pF is sufficient, where Ci compromises of amplifier capacitance and junction capacitance.
+
+Figure 7. Flowchart of the Arduino controller operation
+The flowchart above is a representation of the operation of the system on the Arduino controller side. The following flowchart shows the operation of the system from the ESP8266 module side.
+
+The analog output signal was then fed to an Arduino Uno controller where the PPG signal was converted to digital by the ADC of the controller and the data can then processed to obtain the heart rate.
+
+C. Internet of Things (IoT) for wearable bio-sensor
+The ESP8266 module which is a self-contained SystemOn-Chip (SOC) with TCP/IP protocol stack that can readily provide a microcontroller with internet access via AP and can offload WIFI networking functions from another controller. The ESP8266 has been designed for mobile applications and for the Internet of Things (IOT). The interfacing of the ESP8266 module with the controller that acquires the PPG signal is done through the UART serial communication using the TX and RX pin of the two controllers. Ultimately the acquired data can be send to a server or a cloud prior to the proper connection of the Wi-Fi module to an access point with internet access.
+
+Figure 8. Flowchart of the ESP8266 controller operation
+
+The initialisation of the module consist of the setting of the module to station mode for the transmission of data followed by the connection to a AP with internet and the IP address of the module after successful connection.
+The UART-Wi-Fi passthrough mode which allow the transmission of the data in the serial link. The UART-WiFi passthrough mode in AT commands can be enabled when the ESP8266 module operates as a TCP or UDP client creating a single transmission connection. The serial event is interrup driven following the detection of data in the serial link.
+
+is required, researchers argue that the instantaneous moment of heart beat happens at some point during the fast upward rise in the PPG waveform shown in Figure 6, “point of steepest slope”. Some of the researches say it’s when the signal gets to 25% of the amplitude, some say when it is 50% of the amplitude, while others say it’s the point when the slope is steepest during the upward rise event [5] For this system, the code is designed to measure the IBI by timing between moments when the signals crosses 50% of the amplitude during the fast-upward rise. The BPM is derived every beat from an average of the previous 10 IBI times.
+
+III. RESULTS AND DISCUSSION
+After all the components were bought and tested for defects was complete, the next step was to build the sensor and its following circuitry. It was found that when following the preliminary filtering and amplification circuit acquiring the PPG signal was not possible as there was no output detected. Further research into the matter showed that an extra stage, current to voltage conversion achieved by employing a transimpedance amplifier, was required in between the photodiode biasing and high pass filter [8].
+A. Coding
+The main goal is to find successive moments of instantaneous heart beat and measure the time between heartbeats called the Inter Beat Interval (IBI). By following the predictable shape and pattern of the PPG waveform this is very achievable.
+
+B. Testing
+Before the system can be used to detect heart rate arrhythmia, it was first tested to see whether the heart rate measurement was reliable or not. As detection of arrhythmia depends on the system being able to reliably detect the peaks/beats of the heart. The time in between the peaks/beats will give us information about heart arrhythmia.
+
+Table 1:Heart rates obtained from tests
+
+Subject BMI
+
+1
+
+40.1
+
+2
+
+26.9
+
+3
+
+20.7
+
+Resting
+PPG MI Band
+112 110 81 80 68 66
+
+Exercise
+PPG MI Band
+125 123 105 110 92 94
+
+Recovery
+PPG MI Band
+120 119 89 92 86 88
+
+To test the system a subject’s heart rate was measured and recorded while at rest with the PPG sensor and MI Band then the subject was asked to go down and up 5 floors of stairs soon after heart rate was measured and recorded on both devices. Next, the subject was asked to rest for 10 minutes to recover from the exercise and again heart rate was measured and recorded on both devices. This was repeated for two more subjects for a total of 3 subjects, to make the test more reliable it was conducted on individuals with different body mass index (BMI). The consensus is that individuals with high BMI will have a higher resting heart rate and the recovery heart rate or the rate at which heart beats after strenuous activity will take longer to fall. Table 1 shows the results obtained.
+
+Figure 9: PPG waveform displayed using Serial Plotter
+Following the events as they progress from point “T” in Figure 9, a rapid upward rise in signal occurs as the pulse wave under the sensor, then the signal falls back down toward the normal point. Sometimes, the dicrotic notch (downward spike) is more pronounced than others, but generally the signal settles down to background noise before the next pulse. Since the wave is repeating and predictable we can choose any recognisable feature as a reference point, in this case the peak, and measure the heart rate by doing math on the time between each peak. However, this can run into false readings from the dicrotic notch and from baseline noise as well. For accurate BPM calculation the instantaneous moment of the heart beat
+
+Figure 10: Prototype of PPG Heart Rate Monitoring on test subject
+
+C. Detection of Heart Arrhythmia
+Arrhythmia is the irregular beating of the heart; which translates to the time in between beats can be higher or lower than normal, this means that the IBI will also vary accordingly. The IBI values, which were used to calculate the instantaneous heart rate, can be plotted on a graph against time to show how much the IBI varies.
+
+change of IBI is deemed normal and how much is classified as heart arrhythmia.
+D. Data transfer test
+The HR was calculated from the PPG signal and the transfer capability of the system was tested using the UART-Wi-Fi Passthrough Mode as mentioned. The test program namely, Socket Test, was used on a PC connected to the same AP to which the ESP8266 module is connected and the program was used to listen to the data sent from the ESP8266 module operating as the TCP client.
+
+Figure 11: IBI of subject at rest
+Figure 11 shows the IBI graph of a subject at rest plotted on Processing, it can be seen that for a subject at rest the IBI does not have significant changes over time and stays more or less the same. The IBI graph can be used to detect for heart arrhythmia by checking for the rate of change of IBI. If the rate of change of IBI is higher or lower than normal this means the heart rate is sporadic and not functioning normally.
+
+Figure 13. Data packets received on TCP server from ESP8266 client
+The PPG signal, BPM and the IBI data were successfully transferred to the TCP server using SocketTest by listening to data from the IP address and port of the ESP8266. The data obtained from the server can be maniputed using various WEB services to plot the PPG signal graph and cloud algorithms can be used to detect atrial fibrillation.
+
+Figure 12: Comparison of IBI of resting, exercise and recovery respectively
+Figure 12 shows the comparison of IBI graphs, and it is clearly seen that when the heart beats faster the IBI values decrease with respect to the resting IBI value. This tells us that at different heart rates the IBI values will change accordingly, a faster heart rate corresponds to a lower IBI and a slower heart rate corresponds to a higher IBI value. Using this information, it is safe to say that when arrhythmia occurs there will be significant changes in the IBI values; it might decrease or increase. An algorithm that checks for the rate of change of IBI is plausible for the detection of arrhythmia. Further research will be required to determine how much rate of
+
+IV. LIMITATIONS AND FUTURE WORK
+Several potential improvements were discovered during the stages of this research study. One of the main sources of the noise in the system was identified to be when the subject moves, the inertial force created at the sensor causes movement relative to the skin. One method of eliminating this is to identify and reject corrupt signal by comparing PPG signal with the output of a triple axis accelerometer during motion. Another potential improvement to the system is to use an array of LEDs and photo-diodes this would improve the PPG signal sensitivity and level of accuracy. As discussed in earlier sections of this report arrhythmia affects the inter beat intervals and amplitude of PPG waveform a system that checks for both change in amplitude and rate of change of IBI would increase the reliability and accuracy of arrhythmia detection.
+
+V. CONCLUSION
+Atrial fibrillation is one of the leading causes of strokes, heart failure and other heart-related complications, hence why a reliable method of detection is required to intervene before the condition worsens. One of the main objectives of this research project is to build a low-cost PPG sensor and this is achieved by using a LED-photodiode combination to emit the light and detect the reflected light. The wavelength of light used is in the range of 520 nm (green light), which penetrates the tissues deep enough to acquire the blood volume variations. To achieve the second objective of this research study, a method for detecting heart arrhythmia was proposed. From the knowledge gained by conducting the literature review arrhythmia can be detected by checking the period between each heartbeat (IBI). Using the IBI values obtained and plotting a graph the rate of change of IBI can be examined. It was found that as the heart rate changes the IBI changes as well and this can be used to determine whether arrhythmia occurs. With the use of the ESP8266 Wi-Fi module for IoT and the PPG sensor, the detection of atrial fibrillation by the continuous monitoring of the PPG signal data can be made wirelessly and non-invasively and hence offering the IoT platform for the more powerful algorithm for atrial fibrillation detection by using IoT web Application Programming Interface (API) service for cloud analytics such as ThingSpeak.
+
+[10] Rahman, R, Aziz, N, Kassim, M, and Yusof, M 2017, ‘IoT-based personal health care monitoring device for diabetic patients’, IEEE, pp. 168-173
+[11] Preejith, S, Ravindran, A, Hajare, R, Joseph, J, and Sivaprakasam, M 2016, ‘A wrist worn SpO 2 monitor with custom finger probe for motion artifact removal’, IEEE 38th Annual International Conference, pp. 5777-5780.
+[12] Yang, S-H 2014, 'Internet of Things', in Wireless Sensor Networks: Principles, Design and Applications, Springer London, London, pp. 247-261.
+
+REFERENCES
+[1] Ramli, N, Youseffi, M & Widdop, P 2012, Design and fabrication of a low cost heart monitor using reflectance photoplethysmogram, Engineering and Technology International Journal of Biomedical and Biological Engineering, vol. 5, no. 8, pp. 307-316.
+[2] Toshiyo, T., Yuka, M., Masaki, S., and Masaki, Y. 2014, Wearable photoplethysmographic sensors-past and present, Electronics, vol. 3, no. 2, pp 282-302.
+[3] Al-Qazzaz, N, Abdulazez, I, and Ridha, S 2014, Simulation recording of an ECG, PCG, and PPG for feature extractions, Al-Khwarizmi Engineering Journal, vol. 10, no. 4, pp. 81- 91.
+[4] Team Valencell 2015, Optical heart rate monitoring: what you need to know, 15 October, viewed 19 October 2017, <http://valencell.com/blog/2015/10/optical-heart-rate-monitoringwhat-you-need-to-know/>.
+[5] Hey, S, Gharbi, A, Von, B, Walter, Konig, N, and Loffler, S 2009, Continuous noninvasive pulse transit time measurement for psychophysiological stress monitoring, eHealth, Telemedicine, and Social Medicine, International Conference on IEEE, pp. 113-116.
+[6] Patancheru, G 2014, Wearable heart rate measuring unit, <http://www.divaportal.se/smash/get/diva2:761214/FULLTEXT01.pdf.
+[7] Java Science 2012, Elementary Transimpedance Photodiode Amplifier Design, viewed 22 October 2017, <http://www.jensign.com/PhotodiodeAmpDesign/.>.
+[8] Johnston, W 2006, Development of a signal processing library for extraction of SpO2, HR, HRV, and RR from photoplethysmographic waveforms, Worcester Polytechnic Institute, viewed 18 Octorber 2017, <https://web.wpi.edu/Pubs/ETD/Available/etd-073106130906/unrestricted/wjohnston.pdf>.
+[9] Grokhotkov, I 2017, ESP8266 arduino core documentation, ESP8266, viewed 16 October 2017, https://media.readthedocs.org/pdf/arduinoesp8266/docs_to_readthedocs/arduino-esp8266.pdf>.
+

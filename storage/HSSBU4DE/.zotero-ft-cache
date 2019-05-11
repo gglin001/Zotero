@@ -1,0 +1,95 @@
+Chinese Journal of Medical Instrumentation
+
+研究与论著
+
+2011 年 35 卷 第 5 期
+
+文章编号：1671-7104(2011)05-0341-04
+
+基于加速度、光电传感器的健身伴侣的研究
+
+【作
+
+者】 石鑫栋，程阳，张钰，张珣*
+
+杭州电子科技大学 电工电子国家级实验教学示范中心，浙江，杭州，310018
+
+【摘
+
+要】 针对现有计步器功能过于单一的缺点，提出了一种基于加速度传感器的智能健身伴侣。利用一款低成本单芯片3轴加速度
+
+传感器MMA7260完成对人体运动信息的提取与分析，由OPT101光电传感器完成对人体心率信号的检测以及分析，以及使
+
+用微控制器PIC18F4520完成了自适应计步模型算法，并搭建了心率检测硬件电路。实验结果表明，本文提出的健身伴侣
+
+能够准确显示被测者的心率波形，并且计步准确率高达90%以上。
+
+【关 键 词】 加速度传感器；计步器；心率检测；光电传感器
+
+【中图分类号】 TP212
+
+【文献标志码】 A
+
+doi:10.3969/j.issn.1671-7104.2011.05.006
+
+Research on Intelligent Fitness Partner based on the Acceleration and Photoelectric Sensors
+【 Writers 】 Shi Xindong, Cheng Yang, Zhang Yu, Zhang Xun* Electrical and Electronic National Experimental Teaching Center, Hangzhou Electronics and Science University, Hangzhou, Zhejiang 310018, China
+【 Abstract 】 Due to the drawbacks of the single function for the existing pedometers, this paper proposes an intelligent ﬁtness partner based on the acceleration and photoelectric sensors.Through low-cost and single-chip three axles acceleration sensors MMA7260, it extracts and analysis the human’s sports information. Furthermore, it detects and analyses the human’s heart rate signal, by using the photoelectric sensor. Microcontroller PIC18F4520 is used to realize the algorithm of adaptive step counting model, and the heart rate detection circuit is also set up. The experimental results show that the proposed ﬁtness partner can accurately display the heart rate wave of the testee, and the accurate rate is above 90%.
+【Key words 】 acceleration sensor, pedometers, heart rate detection, photoelectric sensor
+
+计步器是一种颇受欢迎的日常锻炼进度监控器， 可以激励人们挑战自己，增强体质。早期的计步器利用 机械开关检测步伐，是一种简单的计数器。先进的计步 器利用MEMS(微机电系统)[1]惯性传感器和复杂的软件 来精确检测真实的步伐数。目前，在很多产品中也附加 计步等功能，甚至也有专门的健身计步器。但是很少有 产品把人在运动前后的生理参数变化记录下来，从而让 用户更加科学地制定自身的健身、运动计划。 　　针对上述问题，本文设计了一种健身伴侣， 其硬件是由3轴加速度传感器MMA7260与单片机 PIC18F4520组成的测步系统，以及由光电传感器[2] OPT101组成的心率检测电路两部分构成。其中测步 系统由MMA7260捕获人体运动时加速度信号，经 PIC18F4520单片机内置的A／D转换器对其进行采样 和转换，得到人体运动时对应的特征数据，并通过自 适应的计步算法实现计步功能，同时计算人的运动时 间，估计人的运动距离和卡路里[3]的消耗量。心率检 测电路采用无创的、透射式的检测方法来监测心率，
+
+通过前置放大器将微弱的心率信号进行放大，再经过 50Hz陷波器消除工频干扰，最后使用8阶巴特沃斯低 通滤波器[4]消除其他外界干扰。
+1 计步模型的建立 本文选择“加速度”作为分析跑步或步行的
+特征参数。个体的运动包括3个分量，分别是前后 分量(“滚动”)、上下分量(“偏航”)和左右分量 (“俯仰”)。 　　图1描绘了一个步伐，我们将其定义为单位步行 周期，图中显示了步行周期各阶段与竖向和前向加速 度变化之间的关系[5]。
+加速度传感器MMA7260检测其3个轴——x、y和 z上的加速度。在测试过程中计步器处于未知方向， 因此测量精度不依赖于运动轴与加速度计测量轴之间 的关系。
+
+收稿日期：2011-05-31 基金项目：浙江省大学生科技创新活动计划（新苗人才计划）立项资助。
+作者简介：石鑫栋，E-mail: xindong1492@163.com 通信作者：张珣，E-mail: zhxun@hdu.edu.cn
+
+图1 加速度模式 Fig.1 Acceleration Mode
+
+341
+
+Chinese Journal of Medical Instrumentation
+
+研究与论著
+
+2011 年 35 卷 第 5 期
+
+图2显示了一名跑步者的前后分量、上下分量和 左右分量加速度相对应的x、y和z轴测量信号的典型 波形。无论如何穿戴计步器，总有至少一个轴具有相 对较大的周期性加速度变化，利用各轴的加速度的平 方和再开方拟合出人体运动时平均合加速度，如图3 所示，这样计步器无论处于什么位置，都可以利用合 加速度分析人体运动规律。
+图2 两个步伐期间各轴的加速度变化 Fig.2 The changes of three axes’ acceleration during two paces
+图3运动时平均合加速度变化 Fig.3 Average acceleration changes in the co-movement
+2 计步算法实现 　　本文提出的计步算法主要有数字滤波器、自适应 阈值更新、时间窗口以及计数规则四部分组成。 　　(1) 数字滤波器 在得到合加速度的基础上，为 使图4所示的信号波形变得平滑，需要对于其进行滤 波。本文使用4个寄存器和一个求和单元构成数字滤 波器，可以消除随机出现的信号突变。 　　(2) 自适应阈值更新 系统每采样50次更新一次3 轴加速度的最大值(Max)和最小值(Min)。自适应阈值 由上限阈值(dynThreMidh)和下限阈值(dynThreMidl) 组成，上限阈值为： Min + (Max - Min)*0.65；下限 阈值为：Min + (Max - Min)*0.35。接下来的50次采样 利用此阈值判断个体是否迈出步伐。
+
+　　若加速度曲线（50个采样点）存在连续高于上限 动态阈值（sample> dynThreMidh）和低于下限动态 阈值(sample< dynThreMidl)的采样点，就存在着一个 单位步行周期。 　　上述步行周期的判断方法会将步行或跑步之外 的迅速或缓慢的振动误判断为步行。为了准确地找 到有效步伐，利用“时间窗口”和“计数规则”克 服误判。
+(3) 时间窗口 用于排除无效振动。假设人最快的 跑步速度为每秒5步，最慢的步行速度为每2秒1步， 将时间窗口设置为[0.2 s - 2.0 s]，若单位步行周期超 出该时间窗口[6]，则此步伐被排除。
+(4) 计数规则 用于确定当前步伐是否属于某一 步行节奏规则[7]。步伐计数器有两个工作模式：搜索 模式和确认模式。步伐计数器从搜索模式开始工作。 假设经过4个连续有效步伐后，存在某种步行节奏规 则，那么步伐计数器就会刷新和显示结果，并进入 “确认模式”工作。在确认模式下工作时，每经过一 个有效步伐，步伐计数器就会更新一次。但是，如果 发现一个无效步伐，步伐计数器就会返回搜索模式， 重新搜索4个连续有效步伐。
+图4显示了步伐参数的算法流程图。其中X_ sum、Y_sum、Z_sum分别为X轴、Y轴、Z轴方向上 连续4次采样的加速度之和，而X_result、Y_result、 Z_result分别为这3轴方向上所对应的平均加速度。
+3 计步硬件电路实现 计步硬件电路主要有传感器模块、控制模块、
+显示模块和实时时钟模块四个模块组成，如图5所 示。控制模块内部集成A/D转换和内部EEPROM。传 感器模块将模拟信号送入控制模块的内部A/D，通过 计算、分析判断是否为有效记步，并把相关运动信
+图4步伐参数的算法流程图 Fig.4 The Algorithm ﬂow chart of calculating the pace parameters
+
+342
+
+Chinese Journal of Medical Instrumentation
+
+研究与论著
+
+2011 年 35 卷 第 5 期
+
+图5 计步硬件电路的结构框图 Fig5. The block diagram of the step hardware circuit
+息显示在液晶屏上。另外，用户可以设置一些个人 信息，并存储在内部EEPROM，下次启动的时候， 控制模块将主动读入用户信息。显示模块用于显示 用户跑步的步数、里程、持续时间、平均速度以及 消耗的卡路里。
+4 心率检测电路 透射式心率检测原理是依据Lambert—Beer定律
+[8]，当一束单色光通过溶液介质时，吸光度与溶液的 浓度和溶液层的厚度的乘积成正比[9]。当透光区域动 脉血管搏动时，动脉血液对光的吸收量将随之变化， 而皮肤、肌肉、骨骼和静脉血管等其他组织对光的吸 收可认为是恒定不变的，其采样模型如图6所示。
+图6 心率信号采样模型 Fig.6 Heart rate signal sampling model
+心率检测电路主要有传感器信号采集以及前端信 号放大、信号处理三部分组成。其中，传感器信号采 集以及前端信号放大，主要采用集成前端放大的光电 传感器OPT101来实现。图6中发光器件(RED-LED和 IR-LED)是由波长为660nm的红光和940nm的红外光 发射管组成。在前端放大电路中，使用20M的反馈电 阻。放大后其输出端用示波器测量，信号在100mv左 右，但是信号严重淹没在50 HZ干扰之中，实际波形 如图7所示。 　　信号处理部分主要由跟随器、后端放大电路及8 阶巴特沃斯低通滤波器三部分组成。经前端放大后信 号先经跟随器，再反向放大10倍，此时心率信号幅度 达到1 v左右。接下来，采用8阶巴特沃斯低通滤波器 滤波，截止频率在实现时调整至20 Hz。此时，输出 端采集到的心率信号波形光滑，如图8所示。
+
+图7 OPT101输出信号波形 Fig.7 Output Signal Waveform of OPT101
+图8 放大、滤波后的信号波形 Fig.8 Ampliﬁed, ﬁltered signal waveform
+5 结语 　　本文设计的健身伴侣主要由心率信号采集以 及相应信号处理模块和基于加速度传感器的智能 控制分析模块两部分组成。采用了加速度传感器 MMA7260[10]、光电传感器OPT101以及低功耗微控制 器PIC18F4520等硬件实现。实物测试结果表明，本 文提出的健身伴侣计步的精度达到了90％以上，整机 工作时电流在3 mA左右，心率波形输出较稳定。本 文设计的健身伴侣适合应用于手持式设备，具有体积 小，功耗低等优点，同时为科学健身提供了依据。
+参考文献 [1] Najafi N, Ludomirsky A.Initial animal studies of a wireless,
+batteryless, MEMS implant for cardiovascular applications [J]. Biomedical Micro devices, 2004, 6(1): 61—65. [2] 侯向锋, 刘蓉, 周兆丰. 加速度传感器MMA7260在步态特征提取 中的应用[J] .传感技术学报, 2007, 20(3): 507-511. [3] 苏丽娜, 董金明, 赵琦. 基于加速度传感器的计步器系统[A]. 全国 第二届嵌入式技术联合学术会议论文集[C], 2007, 1-4. [4] 陈晓冰, 刘辉辉, 李小玲. 透射式血氧饱和度检测方法研究[J]. 电 子测试, 2009, (12): 1-4. [5] 曹辉, 何波. 基于蓝牙传输的脉搏血氧饱和度监测系统设计[J].微 计算机信息, 2007, 23(9-1): 104-106. [6] 文耀锋. 一种实时的跌倒姿态检测和心率监护系统的研究[D]. 博 士论文, 浙江大学生仪学院, 2008 [7] 周洪建. 可穿戴式无创血氧饱和度监测仪的设计[J]. 中国医疗设 备, 2008, 23(1): 21-23. [8] 谢正洋. 无创血氧饱和度的测量及无线监测系统的研制[D]. 硕士 论文, 苏州大学, 2009 [9] 严新忠, 杨静, 郭略. 人体血氧饱和度监测方法的研究[J].医疗装 备, 2005, 18(12): 1-3. [10] MMA7260A[EB/OL].http: //www.freescale.com/ﬁles/sensors/doc/ data_sheet/MMA7260QT.pdf?pspll=1
+
+343
+

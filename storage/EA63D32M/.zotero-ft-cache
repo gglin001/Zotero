@@ -1,0 +1,626 @@
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+journal homepage: www.intl.elsevierhealth.com/journals/cmpb
+
+gHRV: Heart rate variability analysis made easy
+L. Rodríguez-Lin˜ ares ∗, M.J. Lado, X.A. Vila, A.J. Méndez, P. Cuesta
+Department of Computer Science, ESEI, University of Vigo, Spain1
+
+article info
+Article history: Received 10 August 2013 Received in revised form 3 April 2014 Accepted 15 April 2014
+Keywords: Heart rate variability Open source Signal processing
+
+abstract
+
+In this paper, the gHRV software tool is presented. It is a simple, free and portable tool
+
+developed in python for analysing heart rate variability. It includes a graphical user interface
+
+and it can import ﬁles in multiple formats, analyse time intervals in the signal, test statistical
+
+signiﬁcance and export the results.
+
+This paper also contains, as an example of use, a clinical analysis performed with the
+
+gHRV tool, namely to determine whether the heart rate variability indexes change across
+
+different stages of sleep.
+
+Results from tests completed by researchers who have tried gHRV are also explained: in
+
+general the application was positively valued and results reﬂect a high level of satisfaction.
+
+gHRV is in continuous development and new versions will include suggestions made by
+
+testers.
+
+© 2014 Elsevier Ireland Ltd. All rights reserved.
+
+1. Introduction
+Cardiovascular diseases (CVDs) are one of the most important causes of death in developed countries. The American Heart Association (AHA) elaborates each year statistics on heart disease, stroke, other vascular diseases, and their risk factors, and, in the 2013 report, it is stated that the percentage of mortality rates due to CVDs was 40.6% for high blood pressure; 13.7% for smoking; 13.2% for poor diet; 11.9% for insufﬁcient physical activity; and 8.8% for abnormal glucose levels [1].
+Given the high incidence of cardiac diseases, much research efforts are devoted to this subject: several systems and algorithms have been already developed to help clinicians in detecting and classifying heart defects (arrhythmias, heart blocks, etc.) [2,3] and respiratory diseases [4–6].
+The heart rate (HR) can be deﬁned as the number of heartbeats per unit of time, usually minutes. At rest, the normal
+
+heart rate for adults ranges from 60 to 100 beats/min, and a lower heart rate usually means a more efﬁcient heart function and better cardiovascular ﬁtness. However, heart rate is not constant, and presents variations as a means to adapt to internal and external stress factors. Heart rate variability (HRV) refers to the beat-to-beat alterations in heart rate. These alterations can be detected by time-domain, frequency-domain, and non-linear analysis of the electrocardiogram (ECG).
+One of the most used techniques is spectral analysis, which provides a quantitative analysis and an evaluation of the neurovegetative nervous system. The LF (low frequency) components, with frequencies ranging from 0.04 to 0.15 Hz, is inﬂuenced by both sympathetic and parasympathetic systems, while HF (high frequency) components, containing frequency components greater than 0.15 Hz, estimate the parasympathetic tone related to respiratory rhythm [7]. There are many possibilities in this approach: in [8] other spectral regions are proposed, while in [9] a different method of spectral estimation is applied.
+
+∗ Corresponding author at: Escuela Superior de Ingeniería Informática As Lagoas, s/n 32004 Ourense, Spain. Tel.: +34 988387012/986813929; fax: +34 988387001.
+E-mail addresses: leandro@uvigo.es (L. Rodríguez-Lin˜ ares), mrpepa@uvigo.es (M.J. Lado), anton@uvigo.es (X.A. Vila), mrarthur@uvigo.es (A.J. Méndez), pcuesta@uvigo.es (P. Cuesta).
+1 http://www.milegroup.net http://dx.doi.org/10.1016/j.cmpb.2014.04.007 0169-2607/© 2014 Elsevier Ireland Ltd. All rights reserved.
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+2
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+Apart from the LF and HF parameters, other interesting HRV index is the LF/HF ratio, that can be a good method for measuring the balance between the sympathetic and parasympathetic systems. LF/HF ratio could also serve as an estimator of sympathetic activity comparing it with HF power [7]. In this way, HRV turns out to be a non-invasive electrophysiology test for studying several diseases, such as myocardial infarction [10], diabetes [11], or sleep apnea [12] and clinical consensus has been achieved on the utility of HRV for diagnosis of the previous diseases [13]. For myocardial infarction, spectral analysis in patients who have survived an acute infarction indicated a reduction in total and individual power spectral components [10]; then, HRV analysis can be used as an indicator of risk. In neuropathy associated with diabetes mellitus, a reduction in time-domain values of HRV indicates a negative prognostic value, and also precedes the clinical expression of autonomic neuropathy [11]. Besides, it has also been reported a very reduced HRV value in patients with a recent heart transplant [14] and an undetectable LF spectral band in many tetraplegic patients [15].
+In the time-domain analysis, several parameters are usually calculated [13]: (i) SDNN: standard deviation of intervals between consecutive heart beats, (ii) pNN50: proportion of interval differences of successive intervals greater than 50 ms., (iii) r-MSDD: root mean square of successive differences, (iv) IRRR: difference between third and ﬁrst quartile of the intervals distribution, (v) MADRR: median of the absolute differences of the RR intervals, (vi) TINN: the triangular interpolation of intervals histogram, and (vii) HRVi: integral of the density distribution divided by the maximum of the density distribution. Time-domain variables, for example, indicate that HRV is higher in trained individuals compared with their age- and weight-matched sedentary controls, and it was shown that there was a strong correlation between these variables and age and sex [16].
+Referring to non-linear analysis, a Poincaré plot is a visual representation of the dependence between successive RR intervals which indicates the degree of the heart failure in a subject [17,18]. This plot is often quantiﬁed by ﬁtting to an ellipse where SD1 and SD2 are the semi-axis of this ellipse. SD1 is related to the fast beat-to-beat variability in the data, while SD2 describes the longer-term variability, SD1/SD2 showing the ratio of short interval variation to the long interval variation. Other useful parameter is Approximate Entropy (ApEn), a measure of the disorder in the HR signal which quantiﬁes the regularity and complexity of time series [19]. Finally, Fractal Dimension (FracDim) is also considered as a measure of complexity [20].
+Given the proved value of HRV analysis, several studies have dealt with the possibility of employing HRV parameters for developing screening programs in routine medical procedures. Heitmann et al. developed a screening tool for a ﬁrst diagnosis of general practitioners, based on the application of linear and non-linear methods of short-term HRV analysis in both young and elderly men [21]. Haney and Wiklund studied the possibility of using HRV analysis as a screening tool for anesthesia-related hypotension [22]. Obstructive sleep apnea screening employing HRV was developed by Roche et al., concluding that this method can be an accurate and inexpensive screening tool [23].
+
+Commercially available equipment for ECG monitoring, which normally offers robustness and constant updating, does not usually include functionalities for HRV analysis. This is due to the fact that HRV analysis has not been yet included in the standard diagnostic protocols and thus, manufacturers have not considered this a priority when developing software systems. Because of this, these applications, even if they have part of the required functionality, are not always the adequate tools to cope with the speciﬁc requirements. However, an increasing number of developers and researchers do not resign to these limitations, and develop their own computer programs, adapted to their particular needs.
+This paper presents a software tool for HRV analysis, that can be easily executed on Windows, GNU Linux or Apple OS X operating systems. Furthermore, it is open-source and very ﬂexible, in terms of both data format and processing possibilities. The rest of the paper is organized as follows: in Section 2 we brieﬂy review the state of the art in the ﬁeld of tools for HRV analysis. Features of gHRV are described in depth in Section 3, while Section 4 contains an example of analysis of an electrocardiographic record. Finally, conclusions and future work are presented.
+2. Background
+Heart rate variability analysis was introduced in electrocardiographic monitoring equipment between 1980 and 2000 as a very simple tool in the time and frequency domains, and at ﬁrst it was very little user-conﬁgurable [24]. Nowadays, monitoring equipment have expanded their capabilities and speciﬁc software tools for HRV analysis are increasingly emerging, as stated in Section 1.
+A very well designed commercial tool for HRV is aHRV [25]. This software, developed by Nevrokard, imports data in many formats, and includes time and frequency analyses and a graphical user interface. Nevrokard also offers two programs complementary to aHRV: LT-HRV (to perform analysis of segmented ECG data) or OSAS (speciﬁcally tailored to the screening of obstructive sleep apnea patients).
+Another proprietary software which can be used for HRV is LabVIEW, a system-design platform and development environment. LabVIEW is focussed to system designers (hardware and software) and it includes signal processing functionalities that make it possible to create custom HRV analysis applications [26].
+Most free applications offer time and frequency domain analyses. Some of them include a graphical user interface (GUI), and can be used by a wide spectrum of users. In [27], Tarvainen et al. presented Kubios-HRV, a Matlab-based and multi-platform tool. It imports ASCII ﬁles, as well as data ﬁles, from Polar and Suunto heart rate monitors. It has a welldesigned graphical interface and performs analysis in time and frequency domains, as well as non-linear dynamical studies. Kudrynski et al. developed a GUI software for dealing with HRV, T-wave alternans and heart rate turbulence analysis from ECGs [28]. Kaufmann et al. presented ARTiiFACT [29], a tool for processing artifacts and analysing cardiac variability, which was written in the proprietary environment Matlab (but no Matlab license is required for executing the
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+3
+
+program). ARTiiFACT allows extraction of inter-beat intervals from ECG data, artifact processing, computation of HRV in time and frequency domains, and statistical analysis of distribution criteria. HRVAS [30] was developed using Matlab, and it can perform time domain, frequency domain, time-frequency, Poincaré, and nonlinear HRV analyses. Other software based on Matlab is Kardia [31], an open-source tool that allows the study of phasic cardiac responses, as well as the estimation of time and frequency domain HRV parameters.
+Other group of HRV software applications is composed by those that require some knowledge and programming skills, since they do not include GUI and are not as easy to use as the previously described ones. Among these applications, we can mention HRV-Toolkit [32], which does not perform non-linear analysis, and which consists of a group of command-line tools that must be run from a terminal window (a Cygwin window on MS-Windows), or by a shell script. A limitation of HRVToolkit is that it employs the WFDB (WaveForm DataBase) library [33], a set of functions for reading and writing ﬁles in the PhysioBank ﬁle format, that requires installation on systems supporting C language. PhysioBank is a collection of datasets composed by annotated, digitized physiologic signals and time series that can be easily downloaded from PhysioNet, a web portal containing an extensive database of physiologic signals and software [34]. Other software without GUI is the outdated Kaplan software [35], primarily written in Matlab.
+The main characteristics of these tools are summarized in Table 1. The proprietary ones are not very appropriated for research purposes. Some of the open source code software tools lack a graphical user interface, which makes it difﬁcult its use by an user without programming skills. Among the rest, some of them do not allow to perform non-linear analysis, and only Kubios-HRV, HRVAS and Kardia include functions for time, frequency and non-linear analysis. One major drawback of many of these tools is that researchers need access to the commercial software Matlab if they want to add or implement new algorithms. gHRV overcomes these limitations, since it is open source and it includes a GUI and functions for time, frequency and non-linear analysis of HRV.
+In a previous work, we presented RHRV, a software package for the open-source statistical environment R [36], that can be freely downloaded from the R-CRAN repository. This software tool offers functions for performing power spectral analysis of heart rate data, and has been extensively described in [37]. Brieﬂy, with RHRV spectral parameters such as LF, HF, ULF and VLF values can be calculated, as well as the LF/HF ratio. Other spectral bands can be analysed by simply varying the default frequency limits. Non-linear analysis can also be performed and functions for calculating fractal dimension and approximate entropy are also included. RHRV can deal with episodes of different types, and the analysis results can be plotted and/or exported. However, as the previous described tools, one of the most important drawbacks of RHRV lies in the absence of a GUI, thus limiting its use to people with basic programming skills.
+In [38], a very preliminar version of gHRV was presented. It only included frequency-domain analysis and a set of reduced functionalities in the GUI. The gHRV version presented in this paper implements both time-domain and nonlinear analyses,
+
+reads different formats for the data ﬁles, and its graphical interface includes a much wider set of functionalities that were not present in the ﬁrst version of gHRV.
+3. Software description
+3.1. Main characteristics
+gHRV is aimed to HRV analysis, designed for researchers or clinical professionals without requiring special skills in computer science. Fundamental aspects behind its development are ease of installation and use.
+Extracting useful information from the spectral content of the heart-rate signal usually involves a sequence of steps that deﬁne the basic features of gHRV and the processing algorithms it includes:
+• gHRV imports data ﬁles containing heart beat positions in WFDB and ASCII formats, IBI (InterBeat Intervals) ASCII ﬁles, as well as data ﬁles from Polar and Suunto heart rate monitors (HRM and SDF/STE ﬁles, respectively).
+• Preprocessing of data ﬁles comprises two steps: outliers removal and interpolation. (a) Outliers are spurious points present in the heart beat time series that may be deleted either manually or automatically. Automatic ﬁltering applies a function based on an algorithm developed by one of the authors [39], that uses adaptive thresholding for rejecting beats whose value exceeds the cumulative mean threshold while also eliminating points that are not within acceptable physiological values. (b) Frequency domain analysis requires an evenly spaced heart rate sequence that, in gHRV, is obtained using a linear interpolation method.
+• Intervals of physiological interest within the heart beat time series (such as apnea, ischemia, etc.) may be annotated making use of tags in so-called episodes. In gHRV, episodic information can be edited either graphically or manually. It can be also incorporated from ASCII ﬁles (each line containing the beginning, type, and duration of each episode), or from annotation ﬁles in PhysioBank’s format.
+• gHRV allows researchers to observe the evolution of a group of HRV indexes over time. Other HRV analysis tools only estimate global indexes (associated with the complete record) or at most specify a segment and calculate indexes associated with that segment. In gHRV users can specify an interval, or window size, and a time shift (default values are 120 and 60 s, respectively) and HRV indexes are calculated at these intervals and shown as trend diagrams. We called this a frame-based analysis. These HRV indexes are: (a) Frequency indexes: gHRV estimates, for each window, the power spectral density by means of a short-time Fourier transform by applying a Hamming window over the zero-mean signal. After that, power in ULF, VLF, LF, and HF bands, the total power and the LF/HF ratio are calculated. (b) Time indexes: gHRV allows users to observe the evolution of mean and standard deviation of heart rate, pNN50 and rMSSD.
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+4
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+Table 1 – Software tools for HRV analysis (AR, autoregressive model; MA, moving-average model; CZF, Conte, Zbilut and Federici analysis).
+
+Name
+
+Platform
+
+Frequency analysis Time domain
+
+Non-linear analysis
+
+GUI Commercial
+
+LabVIEW [26]
+
+Linux, Windows,
+
+Fourier, AR
+
+Yes
+
+OS X (Matlab)
+
+aHRV [25]
+
+Windows
+
+Fourier, AR,CZF
+
+Yes
+
+Kubios-HRV [27]
+
+Linux, Windows
+
+Fourier, AR
+
+Yes
+
+(Matlab)
+
+Kudrynski software [28]
+
+Windows (Matlab)
+
+Fourier,AR, MA
+
+Yes
+
+ARTiiFACT [29]
+
+Windows (Matlab)
+
+Fourier
+
+Yes
+
+HRVAS [30]
+
+Linux, Windows,
+
+Yes
+
+Yes
+
+OS X (Matlab)
+
+Kardia [31]
+
+Linux, Windows
+
+Fourier, AR
+
+Yes
+
+(Matlab)
+
+HRV toolkit [32]
+
+Linux, Windows,
+
+Lomb periodogram
+
+Yes
+
+OS X (C)
+
+Kaplan software [35]
+
+Matlab scripts
+
+Fourier
+
+Yes
+
+RHRV [37]
+
+Linux, Windows,
+
+Fourier, Wavelet
+
+Yes
+
+OS X (R)
+
+Poincaré plot,
+
+Yes
+
+Yes
+
+detrended ﬂuctuation
+
+Poincaré plot
+
+Yes
+
+Yes
+
+Yes
+
+Yes
+
+No
+
+No
+
+Yes
+
+No
+
+No
+
+Yes
+
+No
+
+Yes
+
+Yes
+
+No
+
+Detrended ﬂuctuation
+
+Yes
+
+No
+
+No
+
+No
+
+No
+
+ApEn ApEn, FracDim
+
+No
+
+No
+
+No
+
+No
+
+(c) Non-linear indexes: approximated entropy and fractal dimension are calculated by gHRV, following the algorithms described in [40] and [41], respectively.
+• Statistical signiﬁcance tests can be performed on any of these frequency, time-domain or non-linear indexes. gHRV implements Kolmogorov–Smirnov test [42], a nonparametric test for one-dimensional probability distributions that can be used to compare two different samples by quantifying the distance between their empirical distributions.
+• Poincaré plots provide valuable visual information on the behaviour of the heart. gHRV allows the users to create Poincaré plots where different spans of the heart rate signal can be compared making use of episodic information.
+• Besides indexes calculated frame by frame, gHRV allows users to calculate other time-domain parameters: IRRR, MADRRR, TINN and HRVi.
+3.2. Interface description
+The procedures described in the preceding section are invoked in gHRV by making use of a graphical user interface composed by several windows that are summarized in Fig. 1.
+gHRV’s main window allows users to access the basic functionalities of the tool. The interaction with the users is guided in order to minimize errors and operational problems. With this purpose, elements of the interface are enabled or disabled depending on the state of the interaction.
+As it can be observed in Fig. 2, buttons in the main window are divided by their functionalities into several areas:
+(a) Projects area: The buttons in this area allow users to import/export working sessions from/to ﬁle (default extension is .ghrv) and to clear the gHRV’s session. Besides, by making use of the Settings button, users can modify general analysis parameters of the session, namely cutoff frequencies of bands for frequency-domain analysis, interpolation frequency and frame-based analysis parameters (windows size and shift).
+(b) Heart rate data area: In this area, functionalities to load, ﬁlter and export beat time series are available. Besides,
+
+automatic or manual removal of outliers can be performed by the Filter and Edit buttons, respectively. In order to delete outliers manually, a graphical editor is provided (see Fig. 3) so that users may interactively delete ranges of points from the instantaneous heart rate series. (c) Episodes area: Functionalities for dealing with different episodes are provided by the buttons inside the Episodes area. gHRV includes two editors (graphical and text-based) that allow users to delete, create, edit or copy episodes. Each episode is characterized by a text label or tag (tags can be changed by the user) and each tag is identiﬁed by a speciﬁc color (automatically assigned) throughout all the graphic representations of the application. (d) Tools area: Once the signal is interpolated (by using the Interpolate button), the Frame-based evolution button changes its state to active, allowing users to observe the evolution of a group of HRV indexes over time, as can be seen in Fig. 4. Indexes in different episodes can be compared visually, since the tool marks time-spans corresponding to different tags in different colors. Additionally, statistical signiﬁcance tests can be performed on any of the spectral, time-domain or non-linear indexes (see Signiﬁcance button in Fig. 4). In Fig. 5 the result of such a test is presented. All these parameters or a subset of them can be exported to a text ﬁle (button Export txt in Fig. 4), and the tool offers some choices for the output format. The Poincaré plot button allows users to create Poincaré plots where different spans of the heart rate signal can be compared making use of episodic information, as can be seen in Fig. 6. The Report button creates a compact representation of all the calculations performed for the present record. This report shows the global time-domain coefﬁcients and can be saved as an html ﬁle or opened on the system’s default web browser.
+Windows in gHRV include in most cases interactive plots. The interactive functionalities depend on the speciﬁc plot and are accessed by buttons located in one of the top corners of the graph. These buttons control zoom, span, conﬁguration
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+5
+
+Fig. 1 – Main functionalities of gHRV: time-frequency and non-linear analyses can be obtained from dataﬁles. Statistical analysis can also be performed. Edition windows are provided to conﬁgure parameters or modify episodes and results can be exported to a.txt ﬁle.
+
+or allow plots to be exported as high quality pictures in the following formats: .eps, .jpg, .tiff, .png, .svg and .pdf.
+3.3. Implementation, availability and requirements
+As it was stated before, gHRV is designed for researchers or clinical professionals without requiring special skills in informatics. Therefore, a key aspect behind its development is ease of installation and use. The application is under continuous improvement, and in this paper, version 1.5 is presented. Interested users are encouraged to visit gHRV web page (http://ghrv.milegroup.net) where the most up-to-date version can be found. When the program is executed, if it detects that the computer is connected to the internet, it automatically accesses the repository and notiﬁes the user if a new version is available for downloading and installing.
+gHRV has been implemented using Python programming language, which gives clean and legible code, easing software maintenance. The tool is distributed as free software (GNU
+
+GPL license), and easy installers for Windows, Linux and OS X operating systems are available. The fact that the application is available under an open source license allows researchers with programming skills to inspect and modify the tool to their requirements.
+GNU Linux binaries are distributed as a .deb package, valid for GNU Linux distributions based on Debian packages, such as Ubuntu Linux, both 32 and 64 bits. This .deb package, when installed, checks if the packages it depends on are installed in the system and asks the user to allow the automatic downloading and installation of these dependencies.
+Windows and Apple OS X binaries are valid for both 32 and 64 bit architectures. Although gHRV depends on several additional Python libraries, Windows and OS X binaries are self-contained applications and they do not require any software to be installed on the system.
+Regarding hardware requirements, any fairly recent mainstream computer should be enough for most users to run gHRV. The most time-consuming operation is the estimation
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+6
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+Fig. 2 – gHRV’s main window showing a heart-rate signal and episodes. The buttons on the left are enabled or disabled depending on the state of the interaction.
+
+Fig. 3 – Manual elimination of outliers in gHRV: points inside rectangular areas can be removed from the signal.
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+7
+
+Fig. 4 – gHRV’s frame-based evolution window: on the right, users can select the parameters to be shown on the plot.
+
+of frame-based parameters, and, in our tests, records 2-h long were processed in less that 20 s using usual values for windows length and shift. For the display, a minimum of 1200 pixels of horizontal resolution is advisable in order to achieve a satisfactory users’ experience.
+3.4. Validation
+Comparing HRV analysis results obtained using different tools is not an easy task. The calculations involved offer many degrees of freedom, making very difﬁcult to obtain the same numerical results. Besides, many available tools calculate only global HRV parameters, while gHRV computes frame-based coefﬁcients, giving the users the possibility of studying the temporal evolution of the data or comparing different segments in a record. One very popular tool which calculates global parameters is Kubios-HRV [27] and while they are not easy to compare, results are consistent between gHRV and Kubios-HRV, as explained in Section 4.2. RHRV [37], which also adopts a frame-based approach, gives the same numerical results as gHRV does.
+4. Practical use of gHRV
+4.1. A sample run
+In order to prove the usefulness of gHRV software in clinical applications, this tool was used to perform a HRV analysis using a real polysomnographic record, freely available at the
+
+PhysioBank archives of PhysioNet [34], and we have analysed signiﬁcant differences in spectral and non-linear parameters across sleep stages [43]. In order to achieve this task, we have chosen a polysomnogram of the MIT-BIH Polysomnographic Database [44–46]. This database contains 18 polysomnograms corresponding to four, six, and seven channels with a beat annotated ECG (electrocardiogram) signal, and EEG (electroencephalogram) and respiration signals annotated with sleep stages and apnea episodes. Each recording comprises four archives: the signal ﬁle (.dat), the sleep/apnea annotations ﬁle (.st), the beat annotations archive (.ecg) and a header ﬁle (.hea) including metadata such as ECG channels, sample frequency, calibration constants, or record length.
+We selected the slp59 record, and HRV was studied at different sleep stages, verifying whether signiﬁcant differences for the different sleep episodes were present or not. Spectral bands, non-linear and time-domain parameters were studied. The duration of the slp59 record is 4 h, and it belongs to a patient that presents an apnea/hypopnea index (AHI) of 55.3. Annotations for the different sleep stages are included in the slp59.st ﬁle, labelled every 30 s according to the Rechtschaffen and Kales rules [47], as follows: W) the patient is awake; (1) sleep stage 1 (beginning of the sleep cycle, transition period between wakefulness and sleep); (2) sleep stage 2 (second stage of sleep, lasting for approximately 20 min); (3) sleep stage 3 (transitional period between light sleep and a very deep sleep); (4) sleep stage 4 (deep sleep lasting for approximately 30 min); and R) REM (Rapid Eye Movement) sleep (characterized by eye movement, increased respiration rate
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+8
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+Fig. 5 – Statistical signiﬁcance test for the LF/HF ratio, in REM and awake sleep stages. Histogram shows the distribution of the LF/HF values in these two stages.
+
+and increased brain activity). In total, 84 episodes are annotated: 31 episodes were labelled as sleep stage 1; 16 as sleep stage 2; 7 as sleep stage 3; 4 as sleep stage 4; 22 as awake; and 4 as REM sleep. Other annotations (type of apnea or legs movement) can also be found in the ﬁle; however, they were not taken into consideration for this task, since the main goal is not to perform a rigorous clinical diagnosis, but to prove the usefulness of gHRV for performing both spectral and nonlinear analysis.
+First, the slp59 electrocardiographic record was loaded into the gHRV software. To incorporate the heart rate data containing the beat positions, the Load option of the Heart rate data area was clicked and the slp59.hea ﬁle was loaded (the .ecg annotation type was selected).
+Since the main goal of this example is to analyse the different sleep stages, information about the different sleep episodes must be incorporated to the study. The gHRV software is prepared to deal with different formats of ﬁle episodes that can be downloaded from the PhysioNet website. Episodic information of the sleep stages was added to the heart rate
+
+signal by clicking on the .st ﬁle and selecting tags 1, 2, 3, 4, R and W (see Fig. 2).
+Since the normal variability of the heart rate is affected in sleep diseases, HRV may be a suitable tool for determining differences in the sleep stages given that adequate frequency bands are employed. Several works can be found in the literature employing HRV for conﬁrming increasing parasympathetic activity from wakefulness and REM over light sleep to deep sleep [12]. Spectral values that could be interesting to analyse with gHRV are power in the 0.003–0.04 Hz range (VLF or very-low frequency band) and in the 0–0.003 Hz range (ULF or ultra-low frequency band) [48].
+Approximate entropy quantiﬁes the unpredictability of ﬂuctuations in a time series (such as instantaneous heart rate) [49], and can be also estimated by gHRV. Another non-linear parameter that can be employed is fractal dimension: a geometric concept related to chaos, that underlies important aspects of the cardiac function and can reveal the presence of long-term correlations in heart rate data [41].
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+9
+
+Fig. 6 – Poincaré’s plot showing the self-similarity of data in the sleep stage 4 and the awake stage.
+
+In this case, the gHRV software was used to perform both spectral and non-linear analysis across the different sleep stages. Previously, heart rate data was ﬁltered employing adaptive thresholds in order to reject incorrect beats. As a result, the ﬁltered non-equispaced heart rate signal was obtained [39]. Although most of the artifacts are eliminated in this step, gHRV offers the user the possibility of editing manually the signal, by using the Edit button of the Heart rate data area (see Fig. 3).
+The next step was signal interpolation using the Interpolation option of the Tools area (default linear interpolation frequency is 4 Hz). As a result, a new heart rate signal, adequate for performing the spectral analysis, was obtained.
+Once the signal is interpolated, the Frame-based evolution button in the Tools area changes its state to active. But before using this button, shift of analyses windows should be changed to 10 s by using the Settings button of the Projects area. This change is convenient in this case to increase the number of analysis windows and thus to improve signiﬁcance in the statistical analysis. Then, the Frame-based evolution option in the Tools area can be clicked, and a window showing the progress of the calculation process appears. When calculation is done, spectral and non-linear parameters are presented to the user in a new window (see Fig. 4), including at the upper right hand side information about the parameters shown in the plot: frequency bands, LF/HF ratio, total spectral power, mean and standard deviation of heart rate, pNN50, rMSSD,
+
+approximate entropy (ApEn), fractal dimension (FracDim), and heart rate data employed to perform the analysis.
+By default, all the plots in gHRV show all the episodes associated to a heart rate record. This can be changed by using the Edit button of the Episodes area in gHRV’s main window (Fig. 2), which allows the user to edit episodes graphically or manually. Besides, the user can mark labels as visible/unvisible, and these changes are automatically reﬂected in all the windows of the application.
+The Signiﬁcance button in Fig. 4 performs a KolmogorovSmirnov signiﬁcance statistical study, in order to establish if spectral analysis and non-linear dynamics behave differently across different episodes of the signal. Table 2 includes results obtained when comparing the REM stage against other sleep stages, for all the available parameters. It can be observed that this is the case for some parameters, such as the LF/HF ratio, which shows statistically signiﬁcant differences for all the performed comparisons, meaning that the LF/HF ratio behaves differently for the REM stage. For non-linear parameters, signiﬁcant and non-signiﬁcant differences were found for the various sleep episodes, when compared to the REM stage. Fig. 5 shows an example of the signiﬁcance analysis window provided by gHRV.
+As previously said, another option to analyse possible differences among the various sleep stages is the Poincaré plot. As an example, Fig. 6 contains a Poincaré plot showing differences between the sleep stage 4 and the non-sleep stage.
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+10
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+Table 2 – Comparison of spectral parameters: mean values and standard deviations are presented for each parameter across different sleep stages. Shaded cells indicate signiﬁcant differences against the REM phase.
+
+REM
+
+Out REM
+
+Stage 1
+
+Stage 2
+
+Stage 3
+
+Stage 4
+
+Awake
+
+LF/HF ULF VLF LF HF Power Mean HR HR STD pNN50 rMSSD ApEn (×10−3) FracDim
+
+1.82 ± 1.30 1210 ± 1257
+609 ± 727 496 ± 356 301 ± 174 2664 ± 2109 70.65 ± 3.88 5.14 ± 1.85 26.24 ± 13.29 48.87 ± 15.26 −2.9 ± 1.9 1.23 ± 0.03
+
+2.74 ± 3.34 1401 ± 1848
+886 ± 991 683 ± 700 350 ± 255 3353 ± 2663 70.44 ± 5.14 5.49 ± 1.64 25.62 ± 13.51 47.07 ± 14.61 −2.2 ± 2.3 1.23 ± 0.04
+
+3.78 ± 3.14 1967 ± 1549 1682 ± 1042
+970 ± 572 330 ± 177 4989 ± 1712 70.52 ± 4.37 7.43 ± 1.35 26.75 ± 9.25 50.11 ± 9.26 −0.6 ± 1.5 1.24 ± 0.036
+
+1.36 ± 1.73 1177 ± 1401
+727 ± 828 673 ± 846 549 ± 277 3161 ± 2545 67.26 ± 3.19 5.04 ± 2.07 38.72 ± 11.71 57.27 ± 13.17 −2.7 ± 2.6 1.25 ± 0.04
+
+0.74 ± 0.91 1335 ± 3793
+141 ± 177 206 ± 261 280 ± 50 2664 ± 1980 68.71 ± 2.45 3.59 ± 2.66 24.13 ± 5.05 40.66 ± 3.15 −3.4 ± 2.2 1.22 ± 0.04
+
+1.40 ± 1.78 1257 ± 2203
+426 ± 695 359 ± 441 268 ± 61 2331 ± 3027 72.29 ± 3.91 4.45 ± 2.48 17.59 ± 4.28 39.09 ± 4.52 −4.1 ± 2.5 1.22 ± 0.04
+
+3.53 ± 4.33 1090 ± 1095
+733 ± 802 640 ± 638 279 ± 289 2779 ± 1983 72.02 ± 6.09 5.49 ± 1.65 19.31 ± 13.78 42.79 ± 17.75 −2.3 ± 1.9 1.22 ± 0.04
+
+4.2. Validation
+For validating gHRV, we used the same record used in Section hyperlinksec:samplerun4.1 (slp59 of the MIT-BIH Polysomnographic Database) and tried to compare numerical results against those obtained using Kubios-HRV. In order to equalize parameter estimation and methodologies in both tools, default settings in Kubios-HRV were changed to the following values:
+• Artifact correction: strong. • Samples for analysis: sample 1 (00:00:00–04:00:00). • Remove trend component: 1st order. • FFT spectrum: window width 128 s, 90% overlap.
+Time-domain and non-linear parameters, including diagonals of Poincaré plot, are very similar, as can be seen in Table 3. In frequency-domain parameters, we compared power (%) in the different bands and results are also similar. The most different parameter is LF/HF ratio: in gHRV this is estimated as the mean of LF/HF ratios for the different intervals, while it seems that Kubios-HRV gives the ratio of the total power of both bands. Using this procedure, we would have obtained 2.52 in gHRV.
+4.3. Usability tests
+One basic requirement for gHRV was its ease of use for medical or general users that are non specially skilled at computers, although familiar with HRV analysis. To assess this aspect, we
+
+Table 3 – Time domain, non-linear and frequency domain results for gHRV against Kubios-HRV.
+
+gHRV
+
+Kubios-HRV
+
+Time domain
+
+pNN50 rMSSD SDNNIDX HRVindex
+
+24.97% 47.9 ms 75.7 ms 28.2
+
+24.97% 48.13 ms 88.4 ms 24
+
+Non-linear
+
+SD1
+
+34 ms
+
+34.7 ms
+
+SD2
+
+130 ms
+
+120 ms
+
+Frequency domain
+
+LF/HF HF power LF power VLF power
+
+3.5 10.4% 26.2% 63.4%
+
+1.97 11.2% 22.04% 66.8%
+
+designed a usability test by selecting a group of researchers who had never used the application, providing them a link to download it and, after 2 weeks, asking them to complete a usability test.
+In this test, a total of 22 researchers from several countries (Spain, Portugal, Italy, Sweden, EEEE, China and UK) participated, and none of them notiﬁed problems for installing and using gHRV. After the 2 weeks trial period they were asked to ﬁll an on-line test consisting of 9 questions (included in Table 4), with possible scores ranging from 1 (strong disagreement) to 5 (strong agreement).
+The test was elaborated taking into account references on user interface evaluation [50,51], or the methods described in the excellent web site called “User Interface Usability Evaluation with Web-Based Questionnaires” maintained by G. Perlman [52]. Finally we opted for one of the tests mentioned in [52]: the one proposed by Lewis [53] called CSUQ (Computer System Usability Questionnaire). Out of the 19 questions proposed in the CSUQ, we discarded the ones we thought worst suited to the kind of software under evaluation.
+The questionnaire was completed by ten volunteers, and the results of this test are shown in Fig. 7. Since the system is easy to use, the best score was obtained in the ﬁrst question (median = 4.5), with only one score of 2 in the valuation. The overall satisfaction (question nine) was also good (median = 4), also with a single score of 2. In questions four and eight the lowest scores were obtained (median = 3 and 3.5). Question
+
+Table 4 – Questions of the usability test.
+
+1
+
+Overall, I am satisﬁed with how easy it is to use this
+
+system
+
+2
+
+I feel comfortable using this system
+
+3
+
+It was easy to learn how to use this system
+
+4
+
+The system gives error messages that clearly tell me
+
+how to ﬁx problems
+
+5
+
+Whenever I make a mistake using the system, I recover
+
+easily and quickly
+
+6
+
+It is easy to ﬁnd the information I need
+
+7
+
+The organization of information on the system screens
+
+is clear
+
+8
+
+This system has all the functions and capabilities I
+
+expect it to have
+
+9
+
+Overall, I am satisﬁed with this system
+
+Additional comments
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+11
+
+Fig. 7 – Usability test results: bars show number of answers obtained for each question (see Table 4) with possible scores ranging from 1 (strong disagreement) to 5 (strong agreement).
+
+four is about the clarity of the error messages so we took note of this opinion to improve this aspect in future versions. In question eight the volunteers were asked if the tool covers all the expected functionality. One user was clearly disappointed (1), another pretty disappointed (2) and three more dissatisﬁed (3). However, for another ﬁve users the tool offers enough functionality (4–5).
+The form allowed users to write comments. Some took the opportunity to congratulate the usefulness of the tool, but others also to make recommendations for improvements. For example they mentioned the possibility of including an Undo functionality in the ﬁltering tool, including a progress bar for computationally intensive tasks, adding more input formats or improving the zoom function. Some of these suggestions were included in the last stable version of gHRV (1.5 as we write these lines) while the rest of them will be taken into account for future versions of the application.
+Generally speaking, the application was positively valued (the average of all ratings was 3.8 and 70% of responses was 4 or 5) but there is still room for improvement.
+5. Conclusions
+In recent years, the number of tools capable of performing heart rate variability analysis has increased substantially, as it has been mentioned earlier in this paper. However, we believe that until now none of them combined the following features:
+
+• Free open-source software. • Binaries available for Windows, GNU Linux and Apple OS X
+platforms. • Capable of reading annotated ECG records and instanta-
+neous heart rate ﬁles. • Automatic and manual ﬁltering of the instantaneous heart
+rate signal. • HRV analysis in the time and frequency domains and non-
+linear analysis. • Automatic HRV analysis in different intervals or episodes. • Fully visual interface, requiring no programming skills. • Creation of reports and capability of exporting them, results,
+data and plots.
+Therefore we believe that gHRV could be useful for all researchers and clinicians who wish to develop HRV analysis without the need to become programmers. The sample run included in Section 4.1 of this paper is itself a quick user guide, complementary to the user manual available on the gHRV web site.
+gHRV is a suitable complement to other tool developed in our group: RHRV [37], a toolbox of the very well known statistical environment R, useful to researchers with certain programming skills.
+Researchers who have tried gHRV expressed a high level of satisfaction. The most remarked point is its ease of use and its intuitive nature, but they also pointed out some weaknesses and areas for improvement, such as (a) improve the
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+12
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+information and recovery possibility in case of errors, (b) implement “undo” for interpolation or signal edition, (c) improve the interactive features in plots or (d) include new algorithms or ﬁle formats. Some of the volunteers’ suggestions have already been implemented in the current version, such us an improved zoom mode for the plots, exportation of Heart Rate signals to text ﬁles in various formats, conﬁguration of axis limits in Poincaré plots or possibility of renaming episodes tags. Other suggested features will be introduced in upcoming versions.
+Acknowledgements
+We would like to acknowledge the researchers that kindly collaborated in the evaluation of this software tool and gave us feedback for improving it.
+references
+[1] American Heart Association Statistics Committee and Stroke Statistics Subcommittee, AHA statistical update heart disease and stroke statistics – 2013 update: a report from the American Heart Association, Circulation 127 (2013) e6–e245.
+[2] R. Oweis, L. Hijazi, A computer-aided ECG diagnostic tool, Comput. Methods Prog. Biomed. 81 (3) (2006) 279–284.
+[3] T. Zimmerman, T. Syeda-Mahmood, Automatic detection of heart disease from twelve channel electrocardiogram waveforms, IEEE Comput. Cardiol. (2007) 809–812.
+[4] M.J. Lado, A.J. Méndez, L. Rodríguez-Lin˜ ares, A. Otero, X.A. Vila, Nocturnal evolution of heart rate variability indices in sleep apnea, Comput. Biol. Med. 42 (12) (2012) 1179–1185.
+[5] L. Cnockaert, P.F. Migeotte, L. Daubigny, G.K. Prisk, F. Grenez, R.C. Sá, A method for the analysis of respiratory sinus arrhythmia using continuous wavelet transforms, IEEE Trans. Biomed. Eng. 55 (5) (2008) 1640–1642.
+[6] J.L. Amaral, A.J. Lopes, J.M. Jansen, A.C. Faria, P.L. Melo, An improved method of early diagnosis of smoking-induced respiratory changes using machine learning algorithms, Comput. Methods Prog. Biomed. 112 (3) (2013) 441–454.
+[7] S. Askelrod, Components of heart rate variability: basic studies, in: M. Malik, A.J. Camm (Eds.), Heart Rate Variability, Futura Publishing Company, 1995, pp. 147–163.
+[8] K. Tripathi, Very low frequency oscillations in the power spectra of heart rate variability during dry supine immersion and exposure to non-hypoxic hypobaria, Physiol. Meas. 32 (6) (2011) 717–729.
+[9] D. Melkonian, A. Korner, R. Meares, H. Bahramali, Increasing sensitivity in the measurement of heart rate variability: the method of non-stationary RR time-frequency analysis, Comput. Methods Prog. Biomed. 108 (1) (2012) 53–67.
+[10] J.T. Bigger, J.L. Fleiss, R.C. Steinman, L.M. Rolnitzky, R.E. Kleiger, J.N. Rottman, Frequency domain measures of heart period variability and mortality after myocardial infarction, Circulation 85 (1) (1992) 164–171.
+[11] A.I. Vinik, D. Ziegler, Diabetic cardiovascular autonomic neuropathy, Circulation 115 (3) (2007) 387–397.
+[12] T. Penzel, J.W. Kantelhardt, L. Grote, J.H. Peter, A. Bunde, Comparison of detrended ﬂuctuation analysis and spectral analysis for heart rate variability in sleep and sleep apnea, IEEE Trans. Biomed. Eng. 50 (10) (2003) 1143–1151.
+[13] A.J. Camm, M. Malik, J.T. Bigger, G. Breithardt, S. Cerutti, R.J. Coehn, P. Coumel, E.L. Fallen, H.L. Kennedy, R.E. Kleiger, F. Lombardi, A. Malliani, A.J. Moss, J.N. Rottman, G. Schmidt, P.J. Schwartz, D.H. Singer, Heart rate variability: standards of
+
+measurement, physiological interpretation and clinical use. Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology, Circulation 93 (5) (1996) 1043–1065. [14] K. Sands, M.L. Appel, L.S. Lilly, F.J. Schoen, G. Mudge, R.J. Cohen, Power spectrum analysis of heart rate variability in human cardiac transplant recipients, Circulation 79 (1) (1989) 76–82. [15] K. Inoue, S. Miyake, M. Kumashiro, H. Ogata, O. Yoshimura, Power spectral analysis of heart rate variability in traumatic quadriplegic humans, Am. J. Physiol. Heart Circ. Physiol. 258 (6) (1990) H1722–H1726. [16] J. Achten, A. Jeukendrup, Heart rate monitoring: applications and limitations, Sports Med. 33 (7) (2003) 517–538. [17] U.R. Acharya, O. Faust, V. Sree, G. Swapna, R.J. Martis, N.A. Kadri, J.S. Suri, Linear and nonlinear analysis of normal and CAD-affected heart rate signals, Comput. Methods Prog. Biomed. 113 (1) (2014) 55–68. [18] P.K. Stein, A. Reddy, Non-linear heart rate variability and risk stratiﬁcation in cardiovascular disease, Indian Pacing Electrophysiol. J. 5 (3) (2005) 210–220. [19] S.M. Pincus, Approximate entropy in cardiology, Jerzschrittmacherther. Elektrophysiol. 11 (3) (2000) 139–150. [20] D.T. Kaplan, M.I. Furman, S.M. Pincus, S.M. Ryan, L.A. Lipsitz, A.L. Goldberger, Aging and the complexity of cardiovascular dynamics, Biophys. J. 59 (4) (1991) 945–949. [21] A. Heitmann, T. Huebner, R. Schroeder, S. Perz, A. Voss, Ability of heart rate variability as screening tool for heart diseases in men, in: IEEE Computers in Cardiology, 2009, pp. 825–828. [22] M.F. Haney, U. Wiklund, Can heart rate variability become a screening tool for anesthesia-related hypotension, Acta Anaesthesiol. Scand. 51 (10) (2007) 1289–1291. [23] F. Roche, J.M. Gaspoz, I. Court-Fortune, P. Minini, V. Pichot, D. Duverney, F. Costes, J.R. Lacour, J.C. Barthélémy, Screening of obstructive sleep apnea syndrome by heart rate variability analysis, Circulation 100 (13) (1999) 1411–1415. [24] M. Malik, A.J. Camm, Heart Rate Variability, Futura Publishing Company, Armonk, New York, 1995. [25] aHRV. HRV analysis software, http://www.nevrokard.eu/maini/hrv.html [26] N. Instruments, Using LabVIEW for heart rate variability analysis, published on-line: http://www.ni.com/example/30832/en/ (2012). [27] M.P. Tarvainen, J.-P. Niskanen, J.A. Lipponen, P.O. Ranta-Aho, P.A. Karjalainen, Kubios HRV-heart rate variability analysis software, Comput. Methods Prog. Biomed. 113 (1) (2014) 210–220. [28] K. Kudryn´ ski, P. Strumiłło, J. Ruta, Computer Software tool for heart rate variability (HRV), T-wave alternans (TWA) and heart rate turbulence (HRT) analysis from ECGs, Med. Sci. Monit. Int. Med. J. Exp. Clin. Res. 17 (9) (2011) MT63–MT71. [29] T. Kaufmann, S. Sütterlin, S.M. Schulz, C. Vögele, ARTiiFACT: a tool for heart rate artifact processing and heart rate variability analysis, Behav. Res. Methods 43 (4) (2011) 1161–1170. [30] HRVAS. HRV Analysis Software, http://hrvas.sourceforge.net [31] P. Perakakis, M. Jofﬁly, M. Taylor, P. Guerra, J. Vila, KARDIA: A Matlab software for the analysis of cardiac interbeat intervals, Comput. Methods Prog. Biomed. 98 (1) (2010) 83–89. [32] J. E. Mietus, A. L. Goldberger, Heart rate variability analysis with the HRV Toolkit, http://physionet.org/tutorials/hrv-toolkit [33] The WFDB Software Package, http://www.physionet.org/physiotools/wfdb.shtml [34] PhysioBank, http://www.physionet.org/physiobank [35] D. Kaplan, P. Stafﬁn, Software for heart rate bariability, http://www.macalester.edu/kaplan/hrv/doc
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
+COMM-3790; No. of Pages 13
+
+ARTICLE IN PRESS
+
+c o m p u t e r m e t h o d s a n d p r o g r a m s i n b i o m e d i c i n e x x x ( 2 0 1 4 ) xxx–xxx
+
+13
+
+[36] The R. project for statistical computing, http://www.r-project.org
+[37] L. Rodríguez-Li nares, A.J. Méndez, M.J. Lado, D.N. Olivieri, X.A. Vila, I. Gómez-Conde, An open source tool for heart rate variability spectral analysis, Comput. Methods Prog. Biomed. 103 (1) (2011) 39–50.
+[38] L. Rodríguez-Lin˜ ares, A.J. Méndez, X.A. Vila, M.J. Lado, gHRV: a user friendly application for HRV analysis, in: Proceedings of the 7th Iberian Conference in information Systems and Technologies, IEEE, 2012, pp. 1–5.
+[39] J. Vila, F. Palacios, J. Presedo, M. Fernández-Delgado, P. Felix, S. Barro, Time-frequency analysis of heart-rate variability, Eng. Med. Biol. Mag. 16 (5) (1997) 119–126.
+[40] D. Kaplan, M. Furman, S. Pincus, Techniques for analyzing complexity in heart rate and beat-to-beat blood pressure signals, in: IEEE Computers in Cardiology, 1990, pp. 243–246.
+[41] S.M. Pincus, A.L. Goldberger, Physiological time-series analysis: what does regularity quantify? Am. J. Physiol. Heart Circ. Physiol. 266 (4) (1994) 1643–1656.
+[42] A. Justel, D. Pen˜ a, R. Zamar, A multivariate Kolmogorov–Smirnov test of goodness of ﬁt, Stat. Probab. Lett. 35 (3) (1997) 251–259.
+[43] F. Ebrahimi, S.-K. Setarehdan, J. Ayala-Moyeda, H. Nazeran, Automatic sleep staging using empirical mode decomposition, discrete wavelet transform, time-domain, and nonlinear dynamics features of heart rate variability signals, Comput. Methods Prog. Biomed. 112 (1) (2013) 47–57.
+[44] Y. Ichimaru, G. Moody, Development of the polysomnographic database on CD-ROM, Psychiatry Clin. Neurosci. 53 (2) (1999) 175–177.
+
+[45] A.L. Goldberger, L.A. Amaral, L. Glass, J.M. Hausdorff, P.C. Ivanov, R.G. Mark, J.E. Mietus, G.B. Moody, C.K. Peng, H.E. Stanley, PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals, Circulation 101 (23) (2000) e215–e220.
+[46] MIT-BIH polysomnographic database, http://physionet.org/physiobank/database/slpdb
+[47] A. Rechtschaffen, A. Kales, A Manual of Standardized Terminology, Techniques and Scoring System for Sleep Stages of Human Subjects, US Government Printing Ofﬁce, US Public Health Service, Washington, DC, 1968.
+[48] M. Drinnan, J. Allen, P. Langley, A. Murray, Detection of sleep apnoea from frequency analysis of heart rate variability, in: IEEE Computers in Cardiology, 2000, pp. 259–262.
+[49] S.M. Pincus, Approximate entropy as a measure of system complexity, Proc. Natl. Acad. Sci. 88 (6) (1991) 2297– 2301.
+[50] D. Bouvier, T.Y. Chen, G. Lewandowski, R. McCartney, K. Sanders, T. VanDeGrift, User interface evaluation by novices, in: Proceedings of the 17th ACM Annual Conference on Innovation and Technology in Computer Science Education, ITiCSE’12, ACM, 2012, pp. 327–332.
+[51] A. Holzinger, Usability engineering methods for software developers, CACM 48 (1) (2005) 71–74.
+[52] G. Perlman, User interface usability evaluation with web-based questionnaires, http://hcibib.org/perlman/question.html
+[53] J.R. Lewis, IBM computer usability satisfaction questionnaires: psychometric evaluation and instructions for use, Int. J. Hum. Comput. Interact. 7 (1) (1995) 57–78.
+
+Please cite this article in press as: L. Rodríguez-Lin˜ ares, et al., gHRV: Heart rate variability analysis made easy, Comput. Methods Programs Biomed. (2014), http://dx.doi.org/10.1016/j.cmpb.2014.04.007
+
